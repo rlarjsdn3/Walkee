@@ -1,0 +1,15 @@
+{
+  "originHash" : "f1d7d312160ece9ce8d1551b2fcaa9511f1bc3479a03e42546777d14ed414286",
+  "pins" : [
+    {
+      "identity" : "tsalertcontroller-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/rlarjsdn3/TSAlertController-iOS.git",
+      "state" : {
+        "revision" : "3f13cf9f0cb879052cf87d8687f717e204846bde",
+        "version" : "1.0.0"
+      }
+    }
+  ],
+  "version" : 3
+}
