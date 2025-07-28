@@ -12,7 +12,8 @@ import Foundation
 ///
 /// 앱 전반에서 공유되는 `NSPersistentContainer`와 `NSManagedObjectContext`를 관리하며,
 /// 데이터를 저장하거나 불러올 때의 핵심 역할을 수행합니다.
-final class CoreDataStack: @unchecked Sendable {
+@MainActor
+final class CoreDataStack {
 
     /// `CoreDataStack`의 전역 공유 인스턴스입니다.
     /// 싱글톤 패턴을 통해 앱 어디에서나 동일한 Core Data 구성을 사용할 수 있습니다.
@@ -106,7 +107,7 @@ extension CoreDataStack {
     ///
     /// - Parameter block: 백그라운드 컨텍스트에서 수행할 작업 블록입니다.
     /// - Throws: 작업 블록 내에서 오류가 발생할 경우 예외를 던질 수 있습니다.
-    func performBackgroundTask(_ block: @escaping (NSManagedObjectContext) throws -> Void) async rethrows {
+    nonisolated func performBackgroundTask(_ block: @escaping (NSManagedObjectContext) throws -> Void) async rethrows {
         try await persistentCotnainer.performBackgroundTask(block)
     }
 }
