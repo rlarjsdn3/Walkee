@@ -94,7 +94,7 @@ extension KeychainError: LocalizedError {
 /// `@dynamicMemberLookup`를 통해 키에 접근하는 방식을 간편하게 할 수 있으며,
 /// 싱글톤 인스턴스를 통해 전역에서 동일한 서비스 이름으로 키체인 작업을 수행할 수 있습니다.
 @dynamicMemberLookup
-final class KeychainWrapper {
+final class KeychainWrapper: @unchecked Sendable {
     
     /// `KeychainWrapper`의 전역 공유 인스턴스입니다.
     /// 기본적으로 앱의 빌드 환경에 따라 서로 다른 서비스 이름을 사용합니다.
