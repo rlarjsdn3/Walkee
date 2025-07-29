@@ -20,4 +20,4 @@ jobs:
           
         - name: 🛠️ Start Xcode Build
           run: |
-            xcodebuild clean test -workspace Example/Health.xcworkspace -scheme Health-DEBUG -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.1'
+            xcodebuild clean test -project Health.xcodeproj -scheme Health-DEBUG -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.1'
