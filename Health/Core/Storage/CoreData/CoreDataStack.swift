@@ -107,7 +107,7 @@ extension CoreDataStack {
     ///
     /// - Parameter block: 백그라운드 컨텍스트에서 수행할 작업 블록입니다.
     /// - Throws: 작업 블록 내에서 오류가 발생할 경우 예외를 던질 수 있습니다.
-    nonisolated func performBackgroundTask(_ block: @escaping (NSManagedObjectContext) throws -> Void) async rethrows {
+     func performBackgroundTask(_ block: @Sendable @escaping (NSManagedObjectContext) throws -> Void) async rethrows {
         try await persistentCotnainer.performBackgroundTask(block)
     }
 }
