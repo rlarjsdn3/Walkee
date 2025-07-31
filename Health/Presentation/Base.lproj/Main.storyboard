@@ -32,6 +32,7 @@
                 <tabBarController automaticallyAdjustsScrollViewInsets="NO" id="58F-mr-s6A" customClass="HealthTabBarController" customModule="Health" customModuleProvider="target" sceneMemberID="viewController">
                     <toolbarItems/>
                     <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="rjc-cb-Eyx" customClass="HealthTabBar" customModule="Health" customModuleProvider="target">
+                        <rect key="frame" x="0.0" y="0.0" width="1000" height="1000"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </tabBar>
@@ -104,11 +105,11 @@
             </objects>
             <point key="canvasLocation" x="1348" y="1338"/>
         </scene>
-        <!--맞춤 케어-->
+        <!--맞춤케어-->
         <scene sceneID="YV6-VK-fr7">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="T61-hQ-pv5" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="맞춤 케어" image="stethoscope.circle.fill" catalog="system" id="h6D-rQ-GWm"/>
+                    <tabBarItem key="tabBarItem" title="맞춤케어" image="stethoscope.circle.fill" catalog="system" id="h6D-rQ-GWm"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="TiV-xV-KqH">
                         <rect key="frame" x="0.0" y="118" width="393" height="44"/>
