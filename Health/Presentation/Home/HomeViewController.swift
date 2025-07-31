@@ -5,24 +5,34 @@
 //  Created by 김건우 on 7/28/25.
 //
 
-import Foundation
 import UIKit
 
-class ViewController: UIViewController {
-  override func viewDidLoad() {
-      super.viewDidLoad()
+import TSAlertController
 
-      // Do any additional setup after loading the view, typically from a nib.
+class ViewController: UIViewController, Alertable {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+    }
+    
+    @IBAction func tapped(_ sender: Any) {
+        showDestructiveAlert(
+            "Hello, World!",
+            message: "Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!",
+        ) { _ in
+            print("Tapped OK")
+        } onCancelAction: { _ in
+            print("Tapped Cancel")
+        }
 
-      let button = UIButton(type: .roundedRect)
-      button.frame = CGRect(x: 20, y: 50, width: 100, height: 30)
-      button.setTitle("Test Crash", for: [])
-      button.addTarget(self, action: #selector(self.crashButtonTapped(_:)), for: .touchUpInside)
-      view.addSubview(button)
-  }
-
-  @IBAction func crashButtonTapped(_ sender: AnyObject) {
-      let numbers = [0]
-      let _ = numbers[1]
-  }
+//        let actions = [
+//            TSAlertAction(title: "선택1"),
+//            TSAlertAction(title: "선택2"),
+//            TSAlertAction(title: "선택3")
+//        ]
+//        showFloatingSheet(
+//            "Hello, World!",
+//            message: "Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!",
+//            actions: actions
+//        )
+    }
 }

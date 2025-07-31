@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		C76CA76E2E3AE2110040EF75 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = C76CA76D2E3AE2110040EF75 /* FirebaseAnalyticsCore */; };
+		C76CA80E2E3B2D1A0040EF75 /* TSAlertController in Frameworks */ = {isa = PBXBuildFile; productRef = C76CA80D2E3B2D1A0040EF75 /* TSAlertController */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,6 +57,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C76CA80E2E3B2D1A0040EF75 /* TSAlertController in Frameworks */,
 				C76CA76E2E3AE2110040EF75 /* FirebaseAnalyticsCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -117,6 +119,7 @@
 			name = Health;
 			packageProductDependencies = (
 				C76CA76D2E3AE2110040EF75 /* FirebaseAnalyticsCore */,
+				C76CA80D2E3B2D1A0040EF75 /* TSAlertController */,
 			);
 			productName = Health;
 			productReference = C76490972E3790170062054D /* Health.app */;
@@ -521,6 +524,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C76CA76B2E3AE1F70040EF75 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAnalyticsCore;
+		};
+		C76CA80D2E3B2D1A0040EF75 /* TSAlertController */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C76491E52E37A0C30062054D /* XCRemoteSwiftPackageReference "TSAlertController-iOS" */;
+			productName = TSAlertController;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
