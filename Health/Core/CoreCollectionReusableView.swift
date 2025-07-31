@@ -6,6 +6,7 @@
 //
 
 import UIKit
+
 /// 공통 컬렉션뷰 Supplementary View (Header/Footer)의 기반 클래스입니다.
 class CoreCollectionReusableView: UICollectionReusableView {
 
