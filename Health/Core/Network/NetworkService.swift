@@ -70,8 +70,10 @@ final class NetworkService: DefaultNetworkService {
 
         var request = URLRequest(url: finalURL)
         request.httpMethod = endpoint.method
-        request.httpBody = endpoint.body
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        if let body = endpoint.body {
+            request.httpBody = body
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        }
 
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
