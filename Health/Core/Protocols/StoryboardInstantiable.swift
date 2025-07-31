@@ -43,7 +43,7 @@ extension StoryboardInstantiable where Self: UIViewController {
     /// - Parameter name: 사용할 스토리보드 이름입니다. `nil`일 경우 `storyboardName`이 사용됩니다.
     /// - Returns: 초기 뷰 컨트롤러로 지정된 `Self` 타입 인스턴스를 반환합니다.
     /// - Note: 초기 뷰 컨트롤러가 존재하지 않거나 형변환에 실패할 경우 앱이 종료됩니다.
-    static func instantiateIntialViewController(name: String? = nil) -> Self {
+    static func instantiateInitialViewController(name: String? = nil) -> Self {
         guard let vc = storyboard(name: name).instantiateInitialViewController() as? Self
         else { fatalError("could not load \(Self.self)") }
         return vc
