@@ -80,7 +80,7 @@ extension Alertable where Self: UIViewController {
         _ title: String,
         message: String? = nil,
         onDeleteAction: @escaping TSAlertActionHandler,
-        onCancelAction: @escaping TSAlertActionHandler,
+        onCancelAction: @escaping TSAlertActionHandler
     ) {
         let alert = TSAlertController(
             title: title,
