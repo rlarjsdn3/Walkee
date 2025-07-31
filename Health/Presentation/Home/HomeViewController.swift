@@ -23,16 +23,5 @@ class ViewController: UIViewController, Alertable {
         } onCancelAction: { _ in
             print("Tapped Cancel")
         }
-
-//        let actions = [
-//            TSAlertAction(title: "선택1"),
-//            TSAlertAction(title: "선택2"),
-//            TSAlertAction(title: "선택3")
-//        ]
-//        showFloatingSheet(
-//            "Hello, World!",
-//            message: "Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!",
-//            actions: actions
-//        )
     }
 }
