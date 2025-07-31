@@ -17,7 +17,7 @@ class ViewController: UIViewController, Alertable {
     @IBAction func tapped(_ sender: Any) {
         showDestructiveAlert(
             "Hello, World!",
-            message: "Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!",
+            message: "Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!"
         ) { _ in
             print("Tapped OK")
         } onCancelAction: { _ in
