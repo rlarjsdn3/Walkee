@@ -3,7 +3,7 @@ import Foundation
 /// 네트워크 요청을 처리하는 서비스의 프로토콜
 ///
 /// 네트워크 서비스의 기본 인터페이스를 정의하며, 테스트 목적으로 모킹할 수 있도록 합니다.
-protocol NetworkServicing {
+protocol DefaultNetworkService {
 
     /// 지정된 엔드포인트로 네트워크 요청을 수행합니다
     ///
@@ -26,7 +26,7 @@ protocol NetworkServicing {
 /// let endpoint = APIEndpoint.ask(content: "안녕하세요", clientID: "client123")
 /// let response = try await networkService.request(endpoint: endpoint, as: ResponseModel.self)
 /// ```
-final class NetworkService: NetworkServicing {
+final class NetworkService: DefaultNetworkService {
 
     /// API 요청의 기본 URL
     private let baseURL: URL
