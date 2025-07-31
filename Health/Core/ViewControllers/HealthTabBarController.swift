@@ -9,7 +9,7 @@ import UIKit
 
 final class HealthTabBarController: UITabBarController {
 
-    private let tabHeight: CGFloat = 86
+    private let tabHeight: CGFloat = 94
 
     override func viewDidLoad() {
         super.viewDidLoad()
