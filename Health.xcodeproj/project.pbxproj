@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1C787DA62E392091005A75D6 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 1C787DA52E392091005A75D6 /* FirebaseCrashlytics */; };
+		C76CA76E2E3AE2110040EF75 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = C76CA76D2E3AE2110040EF75 /* FirebaseAnalyticsCore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,7 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1C787DA62E392091005A75D6 /* FirebaseCrashlytics in Frameworks */,
+				C76CA76E2E3AE2110040EF75 /* FirebaseAnalyticsCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -75,6 +75,7 @@
 			children = (
 				C76490992E3790170062054D /* Health */,
 				C76490C42E3790410062054D /* HealthTests */,
+				C76CA76C2E3AE2110040EF75 /* Frameworks */,
 				C76490982E3790170062054D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -88,6 +89,13 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		C76CA76C2E3AE2110040EF75 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -98,7 +106,6 @@
 				C76490932E3790170062054D /* Sources */,
 				C76490942E3790170062054D /* Frameworks */,
 				C76490952E3790170062054D /* Resources */,
-				1C787DA72E39213A005A75D6 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -109,7 +116,7 @@
 			);
 			name = Health;
 			packageProductDependencies = (
-				1C787DA52E392091005A75D6 /* FirebaseCrashlytics */,
+				C76CA76D2E3AE2110040EF75 /* FirebaseAnalyticsCore */,
 			);
 			productName = Health;
 			productReference = C76490972E3790170062054D /* Health.app */;
@@ -169,7 +176,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				C76491E52E37A0C30062054D /* XCRemoteSwiftPackageReference "TSAlertController-iOS" */,
-				1C787DA42E392091005A75D6 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				C76CA76B2E3AE1F70040EF75 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C76490982E3790170062054D /* Products */;
@@ -198,32 +205,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		1C787DA72E39213A005A75D6 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}",
-				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}",
-				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist",
-				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/GoogleService-Info.plist",
-				"$(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)",
-				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}.debug.dylib",
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		C76490932E3790170062054D /* Sources */ = {
@@ -258,7 +239,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = JTXDAQ58BH;
+				DEVELOPMENT_TEAM = 4DQM269FVB;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Health/Resources/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -272,6 +253,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.est-3rd.Health";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -292,7 +274,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = JTXDAQ58BH;
+				DEVELOPMENT_TEAM = 4DQM269FVB;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Health/Resources/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -306,6 +288,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.est-3rd.Health";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -354,7 +337,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 4DQM269FVB;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -378,7 +361,6 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = "-ObjC";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -436,7 +418,6 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				OTHER_LDFLAGS = "-ObjC";
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
@@ -517,14 +498,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		1C787DA42E392091005A75D6 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 12.0.0;
-			};
-		};
 		C76491E52E37A0C30062054D /* XCRemoteSwiftPackageReference "TSAlertController-iOS" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/rlarjsdn3/TSAlertController-iOS.git";
@@ -533,13 +506,21 @@
 				minimumVersion = 1.0.0;
 			};
 		};
+		C76CA76B2E3AE1F70040EF75 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		1C787DA52E392091005A75D6 /* FirebaseCrashlytics */ = {
+		C76CA76D2E3AE2110040EF75 /* FirebaseAnalyticsCore */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1C787DA42E392091005A75D6 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseCrashlytics;
+			package = C76CA76B2E3AE1F70040EF75 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsCore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
