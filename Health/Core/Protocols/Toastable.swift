@@ -65,11 +65,12 @@ extension Toastable where Self: UIViewController {
         UIView.animate(withDuration: 0.5, animations: {
             toastContainer.alpha = 1
         }) { _ in
-            UIView.animate(withDuration: 0.5,
-                           delay: duration,
-                           options: .curveEaseOut,
-                           animations: { toastContainer.alpha = 0 },
-                           completion: { _ in toastContainer.removeFromSuperview() }
+            UIView.animate(
+                withDuration: 0.5,
+                delay: duration,
+                options: .curveEaseOut,
+                animations: { toastContainer.alpha = 0 },
+                completion: { _ in toastContainer.removeFromSuperview() }
             )
         }
     }
