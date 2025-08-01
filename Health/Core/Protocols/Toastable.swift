@@ -8,7 +8,7 @@
 import UIKit
 
 @MainActor
-protocol ToastPresentable {
+protocol Toastable {
     
     /// 화면 하단에 토스트 메시지를 띄웁니다.
     ///
@@ -18,10 +18,10 @@ protocol ToastPresentable {
     func showToast(message: String, duration: TimeInterval)
 }
 
-extension UIViewController: ToastPresentable {}
+extension UIViewController: Toastable {}
 
 @MainActor
-extension ToastPresentable where Self: UIViewController {
+extension Toastable where Self: UIViewController {
     /// 화면 하단에 캡슐 형태의 토스트 메시지를 띄웁니다.
     /// - Parameters:
     ///   - message: 표시할 문자열
@@ -69,7 +69,8 @@ extension ToastPresentable where Self: UIViewController {
                            delay: duration,
                            options: .curveEaseOut,
                            animations: { toastContainer.alpha = 0 },
-                           completion: { _ in toastContainer.removeFromSuperview() })
+                           completion: { _ in toastContainer.removeFromSuperview() }
+            )
         }
     }
 }
