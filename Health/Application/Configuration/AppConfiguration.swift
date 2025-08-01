@@ -19,7 +19,7 @@ import Foundation
 ///
 /// ## 사용 예시
 /// ```swift
-/// let networkService = NetworkService(baseURL: AppConfiguration.baseURL)
+/// let networkService = DefaultNetworkService(baseURL: AppConfiguration.baseURL)
 /// ```
 struct AppConfiguration {
 
