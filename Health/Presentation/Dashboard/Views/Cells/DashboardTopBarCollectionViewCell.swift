@@ -10,12 +10,16 @@ import UIKit
 final class DashboardTopBarCollectionViewCell: CoreCollectionViewCell {
 
     @IBOutlet private weak var containerView: UIView!
-    @IBOutlet private weak var titleLabel: UILabel!
+
+    @IBOutlet weak var weekDayLabel: UILabel!
+    @IBOutlet weak var dateLabel: UILabel!
 
     override func setupAttribute() {
         super.setupAttribute()
 
-        titleLabel.text = "Hello, World!"
-        containerView.backgroundColor = .systemBlue
+        weekDayLabel.text = Date.now.formatted(using: .weekday)
+        dateLabel.text = Date.now.formatted(using: .md)
+
+        containerView.backgroundColor = .systemBlue // for debug..
     }
 }
