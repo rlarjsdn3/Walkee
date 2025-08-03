@@ -22,8 +22,7 @@ class CoreGradientViewController: CoreViewController {
 		super.viewDidLayoutSubviews()
 		updateGradientFrameIfNeeded()
 	}
-	
-	@available(iOS 13.0, *)
+
 	override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
 		super.traitCollectionDidChange(previousTraitCollection)
 		
