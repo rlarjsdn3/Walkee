@@ -72,8 +72,8 @@ extension DashboardContent.Section {
 
         let section = NSCollectionLayoutSection(group: group)
         section.contentInsets = NSDirectionalEdgeInsets(
-            top: 0, leading: LayoutString.defaultInset,
-            bottom: 0, trailing: LayoutString.defaultInset
+            top: 0, leading: UICollectionViewConstant.defaultInset,
+            bottom: 0, trailing: UICollectionViewConstant.defaultInset
         )
         return section
     }

@@ -5,12 +5,12 @@
 //  Created by 김건우 on 8/1/25.
 //
 
-import Foundation
+import UIKit
 
-typealias LayoutString = String.Layout
-extension String {
+typealias UICollectionViewConstant = UICollectionView.Constant
+extension UICollectionView {
 
-    struct Layout {
+    struct Constant {
 
         /// 문자열을 표시할 때 사용할 기본 여백 값입니다.
         ///
