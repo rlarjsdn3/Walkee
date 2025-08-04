@@ -25,6 +25,8 @@ final class AlanViewModel {
         }
     }
 
+    // TODO: SSE Streaming 추가
+
     func resetAgentState() async {
         let endpoint = APIEndpoint.resetState(clientID: clientID)
 
