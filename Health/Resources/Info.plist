@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>AlanCurrentClientID</key>
+	<string>$(CURRENT_CLIENT_ID)</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -16,12 +18,10 @@
 					<key>UISceneDelegateClassName</key>
 					<string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
 					<key>UISceneStoryboardFile</key>
-					<string>Main</string>
+					<string>Onboarding</string>
 				</dict>
 			</array>
 		</dict>
 	</dict>
-	<key>AlanCurrentClientID</key>
-	<string>$(CURRENT_CLIENT_ID)</string>
 </dict>
 </plist>
