@@ -9,7 +9,7 @@ final class CalendarViewController: CoreViewController {
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.collectionViewLayout = createCompositionalLayout()
-        collectionView.register(CalendarMonthCell.self, forCellWithReuseIdentifier: CalendarMonthCell.reuseIdentifier)
+        collectionView.register(CalendarMonthCell.self, forCellWithReuseIdentifier: CalendarMonthCell.id)
         collectionView.backgroundColor = .systemBackground
     }
 
