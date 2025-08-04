@@ -14,7 +14,7 @@ class OnboardingViewController: CoreViewController {
     private let descriptionLabel: UILabel = {
         let label = UILabel()
         label.text = "사용자에게 더 정확한 운동측정과 맞춤 추천을 제공하기 위해 사용자 입력 정보가 필요합니다."
-        label.textColor = .white
+        label.textColor = .label
         label.font = UIFont.systemFont(ofSize: 14)
         label.numberOfLines = 0
         label.textAlignment = .center
@@ -24,9 +24,9 @@ class OnboardingViewController: CoreViewController {
     private let continueButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("다음", for: .normal)
-        button.backgroundColor = UIColor.cyan 
-        button.setTitleColor(.black, for: .normal)
-        button.layer.cornerRadius = 20
+        button.backgroundColor = UIColor.accent
+        button.setTitleColor(.label, for: .normal)
+        button.layer.cornerRadius = 10
         button.isEnabled = true
         return button
     }()
@@ -34,7 +34,7 @@ class OnboardingViewController: CoreViewController {
     private let pageIndicatorStack: UIStackView = {
         let stack = UIStackView()
         stack.axis = .horizontal
-        stack.spacing = 12
+        stack.spacing = 6
         stack.distribution = .fillEqually
         return stack
     }()
@@ -45,7 +45,6 @@ class OnboardingViewController: CoreViewController {
     
     override func viewDidLoad() {
           super.viewDidLoad()
-          view.backgroundColor = .black
           continueButton.addTarget(self, action: #selector(continueButtonTapped), for: .touchUpInside)
       }
     
@@ -71,7 +70,7 @@ class OnboardingViewController: CoreViewController {
             continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
             continueButton.heightAnchor.constraint(equalToConstant: 48),
             
-            pageIndicatorStack.topAnchor.constraint(equalTo: view.topAnchor, constant: 80),
+            pageIndicatorStack.topAnchor.constraint(equalTo: view.topAnchor, constant: 78),
             pageIndicatorStack.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             pageIndicatorStack.heightAnchor.constraint(equalToConstant: 4),
             pageIndicatorStack.widthAnchor.constraint(equalToConstant: 320)
@@ -83,12 +82,12 @@ class OnboardingViewController: CoreViewController {
         
         for i in 0..<4 {
             let bar = UIView()
-            bar.backgroundColor = (i <= currentPage) ? .cyan : .darkGray
+            bar.backgroundColor = (i <= currentPage) ? .accent : .buttonBackground
             pageIndicatorStack.addArrangedSubview(bar)
         }
     }
     
     @objc private func continueButtonTapped() {
-        performSegue(withIdentifier: "goToHealthInfo", sender: self)
+        performSegue(withIdentifier: "goToGenderInfo", sender: self)
     }
 }

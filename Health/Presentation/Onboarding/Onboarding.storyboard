@@ -35,28 +35,77 @@
                     <navigationItem key="navigationItem" id="IeC-4y-Zir"/>
                     <connections>
                         <outlet property="appImageView" destination="t5L-9X-9pv" id="Ccx-mn-oY0"/>
-                        <segue destination="hrK-kw-Dwx" kind="show" identifier="goToHealthInfo" id="MAO-jl-UCP"/>
+                        <segue destination="hrK-kw-Dwx" kind="show" identifier="goToGenderInfo" id="MAO-jl-UCP"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ief-a0-LHa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1064.885496183206" y="18.30985915492958"/>
         </scene>
-        <!--Health Info View Controller-->
+        <!--Gender Select View Controller-->
         <scene sceneID="xHn-0h-gde">
             <objects>
-                <viewController id="hrK-kw-Dwx" customClass="HealthInfoViewController" customModule="Health" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="hrK-kw-Dwx" customClass="GenderSelectViewController" customModule="Health" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Toy-Hh-iBE">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="45" translatesAutoresizingMaskIntoConstraints="NO" id="Gw1-JA-F1Z">
+                                <rect key="frame" x="74" y="376" width="245" height="100"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TCQ-d8-z0K">
+                                        <rect key="frame" x="0.0" y="0.0" width="100" height="100"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="100" id="Q4P-mG-Oag"/>
+                                            <constraint firstAttribute="height" constant="100" id="uqm-7P-a9g"/>
+                                        </constraints>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="여성" cornerStyle="capsule"/>
+                                        <connections>
+                                            <action selector="selectedFM:" destination="hrK-kw-Dwx" eventType="touchUpInside" id="Bbt-yB-8ar"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JsL-Wl-VOl">
+                                        <rect key="frame" x="145" y="0.0" width="100" height="100"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="남성" cornerStyle="capsule"/>
+                                        <connections>
+                                            <action selector="selectedM:" destination="hrK-kw-Dwx" eventType="touchUpInside" id="bNO-h2-b6Z"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="JsL-Wl-VOl" firstAttribute="height" secondItem="TCQ-d8-z0K" secondAttribute="height" id="PcA-gd-fUx"/>
+                                    <constraint firstItem="JsL-Wl-VOl" firstAttribute="width" secondItem="TCQ-d8-z0K" secondAttribute="width" id="h2w-dR-Ktc"/>
+                                </constraints>
+                            </stackView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="당신의 성별을 골라주세요" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vNf-rt-nsg">
+                                <rect key="frame" x="20" y="232" width="353" height="20.333333333333343"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
                         <viewLayoutGuide key="safeArea" id="gos-vJ-VnX"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="Gw1-JA-F1Z" firstAttribute="centerY" secondItem="Toy-Hh-iBE" secondAttribute="centerY" id="EkE-1i-PiU"/>
+                            <constraint firstItem="gos-vJ-VnX" firstAttribute="trailing" secondItem="vNf-rt-nsg" secondAttribute="trailing" constant="20" id="HDo-Li-Anm"/>
+                            <constraint firstItem="vNf-rt-nsg" firstAttribute="top" secondItem="gos-vJ-VnX" secondAttribute="top" constant="70" id="LGx-Kr-emI"/>
+                            <constraint firstItem="Gw1-JA-F1Z" firstAttribute="centerX" secondItem="Toy-Hh-iBE" secondAttribute="centerX" id="OYA-Vf-WLQ"/>
+                            <constraint firstItem="vNf-rt-nsg" firstAttribute="leading" secondItem="gos-vJ-VnX" secondAttribute="leading" constant="20" id="XBf-TF-5OD"/>
+                        </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="AP0-zc-zz6"/>
+                    <navigationItem key="navigationItem" largeTitleDisplayMode="never" style="editor" id="AP0-zc-zz6"/>
+                    <connections>
+                        <outlet property="femaleButton" destination="TCQ-d8-z0K" id="at6-ZX-kyY"/>
+                        <outlet property="maleButton" destination="JsL-Wl-VOl" id="XQn-kX-pAP"/>
+                        <segue destination="Rg3-Ue-2cM" kind="show" identifier="goToAgeInfo" id="W9x-sz-zNe"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="LFU-Ux-B3H" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1941" y="18"/>
+            <point key="canvasLocation" x="1891" y="18"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="QuF-ke-Wti">
@@ -75,6 +124,49 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="1VG-4Q-E88" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="138.1679389312977" y="18.30985915492958"/>
+        </scene>
+        <!--Select Age View Controller-->
+        <scene sceneID="8FX-46-37V">
+            <objects>
+                <viewController id="Rg3-Ue-2cM" customClass="SelectAgeViewController" customModule="Health" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="dRu-12-2UK">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="태어난 해를 입력해주세요" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ycv-JD-noa">
+                                <rect key="frame" x="20" y="232" width="353" height="21"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="1900" textAlignment="center" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="hAW-KS-XK4">
+                                <rect key="frame" x="146.66666666666666" y="406" width="100" height="40"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="BQV-CR-Y9j"/>
+                                    <constraint firstAttribute="width" constant="100" id="HFY-Cb-wch"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleTitle1"/>
+                                <textInputTraits key="textInputTraits" spellCheckingType="no" keyboardType="numberPad" returnKeyType="done" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
+                            </textField>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="vW4-aD-9Ar"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="hAW-KS-XK4" firstAttribute="centerY" secondItem="dRu-12-2UK" secondAttribute="centerY" id="FOn-zm-el0"/>
+                            <constraint firstItem="hAW-KS-XK4" firstAttribute="centerX" secondItem="dRu-12-2UK" secondAttribute="centerX" id="ZfP-TW-Oei"/>
+                            <constraint firstItem="vW4-aD-9Ar" firstAttribute="trailing" secondItem="ycv-JD-noa" secondAttribute="trailing" constant="20" id="gDx-oe-QGR"/>
+                            <constraint firstItem="ycv-JD-noa" firstAttribute="top" secondItem="vW4-aD-9Ar" secondAttribute="top" constant="70" id="jg5-Ao-nOy"/>
+                            <constraint firstItem="ycv-JD-noa" firstAttribute="leading" secondItem="vW4-aD-9Ar" secondAttribute="leading" constant="20" id="nQE-ak-gIx"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" largeTitleDisplayMode="never" style="editor" id="Ezz-LN-cou"/>
+                    <connections>
+                        <outlet property="ageInputField" destination="hAW-KS-XK4" id="N8X-r8-ay9"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="rDK-z6-SRi" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2981" y="432"/>
         </scene>
     </scenes>
     <resources>
