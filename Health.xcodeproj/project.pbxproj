@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		C76CA76E2E3AE2110040EF75 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = C76CA76D2E3AE2110040EF75 /* FirebaseAnalyticsCore */; };
-		C76CA80E2E3B2D1A0040EF75 /* TSAlertController in Frameworks */ = {isa = PBXBuildFile; productRef = C76CA80D2E3B2D1A0040EF75 /* TSAlertController */; settings = {ATTRIBUTES = (Required, ); }; };
+		C76CA80E2E3B2D1A0040EF75 /* TSAlertController in Frameworks */ = {isa = PBXBuildFile; productRef = C76CA80D2E3B2D1A0040EF75 /* TSAlertController */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -237,14 +237,12 @@
 /* Begin XCBuildConfiguration section */
 		C76490AB2E3790180062054D /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = C76490992E3790170062054D /* Health */;
-			baseConfigurationReferenceRelativePath = Resources/Secrets.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 4DQM269FVB;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Health/Resources/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -274,14 +272,12 @@
 		};
 		C76490AC2E3790180062054D /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = C76490992E3790170062054D /* Health */;
-			baseConfigurationReferenceRelativePath = Resources/Secrets.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 4DQM269FVB;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Health/Resources/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
