@@ -96,7 +96,7 @@
                             <constraint firstItem="vNf-rt-nsg" firstAttribute="leading" secondItem="gos-vJ-VnX" secondAttribute="leading" constant="20" id="XBf-TF-5OD"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" largeTitleDisplayMode="never" style="editor" id="AP0-zc-zz6"/>
+                    <navigationItem key="navigationItem" largeTitleDisplayMode="never" id="AP0-zc-zz6"/>
                     <connections>
                         <outlet property="femaleButton" destination="TCQ-d8-z0K" id="at6-ZX-kyY"/>
                         <outlet property="maleButton" destination="JsL-Wl-VOl" id="XQn-kX-pAP"/>
@@ -139,13 +139,13 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="1900" textAlignment="center" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="hAW-KS-XK4">
+                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="1900" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="hAW-KS-XK4">
                                 <rect key="frame" x="146.66666666666666" y="406" width="100" height="40"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="BQV-CR-Y9j"/>
                                     <constraint firstAttribute="width" constant="100" id="HFY-Cb-wch"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" style="UICTFontTextStyleTitle1"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
                                 <textInputTraits key="textInputTraits" spellCheckingType="no" keyboardType="numberPad" returnKeyType="done" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
                             </textField>
                         </subviews>
@@ -159,14 +159,102 @@
                             <constraint firstItem="ycv-JD-noa" firstAttribute="leading" secondItem="vW4-aD-9Ar" secondAttribute="leading" constant="20" id="nQE-ak-gIx"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" largeTitleDisplayMode="never" style="editor" id="Ezz-LN-cou"/>
+                    <navigationItem key="navigationItem" largeTitleDisplayMode="never" id="Ezz-LN-cou"/>
                     <connections>
                         <outlet property="ageInputField" destination="hAW-KS-XK4" id="N8X-r8-ay9"/>
+                        <segue destination="3Hs-PQ-OGm" kind="show" identifier="goToWeightInfo" id="jy5-4l-1xB"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="rDK-z6-SRi" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="2981" y="432"/>
+        </scene>
+        <!--Weight View Controller-->
+        <scene sceneID="3Dp-MC-v9a">
+            <objects>
+                <viewController id="3Hs-PQ-OGm" customClass="WeightViewController" customModule="Health" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Ogr-ui-Uhg">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="체중을 입력해주세요" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ska-x0-2uO">
+                                <rect key="frame" x="20" y="232" width="353" height="21"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="100" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="MBV-gl-LZA">
+                                <rect key="frame" x="146.66666666666666" y="406" width="100" height="40"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="FKf-Gi-LVE"/>
+                                    <constraint firstAttribute="width" constant="100" id="GHx-vQ-YjG"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
+                                <textInputTraits key="textInputTraits" spellCheckingType="no" keyboardType="numberPad" returnKeyType="done" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
+                            </textField>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="VWS-Gh-Be8"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="Ska-x0-2uO" firstAttribute="leading" secondItem="VWS-Gh-Be8" secondAttribute="leading" constant="20" id="D60-hc-Jaa"/>
+                            <constraint firstItem="MBV-gl-LZA" firstAttribute="centerY" secondItem="Ogr-ui-Uhg" secondAttribute="centerY" id="X9l-mu-TZp"/>
+                            <constraint firstItem="VWS-Gh-Be8" firstAttribute="trailing" secondItem="Ska-x0-2uO" secondAttribute="trailing" constant="20" id="cEk-Ns-4kL"/>
+                            <constraint firstItem="Ska-x0-2uO" firstAttribute="top" secondItem="VWS-Gh-Be8" secondAttribute="top" constant="70" id="sNH-V5-MEv"/>
+                            <constraint firstItem="MBV-gl-LZA" firstAttribute="centerX" secondItem="Ogr-ui-Uhg" secondAttribute="centerX" id="zhR-2l-v7v"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" largeTitleDisplayMode="never" id="EdL-mC-dCR"/>
+                    <connections>
+                        <outlet property="weightInputField" destination="MBV-gl-LZA" id="sHA-9N-EPQ"/>
+                        <segue destination="ye2-gc-ZBC" kind="show" identifier="goToHeightInfo" id="6t5-tj-YRJ"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="u9w-f5-hYT" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3779" y="432"/>
+        </scene>
+        <!--Height View Controller-->
+        <scene sceneID="9uO-oJ-DUT">
+            <objects>
+                <viewController id="ye2-gc-ZBC" customClass="HeightViewController" customModule="Health" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="eJR-uP-Ler">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="키를 입력해주세요" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Hfb-gN-7Hw">
+                                <rect key="frame" x="20" y="232" width="353" height="21"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="175" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="6xh-tM-tSN">
+                                <rect key="frame" x="146.66666666666666" y="406" width="100" height="40"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="LTD-DU-OJ8"/>
+                                    <constraint firstAttribute="width" constant="100" id="mba-nr-jQH"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
+                                <textInputTraits key="textInputTraits" spellCheckingType="no" keyboardType="numberPad" returnKeyType="done" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
+                            </textField>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="rvf-Hr-gyf"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="Hfb-gN-7Hw" firstAttribute="top" secondItem="rvf-Hr-gyf" secondAttribute="top" constant="70" id="39R-Ph-wmC"/>
+                            <constraint firstItem="Hfb-gN-7Hw" firstAttribute="leading" secondItem="rvf-Hr-gyf" secondAttribute="leading" constant="20" id="8Xg-16-6Q9"/>
+                            <constraint firstItem="6xh-tM-tSN" firstAttribute="centerY" secondItem="eJR-uP-Ler" secondAttribute="centerY" id="9ze-Sh-bgx"/>
+                            <constraint firstItem="rvf-Hr-gyf" firstAttribute="trailing" secondItem="Hfb-gN-7Hw" secondAttribute="trailing" constant="20" id="ZIS-H8-n7i"/>
+                            <constraint firstItem="6xh-tM-tSN" firstAttribute="centerX" secondItem="eJR-uP-Ler" secondAttribute="centerX" id="dUT-EI-cIC"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" largeTitleDisplayMode="never" id="XPX-cO-FJ7"/>
+                    <connections>
+                        <outlet property="heightInputField" destination="6xh-tM-tSN" id="Bqg-9r-Mgi"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="sM6-uT-qhR" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="4518" y="432"/>
         </scene>
     </scenes>
     <resources>

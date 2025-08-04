@@ -39,14 +39,24 @@ class OnboardingViewController: CoreViewController {
         return stack
     }()
     
-    override func initVM() {
-        // ViewModel 초기화 필요 시 구현
-    }
+    override func initVM() {}
     
     override func viewDidLoad() {
           super.viewDidLoad()
           continueButton.addTarget(self, action: #selector(continueButtonTapped), for: .touchUpInside)
+        let backBarButton = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
+           navigationItem.backBarButtonItem = backBarButton
       }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        pageIndicatorStack.isHidden = true
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        pageIndicatorStack.isHidden = false
+    }
     
     override func setupHierarchy() {
         [descriptionLabel, continueButton, pageIndicatorStack].forEach {
@@ -62,12 +72,12 @@ class OnboardingViewController: CoreViewController {
     override func setupConstraints() {
         NSLayoutConstraint.activate([
             descriptionLabel.topAnchor.constraint(equalTo: appImageView.bottomAnchor, constant: 24),
-            descriptionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
-            descriptionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
+            descriptionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            descriptionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
             continueButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
-            continueButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
-            continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
+            continueButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             continueButton.heightAnchor.constraint(equalToConstant: 48),
             
             pageIndicatorStack.topAnchor.constraint(equalTo: view.topAnchor, constant: 78),
