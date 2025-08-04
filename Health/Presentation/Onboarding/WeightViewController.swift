@@ -48,8 +48,7 @@ class WeightViewController: CoreViewController {
         weightInputField.delegate = self
         weightInputField.keyboardType = .numberPad
         weightInputField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
-        
-        // 버튼에 액션 연결
+       
         continueButton.addTarget(self, action: #selector(didTapContinue), for: .touchUpInside)
         
         registerForKeyboardNotifications()
@@ -57,15 +56,15 @@ class WeightViewController: CoreViewController {
         let backBarButton = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
         navigationItem.backBarButtonItem = backBarButton
     }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        pageIndicatorStack.isHidden = true
-    }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         pageIndicatorStack.isHidden = false
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        pageIndicatorStack.isHidden = true
     }
 
     override func setupHierarchy() {

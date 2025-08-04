@@ -50,15 +50,15 @@ class GenderSelectViewController: CoreViewController {
         let backBarButton = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
            navigationItem.backBarButtonItem = backBarButton
     }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        pageIndicatorStack.isHidden = true
-    }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         pageIndicatorStack.isHidden = false
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        pageIndicatorStack.isHidden = true
     }
 
     override func initVM() {}
