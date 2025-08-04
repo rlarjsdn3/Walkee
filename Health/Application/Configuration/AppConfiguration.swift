@@ -27,4 +27,8 @@ struct AppConfiguration {
     ///
     /// - Note: 강제 언래핑(!)을 사용하므로 URL 문자열이 항상 유효해야 합니다.
     static let baseURL = URL(string: "https://kdt-api-function.azurewebsites.net")!
+
+    static var clientID: String {
+        Bundle.main.infoDictionary?["CURRENT_CLIENT_ID"] as? String ?? "unknown"
+    }
 }
