@@ -21,5 +21,7 @@
 			</array>
 		</dict>
 	</dict>
+	<key>AlanCurrentClientID</key>
+	<string>$(CURRENT_CLIENT_ID)</string>
 </dict>
 </plist>
