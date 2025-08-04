@@ -17,6 +17,8 @@ extension Date {
         case weekdayShortand = "EEE"
         /// 월일 형식 (예: "8월 1일")
         case md = "M월 d일"
+        /// 월일 형식 (예: "8. 1")
+        case m_d = "M. d"
     }
 
     /// 지정된 포맷 스타일을 사용해 현재 날짜를 문자열로 변환합니다.
