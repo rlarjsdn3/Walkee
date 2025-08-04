@@ -9,7 +9,13 @@ import UIKit
 class PersonalViewController: CoreGradientViewController {
 
 	// MARK: - Properties
-	
+
+    @IBOutlet weak var image: UIImageView!
+
+    @IBOutlet weak var label: UILabel!
+
+    @IBOutlet weak var chatBot: UIButton!
+    
 	// MARK: - CoreViewController Override Methods
 	
 	override func initVM() {
