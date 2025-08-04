@@ -1,8 +1,24 @@
+//
+//  HeightViewController.swift
+//  Health
+//
+//  Created by 권도현 on 8/4/25.
+//
+
 import UIKit
 
-class SelectAgeViewController: CoreViewController {
+class HeightViewController: CoreViewController {
+
+    @IBOutlet weak var heightInputField: UITextField!
     
-    @IBOutlet weak var ageInputField: UITextField!
+    private let cmLabel: UILabel = {
+        let label = UILabel()
+        label.text = "cm"
+        label.textColor = .accent
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
     
     private let continueButton: UIButton = {
         let button = UIButton(type: .system)
@@ -24,16 +40,14 @@ class SelectAgeViewController: CoreViewController {
 
     private var continueButtonBottomConstraint: NSLayoutConstraint?
 
-    override func initVM() { }
+    override func initVM() {}
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        ageInputField.delegate = self
-        ageInputField.keyboardType = .numberPad
-        ageInputField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
-        
-        continueButton.addTarget(self, action: #selector(didTapContinue), for: .touchUpInside)
+        heightInputField.delegate = self
+        heightInputField.keyboardType = .numberPad
+        heightInputField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         
         registerForKeyboardNotifications()
         setupTapGestureToDismissKeyboard()
@@ -45,21 +59,21 @@ class SelectAgeViewController: CoreViewController {
         super.viewWillAppear(animated)
         pageIndicatorStack.isHidden = false
     }
-    
+
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         pageIndicatorStack.isHidden = true
     }
-
+    
     override func setupHierarchy() {
-        [continueButton, pageIndicatorStack].forEach {
+        [continueButton, pageIndicatorStack, cmLabel].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview($0)
         }
     }
 
     override func setupAttribute() {
-        setupPageIndicators(currentPage: 2)
+        setupPageIndicators(currentPage: 4)
     }
 
     override func setupConstraints() {
@@ -74,7 +88,10 @@ class SelectAgeViewController: CoreViewController {
             pageIndicatorStack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -24),
             pageIndicatorStack.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             pageIndicatorStack.heightAnchor.constraint(equalToConstant: 4),
-            pageIndicatorStack.widthAnchor.constraint(equalToConstant: 320)
+            pageIndicatorStack.widthAnchor.constraint(equalToConstant: 320),
+            
+            cmLabel.leadingAnchor.constraint(equalTo: heightInputField.trailingAnchor, constant: 8),
+            cmLabel.centerYAnchor.constraint(equalTo: heightInputField.centerYAnchor)
         ])
     }
 
@@ -94,20 +111,15 @@ class SelectAgeViewController: CoreViewController {
     }
 
     private func validateInput() {
-        guard let text = ageInputField.text, let year = Int(text), (1900...2025).contains(year) else {
+        guard let text = heightInputField.text, let weight = Int(text), (100...250).contains(weight) else {
             continueButton.isEnabled = false
             continueButton.backgroundColor = .buttonBackground
-            ageInputField.textColor = .label // 기본색
+            heightInputField.textColor = .label
             return
         }
         continueButton.isEnabled = true
         continueButton.backgroundColor = .accent
-        ageInputField.textColor = .accent
-    }
-    
-    @objc private func didTapContinue() {
-        guard continueButton.isEnabled else { return }
-        performSegue(withIdentifier: "goToWeightInfo", sender: nil)
+        heightInputField.textColor = .accent
     }
 
     private func registerForKeyboardNotifications() {
@@ -145,8 +157,9 @@ class SelectAgeViewController: CoreViewController {
     }
 }
 
-extension SelectAgeViewController: UITextFieldDelegate {
+extension HeightViewController: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        
         let allowedCharacters = CharacterSet.decimalDigits
         if string.rangeOfCharacter(from: allowedCharacters.inverted) != nil {
             return false
@@ -154,7 +167,7 @@ extension SelectAgeViewController: UITextFieldDelegate {
 
         let currentText = textField.text ?? ""
         let prospectiveText = (currentText as NSString).replacingCharacters(in: range, with: string)
-        return prospectiveText.count <= 4
+        return prospectiveText.count <= 3
     }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {

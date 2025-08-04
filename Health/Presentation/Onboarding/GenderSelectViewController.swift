@@ -47,11 +47,21 @@ class GenderSelectViewController: CoreViewController {
         continueButton.addTarget(self, action: #selector(continueButtonTapped), for: .touchUpInside)
         updateGenderSelectionUI()
         updateContinueButtonState()
+        let backBarButton = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
+           navigationItem.backBarButtonItem = backBarButton
     }
 
-    override func initVM() {
-        // viewModel 초기화 필요 시 여기에 작성
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        pageIndicatorStack.isHidden = false
     }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        pageIndicatorStack.isHidden = true
+    }
+
+    override func initVM() {}
 
     override func setupHierarchy() {
         [continueButton, pageIndicatorStack].forEach {
@@ -67,11 +77,11 @@ class GenderSelectViewController: CoreViewController {
     override func setupConstraints() {
         NSLayoutConstraint.activate([
             continueButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
-            continueButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
-            continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
+            continueButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             continueButton.heightAnchor.constraint(equalToConstant: 48),
             
-            pageIndicatorStack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -23),
+            pageIndicatorStack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -24),
             pageIndicatorStack.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             pageIndicatorStack.heightAnchor.constraint(equalToConstant: 4),
             pageIndicatorStack.widthAnchor.constraint(equalToConstant: 320)
