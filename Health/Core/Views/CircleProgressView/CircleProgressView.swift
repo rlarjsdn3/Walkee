@@ -45,7 +45,7 @@ final class CircleProgressView: CoreView {
     ///
     /// 단색으로 표시할 경우 색상 하나만 전달하면 되며,
     /// 색상을 하나도 전달하지 않으면 런타임 오류가 발생합니다.
-    var foregroundLightColors: [UIColor] = [.systemMint, .systemGray6, .systemMint] {
+    var foregroundLightColors: [UIColor] = [.systemMint] {
         didSet { self.setNeedsLayout() }
     }
 
@@ -53,7 +53,7 @@ final class CircleProgressView: CoreView {
     ///
     /// 단색으로 표시할 경우 색상 하나만 전달하면 되며,
     /// 색상을 하나도 전달하지 않으면 런타임 오류가 발생합니다.
-    var foregroundDarkColors: [UIColor] = [.systemMint] {
+    var foregroundDarkColors: [UIColor] = [.systemMint, .systemGray6, .systemMint] {
         didSet { self.setNeedsLayout() }
     }
 
@@ -201,7 +201,7 @@ final class CircleProgressView: CoreView {
             endAngle: calculatedEndAngle,
             lightStrokeColors: foregroundLightColors,
             darkStrokeColors: foregroundDarkColors,
-            lineWidth: foregroundLineWidth,
+            lineWidth: foregroundLineWidth
         )
     }
 }
@@ -214,7 +214,7 @@ extension CircleProgressView {
         endAngle endRadian: Double,
         lightStrokeColors: [UIColor],
         darkStrokeColors: [UIColor],
-        lineWidth: CGFloat,
+        lineWidth: CGFloat
     ) {
         assert(!lightStrokeColors.isEmpty || !darkStrokeColors.isEmpty)
 
