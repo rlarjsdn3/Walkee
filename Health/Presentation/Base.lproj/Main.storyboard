@@ -50,11 +50,10 @@
         <!--대시보드-->
         <scene sceneID="Cf6-NV-gy7">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="CUh-3T-mPc" sceneMemberID="viewController">
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" navigationBarHidden="YES" id="CUh-3T-mPc" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="대시보드" image="chart.xyaxis.line" catalog="system" id="bta-Ab-Sf4"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="E52-SV-ds4">
-                        <rect key="frame" x="0.0" y="118" width="393" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>

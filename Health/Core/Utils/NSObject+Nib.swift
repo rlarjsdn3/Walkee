@@ -14,7 +14,7 @@ extension NSObject {
     ///
     /// - Returns: 현재 클래스 이름을 기준으로 생성된 `UINib` 인스턴스를 반환합니다.
     ///            Nib 파일은 해당 클래스가 속한 번들에서 로드됩니다.
-    var nib: UINib {
+    static var nib: UINib {
         UINib(
             nibName: String(describing: Self.self),
             bundle: Bundle(for: Self.self)
