@@ -17,7 +17,7 @@ extension Array {
     /// - Parameter index: 접근하려는 배열 인덱스입니다.
     /// - Returns: 해당 인덱스의 요소 또는 유효하지 않은 경우 `nil`
     subscript(safe index: Array.Index) -> Element? {
-        guard index < count else { return nil }
+        guard 0 <= index || index < count else { return nil }
         return self[index]
     }
 }

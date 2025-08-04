@@ -15,12 +15,12 @@ final class LimitView: CoreView {
 
     /// 표시할 라벨 텍스트입니다.
     var text: String? {
-        didSet { updateConfugurationIfNeeded() }
+        didSet { updateConfigurationIfNeeded() }
     }
 
     /// 제한선에 적용할 시각적 설정값입니다.
     var configuration: BarChartsView.Configuration? {
-        didSet { updateConfugurationIfNeeded() }
+        didSet { updateConfigurationIfNeeded() }
     }
 
     override var intrinsicContentSize: CGSize {
@@ -53,7 +53,7 @@ final class LimitView: CoreView {
         ])
     }
 
-    private func updateConfugurationIfNeeded() {
+    private func updateConfigurationIfNeeded() {
         guard let configuration = configuration else { return }
         limitLabel.text = text
         limitLabel.font = configuration.textStyle.limitLabelFont

@@ -77,7 +77,7 @@ extension BarChartsView {
         /// 라벨에 대한 폰트 및 색상 스타일입니다.
         var textStyle: TextStyle
         /// 차트 표시 옵션입니다.
-        var dispalyOptions: DisplayOptions
+        var displayOptions: DisplayOptions
 
         /// 구성 값을 초기화합니다.
         ///
@@ -98,7 +98,7 @@ extension BarChartsView {
             self.dashedLineWidth = dashedLineWidth
             self.dashedLineStrokeColor = dashedLineStrokeColor
             self.textStyle = textStyle
-            self.dispalyOptions = displayOptions
+            self.displayOptions = displayOptions
         }
     }
 }

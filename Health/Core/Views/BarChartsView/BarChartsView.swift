@@ -119,7 +119,7 @@ final class BarChartsView: UIView {
                 maxValue: maxValue
             )
 
-            if configuration.dispalyOptions.showValueLabel {
+            if configuration.displayOptions.showValueLabel {
                 let valueLabel = UILabel()
                 add(
                     valueLabel: valueLabel,
