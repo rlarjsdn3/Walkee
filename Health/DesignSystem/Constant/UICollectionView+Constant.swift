@@ -56,12 +56,6 @@ extension UICollectionView {
         /// 사용자 정보를 보여주는 화면으로, 다른 설정 화면들과
         /// 동일한 여백을 사용해 통일성을 유지합니다.
         static let profileTopConstraint: CGFloat = 64.0
-
-        // MARK: - 추가 여백 설정
-        /// 큰 여백 - 섹션들을 구분하거나 여유있는 레이아웃을 원할 때 사용
-
-        static let largeInset: CGFloat = 20.0
-
     }
 }
 
