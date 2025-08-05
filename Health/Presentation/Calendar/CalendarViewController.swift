@@ -9,27 +9,30 @@ final class CalendarViewController: CoreViewController {
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.collectionViewLayout = createCompositionalLayout()
-        collectionView.register(CalendarMonthCell.self, forCellWithReuseIdentifier: CalendarMonthCell.id)
-        collectionView.backgroundColor = .systemBackground
+        collectionView.register(
+            CalendarMonthCell.nib,
+            forCellWithReuseIdentifier: CalendarMonthCell.id
+        )
     }
 
     private func createCompositionalLayout() -> UICollectionViewLayout {
         UICollectionViewCompositionalLayout { sectionIndex, environment in
             let itemSize = NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1.0),
-                heightDimension: .estimated(44)
+                heightDimension: .estimated(300)
             )
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
-            let groupSize = NSCollectionLayoutSize(
-                widthDimension: .fractionalWidth(1.0),
-                heightDimension: .estimated(300)
-            )
+            let groupSize = itemSize
             let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
 
             let section = NSCollectionLayoutSection(group: group)
-            section.interGroupSpacing = 16
-            section.contentInsets = NSDirectionalEdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
+            section.contentInsets = NSDirectionalEdgeInsets(
+                top: UICollectionViewConstant.defaultInset,
+                leading: UICollectionViewConstant.defaultInset,
+                bottom: UICollectionViewConstant.defaultInset,
+                trailing: UICollectionViewConstant.defaultInset
+            )
             return section
         }
     }
@@ -48,7 +51,12 @@ extension CalendarViewController: UICollectionViewDataSource, UICollectionViewDe
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CalendarMonthCell.id, for: indexPath) as? CalendarMonthCell else {
             fatalError("Failed to dequeue CalendarMonthCell")
         }
-        // TODO: month 데이터 주입 예정
+
+        let today = Date()
+        let currentYear = today.year
+        let currentMonth = indexPath.section + 1
+        cell.configure(year: currentYear, month: currentMonth)
+
         return cell
     }
 }
