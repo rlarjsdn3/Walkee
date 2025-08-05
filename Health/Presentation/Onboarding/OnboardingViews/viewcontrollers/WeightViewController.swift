@@ -25,7 +25,7 @@ class WeightViewController: CoreViewController {
         button.setTitle("다음", for: .normal)
         button.backgroundColor = UIColor.buttonBackground
         button.setTitleColor(.white, for: .normal)
-        button.layer.cornerRadius = 12
+        button.applyCornerStyle(.medium)
         button.isEnabled = false
         return button
     }()
@@ -51,6 +51,7 @@ class WeightViewController: CoreViewController {
         navigationItem.backBarButtonItem = backBarButton
     }
 
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         progressIndicatorStackView.isHidden = false
@@ -93,6 +94,10 @@ class WeightViewController: CoreViewController {
 
     @objc private func textFieldDidChange(_ textField: UITextField) {
         validateInput()
+
+        if let text = textField.text, text.count == 3 {
+            textField.resignFirstResponder()
+        }
     }
 
     private func validateInput() {
@@ -124,6 +129,8 @@ class WeightViewController: CoreViewController {
             self.view.layoutIfNeeded()
         }
     }
+    
+    
 
     @objc private func keyboardWillHide(_ notification: Notification) {
         continueButtonBottomConstraint?.constant = -20

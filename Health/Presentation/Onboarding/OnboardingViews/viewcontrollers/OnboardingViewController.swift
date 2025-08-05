@@ -49,7 +49,7 @@ class OnboardingViewController: CoreViewController {
         button.setTitle("다음", for: .normal)
         button.backgroundColor = UIColor.accent
         button.setTitleColor(.label, for: .normal)
-        button.layer.cornerRadius = 12
+        button.applyCornerStyle(.medium)
         button.isEnabled = true
         return button
     }()

@@ -29,7 +29,7 @@ class GenderSelectViewController: CoreViewController {
         button.setTitle("다음", for: .normal)
         button.backgroundColor = UIColor.buttonBackground
         button.setTitleColor(.white, for: .normal)
-        button.layer.cornerRadius = 12
+        button.applyCornerStyle(.medium)
         button.isEnabled = false
         return button
     }()

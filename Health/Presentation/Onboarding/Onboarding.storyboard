@@ -136,10 +136,10 @@
             </objects>
             <point key="canvasLocation" x="138.1679389312977" y="18.30985915492958"/>
         </scene>
-        <!--Select Age View Controller-->
+        <!--Input Age View Controller-->
         <scene sceneID="8FX-46-37V">
             <objects>
-                <viewController id="Rg3-Ue-2cM" customClass="SelectAgeViewController" customModule="Health" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="Rg3-Ue-2cM" customClass="InputAgeViewController" customModule="Health" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="dRu-12-2UK">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -261,11 +261,101 @@
                     <navigationItem key="navigationItem" largeTitleDisplayMode="never" id="XPX-cO-FJ7"/>
                     <connections>
                         <outlet property="heightInputField" destination="6xh-tM-tSN" id="Bqg-9r-Mgi"/>
+                        <segue destination="Loh-xd-3Eb" kind="show" identifier="goToHealthLink" id="toW-Zh-d6N"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="sM6-uT-qhR" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="4518" y="432"/>
+        </scene>
+        <!--Health Link View Controller-->
+        <scene sceneID="rqf-xG-WZh">
+            <objects>
+                <viewController id="Loh-xd-3Eb" customClass="HealthLinkViewController" customModule="Health" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="0sO-CY-Uun">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="c8g-YO-D2g">
+                                <rect key="frame" x="20" y="212" width="353" height="20.333333333333343"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="ifP-QI-Inn">
+                                <rect key="frame" x="156.66666666666666" y="262.33333333333331" width="80" height="80"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="80" id="PaU-Jn-MQD"/>
+                                    <constraint firstAttribute="height" constant="80" id="ZQZ-DU-Fnt"/>
+                                </constraints>
+                            </imageView>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="EcJ-fw-xiT">
+                                <rect key="frame" x="20" y="412.33333333333331" width="353" height="55"/>
+                                <subviews>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Niz-4d-1kV">
+                                        <rect key="frame" x="0.0" y="0.0" width="353" height="55"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Apple 건강 앱 데이터 접근 권한" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7SW-Zw-GlZ">
+                                                <rect key="frame" x="12" y="18" width="213" height="19.333333333333371"/>
+                                                <fontDescription key="fontDescription" style="UICTFontTextStyleCallout"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TLh-RM-cub">
+                                                <rect key="frame" x="294" y="12" width="51" height="31"/>
+                                                <connections>
+                                                    <action selector="linkAction:" destination="Loh-xd-3Eb" eventType="valueChanged" id="ftt-cV-e2K"/>
+                                                </connections>
+                                            </switch>
+                                        </subviews>
+                                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                        <constraints>
+                                            <constraint firstItem="7SW-Zw-GlZ" firstAttribute="centerY" secondItem="Niz-4d-1kV" secondAttribute="centerYWithinMargins" id="9j1-ao-iWT"/>
+                                            <constraint firstItem="7SW-Zw-GlZ" firstAttribute="leading" secondItem="Niz-4d-1kV" secondAttribute="leading" constant="12" id="F3P-nL-TSa"/>
+                                            <constraint firstItem="TLh-RM-cub" firstAttribute="leading" secondItem="7SW-Zw-GlZ" secondAttribute="trailing" constant="69" id="Pk9-cm-rGb"/>
+                                            <constraint firstAttribute="trailing" secondItem="TLh-RM-cub" secondAttribute="trailing" constant="10" id="kVb-vn-jCr"/>
+                                            <constraint firstItem="TLh-RM-cub" firstAttribute="centerY" secondItem="Niz-4d-1kV" secondAttribute="centerYWithinMargins" id="upo-ZY-S7P"/>
+                                        </constraints>
+                                    </view>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="55" id="Vga-G2-Pc7"/>
+                                </constraints>
+                            </stackView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="label" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Qdr-8Z-lhJ">
+                                <rect key="frame" x="30" y="475.33333333333331" width="27" height="14.333333333333314"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleCaption1"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="Pxa-Pg-z3x"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="c8g-YO-D2g" firstAttribute="leading" secondItem="Pxa-Pg-z3x" secondAttribute="leading" constant="20" id="3ah-FH-8Zq"/>
+                            <constraint firstItem="c8g-YO-D2g" firstAttribute="top" secondItem="Pxa-Pg-z3x" secondAttribute="top" constant="50" id="4Uf-8s-brJ"/>
+                            <constraint firstItem="Pxa-Pg-z3x" firstAttribute="trailing" secondItem="c8g-YO-D2g" secondAttribute="trailing" constant="20" id="Llb-YP-p8S"/>
+                            <constraint firstItem="Qdr-8Z-lhJ" firstAttribute="leading" secondItem="Pxa-Pg-z3x" secondAttribute="leading" constant="30" id="QD6-Sk-V1U"/>
+                            <constraint firstItem="EcJ-fw-xiT" firstAttribute="top" secondItem="ifP-QI-Inn" secondAttribute="bottom" constant="70" id="Rk3-v0-hBH"/>
+                            <constraint firstItem="EcJ-fw-xiT" firstAttribute="leading" secondItem="Pxa-Pg-z3x" secondAttribute="leading" constant="20" id="ZaL-LF-v1f"/>
+                            <constraint firstItem="Pxa-Pg-z3x" firstAttribute="trailing" secondItem="EcJ-fw-xiT" secondAttribute="trailing" constant="20" id="cZv-qf-dPg"/>
+                            <constraint firstItem="ifP-QI-Inn" firstAttribute="centerX" secondItem="0sO-CY-Uun" secondAttribute="centerX" id="lHP-le-lhl"/>
+                            <constraint firstItem="Qdr-8Z-lhJ" firstAttribute="top" secondItem="EcJ-fw-xiT" secondAttribute="bottom" constant="8" id="mfF-DM-KoD"/>
+                            <constraint firstItem="ifP-QI-Inn" firstAttribute="top" secondItem="c8g-YO-D2g" secondAttribute="bottom" constant="30" id="yaQ-x3-ERy"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" largeTitleDisplayMode="never" id="vGH-Q7-MqQ"/>
+                    <connections>
+                        <outlet property="healthAppIcon" destination="ifP-QI-Inn" id="TC2-CF-Y07"/>
+                        <outlet property="linkSettingView" destination="Niz-4d-1kV" id="YSs-vl-bck"/>
+                        <outlet property="linkedSwitch" destination="TLh-RM-cub" id="Jev-ww-1P5"/>
+                        <outlet property="supUserDescriptionLabel" destination="Qdr-8Z-lhJ" id="w6y-F8-Bs6"/>
+                        <outlet property="userDescriptionLabel" destination="c8g-YO-D2g" id="txL-F8-3Td"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="0Sn-OL-2hO" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="5296.9465648854957" y="431.69014084507046"/>
         </scene>
     </scenes>
     <resources>
