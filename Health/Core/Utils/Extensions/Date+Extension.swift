@@ -1,8 +1,8 @@
 //
-//  Date+Extenson.swift
-//  BarChartViewProject
+//  Date+Extension.swift
+//  HealthKitService
 //
-//  Created by 김건우 on 8/3/25.
+//  Created by 김건우 on 8/4/25.
 //
 
 import Foundation
@@ -37,6 +37,15 @@ extension Date {
 
 extension Date {
 
+    // 하루 전 날짜를 반환합니다.
+    var yesterday: Date {
+        calendar.date(byAdding: .day, value: -1, to: self)!
+    }
+}
+
+
+extension Date {
+
     /// 해당 날짜가 속한 주의 시작 날짜와 종료 날짜를 반환합니다.
     ///
     /// 내부적으로 `startOfWeek`와 `endOfWeek`를 호출하여 한 주의 범위를 계산합니다.
@@ -54,7 +63,8 @@ extension Date {
     /// - Parameter calendar: 사용할 캘린더입니다. 기본값은 `.current`입니다.
     /// - Returns: 주의 시작 날짜입니다.
     func startOfWeek(using calendar: Calendar = .current) -> Date? {
-        return calendar.dateComponents([.calendar, .yearForWeekOfYear, .weekOfYear], from: self).date
+        let components = calendar.dateComponents([.calendar, .yearForWeekOfYear, .weekOfYear], from: self)
+        return calendar.date(from: components)
     }
 
     /// 해당 날짜가 속한 주의 마지막 날짜(보통 일요일)를 반환합니다.
@@ -65,28 +75,34 @@ extension Date {
         guard let startOfWeek = self.startOfWeek(using: calendar) else { return nil }
         return calendar.date(byAdding: .day, value: 6, to: startOfWeek)
     }
-    
-    /// 해당 날짜가 속한 월의 시작일과 종료일을 반환합니다.
+
+    /// 해당 날짜가 속한 달의 시작일과 종료일을 반환합니다.
     ///
-    /// - Parameter calendar: 계산에 사용할 캘린더입니다. 기본값은 현재 캘린더입니다.
-    /// - Returns: 시작일과 종료일을 튜플로 반환하며, 계산이 불가능한 경우 nil이 포함될 수 있습니다.
+    /// 예: 2025년 8월 5일 → (2025년 8월 1일, 2025년 8월 31일)
+    ///
+    /// - Parameter calendar: 기준이 되는 캘린더입니다. 기본값은 현재 캘린더입니다.
+    /// - Returns: 시작일과 종료일로 구성된 튜플입니다. 계산에 실패한 경우 nil을 반환할 수 있습니다.
     func rangeOfMonth(using calendar: Calendar = .current) -> (Date?, Date?) {
         return (startOfMonth(using: calendar), endOfMonth(using: calendar))
     }
 
-    /// 해당 날짜가 속한 월의 시작일을 반환합니다.
+    /// 해당 날짜가 속한 달의 첫 번째 날짜를 반환합니다.
     ///
-    /// - Parameter calendar: 계산에 사용할 캘린더입니다. 기본값은 현재 캘린더입니다.
-    /// - Returns: 월의 시작일을 나타내는 `Date` 객체이며, 계산이 불가능한 경우 nil을 반환합니다.
+    /// 예: 2025년 8월 5일 → 2025년 8월 1일
+    ///
+    /// - Parameter calendar: 기준이 되는 캘린더입니다. 기본값은 현재 캘린더입니다.
+    /// - Returns: 해당 월의 시작일입니다. 계산에 실패한 경우 nil을 반환할 수 있습니다.
     func startOfMonth(using calendar: Calendar = .current) -> Date? {
         let components = calendar.dateComponents([.year, .month], from: self)
         return calendar.date(from: components)
     }
 
-    /// 해당 날짜가 속한 월의 종료일을 반환합니다.
+    /// 해당 날짜가 속한 달의 마지막 날짜를 반환합니다.
     ///
-    /// - Parameter calendar: 계산에 사용할 캘린더입니다. 기본값은 현재 캘린더입니다.
-    /// - Returns: 월의 마지막 날짜를 나타내는 `Date` 객체이며, 계산이 불가능한 경우 nil을 반환합니다.
+    /// 예: 2025년 8월 5일 → 2025년 8월 31일
+    ///
+    /// - Parameter calendar: 기준이 되는 캘린더입니다. 기본값은 현재 캘린더입니다.
+    /// - Returns: 해당 월의 종료일입니다. 계산에 실패한 경우 nil을 반환할 수 있습니다.
     func endOfMonth(using calendar: Calendar = .current) -> Date? {
         let components = DateComponents(month: 1, day: -1)
         guard let startOfMonth = self.startOfMonth(using: calendar) else { return nil }
@@ -113,6 +129,27 @@ extension Date {
             }
         }
         return true
+    }
+
+    /// 지정된 구성 요소에 일치하는 다음 날짜를 반환합니다.
+    ///
+    /// 예를 들어, 매주 월요일 또는 매월 1일 등 특정 요일 또는 날짜를 기준으로 다음 시점을 계산할 때 사용할 수 있습니다.
+    ///
+    /// - Parameters:
+    ///   - components: 일치시킬 날짜 구성 요소입니다.
+    ///   - direction: 검색 방향입니다. 기본값은 `.backward`이며, `.forward`로 지정 시 미래 날짜를 검색합니다.
+    /// - Returns: 구성 요소와 일치하는 다음 날짜. 계산에 실패한 경우 nil을 반환할 수 있습니다.
+    func next(
+        _ components: DateComponents,
+        direciton: Calendar.SearchDirection = .backward
+    ) -> Date? {
+        calendar.nextDate(
+            after: self,
+            matching: components,
+            matchingPolicy: .nextTime,
+            repeatedTimePolicy: .first,
+            direction: direciton
+        )
     }
 }
 

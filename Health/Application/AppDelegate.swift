@@ -19,6 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         FirebaseApp.configure()
 
         DIContainer.shared.registerNetworkService()
+        DIContainer.shared.registerHealthkService()
 
         return true
     }
