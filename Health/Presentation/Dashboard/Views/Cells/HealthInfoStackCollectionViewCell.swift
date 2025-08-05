@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class DailyAvtivitySummaryCollectionViewCell: CoreCollectionViewCell {
+final class HealthInfoStackCollectionViewCell: CoreCollectionViewCell {
 
     override func setupAttribute() {
         backgroundColor = .secondarySystemBackground
