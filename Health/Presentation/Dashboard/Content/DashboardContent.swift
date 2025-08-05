@@ -10,46 +10,41 @@ import UIKit
 enum DashboardContent {
 
     enum Section: Hashable {
-        ///
+        /// 대시보드 상단 섹션
         case top
-        ///
+        /// 목표 링 및 건강 정보 스택 섹션
         case ring
-        ///
+        /// 활동 차트 섹션
         case charts
-        ///
+        /// AI 요약 정보 섹션
         case alan
-        ///
-        case stack
-
+        /// 건강 카드 정보 섹션
+        case card
+        /// 대시보드 하단 섹션
+        case bottom
     }
 
     enum Item: Hashable {
-        ///
+        /// 상단 바 항목
         case topBar
-        ///
+        /// 목표 링 셀
         case goalRing(DailyGoalRingCellViewModel)
-        ///
+        /// 건강 정보 스택 셀
         case stackInfo(HealthInfoStackCellViewModel)
-        ///
+        /// 막대 차트 셀
         case barCharts(DashboardBarChartsCellViewModel)
-        ///
+        /// AI 요약 셀
         case alanSummary(AlanActivitySummaryCellViewModel)
-        ///
+        /// 건강 카드 셀
         case cardInfo(HealthInfoCardCellViewModel)
+        /// 일반 텍스트 셀
+        case text(TextCellViewModel)
     }
 }
 
 @MainActor
 extension DashboardContent.Item {
-    
-    /// <#Description#>
-    /// - Parameters:
-    ///   - collectionView: <#collectionView description#>
-    ///   - topBarCellRegistration: <#topBarCellRegistration description#>
-    ///   - dailyGoalRingCellRegistration: <#dailyGoalRingCellRegistration description#>
-    ///   - dailyActivitySummaryCellRegistration: <#dailyActivitySummaryCellRegistration description#>
-    ///   - indexPath: <#indexPath description#>
-    /// - Returns: <#description#>
+
     func dequeueReusableCollectionViewCell(
         collectionView: UICollectionView,
         topBarCellRegistration: UICollectionView.CellRegistration<DashboardTopBarCollectionViewCell, Void>,
@@ -58,6 +53,7 @@ extension DashboardContent.Item {
         barChartsCellRegistration: UICollectionView.CellRegistration<DashboardBarChartsCollectionViewCell, DashboardBarChartsCellViewModel>,
         alanSummaryCellRegistration: UICollectionView.CellRegistration<AlanActivitySummaryCollectionViewCell, AlanActivitySummaryCellViewModel>,
         healthInfoCardCellRegistration: UICollectionView.CellRegistration<HealthInfoCardCollectionViewCell, HealthInfoCardCellViewModel>,
+        textCellRegistration: UICollectionView.CellRegistration<TextCollectionViewCell, TextCellViewModel>,
         indexPath: IndexPath
     ) -> UICollectionViewCell {
         switch self {
@@ -97,26 +93,27 @@ extension DashboardContent.Item {
                 for: indexPath,
                 item: viewModel
             )
+
+        case let .text(viewModel):
+            return collectionView.dequeueConfiguredReusableCell(
+                using: textCellRegistration,
+                for: indexPath,
+                item: viewModel
+            )
         }
     }
 }
 
 @MainActor
 extension DashboardContent.Section {
-    
-    /// <#Description#>
-    /// - Parameters:
-    ///   - collectionView: <#collectionView description#>
-    ///   - collectionListCellSupplementaryRegistration: <#collectionListCellSupplementaryRegistration description#>
-    ///   - indexPath: <#indexPath description#>
-    /// - Returns: <#description#>
+
     func dequeueReusableSupplementaryView(
         collectionView: UICollectionView,
         basicSupplementaryViewRegistration: UICollectionView.SupplementaryRegistration<UICollectionViewListCell>,
         indexPath: IndexPath
     ) -> UICollectionReusableView? {
         switch self {
-        case .charts, .alan, .stack:
+        case .charts, .alan, .card:
             return collectionView.dequeueConfiguredReusableSupplementary(
                 using: basicSupplementaryViewRegistration,
                 for: indexPath
@@ -131,16 +128,14 @@ extension DashboardContent.Section {
 @MainActor
 extension DashboardContent.Section {
     
-    /// <#Description#>
-    /// - Parameter environment: <#environment description#>
-    /// - Returns: <#description#>
     func buildLayout(_ environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
         switch self {
         case .top:      buildTopLayout(environment)
         case .ring:     buildRingLayout(environment)
         case .charts:   buildChartsLayout(environment)
         case .alan:     buildAlanLayout(environment)
-        case .stack:    buildStackLayout(environment)
+        case .card:    buildStackLayout(environment)
+        case .bottom:   buildTopLayout(environment)
         }
     }
 
@@ -307,6 +302,7 @@ extension DashboardContent.Section {
             layoutSize: groupSize,
             subitems: [item, item]
         )
+        group.interItemSpacing = .flexible(8)
 
         let headerSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
@@ -321,6 +317,7 @@ extension DashboardContent.Section {
         let section = NSCollectionLayoutSection(group: group)
         section.boundarySupplementaryItems = [header]
 
+        section.interGroupSpacing = 8
         section.contentInsets = NSDirectionalEdgeInsets(
             top: 0, leading: UICollectionViewConstant.defaultInset,
             bottom: 0, trailing: UICollectionViewConstant.defaultInset
