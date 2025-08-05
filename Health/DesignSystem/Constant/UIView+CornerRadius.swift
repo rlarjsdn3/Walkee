@@ -12,7 +12,7 @@ struct CornerRadius {
     static let small: CGFloat = 8.0
 
     /// 기본 코너 반지름 (일반 카드, 컨테이너)
-    static let medium: CGFloat = 10.0
+    static let medium: CGFloat = 12.0
 
     /// 큰 코너 반지름 (메인 카드, 큰 컨테이너)
     static let large: CGFloat = 14.0
@@ -26,7 +26,7 @@ extension UIView {
     /// 미리 정의된 코너 스타일을 적용합니다
     enum CornerStyle {
         case small      // 8pt
-        case medium     // 10pt
+        case medium     // 12pt
         case large      // 14pt
         case circular   // width/2
         case custom(CGFloat) // 커스텀 값
