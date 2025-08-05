@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Y6W-OH-hqX">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Chatbot View Controller-->
+        <scene sceneID="s0d-6b-0kx">
+            <objects>
+                <viewController storyboardIdentifier="Chatbot" useStoryboardIdentifierAsRestorationIdentifier="YES" id="Y6W-OH-hqX" customClass="ChatbotViewController" customModule="Health" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="5EZ-qb-Rvc">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="chatBot" translatesAutoresizingMaskIntoConstraints="NO" id="8K7-e0-1ZH">
+                                <rect key="frame" x="16" y="150" width="48" height="48"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="48" id="oqv-sO-HdU"/>
+                                    <constraint firstAttribute="height" constant="48" id="stE-q5-AUd"/>
+                                </constraints>
+                            </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="걷기에 대해 궁금한 점을 알려주세요." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GUR-nV-fAW">
+                                <rect key="frame" x="75" y="163.66666666666666" width="243" height="21"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="   걸어봇에게 물어보세요." minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="vTQ-Uc-sUk">
+                                <rect key="frame" x="16" y="682" width="361" height="54"/>
+                                <color key="backgroundColor" name="boxColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="54" id="kiQ-Gd-ZAs"/>
+                                </constraints>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
+                                <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" returnKeyType="done" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
+                            </textField>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Alan AI는 정보 제공시 실수를 할 수 있으니 다시 한번 확인하세요." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1RW-dO-zDG">
+                                <rect key="frame" x="40" y="744" width="313" height="15"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleCaption1"/>
+                                <color key="textColor" name="buttonTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3rs-Qu-hxy">
+                                <rect key="frame" x="315" y="687.66666666666663" width="54" height="43"/>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" image="paperplane.fill" catalog="system">
+                                    <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage" configurationType="pointSize" pointSize="24" scale="default"/>
+                                </buttonConfiguration>
+                            </button>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="1RW-dO-zDG" firstAttribute="centerX" secondItem="5EZ-qb-Rvc" secondAttribute="centerX" id="9m3-87-axn"/>
+                            <constraint firstItem="8K7-e0-1ZH" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" constant="32" id="Dzc-TT-qH9"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="vTQ-Uc-sUk" secondAttribute="trailing" constant="16" id="HHC-st-7X8"/>
+                            <constraint firstItem="GUR-nV-fAW" firstAttribute="centerX" secondItem="vDu-zF-Fre" secondAttribute="centerX" id="KK8-j4-bEG"/>
+                            <constraint firstItem="1RW-dO-zDG" firstAttribute="top" secondItem="vTQ-Uc-sUk" secondAttribute="bottom" constant="8" id="S7a-c0-Ax2"/>
+                            <constraint firstItem="3rs-Qu-hxy" firstAttribute="centerY" secondItem="vTQ-Uc-sUk" secondAttribute="centerY" id="UYx-B0-15v"/>
+                            <constraint firstItem="vTQ-Uc-sUk" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="16" id="pYg-2t-8Vp"/>
+                            <constraint firstItem="vTQ-Uc-sUk" firstAttribute="bottom" secondItem="vDu-zF-Fre" secondAttribute="bottom" constant="-48" id="vf5-or-Tci"/>
+                            <constraint firstItem="GUR-nV-fAW" firstAttribute="centerY" secondItem="8K7-e0-1ZH" secondAttribute="centerY" id="yKY-My-DHB"/>
+                            <constraint firstItem="vTQ-Uc-sUk" firstAttribute="trailing" secondItem="3rs-Qu-hxy" secondAttribute="trailing" constant="8" id="zID-c6-OUK"/>
+                            <constraint firstItem="8K7-e0-1ZH" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="16" id="zYg-YQ-odJ"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="chattingTextField" destination="vTQ-Uc-sUk" id="lM1-Sg-XPe"/>
+                        <outlet property="textFieldBottomConstraint" destination="vf5-or-Tci" id="Fmp-oM-h4M"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Ief-a0-LHa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="107.63358778625954" y="-27.464788732394368"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="chatBot" width="46" height="46"/>
+        <image name="paperplane.fill" catalog="system" width="128" height="119"/>
+        <namedColor name="boxColor">
+            <color red="0.19215686274509805" green="0.19607843137254902" blue="0.25490196078431371" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <namedColor name="buttonTextColor">
+            <color red="0.41568627450980394" green="0.41568627450980394" blue="0.41568627450980394" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>
