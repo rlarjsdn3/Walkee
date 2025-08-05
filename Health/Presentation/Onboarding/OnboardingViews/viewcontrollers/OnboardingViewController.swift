@@ -54,13 +54,7 @@ class OnboardingViewController: CoreViewController {
         return button
     }()
     
-    private let pageIndicatorStack: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .horizontal
-        stack.spacing = 6
-        stack.distribution = .fillEqually
-        return stack
-    }()
+    private let progressIndicatorView = ProgressIndicatorView(totalPages: 4)
     
     override func initVM() {}
     
@@ -73,23 +67,23 @@ class OnboardingViewController: CoreViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        pageIndicatorStack.isHidden = false
+        progressIndicatorView.isHidden = false
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        pageIndicatorStack.isHidden = true
+        progressIndicatorView.isHidden = true
     }
     
     override func setupHierarchy() {
-        [descriptionLabel, continueButton, pageIndicatorStack].forEach {
+        [descriptionLabel, continueButton, progressIndicatorView].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview($0)
         }
     }
     
     override func setupAttribute() {
-        setupPageIndicators(progress: 0.125)
+        progressIndicatorView.updateProgress(to: 0.125)
     }
     
     override func setupConstraints() {
@@ -103,55 +97,12 @@ class OnboardingViewController: CoreViewController {
             continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             continueButton.heightAnchor.constraint(equalToConstant: 48),
             
-            pageIndicatorStack.topAnchor.constraint(equalTo: view.topAnchor, constant: 78),
-            pageIndicatorStack.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            pageIndicatorStack.heightAnchor.constraint(equalToConstant: 4),
-            pageIndicatorStack.widthAnchor.constraint(equalToConstant: 320)
+            progressIndicatorView.topAnchor.constraint(equalTo: view.topAnchor, constant: 78),
+            progressIndicatorView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            progressIndicatorView.heightAnchor.constraint(equalToConstant: 4),
+            progressIndicatorView.widthAnchor.constraint(equalToConstant: 320)
         ])
     }
-    
-    private func setupPageIndicators(progress: CGFloat) {
-        pageIndicatorStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
-
-        let totalPages = 4
-        let clampedProgress = max(0, min(progress, 1))
-        let totalProgress = CGFloat(totalPages) * clampedProgress
-
-        for i in 0..<totalPages {
-            let containerView = UIView()
-            containerView.backgroundColor = .buttonBackground
-            containerView.layer.cornerRadius = 2
-            containerView.clipsToBounds = true
-
-            let progressBar = UIView()
-            progressBar.backgroundColor = .accent
-            progressBar.translatesAutoresizingMaskIntoConstraints = false
-
-            containerView.addSubview(progressBar)
-
-            let fillRatio: CGFloat
-            if totalProgress > CGFloat(i + 1) {
-                fillRatio = 1.0
-            } else if totalProgress > CGFloat(i) {
-                fillRatio = totalProgress - CGFloat(i)
-            } else {
-                fillRatio = 0.0
-            }
-
-            NSLayoutConstraint.activate([
-                progressBar.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
-                progressBar.topAnchor.constraint(equalTo: containerView.topAnchor),
-                progressBar.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
-                progressBar.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: fillRatio)
-            ])
-
-            pageIndicatorStack.addArrangedSubview(containerView)
-
-            containerView.translatesAutoresizingMaskIntoConstraints = false
-            containerView.heightAnchor.constraint(equalToConstant: 4).isActive = true
-        }
-    }
-
     
     @objc private func continueButtonTapped() {
         performSegue(withIdentifier: "goToGenderInfo", sender: self)

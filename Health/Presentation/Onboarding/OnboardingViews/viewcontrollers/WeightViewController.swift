@@ -1,8 +1,24 @@
+//
+//  WeightViewController.swift
+//  Health
+//
+//  Created by 권도현 on 8/4/25.
+//
+
 import UIKit
 
-class SelectAgeViewController: CoreViewController {
+class WeightViewController: CoreViewController {
     
-    @IBOutlet weak var ageInputField: UITextField!
+    @IBOutlet weak var weightInputField: UITextField!
+    
+    private let kgLabel: UILabel = {
+        let label = UILabel()
+        label.text = "kg"
+        label.textColor = .accent
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
     
     private let continueButton: UIButton = {
         let button = UIButton(type: .system)
@@ -14,13 +30,7 @@ class SelectAgeViewController: CoreViewController {
         return button
     }()
     
-    private let pageIndicatorStack: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .horizontal
-        stack.spacing = 6
-        stack.distribution = .fillEqually
-        return stack
-    }()
+    private let progressIndicatorView = ProgressIndicatorView(totalPages: 4)
 
     private var continueButtonBottomConstraint: NSLayoutConstraint?
 
@@ -29,10 +39,10 @@ class SelectAgeViewController: CoreViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        ageInputField.delegate = self
-        ageInputField.keyboardType = .numberPad
-        ageInputField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
-        
+        weightInputField.delegate = self
+        weightInputField.keyboardType = .numberPad
+        weightInputField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+       
         continueButton.addTarget(self, action: #selector(didTapContinue), for: .touchUpInside)
         
         registerForKeyboardNotifications()
@@ -43,23 +53,23 @@ class SelectAgeViewController: CoreViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        pageIndicatorStack.isHidden = false
+        progressIndicatorView.isHidden = false
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        pageIndicatorStack.isHidden = true
+        progressIndicatorView.isHidden = true
     }
 
     override func setupHierarchy() {
-        [continueButton, pageIndicatorStack].forEach {
+        [continueButton, progressIndicatorView, kgLabel].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview($0)
         }
     }
 
     override func setupAttribute() {
-        setupPageIndicators(progress: 0.375)
+        progressIndicatorView.updateProgress(to: 0.5)
     }
 
     override func setupConstraints() {
@@ -71,53 +81,14 @@ class SelectAgeViewController: CoreViewController {
             continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             continueButton.heightAnchor.constraint(equalToConstant: 48),
             
-            pageIndicatorStack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -24),
-            pageIndicatorStack.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            pageIndicatorStack.heightAnchor.constraint(equalToConstant: 4),
-            pageIndicatorStack.widthAnchor.constraint(equalToConstant: 320)
+            progressIndicatorView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -24),
+            progressIndicatorView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            progressIndicatorView.heightAnchor.constraint(equalToConstant: 4),
+            progressIndicatorView.widthAnchor.constraint(equalToConstant: 320),
+            
+            kgLabel.leadingAnchor.constraint(equalTo: weightInputField.trailingAnchor, constant: 8),
+            kgLabel.centerYAnchor.constraint(equalTo: weightInputField.centerYAnchor)
         ])
-    }
-
-    private func setupPageIndicators(progress: CGFloat) {
-        pageIndicatorStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
-
-        let totalPages = 4
-        let clampedProgress = max(0, min(progress, 1))
-        let totalProgress = CGFloat(totalPages) * clampedProgress
-
-        for i in 0..<totalPages {
-            let containerView = UIView()
-            containerView.backgroundColor = .buttonBackground
-            containerView.layer.cornerRadius = 2
-            containerView.clipsToBounds = true
-
-            let progressBar = UIView()
-            progressBar.backgroundColor = .accent
-            progressBar.translatesAutoresizingMaskIntoConstraints = false
-
-            containerView.addSubview(progressBar)
-
-            let fillRatio: CGFloat
-            if totalProgress > CGFloat(i + 1) {
-                fillRatio = 1.0
-            } else if totalProgress > CGFloat(i) {
-                fillRatio = totalProgress - CGFloat(i)
-            } else {
-                fillRatio = 0.0
-            }
-
-            NSLayoutConstraint.activate([
-                progressBar.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
-                progressBar.topAnchor.constraint(equalTo: containerView.topAnchor),
-                progressBar.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
-                progressBar.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: fillRatio)
-            ])
-
-            pageIndicatorStack.addArrangedSubview(containerView)
-
-            containerView.translatesAutoresizingMaskIntoConstraints = false
-            containerView.heightAnchor.constraint(equalToConstant: 4).isActive = true
-        }
     }
 
     @objc private func textFieldDidChange(_ textField: UITextField) {
@@ -125,20 +96,20 @@ class SelectAgeViewController: CoreViewController {
     }
 
     private func validateInput() {
-        guard let text = ageInputField.text, let year = Int(text), (1900...2025).contains(year) else {
+        guard let text = weightInputField.text, let weight = Int(text), (40...200).contains(weight) else {
             continueButton.isEnabled = false
             continueButton.backgroundColor = .buttonBackground
-            ageInputField.textColor = .label // 기본색
+            weightInputField.textColor = .label
             return
         }
         continueButton.isEnabled = true
         continueButton.backgroundColor = .accent
-        ageInputField.textColor = .accent
+        weightInputField.textColor = .accent
     }
-    
+
     @objc private func didTapContinue() {
         guard continueButton.isEnabled else { return }
-        performSegue(withIdentifier: "goToWeightInfo", sender: nil)
+        performSegue(withIdentifier: "goToHeightInfo", sender: nil)
     }
 
     private func registerForKeyboardNotifications() {
@@ -176,7 +147,7 @@ class SelectAgeViewController: CoreViewController {
     }
 }
 
-extension SelectAgeViewController: UITextFieldDelegate {
+extension WeightViewController: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         let allowedCharacters = CharacterSet.decimalDigits
         if string.rangeOfCharacter(from: allowedCharacters.inverted) != nil {
@@ -185,7 +156,7 @@ extension SelectAgeViewController: UITextFieldDelegate {
 
         let currentText = textField.text ?? ""
         let prospectiveText = (currentText as NSString).replacingCharacters(in: range, with: string)
-        return prospectiveText.count <= 4
+        return prospectiveText.count <= 3
     }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
