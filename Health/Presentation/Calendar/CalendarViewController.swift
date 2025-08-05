@@ -4,37 +4,55 @@ final class CalendarViewController: CoreViewController {
 
     @IBOutlet weak var collectionView: UICollectionView!
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        collectionView.performBatchUpdates(nil) { _ in
+            self.scrollToCurrentMonth()
+        }
+    }
+
     override func setupAttribute() {
         super.setupAttribute()
         collectionView.dataSource = self
         collectionView.delegate = self
-        collectionView.collectionViewLayout = createCompositionalLayout()
+        collectionView.collectionViewLayout = createLayout()
         collectionView.register(
             CalendarMonthCell.nib,
             forCellWithReuseIdentifier: CalendarMonthCell.id
         )
     }
 
-    private func createCompositionalLayout() -> UICollectionViewLayout {
-        UICollectionViewCompositionalLayout { sectionIndex, environment in
-            let itemSize = NSCollectionLayoutSize(
-                widthDimension: .fractionalWidth(1.0),
-                heightDimension: .estimated(300)
-            )
-            let item = NSCollectionLayoutItem(layoutSize: itemSize)
+    private func createLayout() -> UICollectionViewLayout {
+        let itemSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0),
+            // TODO: 실제 컨텐츠 높이에 따라 유동적으로 설정
+            heightDimension: .estimated(400)
+        )
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
-            let groupSize = itemSize
-            let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
+        let groupSize = itemSize
+        let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
 
-            let section = NSCollectionLayoutSection(group: group)
-            section.contentInsets = NSDirectionalEdgeInsets(
-                top: UICollectionViewConstant.defaultInset,
-                leading: UICollectionViewConstant.defaultInset,
-                bottom: UICollectionViewConstant.defaultInset,
-                trailing: UICollectionViewConstant.defaultInset
-            )
-            return section
-        }
+        let section = NSCollectionLayoutSection(group: group)
+        section.contentInsets = NSDirectionalEdgeInsets(
+            top: UICollectionViewConstant.defaultInset,
+            leading: UICollectionViewConstant.defaultInset,
+            bottom: UICollectionViewConstant.defaultInset,
+            trailing: UICollectionViewConstant.defaultInset
+        )
+        return UICollectionViewCompositionalLayout(section: section)
+    }
+
+    private func scrollToCurrentMonth() {
+        let currentMonth = Date().month
+        let indexPath = IndexPath(item: 0, section: currentMonth - 1)
+
+        collectionView.scrollToItem(
+            at: indexPath,
+            at: .top,
+            animated: false
+        )
     }
 }
 
@@ -48,7 +66,10 @@ extension CalendarViewController: UICollectionViewDataSource, UICollectionViewDe
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CalendarMonthCell.id, for: indexPath) as? CalendarMonthCell else {
+        guard let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: CalendarMonthCell.id,
+            for: indexPath
+        ) as? CalendarMonthCell else {
             fatalError("Failed to dequeue CalendarMonthCell")
         }
 

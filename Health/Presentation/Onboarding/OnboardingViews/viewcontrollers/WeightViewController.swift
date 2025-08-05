@@ -1,5 +1,5 @@
 //
-//  HeightViewController.swift
+//  WeightViewController.swift
 //  Health
 //
 //  Created by 권도현 on 8/4/25.
@@ -7,13 +7,13 @@
 
 import UIKit
 
-class HeightViewController: CoreViewController {
-
-    @IBOutlet weak var heightInputField: UITextField!
+class WeightViewController: CoreViewController {
     
-    private let cmLabel: UILabel = {
+    @IBOutlet weak var weightInputField: UITextField!
+    
+    private let kgLabel: UILabel = {
         let label = UILabel()
-        label.text = "cm"
+        label.text = "kg"
         label.textColor = .accent
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -25,29 +25,25 @@ class HeightViewController: CoreViewController {
         button.setTitle("다음", for: .normal)
         button.backgroundColor = UIColor.buttonBackground
         button.setTitleColor(.white, for: .normal)
-        button.layer.cornerRadius = 10
+        button.layer.cornerRadius = 12
         button.isEnabled = false
         return button
     }()
     
-    private let pageIndicatorStack: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .horizontal
-        stack.spacing = 6
-        stack.distribution = .fillEqually
-        return stack
-    }()
+    private let progressIndicatorStackView = ProgressIndicatorStackView(totalPages: 4)
 
     private var continueButtonBottomConstraint: NSLayoutConstraint?
 
-    override func initVM() {}
+    override func initVM() { }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        heightInputField.delegate = self
-        heightInputField.keyboardType = .numberPad
-        heightInputField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        weightInputField.delegate = self
+        weightInputField.keyboardType = .numberPad
+        weightInputField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+       
+        continueButton.addTarget(self, action: #selector(didTapContinue), for: .touchUpInside)
         
         registerForKeyboardNotifications()
         setupTapGestureToDismissKeyboard()
@@ -57,23 +53,23 @@ class HeightViewController: CoreViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        pageIndicatorStack.isHidden = false
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        pageIndicatorStack.isHidden = true
+        progressIndicatorStackView.isHidden = false
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        progressIndicatorStackView.isHidden = true
+    }
+
     override func setupHierarchy() {
-        [continueButton, pageIndicatorStack, cmLabel].forEach {
+        [continueButton, progressIndicatorStackView, kgLabel].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview($0)
         }
     }
 
     override func setupAttribute() {
-        setupPageIndicators(currentPage: 4)
+        progressIndicatorStackView.updateProgress(to: 0.5)
     }
 
     override func setupConstraints() {
@@ -85,25 +81,14 @@ class HeightViewController: CoreViewController {
             continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             continueButton.heightAnchor.constraint(equalToConstant: 48),
             
-            pageIndicatorStack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -24),
-            pageIndicatorStack.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            pageIndicatorStack.heightAnchor.constraint(equalToConstant: 4),
-            pageIndicatorStack.widthAnchor.constraint(equalToConstant: 320),
+            progressIndicatorStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -24),
+            progressIndicatorStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            progressIndicatorStackView.heightAnchor.constraint(equalToConstant: 4),
+            progressIndicatorStackView.widthAnchor.constraint(equalToConstant: 320),
             
-            cmLabel.leadingAnchor.constraint(equalTo: heightInputField.trailingAnchor, constant: 8),
-            cmLabel.centerYAnchor.constraint(equalTo: heightInputField.centerYAnchor)
+            kgLabel.leadingAnchor.constraint(equalTo: weightInputField.trailingAnchor, constant: 8),
+            kgLabel.centerYAnchor.constraint(equalTo: weightInputField.centerYAnchor)
         ])
-    }
-
-    private func setupPageIndicators(currentPage: Int) {
-        pageIndicatorStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
-
-        for i in 0..<4 {
-            let bar = UIView()
-            bar.backgroundColor = (i <= currentPage) ? .accent : .buttonBackground
-            bar.layer.cornerRadius = 2
-            pageIndicatorStack.addArrangedSubview(bar)
-        }
     }
 
     @objc private func textFieldDidChange(_ textField: UITextField) {
@@ -111,15 +96,20 @@ class HeightViewController: CoreViewController {
     }
 
     private func validateInput() {
-        guard let text = heightInputField.text, let weight = Int(text), (100...250).contains(weight) else {
+        guard let text = weightInputField.text, let weight = Int(text), (40...200).contains(weight) else {
             continueButton.isEnabled = false
             continueButton.backgroundColor = .buttonBackground
-            heightInputField.textColor = .label
+            weightInputField.textColor = .label
             return
         }
         continueButton.isEnabled = true
         continueButton.backgroundColor = .accent
-        heightInputField.textColor = .accent
+        weightInputField.textColor = .accent
+    }
+
+    @objc private func didTapContinue() {
+        guard continueButton.isEnabled else { return }
+        performSegue(withIdentifier: "goToHeightInfo", sender: nil)
     }
 
     private func registerForKeyboardNotifications() {
@@ -157,9 +147,8 @@ class HeightViewController: CoreViewController {
     }
 }
 
-extension HeightViewController: UITextFieldDelegate {
+extension WeightViewController: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        
         let allowedCharacters = CharacterSet.decimalDigits
         if string.rangeOfCharacter(from: allowedCharacters.inverted) != nil {
             return false
