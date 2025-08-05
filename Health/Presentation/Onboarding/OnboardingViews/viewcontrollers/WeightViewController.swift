@@ -30,7 +30,7 @@ class WeightViewController: CoreViewController {
         return button
     }()
     
-    private let progressIndicatorView = ProgressIndicatorView(totalPages: 4)
+    private let progressIndicatorStackView = ProgressIndicatorStackView(totalPages: 4)
 
     private var continueButtonBottomConstraint: NSLayoutConstraint?
 
@@ -53,23 +53,23 @@ class WeightViewController: CoreViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        progressIndicatorView.isHidden = false
+        progressIndicatorStackView.isHidden = false
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        progressIndicatorView.isHidden = true
+        progressIndicatorStackView.isHidden = true
     }
 
     override func setupHierarchy() {
-        [continueButton, progressIndicatorView, kgLabel].forEach {
+        [continueButton, progressIndicatorStackView, kgLabel].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview($0)
         }
     }
 
     override func setupAttribute() {
-        progressIndicatorView.updateProgress(to: 0.5)
+        progressIndicatorStackView.updateProgress(to: 0.5)
     }
 
     override func setupConstraints() {
@@ -81,10 +81,10 @@ class WeightViewController: CoreViewController {
             continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             continueButton.heightAnchor.constraint(equalToConstant: 48),
             
-            progressIndicatorView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -24),
-            progressIndicatorView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            progressIndicatorView.heightAnchor.constraint(equalToConstant: 4),
-            progressIndicatorView.widthAnchor.constraint(equalToConstant: 320),
+            progressIndicatorStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -24),
+            progressIndicatorStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            progressIndicatorStackView.heightAnchor.constraint(equalToConstant: 4),
+            progressIndicatorStackView.widthAnchor.constraint(equalToConstant: 320),
             
             kgLabel.leadingAnchor.constraint(equalTo: weightInputField.trailingAnchor, constant: 8),
             kgLabel.centerYAnchor.constraint(equalTo: weightInputField.centerYAnchor)

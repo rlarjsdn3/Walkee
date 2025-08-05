@@ -34,7 +34,7 @@ class GenderSelectViewController: CoreViewController {
         return button
     }()
 
-    private let progressIndicatorView = ProgressIndicatorView(totalPages: 4)
+    private let progressIndicatorStackView = ProgressIndicatorStackView(totalPages: 4)
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,25 +47,25 @@ class GenderSelectViewController: CoreViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        progressIndicatorView.isHidden = false
+        progressIndicatorStackView.isHidden = false
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        progressIndicatorView.isHidden = true
+        progressIndicatorStackView.isHidden = true
     }
 
     override func initVM() {}
 
     override func setupHierarchy() {
-        [continueButton, progressIndicatorView].forEach {
+        [continueButton, progressIndicatorStackView].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview($0)
         }
     }
 
     override func setupAttribute() {
-        progressIndicatorView.updateProgress(to: 0.25)
+        progressIndicatorStackView.updateProgress(to: 0.25)
     }
 
     override func setupConstraints() {
@@ -75,10 +75,10 @@ class GenderSelectViewController: CoreViewController {
             continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             continueButton.heightAnchor.constraint(equalToConstant: 48),
 
-            progressIndicatorView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -24),
-            progressIndicatorView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            progressIndicatorView.heightAnchor.constraint(equalToConstant: 4),
-            progressIndicatorView.widthAnchor.constraint(equalToConstant: 320)
+            progressIndicatorStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -24),
+            progressIndicatorStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            progressIndicatorStackView.heightAnchor.constraint(equalToConstant: 4),
+            progressIndicatorStackView.widthAnchor.constraint(equalToConstant: 320)
         ])
     }
 

@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ProgressIndicatorView: UIStackView {
+class ProgressIndicatorStackView: UIStackView {
     
     private let totalPages: Int
     private let barHeight: CGFloat
