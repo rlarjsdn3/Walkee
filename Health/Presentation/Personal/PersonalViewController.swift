@@ -8,18 +8,32 @@ import UIKit
 
 class PersonalViewController: CoreGradientViewController {
 
-	// MARK: - Properties
-	
-	// MARK: - CoreViewController Override Methods
-	
-	override func initVM() {
+
+
+    @IBAction func segmentControl(_ sender: Any) {
+    }
+    
+
+    @IBAction func leftChevron(_ sender: Any) {
+    }
+    
+
+    @IBAction func rightChevron(_ sender: Any) {
+    }
+    
+    @IBOutlet weak var selectLabel: UILabel!
+    
+    @IBOutlet weak var statisticsView: UIView!
+
+    @IBOutlet weak var walkingDataContainerView: UIView!
+    
+    @IBOutlet weak var walkingLabel: UILabel!
+    
+    @IBOutlet weak var distanceLabel: UILabel!
+
+    override func initVM() {
 		super.initVM()
-		print("PersonalViewController ViewModel 초기화")
-	}
-	
-	override func setupHierarchy() {
-		super.setupHierarchy()
-		print("PersonalViewController 뷰 계층 구성")
+
 	}
 	
 	override func setupAttribute() {
@@ -33,11 +47,6 @@ class PersonalViewController: CoreGradientViewController {
 		print("PersonalViewController 속성 설정 완료")
 	}
 	
-	override func setupConstraints() {
-		super.setupConstraints()
-		print("PersonalViewController 제약 조건 설정")
-	}
-	
 	override func onThemeChanged(isDarkMode: Bool, previousTraitCollection: UITraitCollection?) {
 		super.onThemeChanged(isDarkMode: isDarkMode, previousTraitCollection: previousTraitCollection)
 		
@@ -45,11 +54,10 @@ class PersonalViewController: CoreGradientViewController {
 		
 		updateUIForTheme(isDarkMode: isDarkMode)
 	}
-	
-	// MARK: - Private Methods
-	// 기타 UI 설정 시 이곳에서 사용합니다. (e.g. NSLayoutConstraint) - 삭제하고 쓰시거나 이 메서드 아예 지우셔도 무방해요.
+
+	// 기타 UI 설정 시 이곳에서 사용합니다.
 	private func setupUI() {
-		
+       
 	}
 	
 	private func updateUIForTheme(isDarkMode: Bool) {
