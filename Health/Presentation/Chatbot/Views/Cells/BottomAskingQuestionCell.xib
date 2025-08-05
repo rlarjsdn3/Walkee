@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" rowHeight="106" id="KGk-i7-Jjw" customClass="BottomAskingQuestionCell" customModule="Health" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="361" height="84"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" ambiguous="YES" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="361" height="84"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="w6W-GN-JG9">
+                        <rect key="frame" x="0.0" y="0.0" width="361" height="54"/>
+                        <color key="backgroundColor" name="boxBgColor"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="54" id="7oM-zb-RR4"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                        <textInputTraits key="textInputTraits"/>
+                    </textField>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Lfx-MD-er9">
+                        <rect key="frame" x="291" y="5.6666666666666679" width="62" height="43"/>
+                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <state key="normal" title="Button"/>
+                        <buttonConfiguration key="configuration" style="plain" image="paperplane.fill" catalog="system">
+                            <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage" configurationType="pointSize" pointSize="24"/>
+                        </buttonConfiguration>
+                    </button>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Alan AI는 정보 제공시 실수를 할 수 있으니 다시 한번 확인하세요." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Fap-bF-d2R">
+                        <rect key="frame" x="24" y="62" width="313" height="15"/>
+                        <fontDescription key="fontDescription" style="UICTFontTextStyleCaption1"/>
+                        <color key="textColor" name="buttonTextColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="Lfx-MD-er9" firstAttribute="centerY" secondItem="w6W-GN-JG9" secondAttribute="centerY" id="AO1-wV-yRR"/>
+                    <constraint firstItem="w6W-GN-JG9" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="NoB-6Y-ffx"/>
+                    <constraint firstAttribute="bottom" secondItem="w6W-GN-JG9" secondAttribute="bottom" id="OUr-bP-dab"/>
+                    <constraint firstItem="w6W-GN-JG9" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" id="Owe-ae-di8"/>
+                    <constraint firstAttribute="trailing" secondItem="Lfx-MD-er9" secondAttribute="trailing" constant="8" id="QUJ-wT-k57"/>
+                    <constraint firstAttribute="trailing" secondItem="w6W-GN-JG9" secondAttribute="trailing" id="cOE-En-AMi"/>
+                    <constraint firstItem="Fap-bF-d2R" firstAttribute="top" secondItem="w6W-GN-JG9" secondAttribute="bottom" constant="8" id="fkf-rO-xBT"/>
+                    <constraint firstItem="Fap-bF-d2R" firstAttribute="centerX" secondItem="H2p-sc-9uM" secondAttribute="centerX" id="iXM-Ve-pTX"/>
+                </constraints>
+            </tableViewCellContentView>
+            <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
+            <point key="canvasLocation" x="-132.06106870229007" y="9.1549295774647899"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="paperplane.fill" catalog="system" width="128" height="119"/>
+        <namedColor name="boxBgColor">
+            <color red="0.19215686274509805" green="0.19607843137254902" blue="0.25490196078431371" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <namedColor name="buttonTextColor">
+            <color red="0.41568627450980394" green="0.41568627450980394" blue="0.41568627450980394" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+    </resources>
+</document>
