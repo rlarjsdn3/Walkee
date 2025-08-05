@@ -17,4 +17,11 @@ extension DIContainer {
 #endif
         }
     }
+
+    /// 건강 데이터 조회 서비스를 의존성 주입 컨테이너에 등록합니다.
+    func registerHealthkService() {
+        self.register(.healthService) { _ in
+            return DefaultHealthService()
+        }
+    }
 }
