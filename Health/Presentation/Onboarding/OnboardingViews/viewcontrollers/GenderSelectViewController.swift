@@ -29,18 +29,12 @@ class GenderSelectViewController: CoreViewController {
         button.setTitle("다음", for: .normal)
         button.backgroundColor = UIColor.buttonBackground
         button.setTitleColor(.white, for: .normal)
-        button.layer.cornerRadius = 10
+        button.layer.cornerRadius = 12
         button.isEnabled = false
         return button
     }()
 
-    private let pageIndicatorStack: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .horizontal
-        stack.spacing = 6
-        stack.distribution = .fillEqually
-        return stack
-    }()
+    private let progressIndicatorStackView = ProgressIndicatorStackView(totalPages: 4)
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,30 +42,30 @@ class GenderSelectViewController: CoreViewController {
         updateGenderSelectionUI()
         updateContinueButtonState()
         let backBarButton = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
-           navigationItem.backBarButtonItem = backBarButton
+        navigationItem.backBarButtonItem = backBarButton
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        pageIndicatorStack.isHidden = false
+        progressIndicatorStackView.isHidden = false
     }
-    
+
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        pageIndicatorStack.isHidden = true
+        progressIndicatorStackView.isHidden = true
     }
 
     override func initVM() {}
 
     override func setupHierarchy() {
-        [continueButton, pageIndicatorStack].forEach {
+        [continueButton, progressIndicatorStackView].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview($0)
         }
     }
 
     override func setupAttribute() {
-        setupPageIndicators(currentPage: 1)
+        progressIndicatorStackView.updateProgress(to: 0.25)
     }
 
     override func setupConstraints() {
@@ -80,11 +74,11 @@ class GenderSelectViewController: CoreViewController {
             continueButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             continueButton.heightAnchor.constraint(equalToConstant: 48),
-            
-            pageIndicatorStack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -24),
-            pageIndicatorStack.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            pageIndicatorStack.heightAnchor.constraint(equalToConstant: 4),
-            pageIndicatorStack.widthAnchor.constraint(equalToConstant: 320)
+
+            progressIndicatorStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -24),
+            progressIndicatorStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            progressIndicatorStackView.heightAnchor.constraint(equalToConstant: 4),
+            progressIndicatorStackView.widthAnchor.constraint(equalToConstant: 320)
         ])
     }
 
@@ -129,16 +123,5 @@ class GenderSelectViewController: CoreViewController {
         continueButton.isEnabled = isEnabled
         continueButton.backgroundColor = isEnabled ? .accent : .buttonBackground
         continueButton.setTitleColor(isEnabled ? .black : .white, for: .normal)
-    }
-
-    private func setupPageIndicators(currentPage: Int) {
-        pageIndicatorStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
-
-        for i in 0..<4 {
-            let bar = UIView()
-            bar.backgroundColor = (i <= currentPage) ? .accent : .buttonBackground
-            bar.layer.cornerRadius = 2
-            pageIndicatorStack.addArrangedSubview(bar)
-        }
     }
 }

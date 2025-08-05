@@ -1,54 +1,32 @@
-//
-//  WeightViewController.swift
-//  Health
-//
-//  Created by 권도현 on 8/4/25.
-//
-
 import UIKit
 
-class WeightViewController: CoreViewController {
+class SelectAgeViewController: CoreViewController {
     
-    @IBOutlet weak var weightInputField: UITextField!
-    
-    private let kgLabel: UILabel = {
-        let label = UILabel()
-        label.text = "kg"
-        label.textColor = .accent
-        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
+    @IBOutlet weak var ageInputField: UITextField!
     
     private let continueButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("다음", for: .normal)
         button.backgroundColor = UIColor.buttonBackground
         button.setTitleColor(.white, for: .normal)
-        button.layer.cornerRadius = 10
+        button.layer.cornerRadius = 12
         button.isEnabled = false
         return button
-    }()
-    
-    private let pageIndicatorStack: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .horizontal
-        stack.spacing = 6
-        stack.distribution = .fillEqually
-        return stack
     }()
 
     private var continueButtonBottomConstraint: NSLayoutConstraint?
 
+    private let progressIndicatorStackView = ProgressIndicatorStackView(totalPages: 4)
+    
     override func initVM() { }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        weightInputField.delegate = self
-        weightInputField.keyboardType = .numberPad
-        weightInputField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
-       
+        ageInputField.delegate = self
+        ageInputField.keyboardType = .numberPad
+        ageInputField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        
         continueButton.addTarget(self, action: #selector(didTapContinue), for: .touchUpInside)
         
         registerForKeyboardNotifications()
@@ -59,23 +37,23 @@ class WeightViewController: CoreViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        pageIndicatorStack.isHidden = false
+        progressIndicatorStackView.isHidden = false
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        pageIndicatorStack.isHidden = true
+        progressIndicatorStackView.isHidden = true
     }
 
     override func setupHierarchy() {
-        [continueButton, pageIndicatorStack, kgLabel].forEach {
+        [continueButton, progressIndicatorStackView].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview($0)
         }
     }
 
     override func setupAttribute() {
-        setupPageIndicators(currentPage: 3)
+        progressIndicatorStackView.updateProgress(to: 0.375)
     }
 
     override func setupConstraints() {
@@ -87,25 +65,11 @@ class WeightViewController: CoreViewController {
             continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             continueButton.heightAnchor.constraint(equalToConstant: 48),
             
-            pageIndicatorStack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -24),
-            pageIndicatorStack.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            pageIndicatorStack.heightAnchor.constraint(equalToConstant: 4),
-            pageIndicatorStack.widthAnchor.constraint(equalToConstant: 320),
-            
-            kgLabel.leadingAnchor.constraint(equalTo: weightInputField.trailingAnchor, constant: 8),
-            kgLabel.centerYAnchor.constraint(equalTo: weightInputField.centerYAnchor)
+            progressIndicatorStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -24),
+            progressIndicatorStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            progressIndicatorStackView.heightAnchor.constraint(equalToConstant: 4),
+            progressIndicatorStackView.widthAnchor.constraint(equalToConstant: 320)
         ])
-    }
-
-    private func setupPageIndicators(currentPage: Int) {
-        pageIndicatorStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
-
-        for i in 0..<4 {
-            let bar = UIView()
-            bar.backgroundColor = (i <= currentPage) ? .accent : .buttonBackground
-            bar.layer.cornerRadius = 2
-            pageIndicatorStack.addArrangedSubview(bar)
-        }
     }
 
     @objc private func textFieldDidChange(_ textField: UITextField) {
@@ -113,20 +77,20 @@ class WeightViewController: CoreViewController {
     }
 
     private func validateInput() {
-        guard let text = weightInputField.text, let weight = Int(text), (40...200).contains(weight) else {
+        guard let text = ageInputField.text, let year = Int(text), (1900...2025).contains(year) else {
             continueButton.isEnabled = false
             continueButton.backgroundColor = .buttonBackground
-            weightInputField.textColor = .label
+            ageInputField.textColor = .label // 기본색
             return
         }
         continueButton.isEnabled = true
         continueButton.backgroundColor = .accent
-        weightInputField.textColor = .accent
+        ageInputField.textColor = .accent
     }
-
+    
     @objc private func didTapContinue() {
         guard continueButton.isEnabled else { return }
-        performSegue(withIdentifier: "goToHeightInfo", sender: nil)
+        performSegue(withIdentifier: "goToWeightInfo", sender: nil)
     }
 
     private func registerForKeyboardNotifications() {
@@ -164,7 +128,7 @@ class WeightViewController: CoreViewController {
     }
 }
 
-extension WeightViewController: UITextFieldDelegate {
+extension SelectAgeViewController: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         let allowedCharacters = CharacterSet.decimalDigits
         if string.rangeOfCharacter(from: allowedCharacters.inverted) != nil {
@@ -173,7 +137,7 @@ extension WeightViewController: UITextFieldDelegate {
 
         let currentText = textField.text ?? ""
         let prospectiveText = (currentText as NSString).replacingCharacters(in: range, with: string)
-        return prospectiveText.count <= 3
+        return prospectiveText.count <= 4
     }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {

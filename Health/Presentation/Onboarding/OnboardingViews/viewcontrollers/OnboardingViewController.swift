@@ -11,6 +11,29 @@ class OnboardingViewController: CoreViewController {
     
     @IBOutlet weak var appImageView: UIImageView!
     
+    
+    @IBAction func debugMode(_ sender: Any) {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        
+        guard let tabBarController = storyboard.instantiateInitialViewController() as? UITabBarController else {
+            print("Main.storyboard의 초기 뷰컨트롤러가 UITabBarController가 아닙니다.")
+            return
+        }
+        
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            window.rootViewController = tabBarController
+            window.makeKeyAndVisible()
+            
+            UIView.transition(with: window,
+                              duration: 0.5,
+                              options: [.transitionCrossDissolve],
+                              animations: nil,
+                              completion: nil)
+        }
+    }
+
+    
     private let descriptionLabel: UILabel = {
         let label = UILabel()
         label.text = "사용자에게 더 정확한 운동측정과 맞춤 추천을 제공하기 위해 사용자 입력 정보가 필요합니다."
@@ -26,18 +49,12 @@ class OnboardingViewController: CoreViewController {
         button.setTitle("다음", for: .normal)
         button.backgroundColor = UIColor.accent
         button.setTitleColor(.label, for: .normal)
-        button.layer.cornerRadius = 10
+        button.layer.cornerRadius = 12
         button.isEnabled = true
         return button
     }()
     
-    private let pageIndicatorStack: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .horizontal
-        stack.spacing = 6
-        stack.distribution = .fillEqually
-        return stack
-    }()
+    private let progressIndicatorStackView = ProgressIndicatorStackView(totalPages: 4)
     
     override func initVM() {}
     
@@ -50,23 +67,23 @@ class OnboardingViewController: CoreViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        pageIndicatorStack.isHidden = false
+        progressIndicatorStackView.isHidden = false
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        pageIndicatorStack.isHidden = true
+        progressIndicatorStackView.isHidden = true
     }
     
     override func setupHierarchy() {
-        [descriptionLabel, continueButton, pageIndicatorStack].forEach {
+        [descriptionLabel, continueButton, progressIndicatorStackView].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview($0)
         }
     }
     
     override func setupAttribute() {
-        setupPageIndicators(currentPage: 0)
+        progressIndicatorStackView.updateProgress(to: 0.125)
     }
     
     override func setupConstraints() {
@@ -80,21 +97,11 @@ class OnboardingViewController: CoreViewController {
             continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             continueButton.heightAnchor.constraint(equalToConstant: 48),
             
-            pageIndicatorStack.topAnchor.constraint(equalTo: view.topAnchor, constant: 78),
-            pageIndicatorStack.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            pageIndicatorStack.heightAnchor.constraint(equalToConstant: 4),
-            pageIndicatorStack.widthAnchor.constraint(equalToConstant: 320)
+            progressIndicatorStackView.topAnchor.constraint(equalTo: view.topAnchor, constant: 78),
+            progressIndicatorStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            progressIndicatorStackView.heightAnchor.constraint(equalToConstant: 4),
+            progressIndicatorStackView.widthAnchor.constraint(equalToConstant: 320)
         ])
-    }
-    
-    private func setupPageIndicators(currentPage: Int) {
-        pageIndicatorStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
-        
-        for i in 0..<4 {
-            let bar = UIView()
-            bar.backgroundColor = (i <= currentPage) ? .accent : .buttonBackground
-            pageIndicatorStack.addArrangedSubview(bar)
-        }
     }
     
     @objc private func continueButtonTapped() {
