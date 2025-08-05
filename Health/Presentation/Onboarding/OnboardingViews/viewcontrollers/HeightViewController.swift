@@ -25,7 +25,7 @@ class HeightViewController: CoreViewController {
         button.setTitle("다음", for: .normal)
         button.backgroundColor = UIColor.buttonBackground
         button.setTitleColor(.white, for: .normal)
-        button.layer.cornerRadius = 12
+        button.applyCornerStyle(.medium)
         button.isEnabled = false
         return button
     }()
@@ -43,11 +43,15 @@ class HeightViewController: CoreViewController {
         heightInputField.keyboardType = .numberPad
         heightInputField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         
+        continueButton.addTarget(self, action: #selector(continueButtonTapped), for: .touchUpInside)
+        
         registerForKeyboardNotifications()
         setupTapGestureToDismissKeyboard()
+        
         let backBarButton = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
         navigationItem.backBarButtonItem = backBarButton
     }
+
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -91,6 +95,10 @@ class HeightViewController: CoreViewController {
     
     @objc private func textFieldDidChange(_ textField: UITextField) {
         validateInput()
+
+        if let text = textField.text, text.count == 3 {
+            textField.resignFirstResponder()
+        }
     }
 
     private func validateInput() {
@@ -134,6 +142,12 @@ class HeightViewController: CoreViewController {
     @objc private func dismissKeyboard() {
         view.endEditing(true)
     }
+    
+    @objc private func continueButtonTapped() {
+        guard continueButton.isEnabled else { return }
+        performSegue(withIdentifier: "goToHealthLink", sender: self)
+    }
+
 
     deinit {
         NotificationCenter.default.removeObserver(self)

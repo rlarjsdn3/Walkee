@@ -1,6 +1,13 @@
+//
+//  SelectAgeViewController.swift
+//  Health
+//
+//  Created by 권도현 on 8/4/25.
+//
+
 import UIKit
 
-class SelectAgeViewController: CoreViewController {
+class InputAgeViewController: CoreViewController {
     
     @IBOutlet weak var ageInputField: UITextField!
     
@@ -9,7 +16,7 @@ class SelectAgeViewController: CoreViewController {
         button.setTitle("다음", for: .normal)
         button.backgroundColor = UIColor.buttonBackground
         button.setTitleColor(.white, for: .normal)
-        button.layer.cornerRadius = 12
+        button.applyCornerStyle(.medium)
         button.isEnabled = false
         return button
     }()
@@ -74,6 +81,10 @@ class SelectAgeViewController: CoreViewController {
 
     @objc private func textFieldDidChange(_ textField: UITextField) {
         validateInput()
+
+        if let text = textField.text, text.count == 4 {
+            textField.resignFirstResponder()
+        }
     }
 
     private func validateInput() {
@@ -128,7 +139,7 @@ class SelectAgeViewController: CoreViewController {
     }
 }
 
-extension SelectAgeViewController: UITextFieldDelegate {
+extension InputAgeViewController: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         let allowedCharacters = CharacterSet.decimalDigits
         if string.rangeOfCharacter(from: allowedCharacters.inverted) != nil {
