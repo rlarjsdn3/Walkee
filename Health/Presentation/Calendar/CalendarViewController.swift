@@ -1,6 +1,6 @@
 import UIKit
 
-final class CalendarViewController: CoreViewController {
+final class CalendarViewController: CoreGradientViewController {
 
     @IBOutlet weak var collectionView: UICollectionView!
 
@@ -14,6 +14,9 @@ final class CalendarViewController: CoreViewController {
 
     override func setupAttribute() {
         super.setupAttribute()
+
+        applyBackgroundGradient(.midnightBlack)
+
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.collectionViewLayout = createLayout()
