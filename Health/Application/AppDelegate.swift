@@ -18,8 +18,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ) -> Bool {
         FirebaseApp.configure()
 
+        DIContainer.shared.registerHealthService()
         DIContainer.shared.registerNetworkService()
-        DIContainer.shared.registerHealthkService()
 
         return true
     }
