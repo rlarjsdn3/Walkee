@@ -9,4 +9,5 @@ import Foundation
 
 final class DashboardViewModel {
 
+    @Injected var healthService: HealthService
 }
