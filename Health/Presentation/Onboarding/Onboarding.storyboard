@@ -24,12 +24,23 @@
                                     <constraint firstAttribute="height" constant="120" id="zRQ-sY-Tzj"/>
                                 </constraints>
                             </imageView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qc1-bk-YY1">
+                                <rect key="frame" x="140" y="162" width="113" height="35"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="filled" title="Debuging"/>
+                                <connections>
+                                    <action selector="debugMode:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="zbG-Q0-rSd"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="t5L-9X-9pv" firstAttribute="centerX" secondItem="5EZ-qb-Rvc" secondAttribute="centerX" id="ANn-qp-SaZ"/>
                             <constraint firstItem="t5L-9X-9pv" firstAttribute="centerY" secondItem="5EZ-qb-Rvc" secondAttribute="centerY" id="H3q-lr-yeB"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="qc1-bk-YY1" secondAttribute="trailing" constant="140" id="UDA-fa-vyE"/>
+                            <constraint firstItem="qc1-bk-YY1" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" id="r3G-4Q-HgD"/>
+                            <constraint firstItem="qc1-bk-YY1" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="140" id="v7p-4n-9hg"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="IeC-4y-Zir"/>

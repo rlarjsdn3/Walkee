@@ -25,7 +25,7 @@ class WeightViewController: CoreViewController {
         button.setTitle("다음", for: .normal)
         button.backgroundColor = UIColor.buttonBackground
         button.setTitleColor(.white, for: .normal)
-        button.layer.cornerRadius = 10
+        button.layer.cornerRadius = 12
         button.isEnabled = false
         return button
     }()
@@ -75,7 +75,7 @@ class WeightViewController: CoreViewController {
     }
 
     override func setupAttribute() {
-        setupPageIndicators(currentPage: 3)
+        setupPageIndicators(progress: 0.5)
     }
 
     override func setupConstraints() {
@@ -97,14 +97,45 @@ class WeightViewController: CoreViewController {
         ])
     }
 
-    private func setupPageIndicators(currentPage: Int) {
+    private func setupPageIndicators(progress: CGFloat) {
         pageIndicatorStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
 
-        for i in 0..<4 {
-            let bar = UIView()
-            bar.backgroundColor = (i <= currentPage) ? .accent : .buttonBackground
-            bar.layer.cornerRadius = 2
-            pageIndicatorStack.addArrangedSubview(bar)
+        let totalPages = 4
+        let clampedProgress = max(0, min(progress, 1))
+        let totalProgress = CGFloat(totalPages) * clampedProgress
+
+        for i in 0..<totalPages {
+            let containerView = UIView()
+            containerView.backgroundColor = .buttonBackground
+            containerView.layer.cornerRadius = 2
+            containerView.clipsToBounds = true
+
+            let progressBar = UIView()
+            progressBar.backgroundColor = .accent
+            progressBar.translatesAutoresizingMaskIntoConstraints = false
+
+            containerView.addSubview(progressBar)
+
+            let fillRatio: CGFloat
+            if totalProgress > CGFloat(i + 1) {
+                fillRatio = 1.0
+            } else if totalProgress > CGFloat(i) {
+                fillRatio = totalProgress - CGFloat(i)
+            } else {
+                fillRatio = 0.0
+            }
+
+            NSLayoutConstraint.activate([
+                progressBar.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+                progressBar.topAnchor.constraint(equalTo: containerView.topAnchor),
+                progressBar.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
+                progressBar.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: fillRatio)
+            ])
+
+            pageIndicatorStack.addArrangedSubview(containerView)
+
+            containerView.translatesAutoresizingMaskIntoConstraints = false
+            containerView.heightAnchor.constraint(equalToConstant: 4).isActive = true
         }
     }
 
