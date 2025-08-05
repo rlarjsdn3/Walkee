@@ -74,7 +74,12 @@ extension CalendarMonthCell: UICollectionViewDataSource, UICollectionViewDelegat
         }
 
         let date = datesWithBlank[indexPath.item]
-        cell.configure(date: date)
+
+        // TODO: 실제 걸음 데이터로 수정
+        let current = Int.random(in: 0 ... 15000)
+        let goal = 10000
+
+        cell.configure(date: date, currentSteps: current, goalSteps: goal)
 
         return cell
     }
