@@ -4,6 +4,14 @@ final class CalendarViewController: CoreViewController {
 
     @IBOutlet weak var collectionView: UICollectionView!
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        collectionView.performBatchUpdates(nil) { _ in
+            self.scrollToCurrentMonth()
+        }
+    }
+
     override func setupAttribute() {
         super.setupAttribute()
         collectionView.dataSource = self
@@ -34,6 +42,17 @@ final class CalendarViewController: CoreViewController {
             trailing: UICollectionViewConstant.defaultInset
         )
         return UICollectionViewCompositionalLayout(section: section)
+    }
+
+    private func scrollToCurrentMonth() {
+        let currentMonth = Date().month
+        let indexPath = IndexPath(item: 0, section: currentMonth - 1)
+
+        collectionView.scrollToItem(
+            at: indexPath,
+            at: .top,
+            animated: false
+        )
     }
 }
 
