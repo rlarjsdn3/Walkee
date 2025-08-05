@@ -108,6 +108,23 @@ extension Date {
         guard let startOfMonth = self.startOfMonth(using: calendar) else { return nil }
         return calendar.date(byAdding: components, to: startOfMonth)
     }
+
+    /// 해당 월의 모든 날짜 배열을 반환합니다.
+    func datesInMonth(using calendar: Calendar = .current) -> [Date] {
+        guard let start = self.startOfMonth(using: calendar),
+              let end = self.endOfMonth(using: calendar) else {
+            return []
+        }
+
+        var dates: [Date] = []
+        var current = start
+        while current <= end {
+            dates.append(current)
+            guard let next = calendar.date(byAdding: .day, value: 1, to: current) else { break }
+            current = next
+        }
+        return dates
+    }
 }
 
 extension Date {
