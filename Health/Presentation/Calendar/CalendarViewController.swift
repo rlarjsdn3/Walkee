@@ -10,7 +10,7 @@ final class CalendarViewController: CoreViewController {
         collectionView.delegate = self
         collectionView.collectionViewLayout = createCompositionalLayout()
         collectionView.register(
-            UINib(nibName: "CalendarMonthCell", bundle: nil),
+            CalendarMonthCell.nib,
             forCellWithReuseIdentifier: CalendarMonthCell.id
         )
     }
