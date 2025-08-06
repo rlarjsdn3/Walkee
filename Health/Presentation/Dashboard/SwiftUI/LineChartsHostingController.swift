@@ -10,9 +10,9 @@ import UIKit
 
 final class LineChartsHostingController: UIHostingController<LineChartsView> {
 
-    private(set) var chartsData: [ChartsData]
+    private(set) var chartsData: [HealthKitData]
 
-    init(chartsData: [ChartsData]) {
+    init(chartsData: [HealthKitData]) {
         self.chartsData = chartsData
 
         super.init(rootView: LineChartsView(chartsData: chartsData))

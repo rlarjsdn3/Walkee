@@ -9,13 +9,11 @@ import Charts
 import HealthKit
 import SwiftUI
 
-typealias ChartsData = (startDate: Date, endDate: Date, value: Double)
-
 struct LineChartsView: View {
 
-    private var chartsData: [ChartsData]
+    private var chartsData: [HealthKitData]
 
-    init(chartsData: [ChartsData]) {
+    init(chartsData: [HealthKitData]) {
         self.chartsData = chartsData
     }
 
@@ -37,7 +35,7 @@ struct LineChartsView: View {
 }
 
 #Preview(traits: .fixedLayout(width: 300, height: 200)) {
-    let datas: [ChartsData] = (0..<7).map { index in
+    let datas: [HealthKitData] = (0..<7).map { index in
         let date = Date.now.addingTimeInterval(TimeInterval(-index * 86_400))
         let (startDay, endDay) = date.rangeOfDay()
         return (startDay, endDay, Double.random(in: 0..<1000))

@@ -175,7 +175,7 @@ extension DashboardContent.Section {
 
         let trailingItemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .fractionalHeight(0.33)
+            heightDimension: .fractionalHeight(0.31)
         )
         let trailingItem = NSCollectionLayoutItem(layoutSize: trailingItemSize)
 
@@ -188,11 +188,11 @@ extension DashboardContent.Section {
             repeatingSubitem: trailingItem,
             count: 3
         )
-        trailingGroup.interItemSpacing = .flexible(8)
+        trailingGroup.interItemSpacing = .fixed(12)
 
         let nestedGroupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(250) // TODO: - 레이아웃 재검토 및 수치 조정하기
+            heightDimension: .absolute(225) // TODO: - 레이아웃 재검토 및 수치 조정하기
 
         )
         let nestedGroup = NSCollectionLayoutGroup.horizontal(
