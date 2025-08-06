@@ -27,7 +27,7 @@ final class CalendarMonthCell: CoreCollectionViewCell {
 
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(100)
+            heightDimension: .fractionalWidth(1.0 / 7.0)
         )
         let group = NSCollectionLayoutGroup.horizontal(
             layoutSize: groupSize,

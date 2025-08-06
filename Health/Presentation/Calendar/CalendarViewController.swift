@@ -30,7 +30,7 @@ final class CalendarViewController: CoreGradientViewController {
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
             // TODO: 실제 컨텐츠 높이에 따라 유동적으로 설정
-            heightDimension: .estimated(400)
+            heightDimension: .fractionalWidth(1.0)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
