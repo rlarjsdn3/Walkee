@@ -29,8 +29,9 @@ final class CalendarViewController: CoreGradientViewController {
     private func createLayout() -> UICollectionViewLayout {
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            // TODO: 실제 컨텐츠 높이에 따라 유동적으로 설정
-            heightDimension: .fractionalWidth(1.0)
+            heightDimension: .estimated(300)
+            // 실제 높이는 CalendarMonthCell 내 dateCollectionView의 콘텐츠 크기에 따라 유동적으로 결정됩니다.
+            // estimated 값은 초기 레이아웃 계산 시의 기준 높이일 뿐이며, 오토레이아웃에 의해 확장됩니다.
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
