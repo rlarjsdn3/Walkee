@@ -23,8 +23,8 @@ extension UserInfoEntity {
     @NSManaged public var height: Double
     @NSManaged public var createdAt: Date?
     @NSManaged public var disease: String?
-    @NSManaged public var goalStepCount: NSSet?
-    @NSManaged public var dailyStep: NSSet?
+    @NSManaged public var goalStepCount: GoalStepCountEntity?
+    @NSManaged public var dailyStep: DailyStepEntity?
 
     
     var diseases: [Disease]? {

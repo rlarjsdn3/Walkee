@@ -19,7 +19,7 @@ extension GoalStepCountEntity {
     @NSManaged public var id: UUID
     @NSManaged public var goalStepCount: Int32
     @NSManaged public var effectiveDate: Date
-    @NSManaged public var userInfo: NSSet?
+    @NSManaged public var userInfo: UserInfoEntity?
 
 }
 
