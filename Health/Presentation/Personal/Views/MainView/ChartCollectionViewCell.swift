@@ -19,6 +19,11 @@ class ChartCollectionViewCell: CoreCollectionViewCell {
 
     }
 
+    override func setupAttribute() {
+        super.setupAttribute()
+        dataContainer.applyCornerStyle(.medium)
+    }
+
     override func setupConstraints() {
         super.setupConstraints()
         chartView.translatesAutoresizingMaskIntoConstraints = false
