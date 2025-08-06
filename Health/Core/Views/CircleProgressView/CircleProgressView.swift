@@ -37,7 +37,7 @@ final class CircleProgressView: CoreView {
     }
 
     /// 진행률 원형 선의 두께입니다.
-    var foregroundLineWidth: CGFloat = 12 {
+    var foregroundLineWidth: CGFloat = 8 {
         didSet { self.setNeedsLayout() }
     }
 
@@ -45,7 +45,7 @@ final class CircleProgressView: CoreView {
     ///
     /// 단색으로 표시할 경우 색상 하나만 전달하면 되며,
     /// 색상을 하나도 전달하지 않으면 런타임 오류가 발생합니다.
-    var foregroundLightColors: [UIColor] = [.systemMint] {
+    var foregroundLightColors: [UIColor] = [.accent] {
         didSet { self.setNeedsLayout() }
     }
 
@@ -53,12 +53,12 @@ final class CircleProgressView: CoreView {
     ///
     /// 단색으로 표시할 경우 색상 하나만 전달하면 되며,
     /// 색상을 하나도 전달하지 않으면 런타임 오류가 발생합니다.
-    var foregroundDarkColors: [UIColor] = [.systemMint, .systemGray6, .systemMint] {
+    var foregroundDarkColors: [UIColor] = [.accent, .segSelected, .accent] {
         didSet { self.setNeedsLayout() }
     }
 
     /// 배경 원형 선의 두께입니다.
-    var backgroundLineWidth: CGFloat = 12 {
+    var backgroundLineWidth: CGFloat = 8 {
         didSet { self.setNeedsLayout() }
     }
 
@@ -141,23 +141,23 @@ final class CircleProgressView: CoreView {
         stepCountStackView.distribution = .fill
         
         todayLabel.text = "오늘"
-        todayLabel.textColor = .systemMint
-        todayLabel.font = .systemFont(ofSize: 34, weight: .semibold)
+        todayLabel.textColor = .accent
+        todayLabel.font = .preferredFont(forTextStyle: .headline)
         todayLabel.textAlignment = .center
         
         percentageLabel.text = "86%"
         percentageLabel.textColor = .label
-        percentageLabel.font = .systemFont(ofSize: 58, weight: .bold)
+        percentageLabel.font = .preferredFont(forTextStyle: .largeTitle)
         percentageLabel.textAlignment = .center
         
         stepTitleLabel.text = "걸음 수"
         stepTitleLabel.textColor = .label
-        stepTitleLabel.font = .systemFont(ofSize: 28, weight: .medium)
+        stepTitleLabel.font = .preferredFont(forTextStyle: .subheadline)
         stepTitleLabel.textAlignment = .center
         
         stepProgressLabel.text = "6,200 / 8,000"
         stepProgressLabel.textColor = .label
-        stepProgressLabel.font = .systemFont(ofSize: 26, weight: .regular)
+        stepProgressLabel.font = .preferredFont(forTextStyle: .body)
         stepProgressLabel.textAlignment = .center
     }
     
@@ -220,11 +220,12 @@ extension CircleProgressView {
 
         layer?.removeFromSuperlayer()
 
+        let diameter = min(bounds.width, bounds.height)
         let center = CGPoint(x: bounds.midX, y: bounds.midY)
         let circlePath = CGMutablePath()
         circlePath.addArc(
             center: center,
-            radius: bounds.width / 2 - padding,
+            radius: diameter / 2 - padding,
             startAngle: startRadian,
             endAngle: endRadian,
             clockwise: false
