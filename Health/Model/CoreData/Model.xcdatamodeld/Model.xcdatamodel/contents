@@ -1,2 +1,28 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23788.4" systemVersion="24E263" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier=""/>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23788" systemVersion="24F74" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="DailyStepEntity" representedClassName="DailyStepEntity" syncable="YES">
+        <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="goalStepCount" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="stepCount" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="userInfo" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="UserInfoEntity" inverseName="dailyStep" inverseEntity="UserInfoEntity"/>
+    </entity>
+    <entity name="GoalStepCountEntity" representedClassName="GoalStepCountEntity" syncable="YES">
+        <attribute name="effectiveDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="goalStepCount" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <relationship name="userInfo" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="UserInfoEntity" inverseName="goalStepCount" inverseEntity="UserInfoEntity"/>
+    </entity>
+    <entity name="UserInfoEntity" representedClassName="UserInfoEntity" syncable="YES">
+        <attribute name="age" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="disease" optional="YES" attributeType="String"/>
+        <attribute name="gender" attributeType="String"/>
+        <attribute name="height" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="username" attributeType="String"/>
+        <attribute name="weight" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <relationship name="dailyStep" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="DailyStepEntity" inverseName="userInfo" inverseEntity="DailyStepEntity"/>
+        <relationship name="goalStepCount" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="GoalStepCountEntity" inverseName="userInfo" inverseEntity="GoalStepCountEntity"/>
+    </entity>
+</model>
