@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="gTV-IL-0wX" customClass="SegmentControlCell" customModule="Health" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="325" height="95"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                <rect key="frame" x="0.0" y="0.0" width="325" height="95"/>
+                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <subviews>
+                    <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="rt6-rh-wMY">
+                        <rect key="frame" x="0.0" y="10" width="83" height="32"/>
+                        <segments>
+                            <segment title="주간"/>
+                            <segment title="월간"/>
+                        </segments>
+                        <connections>
+                            <action selector="segmentButton:" destination="gTV-IL-0wX" eventType="valueChanged" id="0yB-Op-Jxk"/>
+                        </connections>
+                    </segmentedControl>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZfD-5X-ynk">
+                        <rect key="frame" x="0.0" y="60.666666666666657" width="39.666666666666664" height="34.333333333333343"/>
+                        <state key="normal" title="Button"/>
+                        <buttonConfiguration key="configuration" style="plain" image="chevron.left" catalog="system"/>
+                        <connections>
+                            <action selector="leftChevron:" destination="gTV-IL-0wX" eventType="touchUpInside" id="uBh-Xl-mfP"/>
+                        </connections>
+                    </button>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7iU-8E-Hmc">
+                        <rect key="frame" x="138.66666666666666" y="71" width="48" height="24"/>
+                        <fontDescription key="fontDescription" style="UICTFontTextStyleTitle3"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Hia-GY-ucR">
+                        <rect key="frame" x="285.33333333333331" y="60.666666666666657" width="39.666666666666686" height="34.333333333333343"/>
+                        <state key="normal" title="Button"/>
+                        <buttonConfiguration key="configuration" style="plain" image="chevron.right" catalog="system"/>
+                        <connections>
+                            <action selector="rightChevron:" destination="gTV-IL-0wX" eventType="touchUpInside" id="Npg-Jo-5FV"/>
+                        </connections>
+                    </button>
+                </subviews>
+            </view>
+            <viewLayoutGuide key="safeArea" id="ZTg-uK-7eu"/>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="Hia-GY-ucR" secondAttribute="trailing" id="7MG-f0-jU8"/>
+                <constraint firstItem="7iU-8E-Hmc" firstAttribute="centerX" secondItem="gTV-IL-0wX" secondAttribute="centerX" id="EH4-kc-43E"/>
+                <constraint firstItem="7iU-8E-Hmc" firstAttribute="height" secondItem="ZfD-5X-ynk" secondAttribute="height" multiplier="0.699029" id="Ilk-Qa-Uhs"/>
+                <constraint firstAttribute="bottom" secondItem="7iU-8E-Hmc" secondAttribute="bottom" id="L9G-ok-vl5"/>
+                <constraint firstItem="rt6-rh-wMY" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="10" id="Q1a-Pi-Zh5"/>
+                <constraint firstItem="ZfD-5X-ynk" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="SxT-F4-sLd"/>
+                <constraint firstAttribute="bottom" secondItem="Hia-GY-ucR" secondAttribute="bottom" id="TFY-lo-dVU"/>
+                <constraint firstAttribute="bottom" secondItem="ZfD-5X-ynk" secondAttribute="bottom" id="akZ-vz-QgV"/>
+                <constraint firstAttribute="bottom" secondItem="Hia-GY-ucR" secondAttribute="bottom" id="hOa-0k-u4Z"/>
+                <constraint firstAttribute="trailing" secondItem="Hia-GY-ucR" secondAttribute="trailing" id="pJe-Fe-aBE"/>
+                <constraint firstItem="rt6-rh-wMY" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="qYT-Hu-8By"/>
+            </constraints>
+            <size key="customSize" width="323" height="95"/>
+            <connections>
+                <outlet property="dateLabel" destination="7iU-8E-Hmc" id="1bx-lM-aPs"/>
+                <outlet property="leftChevronButton" destination="ZfD-5X-ynk" id="yjG-YQ-7vc"/>
+                <outlet property="rightChevronButton" destination="Hia-GY-ucR" id="lVU-DH-QAD"/>
+                <outlet property="segmentControl" destination="rt6-rh-wMY" id="hIN-yC-gi0"/>
+            </connections>
+            <point key="canvasLocation" x="130.53435114503816" y="-12.323943661971832"/>
+        </collectionViewCell>
+    </objects>
+    <resources>
+        <image name="chevron.left" catalog="system" width="97" height="128"/>
+        <image name="chevron.right" catalog="system" width="97" height="128"/>
+    </resources>
+</document>

@@ -8,68 +8,95 @@ import UIKit
 
 class PersonalViewController: CoreGradientViewController {
 
+    typealias PersonalDiffableDataSource = UICollectionViewDiffableDataSource<PersonalContent.Section, PersonalContent.Item>
 
+    @IBOutlet weak var collectionView: UICollectionView!
 
-    @IBAction func segmentControl(_ sender: Any) {
-    }
-    
-
-    @IBAction func leftChevron(_ sender: Any) {
-    }
-    
-
-    @IBAction func rightChevron(_ sender: Any) {
-    }
-    
-    @IBOutlet weak var selectLabel: UILabel!
-    
-    @IBOutlet weak var statisticsView: UIView!
-
-    @IBOutlet weak var walkingDataContainerView: UIView!
-    
-    @IBOutlet weak var walkingLabel: UILabel!
-    
-    @IBOutlet weak var distanceLabel: UILabel!
-
+    private var dataSource: PersonalDiffableDataSource?
     override func initVM() {
-		super.initVM()
 
-	}
-	
-	override func setupAttribute() {
-		super.setupAttribute()
-		
-		print("PersonalViewController 속성 설정 시작")
-		
-		applyBackgroundGradient(.midnightBlack)
-		setupUI()
-		
-		print("PersonalViewController 속성 설정 완료")
-	}
-	
-	override func onThemeChanged(isDarkMode: Bool, previousTraitCollection: UITraitCollection?) {
-		super.onThemeChanged(isDarkMode: isDarkMode, previousTraitCollection: previousTraitCollection)
-		
-		print("PersonalViewController 테마 변경 처리: \(isDarkMode ? "다크모드" : "라이트모드")")
-		
-		updateUIForTheme(isDarkMode: isDarkMode)
-	}
+    }
 
-	// 기타 UI 설정 시 이곳에서 사용합니다.
-	private func setupUI() {
-       
-	}
-	
-	private func updateUIForTheme(isDarkMode: Bool) {
-		if isDarkMode {
-			// 다크모드용 색상들을 cgColor로 안전하게 변환
-			let darkTextColor = dynamicCGColor(from: .white)
-			let darkButtonColors = dynamicCGColors(from: [UIColor.systemBlue, UIColor.systemGreen])
-			
-		} else {
-			let lightTextColor = dynamicCGColor(from: .black)
-			let lightButtonColors = dynamicCGColors(from: [UIColor.systemBlue, UIColor.systemGreen])
-			
-		}
-	}
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        setupDataSource()
+        applySnapshot()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: animated)
+    }
+
+    override func setupAttribute() {
+        super.setupAttribute()
+
+        applyBackgroundGradient(.midnightBlack)
+        collectionView.backgroundColor = .clear
+        collectionView.delegate = self
+        collectionView.setCollectionViewLayout(
+            createCollectionViewLayout(),
+            animated: false
+        )
+    }
+
+    private func createCollectionViewLayout() -> UICollectionViewLayout {
+        let sectionProvider: UICollectionViewCompositionalLayoutSectionProvider = { [weak self] sectionIndex, environment in
+            guard let section = self?.dataSource?.sectionIdentifier(for: sectionIndex)
+            else { return nil }
+
+            return section.buildLayout(environment)
+        }
+
+        let config = UICollectionViewCompositionalLayoutConfiguration()
+        config.interSectionSpacing = 10
+        return UICollectionViewCompositionalLayout(
+            sectionProvider: sectionProvider,
+            configuration: config
+        )
+    }
+
+    private func setupDataSource() {
+        let segmentCellRegistration = createSegmentCellRegistration()
+        let chartCellRegistration = createChartCellRegistration()
+
+        dataSource = PersonalDiffableDataSource(collectionView: collectionView) { collectionView, indexPath, item in
+            item.dequeueReusableCollectionViewCell(
+                collectionView: collectionView,
+                segmentCellRegistration: segmentCellRegistration,
+                chartCellRegistration: chartCellRegistration,
+                indexPath: indexPath
+            )
+        }
+    }
+
+    private func createSegmentCellRegistration() -> UICollectionView.CellRegistration<SegmentControlCell, Void> {
+        UICollectionView.CellRegistration<SegmentControlCell, Void>(cellNib: SegmentControlCell.nib) { cell, indexPath, _ in
+            // 셀 설정은 셀 자체에서 처리
+        }
+    }
+
+    private func createChartCellRegistration() -> UICollectionView.CellRegistration<UICollectionViewCell, Void> {
+        UICollectionView.CellRegistration<UICollectionViewCell, Void>(cellNib: ChartCollectionViewCell.nib) { cell, indexPath, _ in
+            guard cell is ChartCollectionViewCell else { return }
+        }
+    }
+
+    private func applySnapshot() {
+        var snapshot = NSDiffableDataSourceSnapshot<PersonalContent.Section, PersonalContent.Item>()
+        snapshot.appendSections([.segment, .chart])
+        snapshot.appendItems([.segmentControl], toSection: .segment)
+        snapshot.appendItems([.chartData], toSection: .chart)
+        dataSource?.apply(snapshot, animatingDifferences: true)
+    }
+}
+
+extension PersonalViewController: UICollectionViewDelegate {
+
+    func collectionView(
+        _ collectionView: UICollectionView,
+        didHighlightItemAt indexPath: IndexPath
+    ) {
+    }
 }
