@@ -5,7 +5,6 @@
 //  Created by 권도현 on 8/6/25.
 //
 
-
 import Foundation
 
 enum Disease: String, CaseIterable, Codable {
