@@ -40,22 +40,35 @@
                                 <buttonConfiguration key="configuration" style="plain" image="paperplane.fill" catalog="system">
                                     <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage" configurationType="pointSize" pointSize="24" scale="default"/>
                                 </buttonConfiguration>
+                                <connections>
+                                    <action selector="sendButtonTapped:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="0Dl-aP-qJb"/>
+                                </connections>
                             </button>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="URS-8S-MEB">
+                                <rect key="frame" x="0.0" y="0.0" width="393" height="734"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </tableView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
+                            <constraint firstItem="URS-8S-MEB" firstAttribute="trailing" secondItem="vDu-zF-Fre" secondAttribute="trailing" id="8gz-eo-P8F"/>
                             <constraint firstItem="1RW-dO-zDG" firstAttribute="centerX" secondItem="5EZ-qb-Rvc" secondAttribute="centerX" id="9m3-87-axn"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="vTQ-Uc-sUk" secondAttribute="trailing" constant="16" id="HHC-st-7X8"/>
                             <constraint firstItem="1RW-dO-zDG" firstAttribute="top" secondItem="vTQ-Uc-sUk" secondAttribute="bottom" constant="8" id="S7a-c0-Ax2"/>
                             <constraint firstItem="3rs-Qu-hxy" firstAttribute="centerY" secondItem="vTQ-Uc-sUk" secondAttribute="centerY" id="UYx-B0-15v"/>
+                            <constraint firstItem="URS-8S-MEB" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="asd-zI-9e7"/>
+                            <constraint firstItem="URS-8S-MEB" firstAttribute="top" secondItem="5EZ-qb-Rvc" secondAttribute="top" id="iqm-78-ouN"/>
                             <constraint firstItem="vTQ-Uc-sUk" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="16" id="pYg-2t-8Vp"/>
+                            <constraint firstItem="1RW-dO-zDG" firstAttribute="top" secondItem="URS-8S-MEB" secondAttribute="bottom" constant="10" id="th8-6f-Brb"/>
                             <constraint firstItem="vTQ-Uc-sUk" firstAttribute="bottom" secondItem="vDu-zF-Fre" secondAttribute="bottom" constant="-48" id="vf5-or-Tci"/>
                             <constraint firstItem="vTQ-Uc-sUk" firstAttribute="trailing" secondItem="3rs-Qu-hxy" secondAttribute="trailing" constant="8" id="zID-c6-OUK"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="chattingTextField" destination="vTQ-Uc-sUk" id="lM1-Sg-XPe"/>
+                        <outlet property="sendButton" destination="3rs-Qu-hxy" id="d66-B9-CwP"/>
+                        <outlet property="tableView" destination="URS-8S-MEB" id="1t5-yt-O9q"/>
                         <outlet property="textFieldBottomConstraint" destination="vf5-or-Tci" id="Fmp-oM-h4M"/>
                     </connections>
                 </viewController>

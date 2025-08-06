@@ -2,7 +2,7 @@
 //  HeaderTitleCell.swift
 //  Health
 //
-//  Created by Nat Kim on 8/5/25.
+//  Created by Seohyun Kim on 8/5/25.
 //
 
 import UIKit
@@ -65,7 +65,7 @@ final class HeaderTitleCell: CoreTableViewCell {
 			
 			welcomeLabel.leadingAnchor.constraint(equalTo: chatbotImageView.trailingAnchor, constant: 16),
 			welcomeLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-			welcomeLabel.topAnchor.constraint(equalTo: chatbotImageView.topAnchor), // 이미지와 top 정렬
+			welcomeLabel.centerYAnchor.constraint(equalTo: chatbotImageView.centerYAnchor),
 			
 			contentView.bottomAnchor.constraint(greaterThanOrEqualTo: chatbotImageView.bottomAnchor, constant: 16),
 			contentView.bottomAnchor.constraint(greaterThanOrEqualTo: welcomeLabel.bottomAnchor, constant: 16)
@@ -75,12 +75,11 @@ final class HeaderTitleCell: CoreTableViewCell {
 	override func setupAttribute() {
 		super.setupAttribute()
 		
-		// 셀 기본 설정
 		selectionStyle = .none
 		backgroundColor = .clear
 	}
 	
-	// MARK: - Configure Methods (ChatMessage 제거!)
+	// MARK: - Configure Methods
 	func configure(with text: String) {
 		welcomeLabel.text = text
 	}
