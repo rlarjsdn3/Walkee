@@ -7,14 +7,14 @@
 
 import UIKit
 
-class SegmentControlCell: CoreCollectionViewCell {
-
-    private var isCurrentPeriod = true
+class AnalysisPeriodCell: CoreCollectionViewCell {
 
     @IBOutlet weak var rightChevronButton: UIButton!
     @IBOutlet weak var leftChevronButton: UIButton!
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var segmentControl: UISegmentedControl!
+
+    private var isCurrentPeriod = true
 
     @IBAction func segmentButton(_ sender: Any) {
 

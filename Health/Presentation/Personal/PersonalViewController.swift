@@ -71,15 +71,15 @@ class PersonalViewController: CoreGradientViewController {
         }
     }
 
-    private func createSegmentCellRegistration() -> UICollectionView.CellRegistration<SegmentControlCell, Void> {
-        UICollectionView.CellRegistration<SegmentControlCell, Void>(cellNib: SegmentControlCell.nib) { cell, indexPath, _ in
+    private func createSegmentCellRegistration() -> UICollectionView.CellRegistration<AnalysisPeriodCell, Void> {
+        UICollectionView.CellRegistration<AnalysisPeriodCell, Void>(cellNib: AnalysisPeriodCell.nib) { cell, indexPath, _ in
             // 셀 설정은 셀 자체에서 처리
         }
     }
 
     private func createChartCellRegistration() -> UICollectionView.CellRegistration<UICollectionViewCell, Void> {
-        UICollectionView.CellRegistration<UICollectionViewCell, Void>(cellNib: ChartCollectionViewCell.nib) { cell, indexPath, _ in
-            guard cell is ChartCollectionViewCell else { return }
+        UICollectionView.CellRegistration<UICollectionViewCell, Void>(cellNib: AnalysisStatCell.nib) { cell, indexPath, _ in
+            guard cell is AnalysisStatCell else { return }
         }
     }
 

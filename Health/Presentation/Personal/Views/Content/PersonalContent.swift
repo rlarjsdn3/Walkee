@@ -28,7 +28,7 @@ extension PersonalContent.Item {
     /// 컬렉션 뷰 셀 dequeue
     func dequeueReusableCollectionViewCell(
         collectionView: UICollectionView,
-        segmentCellRegistration: UICollectionView.CellRegistration<SegmentControlCell, Void>,
+        segmentCellRegistration: UICollectionView.CellRegistration<AnalysisPeriodCell, Void>,
         chartCellRegistration: UICollectionView.CellRegistration<UICollectionViewCell, Void>,
         indexPath: IndexPath
     ) -> UICollectionViewCell {

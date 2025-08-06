@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ChartCollectionViewCell: CoreCollectionViewCell {
+class AnalysisStatCell: CoreCollectionViewCell {
 
     @IBOutlet weak var dataContainer: UIView!
     @IBOutlet weak var chartView: UIView!
