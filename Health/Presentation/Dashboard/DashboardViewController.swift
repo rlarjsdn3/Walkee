@@ -38,11 +38,11 @@ final class DashboardViewController: CoreViewController {
             animated: false
         )
         dashboardCollectionView.contentInset = UIEdgeInsets(
-            top: .zero, left: .zero,
+            top: 54, left: .zero, // TODO: - 네비게이션 바에 맞게 인셋 값 조정하기
             bottom: 32, right: .zero
         )
         dashboardCollectionView.scrollIndicatorInsets =  UIEdgeInsets(
-            top: .zero, left: .zero,
+            top: 46, left: .zero,
             bottom: 24, right: .zero
         )
     }
