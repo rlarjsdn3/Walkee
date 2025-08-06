@@ -5,8 +5,12 @@
 //  Created by 김건우 on 7/28/25.
 //
 
-import UIKit
+/*
+ coredata framework는 아래있는 더미데이터 테스트 코드 활성화일때만 켜주세요
+ */
 
+import UIKit
+//import CoreData
 import Firebase
 
 @main
@@ -21,8 +25,29 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         DIContainer.shared.registerHealthService()
         DIContainer.shared.registerNetworkService()
-
-        return true
+        CoreDataStack.shared.insertDummyData()
+        
+        
+        /* dummydata test code
+         
+        let context = CoreDataStack.shared.viewContext
+            let fetchRequest: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
+            
+            do {
+                let users = try context.fetch(fetchRequest)
+                print("=== UserInfoEntity 개수: \(users.count) ===")
+                for user in users {
+                    let name = user.username ?? "Unknown"
+                    let age = user.age
+                    let diseases = user.diseases?.map { $0.rawValue }.joined(separator: ", ") ?? "None"
+                    print("User: \(name), Age: \(age), Diseases: \(diseases)")
+                }
+            } catch {
+                print("Failed to fetch UserInfoEntity: \(error.localizedDescription)")
+            }
+         */
+            
+            return true
     }
 
     // MARK: UISceneSession Lifecycle

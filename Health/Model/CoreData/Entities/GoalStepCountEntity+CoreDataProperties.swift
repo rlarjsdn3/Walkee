@@ -16,14 +16,14 @@ extension GoalStepCountEntity {
         return NSFetchRequest<GoalStepCountEntity>(entityName: "GoalStepCountEntity")
     }
 
-    @NSManaged public var id: UUID
+    @NSManaged public var effectiveDate: Date?
     @NSManaged public var goalStepCount: Int32
-    @NSManaged public var effectiveDate: Date
-    @NSManaged public var userInfo: UserInfoEntity?
+    @NSManaged public var id: UUID?
+    @NSManaged public var userInfo: NSSet?
 
 }
 
-// MARK: Generated accessors for GoalStepCount
+// MARK: Generated accessors for userInfo
 extension GoalStepCountEntity {
 
     @objc(addUserInfoObject:)

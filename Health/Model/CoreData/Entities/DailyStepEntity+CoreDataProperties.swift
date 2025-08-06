@@ -16,15 +16,15 @@ extension DailyStepEntity {
         return NSFetchRequest<DailyStepEntity>(entityName: "DailyStepEntity")
     }
 
-    @NSManaged public var id: UUID
-    @NSManaged public var date: Date
-    @NSManaged public var stepCount: Int32
+    @NSManaged public var date: Date?
     @NSManaged public var goalStepCount: Int32
-    @NSManaged public var userInfo: UserInfoEntity?
+    @NSManaged public var id: UUID?
+    @NSManaged public var stepCount: Int32
+    @NSManaged public var userInfo: NSSet?
 
 }
 
-// MARK: Generated accessors for DailyStep
+// MARK: Generated accessors for userInfo
 extension DailyStepEntity {
 
     @objc(addUserInfoObject:)
