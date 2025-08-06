@@ -29,10 +29,12 @@ final class CalendarProgressBar: CoreView {
         super.layoutSubviews()
         progressLayer.frame = bounds
 
-        let lineWidth: CGFloat = 5
+        let lineWidth = bounds.width * 0.08
+        let radius = (min(bounds.width, bounds.height) - lineWidth) / 2
+
         let path = UIBezierPath(
             arcCenter: CGPoint(x: bounds.midX, y: bounds.midY),
-            radius: (min(bounds.width, bounds.height) - lineWidth) / 2,
+            radius: radius,
             startAngle: -.pi / 2,
             endAngle: 1.5 * .pi,
             clockwise: true
