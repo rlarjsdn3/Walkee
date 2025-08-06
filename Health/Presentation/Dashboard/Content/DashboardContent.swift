@@ -9,7 +9,7 @@ import UIKit
 
 enum DashboardContent {
 
-    enum Section: Hashable {
+    enum Section: Hashable, Sendable {
         /// 대시보드 상단 섹션
         case top
         /// 목표 링 및 건강 정보 스택 섹션

@@ -124,6 +124,7 @@ fileprivate extension DashboardViewController {
     func createDailyGoalRingCellRegistration() -> UICollectionView.CellRegistration<DailyGoalRingCollectionViewCell, DailyGoalRingCellViewModel> {
         // TODO: - 셀 콘텐츠 구성하기
         UICollectionView.CellRegistration<DailyGoalRingCollectionViewCell, DailyGoalRingCellViewModel>(cellNib: DailyGoalRingCollectionViewCell.nib) { cell, indexPath, viewModel in
+            cell.configure(with: viewModel)
         }
     }
 
