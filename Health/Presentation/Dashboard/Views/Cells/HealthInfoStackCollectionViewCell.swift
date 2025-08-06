@@ -5,7 +5,9 @@
 //  Created by 김건우 on 8/5/25.
 //
 
+import HealthKit
 import UIKit
+import SwiftUI
 
 final class HealthInfoStackCollectionViewCell: CoreCollectionViewCell {
 
@@ -15,8 +17,15 @@ final class HealthInfoStackCollectionViewCell: CoreCollectionViewCell {
     @IBOutlet weak var valueLabel: UILabel!
     @IBOutlet weak var chartsContainerView: UIView!
 
+    private var lineChartsHostingController: UIHostingController<LineChartsView>?
+
     override func layoutSubviews() {
         symbolContainerView.layer.cornerRadius = symbolContainerView.bounds.height / 2
+    }
+
+    override func prepareForReuse() {
+        lineChartsHostingController = nil
+        chartsContainerView.subviews.forEach { $0.removeFromSuperview() }
     }
 
     override func setupAttribute() {
@@ -34,6 +43,7 @@ final class HealthInfoStackCollectionViewCell: CoreCollectionViewCell {
         valueLabel.minimumScaleFactor = 0.5
         valueLabel.adjustsFontSizeToFitWidth = true
 
+        chartsContainerView.backgroundColor = .boxBg
         chartsContainerView.isHidden = (traitCollection.horizontalSizeClass == .compact)
 
         registerForTraitChanges()
@@ -52,8 +62,37 @@ final class HealthInfoStackCollectionViewCell: CoreCollectionViewCell {
 
 extension HealthInfoStackCollectionViewCell {
 
-    func configure(with viewModel: HealthInfoStackCellViewModel) {
+    func configure(with viewModel: HealthInfoStackCellViewModel, parent: UIViewController?) {
+        titleLabel.text = viewModel.title
+        valueLabel.attributedText = NSAttributedString(string: "1,000보")
+            .font(.preferredFont(forTextStyle: .footnote), to: "보") // TODO: - 실제 값 할당하기
         symbolImageView.image = UIImage(systemName: viewModel.systemName)
 
+        addLineChartsHostingController(with: viewModel, parent: parent)
+    }
+
+    private func addLineChartsHostingController(with viewModel: HealthInfoStackCellViewModel, parent: UIViewController?) {
+        Task {
+            do {
+                let hkDatas = try await viewModel.fetchStatisticsCollectionData(
+                    from: .now.addingTimeInterval(-7 * 86_400).startOfDay(),
+                    to: .now.endOfDay(),
+                    options: .cumulativeSum
+                ).prefix(through: 7)
+
+                let chartsData = Array(hkDatas)
+                let hostingVC = LineChartsHostingController(chartsData: chartsData)
+
+                parent?.addChild(hostingVC)
+                chartsContainerView.addSubview(hostingVC.view)
+                hostingVC.view.frame = chartsContainerView.bounds
+                hostingVC.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+                hostingVC.didMove(toParent: parent)
+                self.lineChartsHostingController = hostingVC
+
+            } catch {
+                print("❌ Failed to fetch HealthKit data: \(error)")
+            }
+        }
     }
 }

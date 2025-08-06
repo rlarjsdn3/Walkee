@@ -3,6 +3,7 @@
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -37,16 +38,16 @@
                                 </constraints>
                             </view>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="Q8A-GO-vm6">
-                                <rect key="frame" x="44" y="6" width="109" height="36"/>
+                                <rect key="frame" x="44" y="7.3333333333333321" width="124" height="33.666666666666671"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="252" horizontalCompressionResistancePriority="751" text="걸음" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lCs-nZ-F1Q">
-                                        <rect key="frame" x="0.0" y="0.0" width="109" height="15.666666666666666"/>
-                                        <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="124" height="13.333333333333334"/>
+                                        <fontDescription key="fontDescription" style="UICTFontTextStyleCaption2"/>
                                         <color key="textColor" systemColor="secondaryLabelColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" horizontalCompressionResistancePriority="751" text="1,000보" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HHU-P7-rxf">
-                                        <rect key="frame" x="0.0" y="15.66666666666667" width="109" height="20.333333333333329"/>
+                                        <rect key="frame" x="0.0" y="13.333333333333334" width="124" height="20.333333333333329"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
@@ -54,14 +55,15 @@
                                 </subviews>
                             </stackView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="DDj-vA-Ec4">
-                                <rect key="frame" x="161" y="0.0" width="125" height="48"/>
+                                <rect key="frame" x="176" y="6" width="110" height="36"/>
+                                <color key="backgroundColor" name="boxBgColor"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="125" id="kRj-SR-mWS"/>
+                                    <constraint firstAttribute="height" constant="36" id="8aB-eu-Fz1"/>
+                                    <constraint firstAttribute="width" constant="110" id="kRj-SR-mWS"/>
                                 </constraints>
                             </view>
                         </subviews>
                         <constraints>
-                            <constraint firstItem="DDj-vA-Ec4" firstAttribute="height" secondItem="RYE-W8-flu" secondAttribute="height" id="SBs-d6-d6r"/>
                             <constraint firstItem="qVC-yD-eOe" firstAttribute="height" secondItem="RYE-W8-flu" secondAttribute="height" multiplier="0.75" id="n21-UK-Euc"/>
                         </constraints>
                     </stackView>
@@ -69,8 +71,12 @@
             </view>
             <viewLayoutGuide key="safeArea" id="ZTg-uK-7eu"/>
             <constraints>
-                <constraint firstAttribute="trailing" secondItem="RYE-W8-flu" secondAttribute="trailing" constant="8" id="fed-eP-jxX"/>
-                <constraint firstItem="RYE-W8-flu" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="8" id="ka3-Tt-bck"/>
+                <constraint firstAttribute="trailing" secondItem="RYE-W8-flu" secondAttribute="trailing" constant="12" id="fed-eP-jxX">
+                    <variation key="heightClass=regular-widthClass=compact" constant="8"/>
+                </constraint>
+                <constraint firstItem="RYE-W8-flu" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="12" id="ka3-Tt-bck">
+                    <variation key="heightClass=regular-widthClass=compact" constant="8"/>
+                </constraint>
                 <constraint firstAttribute="bottom" secondItem="RYE-W8-flu" secondAttribute="bottom" constant="8" id="m4r-xx-aEa"/>
                 <constraint firstItem="RYE-W8-flu" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="8" id="soL-HM-HkW"/>
             </constraints>
@@ -86,6 +92,9 @@
         </collectionViewCell>
     </objects>
     <resources>
+        <namedColor name="boxBgColor">
+            <color red="0.99999600649999998" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
         <systemColor name="secondaryLabelColor">
             <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>

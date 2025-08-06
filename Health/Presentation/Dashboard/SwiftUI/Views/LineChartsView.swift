@@ -24,13 +24,13 @@ struct LineChartsView: View {
                 y: .value("value", data.value)
             )
             .foregroundStyle(.accent)
-            .lineStyle(.init(lineWidth: 3.25))
             .symbol(.circle)
-            .symbolSize(150)
+            .symbolSize(50)
             .interpolationMethod(.catmullRom)
         }
         .chartXAxis(.hidden)
         .chartYAxis(.hidden)
+        .background(Color(uiColor: .boxBg))
     }
 }
 
