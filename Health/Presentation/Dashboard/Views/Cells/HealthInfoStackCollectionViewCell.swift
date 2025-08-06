@@ -83,11 +83,7 @@ extension HealthInfoStackCollectionViewCell {
                 let chartsData = Array(hkDatas)
                 let hostingVC = LineChartsHostingController(chartsData: chartsData)
 
-                parent?.addChild(hostingVC)
-                chartsContainerView.addSubview(hostingVC.view)
-                hostingVC.view.frame = chartsContainerView.bounds
-                hostingVC.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-                hostingVC.didMove(toParent: parent)
+                parent?.addChild(hostingVC, to: chartsContainerView)
                 self.lineChartsHostingController = hostingVC
 
             } catch {
