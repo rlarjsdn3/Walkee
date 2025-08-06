@@ -23,7 +23,7 @@ extension GoalStepCountEntity {
 
 }
 
-// MARK: Generated accessors for userInfo
+// MARK: Generated accessors for GoalStepCount
 extension GoalStepCountEntity {
 
     @objc(addUserInfoObject:)

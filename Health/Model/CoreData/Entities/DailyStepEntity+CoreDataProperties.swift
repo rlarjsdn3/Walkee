@@ -20,11 +20,11 @@ extension DailyStepEntity {
     @NSManaged public var date: Date
     @NSManaged public var stepCount: Int32
     @NSManaged public var goalStepCount: Int32
-    @NSManaged public var userInfo: NSSet?
+    @NSManaged public var userInfo: UserInfoEntity?
 
 }
 
-// MARK: Generated accessors for userInfo
+// MARK: Generated accessors for DailyStep
 extension DailyStepEntity {
 
     @objc(addUserInfoObject:)
