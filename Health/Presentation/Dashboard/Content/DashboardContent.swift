@@ -24,7 +24,7 @@ enum DashboardContent {
         case bottom
     }
 
-    enum Item: Hashable {
+    enum Item: Hashable, Sendable {
         /// 상단 바 항목
         case topBar
         /// 목표 링 셀
@@ -166,10 +166,9 @@ extension DashboardContent.Section {
     }
 
     private func buildRingLayout(_ environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
-        // TODO: - 레이아웃 재검토 및 수치 조정하기
 
         let leadingItemSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(0.7),
+            widthDimension: .fractionalWidth(0.65),
             heightDimension: .fractionalHeight(1.0)
         )
         let leadingItem = NSCollectionLayoutItem(layoutSize: leadingItemSize)
@@ -181,7 +180,7 @@ extension DashboardContent.Section {
         let trailingItem = NSCollectionLayoutItem(layoutSize: trailingItemSize)
 
         let trailingGroupSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(0.3),
+            widthDimension: .fractionalWidth(0.35),
             heightDimension: .fractionalHeight(1.0)
         )
         let trailingGroup = NSCollectionLayoutGroup.vertical(
@@ -193,7 +192,8 @@ extension DashboardContent.Section {
 
         let nestedGroupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(250)
+            heightDimension: .absolute(250) // TODO: - 레이아웃 재검토 및 수치 조정하기
+
         )
         let nestedGroup = NSCollectionLayoutGroup.horizontal(
             layoutSize: nestedGroupSize,
@@ -202,9 +202,12 @@ extension DashboardContent.Section {
         nestedGroup.interItemSpacing = .flexible(8)
 
         let section = NSCollectionLayoutSection(group: nestedGroup)
+        let defaultInset = UICollectionViewConstant.defaultInset
         section.contentInsets = NSDirectionalEdgeInsets(
-            top: 0, leading: UICollectionViewConstant.defaultInset,
-            bottom: 0, trailing: UICollectionViewConstant.defaultInset
+            top: 4,
+            leading: defaultInset,
+            bottom: 4,
+            trailing: defaultInset
         )
         return section
     }
