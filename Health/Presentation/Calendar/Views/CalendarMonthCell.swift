@@ -39,11 +39,6 @@ final class CalendarMonthCell: CoreCollectionViewCell {
         return UICollectionViewCompositionalLayout(section: section)
     }
 
-    func getNumberOfRows() -> Int {
-        let numberOfItems = datesWithBlank.count
-        return Int(ceil(Double(numberOfItems) / 7.0))
-    }
-
     func configure(year: Int, month: Int) {
         let calendar = Calendar.gregorian
         guard let firstDay = DateComponents(calendar: calendar, year: year, month: month).date else {
