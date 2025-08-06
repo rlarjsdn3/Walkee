@@ -131,6 +131,7 @@ fileprivate extension DashboardViewController {
     func createHealthInfoStackCellRegistration() -> UICollectionView.CellRegistration<HealthInfoStackCollectionViewCell, HealthInfoStackCellViewModel> {
         // TODO: - 셀 콘텐츠 구성하기
         UICollectionView.CellRegistration<HealthInfoStackCollectionViewCell, HealthInfoStackCellViewModel>(cellNib: HealthInfoStackCollectionViewCell.nib) { cell, indexPath, viewModel in
+            cell.configure(with: viewModel, parent: self)
         }
     }
 

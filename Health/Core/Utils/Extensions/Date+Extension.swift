@@ -45,6 +45,30 @@ extension Date {
 
 
 extension Date {
+    
+    /// 해당 날짜의 시작 시각과 종료 시각을 반환합니다.
+    ///
+    /// - Parameter calendar: 기준이 되는 캘린더입니다. 기본값은 현재 캘린더입니다.
+    /// - Returns: 시작 시각과 종료 시각으로 구성된 튜플입니다.
+    func rangeOfDay(using calendar: Calendar = .current) -> (startOfDay: Date, endOfDay: Date) {
+        (startOfDay(using: calendar), endOfDay(using: calendar))
+    }
+
+    /// 해당 날짜의 시작 시각을 반환합니다.
+    ///
+    /// - Parameter calendar: 기준이 되는 캘린더입니다. 기본값은 현재 캘린더입니다.
+    /// - Returns: 시작 시각을 나타내는 `Date` 값입니다.
+    func startOfDay(using calendar: Calendar = .current) -> Date {
+        calendar.startOfDay(for: self)
+    }
+
+    /// 해당 날짜의 종료 시각을 반환합니다.
+    ///
+    /// - Parameter calendar: 기준이 되는 캘린더입니다. 기본값은 현재 캘린더입니다.
+    /// - Returns: 종료 시각을 나타내는 `Date` 값입니다.
+    func endOfDay(using calendar: Calendar = .current) -> Date {
+        startOfDay(using: calendar).addingTimeInterval(.dayInterval)
+    }
 
     /// 해당 날짜가 속한 주의 시작 날짜와 종료 날짜를 반환합니다.
     ///
@@ -174,5 +198,12 @@ fileprivate extension Date {
 
     var calendar: Calendar {
         Calendar.current
+    }
+}
+
+fileprivate extension TimeInterval {
+
+    static var dayInterval: TimeInterval {
+        86_400
     }
 }

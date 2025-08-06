@@ -43,6 +43,9 @@ protocol HealthService {
     /// - Throws: `HKError.errorHealthDataUnavailable` 또는 권한 요청 실패 시 에러를 던집니다.
     func requestAuthorization() async throws
 
+    ///
+    func authorizationStatus(for type: HKObjectType) -> HKAuthorizationStatus
+
 
     /// 지정한 양적 데이터(identifier)를 기준으로 HealthKit에서 샘플 데이터를 비동기적으로 가져오고,
     /// 각 샘플의 시작 시각, 종료 시각, 수치를 지정된 단위로 변환하여 반환합니다.

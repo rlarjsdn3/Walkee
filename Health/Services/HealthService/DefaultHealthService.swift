@@ -59,6 +59,11 @@ final class DefaultHealthService: HealthService {
         )
     }
 
+    ///
+    func authorizationStatus(for type: HKObjectType) -> HKAuthorizationStatus {
+        healthStore.authorizationStatus(for: type)
+    }
+
     
     // MARK: - Samples
     
