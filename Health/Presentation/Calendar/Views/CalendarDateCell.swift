@@ -14,7 +14,6 @@ final class CalendarDateCell: CoreCollectionViewCell {
 
     override func setupAttribute() {
         super.setupAttribute()
-        circleView.applyCornerStyle(.circular)
         progressBar.translatesAutoresizingMaskIntoConstraints = false
     }
 
@@ -28,6 +27,11 @@ final class CalendarDateCell: CoreCollectionViewCell {
         ])
     }
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        circleView.applyCornerStyle(.circular) // 가로/세로 전환시
+    }
+
     func configure(date: Date, currentSteps: Int, goalSteps: Int) {
         // 달력상 빈 날짜일 때
         if date == .distantPast {
@@ -35,8 +39,9 @@ final class CalendarDateCell: CoreCollectionViewCell {
             return
         }
 
-        progressBar.progress = CGFloat(currentSteps) / CGFloat(goalSteps)
+        circleView.applyCornerStyle(.circular) // 초기 진입시
         dateLabel.text = "\(date.day)"
+        progressBar.progress = CGFloat(currentSteps) / CGFloat(goalSteps)
         progressBar.isHidden = false
 
         let isCompleted = currentSteps >= goalSteps
