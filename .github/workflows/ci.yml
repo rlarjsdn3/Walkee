@@ -19,7 +19,7 @@ jobs:
           run: sudo xcode-select -s /Applications/Xcode_16.1.app/Contents/Developer
 
         - name: Generate app-debug xcconfig
-          run: echo "${{ secrets.DEBUG_XCCONFIG }}" > ./Health/app-debug.xcconfig
+          run: echo "${{ secrets.DEBUG_XCCONFIG }}" > ./app-debug.xcconfig
 
         - name: 🛠️ Start Xcode Build
           run: |
@@ -27,4 +27,4 @@ jobs:
             -project Health.xcodeproj \
             -scheme Health-DEBUG \
             -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.1' \
-            -xcconfig ./Health/app-debug.xcconfig
+            -xcconfig .app-debug.xcconfig
