@@ -29,12 +29,16 @@ extension CoreDataStack {
         let dummyUser = UserInfoEntity(context: context)
         dummyUser.id = UUID()
         dummyUser.username = "권도현"
+        dummyUser.createdAt = Date()
+        /*
+         username, createdAt만 일단 더미데이터로 집어넣고, 나머지부분은 직접입력했을때 각자환경에서 저장되는지 확인해주세요
+         
         dummyUser.age = 25
         dummyUser.gender = "남성"
         dummyUser.height = 175.0
         dummyUser.weight = 68.0
-        dummyUser.createdAt = Date()
         dummyUser.diseases = [.arthritis, .stroke]
+         */
         
         //GoalStepCountEntity 더미 생성 및 연결
         let dummyGoal = GoalStepCountEntity(context: context)
