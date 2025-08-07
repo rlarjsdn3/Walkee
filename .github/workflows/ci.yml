@@ -28,7 +28,7 @@ jobs:
           
         - name: 🛠️ Start Xcode Build
           run: |
-            xcodebuild clean test \ 
+            xcodebuild clean test \
             -project Health.xcodeproj \
-            -scheme Health-DEBUG \ 
+            -scheme Health-DEBUG \
             -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.1'
