@@ -31,5 +31,4 @@ jobs:
             xcodebuild clean test \
             -project Health.xcodeproj \
             -scheme Health-DEBUG \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.1' \
-            -xcconfig ./Health/app-ci.xcconfig
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.1'
