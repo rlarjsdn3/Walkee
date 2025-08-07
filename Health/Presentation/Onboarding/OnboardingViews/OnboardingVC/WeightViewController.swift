@@ -120,7 +120,7 @@ class WeightViewController: CoreViewController {
             showError()
             disableContinueButton()
             weightInputField.resignFirstResponder()
-        } else if weight >= 40 {
+        } else if weight >= 35 {
             hideError()
             enableContinueButton()
             weightInputField.resignFirstResponder()
@@ -130,7 +130,7 @@ class WeightViewController: CoreViewController {
         }
     }
     
-    private func showError(text: String = "40 ~ 200 사이의 값을 입력해주세요.") {
+    private func showError(text: String = "35 ~ 200 사이의 값을 입력해주세요.") {
         errorLabel.isHidden = false
         errorLabel.text = text
     }
@@ -235,7 +235,7 @@ extension WeightViewController: UITextFieldDelegate {
         
         let currentText = textField.text ?? ""
         let prospectiveText = (currentText as NSString).replacingCharacters(in: range, with: string)
-        return prospectiveText.count <= 3 // 최대 3자리 숫자 허용
+        return prospectiveText.count <= 3
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
