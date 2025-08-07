@@ -47,10 +47,6 @@ xcuserdata/
 *.xccheckout
 *.xcconfig
 
-# API Keys 
-Secrets.xcconfig
-Resources/Secrets.xcconfig
-
 ## compatibility with Xcode 3 and earlier (ignoring not required starting Xcode 4)
 build/
 DerivedData/

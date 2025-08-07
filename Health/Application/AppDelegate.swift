@@ -21,7 +21,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         DIContainer.shared.registerHealthService()
         DIContainer.shared.registerNetworkService()
-
+        print(AppConfiguration.clientID)
         return true
     }
 
