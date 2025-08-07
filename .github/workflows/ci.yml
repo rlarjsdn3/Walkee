@@ -17,7 +17,7 @@ jobs:
 
         - name: Generate default xcconfig
           run: |
-            cat <<EOF > ./Health/app-debug.xcconfig
+            cat <<EOF > ./Health/app-ci.xcconfig
             BASE_URL = https:\/\/kdt-api-function.example.net
             CLIENT_ID = e81b1b0e-3e14-4d0d-9964-d2649364952c
             BUNDLE_IDENTIFIER = com.kunwoo.walking
@@ -31,4 +31,5 @@ jobs:
             xcodebuild clean test \
             -project Health.xcodeproj \
             -scheme Health-DEBUG \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.1'
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.1' \
+            -xcconfig ./Health/app-ci.xcconfig
