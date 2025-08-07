@@ -47,7 +47,6 @@ final class UserInfoViewModel: ObservableObject {
 
     //사용자 추가 또는 업데이트
     func saveUser(id: UUID? = nil,
-                  username: String,
                   age: Int16,
                   gender: String,
                   height: Double,
@@ -63,7 +62,6 @@ final class UserInfoViewModel: ObservableObject {
             user.createdAt = createdAt
         }
 
-        user.username = username
         user.age = age
         user.gender = gender
         user.height = height

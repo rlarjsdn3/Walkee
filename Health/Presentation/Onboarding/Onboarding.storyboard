@@ -292,6 +292,7 @@
                     </view>
                     <navigationItem key="navigationItem" largeTitleDisplayMode="never" id="XPX-cO-FJ7"/>
                     <connections>
+                        <outlet property="errorLabel" destination="4nP-gH-NA4" id="5yn-TR-ODh"/>
                         <outlet property="heightInputField" destination="6xh-tM-tSN" id="Bqg-9r-Mgi"/>
                         <segue destination="Loh-xd-3Eb" kind="show" identifier="goToHealthLink" id="toW-Zh-d6N"/>
                     </connections>
