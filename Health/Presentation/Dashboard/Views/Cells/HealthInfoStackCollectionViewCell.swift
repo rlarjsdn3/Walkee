@@ -20,6 +20,7 @@ final class HealthInfoStackCollectionViewCell: CoreCollectionViewCell {
     private var lineChartsHostingController: UIHostingController<LineChartsView>?
 
     override func layoutSubviews() {
+//       symbolContainerView.applyCornerStyle(.circular)
         symbolContainerView.layer.cornerRadius = symbolContainerView.bounds.height / 2
     }
 
@@ -29,13 +30,15 @@ final class HealthInfoStackCollectionViewCell: CoreCollectionViewCell {
     }
 
     override func setupAttribute() {
-        self.applyCornerStyle(.medium)
+//        self.applyCornerStyle(.medium)
         self.backgroundColor = .boxBg
+        self.layer.cornerRadius = 12 // medium
+        self.layer.masksToBounds = false
         self.layer.borderColor = UIColor.separator.cgColor
         self.layer.shadowColor = UIColor.black.cgColor
-        self.layer.shadowOpacity = 0.15
-        self.layer.shadowOffset = CGSize(width: 5, height: 5)
-        self.layer.shadowRadius = 10
+        self.layer.shadowOpacity = 0.05
+        self.layer.shadowOffset = CGSize(width: 2, height: 2)
+        self.layer.shadowRadius = 5
         self.layer.borderWidth = (traitCollection.userInterfaceStyle == .dark) ? 0 : 1
 
         symbolContainerView.backgroundColor = .systemGray6
@@ -62,16 +65,22 @@ final class HealthInfoStackCollectionViewCell: CoreCollectionViewCell {
 
 extension HealthInfoStackCollectionViewCell {
 
-    func configure(with viewModel: HealthInfoStackCellViewModel, parent: UIViewController?) {
+    func configure(
+        with viewModel: HealthInfoStackCellViewModel,
+        parent: UIViewController?
+    ) {
         titleLabel.text = viewModel.title
         valueLabel.attributedText = NSAttributedString(string: "1,000보")
             .font(.preferredFont(forTextStyle: .footnote), to: "보") // TODO: - 실제 값 할당하기
         symbolImageView.image = UIImage(systemName: viewModel.systemName)
 
-        addLineChartsHostingController(with: viewModel, parent: parent)
+        configureLineChartsHostingController(with: viewModel, parent: parent)
     }
 
-    private func addLineChartsHostingController(with viewModel: HealthInfoStackCellViewModel, parent: UIViewController?) {
+    private func configureLineChartsHostingController(
+        with viewModel: HealthInfoStackCellViewModel,
+        parent: UIViewController?
+    ) {
         Task {
             do {
                 let hkDatas = try await viewModel.fetchStatisticsCollectionData(

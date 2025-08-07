@@ -12,21 +12,21 @@ typealias HealthKitData = (startDate: Date, endDate: Date, value: Double)
 
 final class HealthInfoStackCellViewModel {
 
-    let cardStack: DashboardCardStack
+    let stackType: DashboardStackType
 
     ///
     var title: String? {
-        cardStack.title
+        stackType.title
     }
 
     ///
     var systemName: String {
-        cardStack.systemName
+        stackType.systemName
     }
 
     ///
     var unitString: String? {
-        cardStack.unitString
+        stackType.unit.unitString
     }
 
     @Injected var healthService: (any HealthService)
@@ -36,8 +36,8 @@ final class HealthInfoStackCellViewModel {
     }
 
     ///
-    init(cardStack: DashboardCardStack) {
-        self.cardStack = cardStack
+    init(cardStack: DashboardStackType) {
+        self.stackType = cardStack
     }
     
     /// <#Description#>
@@ -51,11 +51,11 @@ final class HealthInfoStackCellViewModel {
         options: HKStatisticsOptions
     ) async throws -> HealthKitData {
         try await healthService.fetchStatistics(
-            for: cardStack.quantityTypeIdentifier,
+            for: stackType.quantityTypeIdentifier,
             from: startDate,
             to: endDate,
             options: options,
-            unit: cardStack.unit
+            unit: stackType.unit
         )
     }
     
@@ -71,12 +71,12 @@ final class HealthInfoStackCellViewModel {
         interval intervalComponents: DateComponents = .init(day: 1)
     ) async throws -> [HealthKitData] {
         try await healthService.fetchStatisticsCollection(
-            for: cardStack.quantityTypeIdentifier,
+            for: stackType.quantityTypeIdentifier,
             from: startDate,
             to: endDate,
             options: options,
             interval: intervalComponents,
-            unit: cardStack.unit
+            unit: stackType.unit
         )
     }
 }
