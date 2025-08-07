@@ -12,7 +12,9 @@ class ChatbotViewController: CoreGradientViewController {
 	private let viewModel = AlanViewModel()
 	
 	@IBOutlet weak var tableView: UITableView!
-	@IBOutlet weak var textFieldBottomConstraint: NSLayoutConstraint!
+	@IBOutlet weak var containerViewBottomConstraint: NSLayoutConstraint!
+	@IBOutlet weak var chattingInputStackView: UIStackView!
+	@IBOutlet weak var chattingContainerStackView: UIStackView!
 	@IBOutlet weak var chattingTextField: UITextField!
 	@IBOutlet weak var sendButton: UIButton!
 	
@@ -26,13 +28,10 @@ class ChatbotViewController: CoreGradientViewController {
 		super.viewDidLoad()
 		
 		setupAttribute()
-		
+		setupConstraints()
 		setupTableView()
 		setupKeyboardObservers()
 		setupTapGesture()
-		
-		setupNetworkMonitoring()
-		
 	}
 	
 	override func viewWillAppear(_ animated: Bool) {
@@ -45,14 +44,6 @@ class ChatbotViewController: CoreGradientViewController {
 		super.viewWillDisappear(animated)
 		
 		navigationController?.setNavigationBarHidden(false, animated: animated)
-	}
-	
-	override func viewDidAppear(_ animated: Bool) {
-		super.viewDidAppear(animated)
-		
-		// UITextField를 맨 앞으로 가져오기
-		view.bringSubviewToFront(chattingTextField)
-		view.bringSubviewToFront(sendButton)
 	}
 	
 	override func initVM() {
@@ -69,7 +60,9 @@ class ChatbotViewController: CoreGradientViewController {
 		chattingTextField.autocorrectionType = .no
 		chattingTextField.delegate = self
 		
-		setTextFieldAttribute()
+		setupStackViewStyles()
+		
+		automaticallyAdjustsScrollViewInsets = false
 	}
 	
 	@IBAction func sendButtonTapped(_ sender: UIButton) {
@@ -169,6 +162,10 @@ class ChatbotViewController: CoreGradientViewController {
 		tableView.separatorStyle = .none
 		tableView.keyboardDismissMode = .interactive
 		
+		if #available(iOS 11.0, *) {
+			tableView.contentInsetAdjustmentBehavior = .never
+		}
+		
 		// 동적 높이를 위한 설정
 		tableView.estimatedRowHeight = 60
 		tableView.rowHeight = UITableView.automaticDimension
@@ -187,20 +184,26 @@ class ChatbotViewController: CoreGradientViewController {
 		tableView.register(aiResponseNib, forCellReuseIdentifier: AIResponseCell.id)
 	}
 	
-	private func setTextFieldAttribute() {
-		chattingTextField.backgroundColor = .boxBg
-		chattingTextField.layer.cornerRadius = 12
-		chattingTextField.layer.masksToBounds = true
-		chattingTextField.layer.borderColor = UIColor.buttonText.cgColor
-		chattingTextField.layer.borderWidth = 1.0
+	private func setupStackViewStyles() {
+		chattingContainerStackView.layer.cornerRadius = 12
+		chattingContainerStackView.layer.masksToBounds = true
+		chattingContainerStackView.isLayoutMarginsRelativeArrangement = true
+		chattingContainerStackView.layoutMargins = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
 		
+		chattingInputStackView.backgroundColor = .boxBg
+		chattingInputStackView.layer.cornerRadius = 12
+		chattingInputStackView.layer.masksToBounds = true
+		chattingInputStackView.layer.borderColor = UIColor.buttonText.cgColor
+		chattingInputStackView.layer.borderWidth = 1.0
+		
+		// TextField 설정
+		chattingTextField.backgroundColor = .clear
 		chattingTextField.isUserInteractionEnabled = true
 		chattingTextField.isEnabled = true
 		
-		chattingTextField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: chattingTextField.frame.height))
+		// 좌측 여백
+		chattingTextField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 44))
 		chattingTextField.leftViewMode = .always
-		chattingTextField.rightView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: chattingTextField.frame.height))
-		chattingTextField.rightViewMode = .always
 		
 		let placeholderText = "걸어봇에게 물어보세요."
 		let placeholderColor = UIColor.buttonBackground.withAlphaComponent(0.5)
@@ -286,18 +289,31 @@ class ChatbotViewController: CoreGradientViewController {
 			  let duration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else { return }
 		
 		let keyboardHeight = keyboardFrame.height
-		textFieldBottomConstraint.constant = -keyboardHeight - 8
-
-		UIView.animate(withDuration: duration) {
-			self.view.layoutIfNeeded()
+		let safeAreaBottomInset = view.safeAreaInsets.bottom
+		
+		// 제약조건 방향 확인
+		let isStackViewFirst = containerViewBottomConstraint.firstItem === chattingContainerStackView
+	
+		if isStackViewFirst {
+			let newConstant = -(keyboardHeight - safeAreaBottomInset + 16)
+			containerViewBottomConstraint.constant = newConstant
+			print("- new constant (StackView first): \(newConstant)")
+		} else {
+			let newConstant = keyboardHeight - safeAreaBottomInset + 16
+			containerViewBottomConstraint.constant = newConstant
+			print("- new constant (SafeArea first): \(newConstant)")
 		}
 		
-		Task { @MainActor in
-			do {
-				try await Task.sleep(for: .milliseconds(100))
-				scrollToBottom()
-			} catch {
-				print("error", error)
+		// TableView content inset 조정
+		let tableBottomInset = keyboardHeight + 74
+		tableView.contentInset = UIEdgeInsets(top: 32, left: 0, bottom: tableBottomInset, right: 0)
+		tableView.scrollIndicatorInsets = tableView.contentInset
+		
+		UIView.animate(withDuration: duration, delay: 0, options: [.curveEaseOut]) {
+			self.view.layoutIfNeeded()
+		} completion: { _ in
+			DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+				self.scrollToBottom()
 			}
 		}
 	}
@@ -306,12 +322,18 @@ class ChatbotViewController: CoreGradientViewController {
 		guard let userInfo = notification.userInfo,
 			  let duration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else { return }
 		
-		textFieldBottomConstraint.constant = -48
+		let isStackViewFirst = containerViewBottomConstraint.firstItem === chattingContainerStackView
 		
-		tableView.contentInset = UIEdgeInsets(top: 32, left: 0, bottom: 80, right: 0)
+		if isStackViewFirst {
+			containerViewBottomConstraint.constant = -48
+		} else {
+			containerViewBottomConstraint.constant = 48
+		}
+		
+		tableView.contentInset = UIEdgeInsets(top: 32, left: 0, bottom: 20, right: 0)
 		tableView.scrollIndicatorInsets = tableView.contentInset
 		
-		UIView.animate(withDuration: duration) {
+		UIView.animate(withDuration: duration, delay: 0, options: [.curveEaseOut]) {
 			self.view.layoutIfNeeded()
 		}
 	}
@@ -372,7 +394,6 @@ extension ChatbotViewController: UITableViewDelegate {
 	}
 	
 	func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
-		// HeaderTitleCell은 조금 더 큰 높이 예상
 		if hasFixedHeader && indexPath.row == 0 {
 			return 80
 		}
@@ -396,14 +417,17 @@ extension ChatbotViewController: UITextFieldDelegate {
 	
 	func textFieldDidBeginEditing(_ textField: UITextField) {
 		// 텍스트필드 편집 시작할 때 최신 메시지로 스크롤 해 줌.
-		Task { @MainActor in
-			do {
-				try await Task.sleep(for: .milliseconds(300))
-				scrollToBottom()
-			} catch {
-				print("error", error)
-			}
+		DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+			self.scrollToBottom()
 		}
+//		Task { @MainActor in
+//			do {
+//				try await Task.sleep(for: .milliseconds(300))
+//				scrollToBottom()
+//			} catch {
+//				print("error", error)
+//			}
+//		}
 	}
 	
 	func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
