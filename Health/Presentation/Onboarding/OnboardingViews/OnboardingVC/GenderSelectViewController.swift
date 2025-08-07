@@ -6,11 +6,13 @@
 //
 
 import UIKit
+import CoreData
 
 class GenderSelectViewController: CoreViewController {
 
     @IBOutlet weak var femaleButton: UIButton!
     @IBOutlet weak var maleButton: UIButton!
+    
 
     private enum Gender {
         case male
@@ -30,7 +32,7 @@ class GenderSelectViewController: CoreViewController {
         button.backgroundColor = UIColor.buttonBackground
         button.setTitleColor(.white, for: .normal)
         button.applyCornerStyle(.medium)
-        button.isEnabled = false
+        button.isEnabled = false 
         return button
     }()
 
@@ -48,6 +50,7 @@ class GenderSelectViewController: CoreViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         progressIndicatorStackView.isHidden = false
+        loadSavedGender()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -91,8 +94,55 @@ class GenderSelectViewController: CoreViewController {
     }
 
     @objc private func continueButtonTapped() {
-        guard selectedGender != nil else { return }
+        guard let selectedGender = selectedGender else { return }
+
+        let context = CoreDataStack.shared.viewContext
+        let fetchRequest: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
+
+        do {
+            let results = try context.fetch(fetchRequest)
+            let userInfo: UserInfoEntity
+
+            if let existing = results.first {
+                userInfo = existing
+            } else {
+                userInfo = UserInfoEntity(context: context)
+                userInfo.id = UUID()
+                userInfo.createdAt = Date()
+            }
+
+            userInfo.gender = (selectedGender == .male) ? "male" : "female"
+            CoreDataStack.shared.saveContext()
+        } catch {
+            print("CoreData 저장 오류: \(error.localizedDescription)")
+            return
+        }
+
         performSegue(withIdentifier: "goToAgeInfo", sender: self)
+    }
+
+    private func loadSavedGender() {
+        let context = CoreDataStack.shared.viewContext
+        let fetchRequest: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
+
+        do {
+            if let userInfo = try context.fetch(fetchRequest).first,
+               let genderString = userInfo.gender {
+                switch genderString {
+                case "male":
+                    selectedGender = .male
+                case "female":
+                    selectedGender = .female
+                default:
+                    selectedGender = nil
+                }
+            } else {
+                selectedGender = nil
+            }
+        } catch {
+            print("Failed to fetch gender from CoreData: \(error.localizedDescription)")
+            selectedGender = nil
+        }
     }
 
     private func updateGenderSelectionUI() {
@@ -101,27 +151,17 @@ class GenderSelectViewController: CoreViewController {
         let selectedBG = UIColor.accent
         let selectedText = UIColor.label
 
-        if selectedGender == .female {
-            femaleButton.tintColor = selectedBG
-            femaleButton.setTitleColor(selectedText, for: .normal)
-        } else {
-            femaleButton.tintColor = defaultBG
-            femaleButton.setTitleColor(defaultText, for: .normal)
-        }
+        femaleButton.tintColor = (selectedGender == .female) ? selectedBG : defaultBG
+        femaleButton.setTitleColor((selectedGender == .female) ? selectedText : defaultText, for: .normal)
 
-        if selectedGender == .male {
-            maleButton.tintColor = selectedBG
-            maleButton.setTitleColor(selectedText, for: .normal)
-        } else {
-            maleButton.tintColor = defaultBG
-            maleButton.setTitleColor(defaultText, for: .normal)
-        }
+        maleButton.tintColor = (selectedGender == .male) ? selectedBG : defaultBG
+        maleButton.setTitleColor((selectedGender == .male) ? selectedText : defaultText, for: .normal)
     }
 
     private func updateContinueButtonState() {
-        let isEnabled = (selectedGender != nil)
-        continueButton.isEnabled = isEnabled
-        continueButton.backgroundColor = isEnabled ? .accent : .buttonBackground
-        continueButton.setTitleColor(isEnabled ? .black : .white, for: .normal)
+        let isSelected = (selectedGender != nil)
+        continueButton.isEnabled = isSelected
+        continueButton.backgroundColor = isSelected ? .accent : .buttonBackground
+        continueButton.setTitleColor(isSelected ? .black : .white, for: .normal)
     }
 }
