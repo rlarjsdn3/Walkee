@@ -53,7 +53,7 @@ extension DashboardContent.Item {
         barChartsCellRegistration: UICollectionView.CellRegistration<DashboardBarChartsCollectionViewCell, DashboardBarChartsCellViewModel>,
         alanSummaryCellRegistration: UICollectionView.CellRegistration<AlanActivitySummaryCollectionViewCell, AlanActivitySummaryCellViewModel>,
         healthInfoCardCellRegistration: UICollectionView.CellRegistration<HealthInfoCardCollectionViewCell, HealthInfoCardCellViewModel>,
-        textCellRegistration: UICollectionView.CellRegistration<TextCollectionViewCell, TextCellViewModel>,
+        textCellRegistration: UICollectionView.CellRegistration<UICollectionViewListCell, Void>,
         indexPath: IndexPath
     ) -> UICollectionViewCell {
         switch self {
@@ -98,7 +98,7 @@ extension DashboardContent.Item {
             return collectionView.dequeueConfiguredReusableCell(
                 using: textCellRegistration,
                 for: indexPath,
-                item: viewModel
+                item: ()
             )
         }
     }

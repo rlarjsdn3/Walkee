@@ -154,9 +154,15 @@ fileprivate extension DashboardViewController {
         }
     }
 
-    func createTextCellRegistration() -> UICollectionView.CellRegistration<TextCollectionViewCell, TextCellViewModel> {
+    func createTextCellRegistration() -> UICollectionView.CellRegistration<UICollectionViewListCell, Void> {
         // TODO: - 셀 콘텐츠 구성하기
-        UICollectionView.CellRegistration<TextCollectionViewCell, TextCellViewModel>(cellNib: TextCollectionViewCell.nib) { cell, indexPath, viewModel in
+        UICollectionView.CellRegistration<UICollectionViewListCell, Void> { cell, indexPath, viewModel in
+            var config = cell.defaultContentConfiguration()
+            config.text = "Alan AI는 정보 제공시 실수를 할 수 있으니 다시 한번 확인하세요."
+            config.textProperties.font = .preferredFont(forTextStyle: .footnote)
+            config.textProperties.color = .secondaryLabel
+            config.textProperties.alignment = .center
+            cell.contentConfiguration = config
         }
     }
 
