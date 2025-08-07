@@ -31,4 +31,5 @@ jobs:
             xcodebuild clean test \
             -project Health.xcodeproj \
             -scheme Health-DEBUG \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.1'
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.1' \
+            -xcconfig /Users/runner/work/EST-Soft-Team3-3rd-Project/EST-Soft-Team3-3rd-Project/app-debug.xcconfig
