@@ -93,7 +93,7 @@ class ChatbotViewController: CoreGradientViewController {
 		
 		tableView.register(ChatbotHeaderTitleCell.self, forCellReuseIdentifier: cellIdentifiers.header)
 		
-		let bubbleNib = UINib(nibName: cellIdentifiers.bubbleUI, bundle: nil)
+		let bubbleNib = BubbleViewCell.nib
 		tableView.register(bubbleNib, forCellReuseIdentifier: cellIdentifiers.bubbleUI)
 	}
 	
