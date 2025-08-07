@@ -27,4 +27,4 @@ jobs:
             -project Health.xcodeproj \
             -scheme Health-DEBUG \
             -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.1' \
-            -xcconfig .app-debug.xcconfig
+            -xcconfig ./app-debug.xcconfig
