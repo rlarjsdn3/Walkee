@@ -32,24 +32,33 @@ extension UIView {
         case custom(CGFloat) // 커스텀 값
     }
 
-    /// 코너 스타일을 쉽게 적용하는 메서드
+    /// UIView의 모서리를 다양한 스타일로 설정합니다.
+    ///
+    /// - Note: `.circular` 스타일은 뷰가 정사각형일 경우에만 완전한 원이 됩니다.
+    ///         이 스타일은 뷰의 레이아웃이 확정된 이후(`layoutIfNeeded()` 호출 후)에 적용해야 정확합니다.
     func applyCornerStyle(_ style: CornerStyle) {
         switch style {
-        case .small:
-            layer.cornerRadius = CornerRadius.small
-        case .medium:
-            layer.cornerRadius = CornerRadius.medium
-        case .large:
-            layer.cornerRadius = CornerRadius.large
-        case .circular:
-            // 원형으로 만들기 (정사각형일 때만 완전한 원)
-            layer.cornerRadius = min(frame.width, frame.height) / 2
-        case .custom(let radius):
-            layer.cornerRadius = radius
+            case .small:
+                layer.cornerRadius = CornerRadius.small
+
+            case .medium:
+                layer.cornerRadius = CornerRadius.medium
+
+            case .large:
+                layer.cornerRadius = CornerRadius.large
+
+            case .circular:
+                // 레이아웃이 아직 반영되지 않았을 수 있으므로 먼저 강제 layout 수행
+                layoutIfNeeded()
+                layer.cornerRadius = min(bounds.width, bounds.height) / 2
+
+            case .custom(let radius):
+                layer.cornerRadius = radius
         }
 
-        // 코너 반지름 적용시 기본 설정
+        // cornerRadius 적용 시 마스킹도 반드시 켜줘야 실제로 적용됨
         layer.masksToBounds = true
+        clipsToBounds = true
     }
 }
 // MARK: - 사용법 요약 주석

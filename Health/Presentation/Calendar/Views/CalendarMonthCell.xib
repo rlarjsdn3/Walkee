@@ -74,6 +74,9 @@
                     <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="Ejp-Gl-eHb">
                         <rect key="frame" x="0.0" y="78.333333333333314" width="332" height="120.66666666666669"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="120.66666666666669" id="HUG-mc-1jW"/>
+                        </constraints>
                         <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="cGp-tr-K6c">
                             <size key="itemSize" width="128" height="128"/>
                             <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -98,6 +101,7 @@
             <size key="customSize" width="332" height="199"/>
             <connections>
                 <outlet property="dateCollectionView" destination="Ejp-Gl-eHb" id="tR9-MO-CbJ"/>
+                <outlet property="dateCollectionViewHeightConstraint" destination="HUG-mc-1jW" id="tqP-KM-8JD"/>
                 <outlet property="yearMonthLabel" destination="oh1-q2-x3o" id="bHa-jM-Pom"/>
             </connections>
             <point key="canvasLocation" x="229.00763358778624" y="94.014084507042256"/>

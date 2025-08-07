@@ -25,7 +25,7 @@ final class CoreDataStack {
     /// UI와 직접 연결되는 작업에서 사용되며,
     /// 내부적으로 `NSPersistentContainer.viewContext`를 반환합니다.
     var viewContext: NSManagedObjectContext {
-        persistentCotnainer.viewContext
+        persistentContainer.viewContext
     }
 
     /// Core Data 저장소를 관리하는 `NSPersistentContainer`입니다.
@@ -33,7 +33,7 @@ final class CoreDataStack {
     /// - `Model`이라는 이름의 데이터 모델 파일을 기반으로 초기화됩니다.
     /// - 디버그 환경에서는 영구 저장을 방지하기 위해 `/dev/null`로 저장소 경로를 지정합니다.
     /// - 저장소 로딩에 실패할 경우 앱을 종료하며 오류 메시지를 출력합니다.
-    lazy var persistentCotnainer: NSPersistentContainer = {
+    lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "Model")
 #if DEBUG
         container.persistentStoreDescriptions.first?.url = URL(filePath: "/dev/null")
@@ -108,6 +108,6 @@ extension CoreDataStack {
     /// - Parameter block: 백그라운드 컨텍스트에서 수행할 작업 블록입니다.
     /// - Throws: 작업 블록 내에서 오류가 발생할 경우 예외를 던질 수 있습니다.
      func performBackgroundTask(_ block: @Sendable @escaping (NSManagedObjectContext) throws -> Void) async rethrows {
-        try await persistentCotnainer.performBackgroundTask(block)
+        try await persistentContainer.performBackgroundTask(block)
     }
 }

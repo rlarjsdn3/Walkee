@@ -6,10 +6,12 @@
 //
 
 import UIKit
+import CoreData
 
 class InputAgeViewController: CoreViewController {
     
     @IBOutlet weak var ageInputField: UITextField!
+    @IBOutlet weak var errorLabel: UILabel!
     
     private let continueButton: UIButton = {
         let button = UIButton(type: .system)
@@ -38,13 +40,20 @@ class InputAgeViewController: CoreViewController {
         
         registerForKeyboardNotifications()
         setupTapGestureToDismissKeyboard()
+        
         let backBarButton = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
         navigationItem.backBarButtonItem = backBarButton
+        
+        errorLabel.isHidden = true
+        errorLabel.textColor = .red
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         progressIndicatorStackView.isHidden = false
+        
+        // CoreData에 저장된 age 값을 불러와서 텍스트필드에 반영
+        fetchAndDisplaySavedAge()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -80,20 +89,49 @@ class InputAgeViewController: CoreViewController {
     }
 
     @objc private func textFieldDidChange(_ textField: UITextField) {
-        validateInput()
-
         if let text = textField.text, text.count == 4 {
+            validateInput()
             textField.resignFirstResponder()
+        } else {
+            hideError()
+            disableContinueButton()
         }
     }
 
     private func validateInput() {
-        guard let text = ageInputField.text, let year = Int(text), (1900...2025).contains(year) else {
-            continueButton.isEnabled = false
-            continueButton.backgroundColor = .buttonBackground
-            ageInputField.textColor = .label // 기본색
+        guard let text = ageInputField.text, let year = Int(text) else {
+            disableContinueButton()
+            hideError()
             return
         }
+        
+        if year < 1900 || year > 2025 {
+            ageInputField.text = ""
+            showError()
+            disableContinueButton()
+        } else {
+            hideError()
+            enableContinueButton()
+        }
+    }
+
+    private func showError() {
+        errorLabel.isHidden = false
+        errorLabel.text = "1900 ~ 2025 사이의 값을 입력해주세요."
+    }
+    
+    private func hideError() {
+        errorLabel.isHidden = true
+        errorLabel.text = ""
+    }
+    
+    private func disableContinueButton() {
+        continueButton.isEnabled = false
+        continueButton.backgroundColor = .buttonBackground
+        ageInputField.textColor = .label
+    }
+    
+    private func enableContinueButton() {
         continueButton.isEnabled = true
         continueButton.backgroundColor = .accent
         ageInputField.textColor = .accent
@@ -101,7 +139,49 @@ class InputAgeViewController: CoreViewController {
     
     @objc private func didTapContinue() {
         guard continueButton.isEnabled else { return }
-        performSegue(withIdentifier: "goToWeightInfo", sender: nil)
+        guard let text = ageInputField.text, let year = Int16(text) else { return }
+
+        let context = CoreDataStack.shared.viewContext
+        let request: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
+        
+        do {
+            let results = try context.fetch(request)
+            let userInfo: UserInfoEntity
+            
+            if let existing = results.first {
+                userInfo = existing
+            } else {
+                userInfo = UserInfoEntity(context: context)
+                userInfo.id = UUID()
+                userInfo.createdAt = Date()
+            }
+            
+            userInfo.age = year
+            
+            CoreDataStack.shared.saveContext()
+            performSegue(withIdentifier: "goToWeightInfo", sender: nil)
+            
+        } catch {
+            print("CoreData 저장 중 오류 발생: \(error)")
+        }
+    }
+    
+    private func fetchAndDisplaySavedAge() {
+        let context = CoreDataStack.shared.viewContext
+        let request: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
+        
+        do {
+            let results = try context.fetch(request)
+            if let userInfo = results.first {
+                let age = userInfo.age
+                if age != 0 {
+                    ageInputField.text = String(age)
+                    enableContinueButton()
+                }
+            }
+        } catch {
+            print("CoreData에서 age 불러오기 실패: \(error)")
+        }
     }
 
     private func registerForKeyboardNotifications() {

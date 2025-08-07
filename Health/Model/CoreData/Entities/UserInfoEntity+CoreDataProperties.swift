@@ -15,18 +15,18 @@ extension UserInfoEntity {
         return NSFetchRequest<UserInfoEntity>(entityName: "UserInfoEntity")
     }
 
-    @NSManaged public var id: UUID
-    @NSManaged public var username: String
     @NSManaged public var age: Int16
-    @NSManaged public var gender: String
-    @NSManaged public var weight: Double
-    @NSManaged public var height: Double
     @NSManaged public var createdAt: Date?
     @NSManaged public var disease: String?
-    @NSManaged public var goalStepCount: GoalStepCountEntity?
-    @NSManaged public var dailyStep: DailyStepEntity?
+    @NSManaged public var gender: String?
+    @NSManaged public var height: Double
+    @NSManaged public var id: UUID?
+    @NSManaged public var username: String?
+    @NSManaged public var weight: Double
+    @NSManaged public var dailyStep: NSSet?
+    @NSManaged public var goalStepCount: NSSet?
 
-    
+    // JSON 문자열(disease)와 연동하는 편리한 프로퍼티
     var diseases: [Disease]? {
         get {
             guard let diseaseString = disease,
@@ -47,23 +47,7 @@ extension UserInfoEntity {
     }
 }
 
-// MARK: Generated accessors for userInfo
-
-extension UserInfoEntity {
-
-    @objc(addGoalStepCountObject:)
-    @NSManaged public func addToGoalStepCount(_ value: GoalStepCountEntity)
-
-    @objc(removeGoalStepCountObject:)
-    @NSManaged public func removeFromGoalStepCount(_ value: GoalStepCountEntity)
-
-    @objc(addGoalStepCount:)
-    @NSManaged public func addToGoalStepCount(_ values: NSSet)
-
-    @objc(removeGoalStepCount:)
-    @NSManaged public func removeFromGoalStepCount(_ values: NSSet)
-}
-
+// MARK: Generated accessors for dailyStep
 extension UserInfoEntity {
 
     @objc(addDailyStepObject:)
@@ -77,26 +61,26 @@ extension UserInfoEntity {
 
     @objc(removeDailyStep:)
     @NSManaged public func removeFromDailyStep(_ values: NSSet)
+
 }
 
-extension UserInfoEntity: Identifiable { }
+// MARK: Generated accessors for goalStepCount
+extension UserInfoEntity {
 
-/*
+    @objc(addGoalStepCountObject:)
+    @NSManaged public func addToGoalStepCount(_ value: GoalStepCountEntity)
 
- disease 배열 사용방법
- 
- let user = UserInfoEntity(context: context)
+    @objc(removeGoalStepCountObject:)
+    @NSManaged public func removeFromGoalStepCount(_ value: GoalStepCountEntity)
 
-// 저장
-user.diseases = [.arthritis, .fracture]
+    @objc(addGoalStepCount:)
+    @NSManaged public func addToGoalStepCount(_ values: NSSet)
 
-// 읽기
-if let diseases = user.diseases {
-    for disease in diseases {
-        print("질병: \(disease.localizedName)")
-    }
+    @objc(removeGoalStepCount:)
+    @NSManaged public func removeFromGoalStepCount(_ values: NSSet)
+
 }
- 
- */
 
+extension UserInfoEntity : Identifiable {
 
+}

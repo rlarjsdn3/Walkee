@@ -16,7 +16,7 @@
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 <subviews>
                     <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Zgw-pB-d4u">
-                        <rect key="frame" x="5" y="5" width="40" height="40"/>
+                        <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                         <color key="backgroundColor" red="0.41568627450980389" green="0.41568627450980389" blue="0.41568627450980389" alpha="1" colorSpace="calibratedRGB"/>
                     </view>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="12" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HvE-6x-7zc">
@@ -30,13 +30,17 @@
             <constraints>
                 <constraint firstItem="HvE-6x-7zc" firstAttribute="centerX" secondItem="Zgw-pB-d4u" secondAttribute="centerX" id="3fc-9L-oHb"/>
                 <constraint firstItem="HvE-6x-7zc" firstAttribute="centerY" secondItem="Zgw-pB-d4u" secondAttribute="centerY" id="5gN-JV-YgV"/>
-                <constraint firstItem="Zgw-pB-d4u" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="5" id="APa-th-hsN"/>
-                <constraint firstAttribute="bottom" secondItem="Zgw-pB-d4u" secondAttribute="bottom" constant="5" id="ORs-5K-gHL"/>
-                <constraint firstAttribute="trailing" secondItem="Zgw-pB-d4u" secondAttribute="trailing" constant="5" id="OSi-aT-9gY"/>
-                <constraint firstItem="Zgw-pB-d4u" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="5" id="ThV-xE-G1S"/>
+                <constraint firstAttribute="bottom" secondItem="Zgw-pB-d4u" secondAttribute="bottom" id="6lZ-hQ-kaY"/>
+                <constraint firstItem="Zgw-pB-d4u" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="QXN-hr-0Hh"/>
+                <constraint firstItem="Zgw-pB-d4u" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="khX-hY-koP"/>
+                <constraint firstAttribute="trailing" secondItem="Zgw-pB-d4u" secondAttribute="trailing" id="oY0-eu-aRM"/>
             </constraints>
             <connections>
                 <outlet property="circleView" destination="Zgw-pB-d4u" id="SFc-tx-7hB"/>
+                <outlet property="circleViewBottomConstraint" destination="6lZ-hQ-kaY" id="fUP-OZ-6gh"/>
+                <outlet property="circleViewLeadingConstraint" destination="khX-hY-koP" id="a8O-Se-8hT"/>
+                <outlet property="circleViewTopConstraint" destination="QXN-hr-0Hh" id="LhE-my-rT9"/>
+                <outlet property="circleViewTrailingConstraint" destination="oY0-eu-aRM" id="vpA-3w-BTF"/>
                 <outlet property="dateLabel" destination="HvE-6x-7zc" id="cqR-DE-te9"/>
             </connections>
             <point key="canvasLocation" x="138.93129770992365" y="41.549295774647888"/>
