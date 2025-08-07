@@ -36,7 +36,7 @@ extension CoreDataStack {
         dummyUser.height = 175.0
         dummyUser.weight = 68.0
         dummyUser.diseases = [.arthritis, .stroke]
-        
+     
         
         //GoalStepCountEntity 더미 생성 및 연결
         let dummyGoal = GoalStepCountEntity(context: context)

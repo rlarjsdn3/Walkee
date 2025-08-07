@@ -4,7 +4,8 @@ final class CalendarMonthCell: CoreCollectionViewCell {
 
     @IBOutlet weak var yearMonthLabel: UILabel!
     @IBOutlet weak var dateCollectionView: UICollectionView!
-
+    @IBOutlet weak var dateCollectionViewHeightConstraint: NSLayoutConstraint!
+    
     private var datesWithBlank: [Date] = []
 
     override func setupAttribute() {
@@ -27,7 +28,7 @@ final class CalendarMonthCell: CoreCollectionViewCell {
 
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(100)
+            heightDimension: .fractionalWidth(1.0 / 7.0)
         )
         let group = NSCollectionLayoutGroup.horizontal(
             layoutSize: groupSize,
@@ -46,15 +47,16 @@ final class CalendarMonthCell: CoreCollectionViewCell {
 
         yearMonthLabel.text = firstDay.formatted(using: "yyyy년 M월")
 
-        // 해당 월의 모든 날짜
+		// 1일 앞의 빈칸을 포함한 모든 날짜
         let dates = firstDay.datesInMonth(using: calendar)
-
-        // 첫 번째 날의 요일
-        // 일요일 = 1, 월요일 = 2, ...
         let weekday = calendar.component(.weekday, from: firstDay)
-
-        // 빈칸 포함 모든 날짜
         datesWithBlank = Array(repeating: Date.distantPast, count: weekday - 1) + dates
+
+        // 셀 크기 동적 조정을 위한 dateCollectionView 높이 계산
+        let totalItems = datesWithBlank.count
+        let numberOfRows = Int(ceil(Double(totalItems) / 7.0))
+        let itemWidth = UIScreen.main.bounds.width / 7
+        dateCollectionViewHeightConstraint.constant = CGFloat(numberOfRows) * itemWidth
 
         dateCollectionView.reloadData()
     }

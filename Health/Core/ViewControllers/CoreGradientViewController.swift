@@ -85,7 +85,6 @@ class CoreGradientViewController: CoreViewController {
 		guard let gradientType = currentGradientType else { return }
 		
 		let isDarkMode = traitCollection.userInterfaceStyle == .dark
-		print("[\(String(describing: type(of: self)))] 테마 변경 감지: \(isDarkMode ? "다크모드" : "라이트모드")")
 		
 		// 그라디언트 재적용 - cgColor 업데이트
 		view.reapplyGradientForTraitCollection(gradientType)
