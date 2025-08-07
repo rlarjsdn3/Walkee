@@ -108,7 +108,7 @@ final class DashboardViewController: CoreViewController {
         snapshot.appendItems([.barCharts(.init())], toSection: .charts)
         snapshot.appendItems([.alanSummary(.init())], toSection: .alan)
         snapshot.appendItems([.cardInfo(.init()),  .cardInfo(.init()), .cardInfo(.init()), .cardInfo(.init())], toSection: .card)
-        snapshot.appendItems([.text(.init())], toSection: .bottom)
+        snapshot.appendItems([.text], toSection: .bottom)
         dataSource?.apply(snapshot)
     }
 }
