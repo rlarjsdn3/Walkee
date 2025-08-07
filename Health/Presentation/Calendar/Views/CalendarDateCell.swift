@@ -5,27 +5,50 @@ final class CalendarDateCell: CoreCollectionViewCell {
     @IBOutlet weak var circleView: UIView!
     @IBOutlet weak var dateLabel: UILabel!
 
+    @IBOutlet weak var circleViewTopConstraint: NSLayoutConstraint!
+    @IBOutlet weak var circleViewBottomConstraint: NSLayoutConstraint!
+    @IBOutlet weak var circleViewLeadingConstraint: NSLayoutConstraint!
+    @IBOutlet weak var circleViewTrailingConstraint: NSLayoutConstraint!
+
     private let progressBar = CalendarProgressBar()
+
+    private var previousInset: CGFloat?
 
     override func setupHierarchy() {
         super.setupHierarchy()
         circleView.addSubview(progressBar)
     }
 
-    override func setupAttribute() {
-        super.setupAttribute()
-        circleView.applyCornerStyle(.circular)
-        progressBar.translatesAutoresizingMaskIntoConstraints = false
-    }
-
     override func setupConstraints() {
         super.setupConstraints()
+
+        progressBar.translatesAutoresizingMaskIntoConstraints = false
+
         NSLayoutConstraint.activate([
             progressBar.centerXAnchor.constraint(equalTo: circleView.centerXAnchor),
             progressBar.centerYAnchor.constraint(equalTo: circleView.centerYAnchor),
             progressBar.widthAnchor.constraint(equalTo: circleView.widthAnchor),
             progressBar.heightAnchor.constraint(equalTo: circleView.heightAnchor)
         ])
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        let insetRatio: CGFloat = 0.1
+        let inset = bounds.width * insetRatio
+
+        // 불필요한 layout 반복 방지
+        if previousInset != inset {
+            circleViewTopConstraint.constant = inset
+            circleViewBottomConstraint.constant = inset
+            circleViewLeadingConstraint.constant = inset
+            circleViewTrailingConstraint.constant = inset
+
+            previousInset = inset
+        }
+
+        circleView.applyCornerStyle(.circular) // 가로/세로 전환시
     }
 
     func configure(date: Date, currentSteps: Int, goalSteps: Int) {
@@ -35,8 +58,9 @@ final class CalendarDateCell: CoreCollectionViewCell {
             return
         }
 
-        progressBar.progress = CGFloat(currentSteps) / CGFloat(goalSteps)
+        circleView.applyCornerStyle(.circular) // 초기 진입시
         dateLabel.text = "\(date.day)"
+        progressBar.progress = CGFloat(currentSteps) / CGFloat(goalSteps)
         progressBar.isHidden = false
 
         let isCompleted = currentSteps >= goalSteps
