@@ -9,6 +9,7 @@ import Foundation
 import CoreData
 
 final class GoalStepCountViewModel: ObservableObject {
+    
     private let context: NSManagedObjectContext
 
     @Published var goalStepCounts: [GoalStepCountEntity] = []
@@ -19,7 +20,7 @@ final class GoalStepCountViewModel: ObservableObject {
         fetchAllGoalStepCounts()
     }
 
-    //전체 GoalStepCount 목록 조회 (최신순)
+    // 전체 GoalStepCount 목록 조회 (최신순)
     func fetchAllGoalStepCounts() {
         let request: NSFetchRequest<GoalStepCountEntity> = GoalStepCountEntity.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(keyPath: \GoalStepCountEntity.effectiveDate, ascending: false)]
@@ -31,7 +32,7 @@ final class GoalStepCountViewModel: ObservableObject {
         }
     }
 
-    //특정 ID로 GoalStepCount 조회
+    // 특정 ID로 GoalStepCount 조회
     func fetchGoalStepCount(by id: UUID) -> GoalStepCountEntity? {
         let request: NSFetchRequest<GoalStepCountEntity> = GoalStepCountEntity.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
@@ -45,10 +46,33 @@ final class GoalStepCountViewModel: ObservableObject {
         }
     }
 
-    //GoalStepCount 저장 또는 업데이트
-    func saveGoalStepCount(id: UUID? = nil,
-                           goalStepCount: Int32,
-                           effectiveDate: Date) {
+    /// 특정 날짜에 유효한 목표 걸음 수를 반환합니다.
+    ///
+    /// 가장 최근의 `effectiveDate <= date` 조건을 만족하는 목표를 찾아 반환합니다.
+    /// 없을 경우에는 nil을 반환합니다.
+    ///
+    /// - Parameter date: 찾고자 하는 날짜
+    /// - Returns: 해당 날짜에 유효한 목표 걸음 수 또는 nil
+    func goalStepCount(for date: Date) -> Int32? {
+        let request: NSFetchRequest<GoalStepCountEntity> = GoalStepCountEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "effectiveDate <= %@", date as CVarArg)
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \GoalStepCountEntity.effectiveDate, ascending: false)]
+        request.fetchLimit = 1
+
+        do {
+            return try context.fetch(request).first?.goalStepCount
+        } catch {
+            errorMessage = "유효한 GoalStepCount 조회 실패: \(error.localizedDescription)"
+            return nil
+        }
+    }
+
+    // GoalStepCount 저장 또는 업데이트
+    func saveGoalStepCount(
+        id: UUID? = nil,
+        goalStepCount: Int32,
+        effectiveDate: Date
+    ) {
         let entity: GoalStepCountEntity
         if let id = id, let existing = fetchGoalStepCount(by: id) {
             entity = existing
@@ -68,7 +92,7 @@ final class GoalStepCountViewModel: ObservableObject {
         }
     }
 
-    //삭제
+    // 삭제
     func deleteGoalStepCount(_ goalStepCountEntity: GoalStepCountEntity) {
         context.delete(goalStepCountEntity)
         do {
