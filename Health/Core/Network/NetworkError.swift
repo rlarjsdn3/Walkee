@@ -5,7 +5,7 @@ import Foundation
 /// 네트워크 요청 과정에서 발생할 수 있는 다양한 오류 상황을 캡슐화합니다.
 /// 각 케이스는 특정한 오류 상황을 나타내며, 적절한 오류 처리를 위해 사용됩니다.
 enum NetworkError: Error {
-
+	//  MARK: - API 관련 에러
     /// 잘못된 URL로 인한 오류
     ///
     /// URL 구성이 실패했거나 유효하지 않은 URL일 때 발생합니다.
@@ -37,8 +37,37 @@ enum NetworkError: Error {
     /// 서버에서 422 상태 코드와 함께 검증 오류를 반환했을 때 발생합니다.
     case validationFailed(String)
 
-    /// 알 수 없는 오류
-    ///
-    /// 위의 카테고리에 속하지 않는 예상치 못한 오류 상황에 사용됩니다.
-    case unknown
+	// MARK: - 인터넷 네트워크 연결 관련 에러
+	/// 인터넷 연결이 없는 경우
+	case notConnectedToInternet
+	
+	/// 요청 타임아웃
+	case timedOut
+	/// 알 수 없는 오류
+	///
+	/// 위의 카테고리에 속하지 않는 예상치 못한 오류 상황에 사용됩니다.
+	case unknown
+}
+
+extension NetworkError {
+	var errorDetailMsgs: String {
+		switch self {
+		case .badURL:
+			return "잘못된 주소입니다."
+		case .requestFailed:
+			return "ALAN AI API 서버 네트워크 관련 오류입니다."
+		case .notConnectedToInternet:
+			return "인터넷에 연결되어 있지 않습니다. 연결을 확인해주세요."
+		case .timedOut:
+			return "요청 시간이 초과되었습니다. 잠시 후 다시 시도해주세요."
+		case .invalidResponse:
+			return "API 서버 응답에 문제가 있습니다."
+		case .decodingFailed(_):
+			return "API 응답 데이터 처리 중 문제가 발생했습니다."
+		case .validationFailed(let message):
+			return "입력 내용을 확인해주세요: \(message)"
+		case .unknown:
+			return "일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
+		}
+	}
 }

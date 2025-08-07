@@ -107,23 +107,33 @@ class ChatbotViewController: CoreGradientViewController {
 		handleNetworkError(errorMessage)
 	}
 	
-	private func getUserDetailErrorMessage(from errorMessage: String) -> String {
-		// 네트워크 관련 키워드 체크
-		let lowercased = errorMessage.lowercased()
+	private func getUserDetailErrorMessage(from error: String) -> String {
 		
-		if lowercased.contains("network") || lowercased.contains("connection") {
-			return "인터넷 연결을 확인해주세요."
-		} else if lowercased.contains("timeout") {
-			return "요청 시간이 초과되었습니다. 잠시 후 다시 시도해주세요."
-		} else if lowercased.contains("decode") || lowercased.contains("parsing") {
-			return "응답 처리 중 문제가 발생했습니다."
-		} else if lowercased.contains("url") {
-			return "주소 설정에 문제가 있습니다."
-		} else if lowercased.contains("validation") {
-			return "입력 내용을 확인해주세요."
-		} else {
-			return "일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
+		if let networkError = error as? NetworkError {
+			switch networkError {
+			case .badURL:
+				return "잘못된 주소입니다."
+				
+			case .requestFailed(let underlyingError):
+				// 원본 에러를 분석
+				return analyzeUnderlyingError(underlyingError)
+				
+			case .invalidResponse:
+				return "서버 응답에 문제가 있습니다."
+				
+			case .decodingFailed(_):
+				return "응답 데이터 처리 중 문제가 발생했습니다."
+				
+			case .validationFailed(let message):
+				return "입력 내용을 확인해주세요: \(message)"
+				
+			case .unknown:
+				return "알 수 없는 오류가 발생했습니다."
+			}
 		}
+		
+		return analyzeUnderlyingError(error)
+		
 	}
 	
 	
