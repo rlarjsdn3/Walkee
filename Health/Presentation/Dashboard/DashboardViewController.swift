@@ -150,6 +150,7 @@ fileprivate extension DashboardViewController {
     func createHealthInfoCardCellRegistration() -> UICollectionView.CellRegistration<HealthInfoCardCollectionViewCell, HealthInfoCardCellViewModel> {
         // TODO: - 셀 콘텐츠 구성하기
         UICollectionView.CellRegistration<HealthInfoCardCollectionViewCell, HealthInfoCardCellViewModel>(cellNib: HealthInfoCardCollectionViewCell.nib) { cell, indexPath, viewModel in
+            cell.configure(with: viewModel, age: 27) // TODO: - 실제 CoreData에서 가져오기
         }
     }
 
@@ -161,10 +162,16 @@ fileprivate extension DashboardViewController {
 
     func createBasicSupplementaryViewRegistration() -> UICollectionView.SupplementaryRegistration<UICollectionViewListCell> {
         // TODO: - 헤더 콘텐츠 구성하기
-        UICollectionView.SupplementaryRegistration(elementKind: UICollectionView.elementKindSectionHeader) { supplementaryView, kind, indexPath in
-            var config = supplementaryView.defaultContentConfiguration()
-            config.text = "Supplementary View"
-            supplementaryView.contentConfiguration = config
+        UICollectionView.SupplementaryRegistration(elementKind: UICollectionView.elementKindSectionHeader) { [weak self] supplementaryView, kind, indexPath in
+            guard let section = self?.dataSource?.sectionIdentifier(for: indexPath.section)
+            else { return }
+
+            var reusableSupplementaryView = supplementaryView
+            let infoDetailBtn = InfoDetailButton(touchHandler: { _ in print("Info Detail Button Tapped") }) // TODO: - DetailButton 리팩토링, 플로팅 시트 띄우기
+            section.setContentConfiguration(
+                basicSupplementaryView: &reusableSupplementaryView,
+                detailButton: infoDetailBtn
+            )
         }
     }
 }
