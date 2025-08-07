@@ -21,6 +21,9 @@ jobs:
         - name: Generate app-debug xcconfig
           run: echo "${{ secrets.DEBUG_XCCONFIG }}" > ./app-debug.xcconfig
 
+        - name: Generate app-release xcconfig
+          run: echo "${{ secrets.DEBUG_XCCONFIG }}" > ./app-release.xcconfig
+
         - name: 🛠️ Start Xcode Build
           run: |
             xcodebuild clean test \
