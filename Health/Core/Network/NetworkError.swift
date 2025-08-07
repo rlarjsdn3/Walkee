@@ -47,6 +47,9 @@ enum NetworkError: Error {
 	///
 	/// 위의 카테고리에 속하지 않는 예상치 못한 오류 상황에 사용됩니다.
 	case unknown
+	
+	/// viewModel 등에서 String으로 전달되는 일반 오류 메시지를 위한 케이스 추가
+	case customMessage(String)
 }
 
 extension NetworkError {
@@ -68,6 +71,9 @@ extension NetworkError {
 			return "입력 내용을 확인해주세요: \(message)"
 		case .unknown:
 			return "일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
+		/// 새로운 케이스에 대한 메시지 반환
+		case .customMessage(let message):
+			return message
 		}
 	}
 }
