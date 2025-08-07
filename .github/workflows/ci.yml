@@ -14,10 +14,22 @@ jobs:
         steps:
         - name: Checkout Repository
           uses: actions/checkout@v4
-          
+
+        - name: Generate default xcconfig
+          run: |
+            cat <<EOF > ./ci.xcconfig
+            BASE_URL = https:\/\/kdt-api-function.example.net
+            CLIENT_ID = e81b1b0e-3e14-4d0d-9964-d2649364952c
+            BUNDLE_IDENTIFIER = com.kunwoo.walking
+            EOF
+
         - name: Set Specific Xcode Version
           run: sudo xcode-select -s /Applications/Xcode_16.1.app/Contents/Developer
           
         - name: 🛠️ Start Xcode Build
           run: |
-            xcodebuild clean test -project Health.xcodeproj -scheme Health-DEBUG -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.1'
+            xcodebuild clean test \ 
+            -project Health.xcodeproj \
+            -scheme Health-DEBUG \ 
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.1' \
+            -xcconfig ./ci.xcconfig
