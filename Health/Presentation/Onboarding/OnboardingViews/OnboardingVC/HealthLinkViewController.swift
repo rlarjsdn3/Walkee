@@ -23,7 +23,7 @@ class HealthLinkViewController: CoreViewController {
         let button = UIButton(type: .system)
         button.setTitle("다음", for: .normal)
         button.backgroundColor = UIColor.accent
-        button.setTitleColor(.label, for: .normal)
+        button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 12
         button.isEnabled = true
         return button
