@@ -16,20 +16,8 @@ jobs:
           uses: actions/checkout@v4
 
         - name: Generate app-debug xcconfig
-          run: |
-            cat <<EOF > /Users/runner/work/EST-Soft-Team3-3rd-Project/EST-Soft-Team3-3rd-Project/app-debug.xcconfig
-            BASE_URL = https:\/\/kdt-api-function.example.net
-            CLIENT_ID = e81b1b0e-3e14-4d0d-9964-d2649364952c
-            BUNDLE_IDENTIFIER = com.kunwoo.walking
-            EOF
+          run: echo "${{ secrets.DEBUG_XCCONFIG }}" > ./Health/app-debug.xcconfig
 
-        - name: Generate app-release xcconfig
-          run: |
-            cat <<EOF > /Users/runner/work/EST-Soft-Team3-3rd-Project/EST-Soft-Team3-3rd-Project/app-debug.xcconfig
-            BASE_URL = https:\/\/kdt-api-function.example.net
-            CLIENT_ID = e81b1b0e-3e14-4d0d-9964-d2649364952c
-            BUNDLE_IDENTIFIER = com.kunwoo.walking
-            EOF
 
         - name: Set Specific Xcode Version
           run: sudo xcode-select -s /Applications/Xcode_16.1.app/Contents/Developer
