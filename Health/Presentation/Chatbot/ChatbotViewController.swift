@@ -8,6 +8,7 @@
 import UIKit
 
 class ChatbotViewController: CoreGradientViewController {
+	private let viewModel = AlanViewModel()
 	
 	@IBOutlet weak var tableView: UITableView!
 	@IBOutlet weak var textFieldBottomConstraint: NSLayoutConstraint!
@@ -49,9 +50,9 @@ class ChatbotViewController: CoreGradientViewController {
 		view.bringSubviewToFront(sendButton)
 	}
 	
-	// TODO: 차후 챗봇 뷰모델 생성해서 넣을 예정
 	override func initVM() {
-		
+		super.initVM()
+		bindViewModel()
 	}
 	
 	override func setupHierarchy() {
@@ -68,6 +69,61 @@ class ChatbotViewController: CoreGradientViewController {
 	
 	@IBAction func sendButtonTapped(_ sender: UIButton) {
 		sendMessage()
+	}
+	
+	private func bindViewModel() {
+		viewModel.didReceiveResponseText = { [weak self] responseText in
+			guard let self = self else { return }
+			Task { @MainActor in
+				self.handleAIResponse(responseText)
+			}
+		}
+	}
+	
+	private func handleAIResponse(_ responseText: String) {
+		let aiMessage = ChatMessage(text: responseText, type: .ai)
+		messages.append(aiMessage)
+		
+		let insertIndex = hasFixedHeader ? messages.count : messages.count - 1
+		let indexPath = IndexPath(row: insertIndex, section: 0)
+		tableView.insertRows(at: [indexPath], with: .bottom)
+		
+		scrollToBottom()
+	}
+	
+	private func handleNetworkError(_ errorMessage: String) {
+		let userMessage = getUserDetailErrorMessage(from: errorMessage)
+		let errorResponse = ChatMessage(text: userMessage, type: .ai)
+		messages.append(errorResponse)
+		
+		let insertIndex = hasFixedHeader ? messages.count : messages.count - 1
+		let indexPath = IndexPath(row: insertIndex, section: 0)
+		tableView.insertRows(at: [indexPath], with: .bottom)
+		
+		scrollToBottom()
+	}
+	
+	private func handleAPIError(_ errorMessage: String) {
+		handleNetworkError(errorMessage)
+	}
+	
+	private func getUserDetailErrorMessage(from errorMessage: String) -> String {
+		// 네트워크 관련 키워드 체크
+		let lowercased = errorMessage.lowercased()
+		
+		if lowercased.contains("network") || lowercased.contains("connection") {
+			return "인터넷 연결을 확인해주세요."
+		} else if lowercased.contains("timeout") {
+			return "요청 시간이 초과되었습니다. 잠시 후 다시 시도해주세요."
+		} else if lowercased.contains("decode") || lowercased.contains("parsing") {
+			return "응답 처리 중 문제가 발생했습니다."
+		} else if lowercased.contains("url") {
+			return "주소 설정에 문제가 있습니다."
+		} else if lowercased.contains("validation") {
+			return "입력 내용을 확인해주세요."
+		} else {
+			return "일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
+		}
 	}
 	
 	
@@ -91,6 +147,9 @@ class ChatbotViewController: CoreGradientViewController {
 		
 		let bubbleNib = BubbleViewCell.nib
 		tableView.register(bubbleNib, forCellReuseIdentifier: BubbleViewCell.id)
+		
+		let aiResponseNib = AIResponseCell.nib
+		tableView.register(aiResponseNib, forCellReuseIdentifier: AIResponseCell.id)
 	}
 	
 	private func setTextFieldAttribute() {
@@ -155,6 +214,23 @@ class ChatbotViewController: CoreGradientViewController {
 		
 		// 최신 메시지로 스크롤
 		scrollToBottom()
+		
+		sendButton.isEnabled = false
+		sendButton.alpha = 0.5
+		
+		// API 호출
+		Task {
+			await viewModel.sendQuestion(text)
+			
+			await MainActor.run {
+				self.sendButton.isEnabled = true
+				self.sendButton.alpha = 1
+			}
+			
+			if let errorMessage = viewModel.errorMessage {
+				self.handleNetworkError(errorMessage)
+			}
+		}
 	}
 	
 	private func scrollToBottom() {
@@ -227,17 +303,26 @@ extension ChatbotViewController: UITableViewDataSource {
 			return cell
 		}
 		
-		// 사용자 메시지 처리
 		let messageIndex = hasFixedHeader ? indexPath.row - 1 : indexPath.row
 		let message = messages[messageIndex]
 		
-		// 현재는 사용자 메시지만 처리
-		let cell = tableView.dequeueReusableCell(
-			withIdentifier: BubbleViewCell.id,
-			for: indexPath
-		) as! BubbleViewCell
-		cell.configure(with: message)
-		return cell
+		switch message.type {
+		case .user:
+			let cell = tableView.dequeueReusableCell(
+				withIdentifier: BubbleViewCell.id,
+				for: indexPath
+			) as! BubbleViewCell
+			cell.configure(with: message)
+			return cell
+			
+		case .ai:
+			let cell = tableView.dequeueReusableCell(
+				withIdentifier: AIResponseCell.id,
+				for: indexPath
+			) as! AIResponseCell
+			cell.configure(with: message.text)
+			return cell
+		}
 	}
 }
 
@@ -252,6 +337,13 @@ extension ChatbotViewController: UITableViewDelegate {
 		if hasFixedHeader && indexPath.row == 0 {
 			return 80
 		}
+		
+		let messageIndex = hasFixedHeader ? indexPath.row - 1 : indexPath.row
+		if messageIndex < messages.count {
+			let message = messages[messageIndex]
+			return message.type == .ai ? 120 : 60
+		}
+		
 		return 60
 	}
 }
@@ -273,5 +365,17 @@ extension ChatbotViewController: UITextFieldDelegate {
 				print("error", error)
 			}
 		}
+	}
+	
+	func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+		let newText = (textField.text as NSString?)?.replacingCharacters(in: range, with: string) ?? ""
+		let hasText = !newText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+		
+		// Swift Concurrency로 UI 업데이트
+		Task { @MainActor in
+			self.sendButton.alpha = hasText ? 1.0 : 0.6
+			self.sendButton.isEnabled = hasText
+		}
+		return true
 	}
 }
