@@ -128,7 +128,7 @@ class InputAgeViewController: CoreViewController {
     private func disableContinueButton() {
         continueButton.isEnabled = false
         continueButton.backgroundColor = .buttonBackground
-        ageInputField.textColor = .label
+        ageInputField.textColor = .white
     }
     
     private func enableContinueButton() {

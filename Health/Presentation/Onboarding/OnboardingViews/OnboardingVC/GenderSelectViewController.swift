@@ -32,7 +32,7 @@ class GenderSelectViewController: CoreViewController {
         button.backgroundColor = UIColor.buttonBackground
         button.setTitleColor(.white, for: .normal)
         button.applyCornerStyle(.medium)
-        button.isEnabled = false 
+        button.isEnabled = false
         return button
     }()
 
@@ -149,7 +149,7 @@ class GenderSelectViewController: CoreViewController {
         let defaultBG = UIColor.buttonBackground
         let defaultText = UIColor.white
         let selectedBG = UIColor.accent
-        let selectedText = UIColor.label
+        let selectedText = UIColor.white
 
         femaleButton.tintColor = (selectedGender == .female) ? selectedBG : defaultBG
         femaleButton.setTitleColor((selectedGender == .female) ? selectedText : defaultText, for: .normal)
@@ -162,6 +162,5 @@ class GenderSelectViewController: CoreViewController {
         let isSelected = (selectedGender != nil)
         continueButton.isEnabled = isSelected
         continueButton.backgroundColor = isSelected ? .accent : .buttonBackground
-        continueButton.setTitleColor(isSelected ? .black : .white, for: .normal)
     }
 }

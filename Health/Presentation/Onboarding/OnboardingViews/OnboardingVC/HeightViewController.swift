@@ -221,7 +221,7 @@ class HeightViewController: CoreViewController {
         userInfo?.height = heightValue
         do {
             try context.save()
-            performSegue(withIdentifier: "goToHealthLink", sender: self)
+            performSegue(withIdentifier: "goToDiseaseTap", sender: self)
         } catch {
             print("Failed to save height: \(error)")
         }

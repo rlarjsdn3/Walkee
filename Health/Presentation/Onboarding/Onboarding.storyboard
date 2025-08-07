@@ -294,12 +294,31 @@
                     <connections>
                         <outlet property="errorLabel" destination="4nP-gH-NA4" id="5yn-TR-ODh"/>
                         <outlet property="heightInputField" destination="6xh-tM-tSN" id="Bqg-9r-Mgi"/>
-                        <segue destination="Loh-xd-3Eb" kind="show" identifier="goToHealthLink" id="toW-Zh-d6N"/>
+                        <segue destination="0RQ-ca-avW" kind="show" identifier="goToDiseaseTap" id="nR8-Bh-14p"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="sM6-uT-qhR" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="4518" y="432"/>
+        </scene>
+        <!--Disease View Controller-->
+        <scene sceneID="HO5-nZ-yWX">
+            <objects>
+                <viewController id="0RQ-ca-avW" customClass="DiseaseViewController" customModule="Health" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="i3G-ch-9IE">
+                        <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="167-xC-vNX"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="RS3-OZ-rF0"/>
+                    <connections>
+                        <segue destination="Loh-xd-3Eb" kind="show" identifier="goToHealthLink" id="dsH-32-uL2"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Ajr-ac-KKb" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="5340" y="432"/>
         </scene>
         <!--Health Link View Controller-->
         <scene sceneID="rqf-xG-WZh">
@@ -388,7 +407,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0Sn-OL-2hO" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="5296.7441860465115" y="431.3304721030043"/>
+            <point key="canvasLocation" x="6287" y="432"/>
         </scene>
     </scenes>
     <resources>
