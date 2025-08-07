@@ -93,7 +93,7 @@ extension PersonalContent.Section {
 
         // iPad일 경우 2개 보이도록 설정
         let itemsPerRow: CGFloat = isPad ? 2 : 1
-        let interItemSpacing: CGFloat = isPad ? 10 : 0
+        let interItemSpacing: CGFloat = isPad ? 32 : 0
 
         let totalSpacing = horizontalInset * 2 + interItemSpacing * (itemsPerRow - 1)
         let itemWidth = (containerWidth - totalSpacing) / itemsPerRow
