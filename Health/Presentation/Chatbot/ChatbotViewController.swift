@@ -15,12 +15,7 @@ class ChatbotViewController: CoreGradientViewController {
 	@IBOutlet weak var sendButton: UIButton!
 	
 	private var messages: [ChatMessage] = []
-	
-	private let cellIdentifiers = (
-		header: ChatbotHeaderTitleCell.cellID,
-		bubbleUI: BubbleViewCell.cellID
-	)
-	
+
 	private let hasFixedHeader = true
 	
 	override func viewDidLoad() {
@@ -91,10 +86,11 @@ class ChatbotViewController: CoreGradientViewController {
 		tableView.contentInset = UIEdgeInsets(top: 32, left: 0, bottom: 80, right: 0)
 		tableView.scrollIndicatorInsets = tableView.contentInset
 		
-		tableView.register(ChatbotHeaderTitleCell.self, forCellReuseIdentifier: cellIdentifiers.header)
+		tableView
+			.register(ChatbotHeaderTitleCell.self, forCellReuseIdentifier: ChatbotHeaderTitleCell.id)
 		
 		let bubbleNib = BubbleViewCell.nib
-		tableView.register(bubbleNib, forCellReuseIdentifier: cellIdentifiers.bubbleUI)
+		tableView.register(bubbleNib, forCellReuseIdentifier: BubbleViewCell.id)
 	}
 	
 	private func setTextFieldAttribute() {
@@ -223,7 +219,10 @@ extension ChatbotViewController: UITableViewDataSource {
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		// 첫 번째 행은 HeaderTitleCell (고정)
 		if hasFixedHeader && indexPath.row == 0 {
-			let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifiers.header, for: indexPath) as! ChatbotHeaderTitleCell
+			let cell = tableView.dequeueReusableCell(
+				withIdentifier: ChatbotHeaderTitleCell.id,
+				for: indexPath
+			) as! ChatbotHeaderTitleCell
 			cell.configure(with: "걸음에 대해 궁금한 점을 물어보세요.")
 			return cell
 		}
@@ -233,7 +232,10 @@ extension ChatbotViewController: UITableViewDataSource {
 		let message = messages[messageIndex]
 		
 		// 현재는 사용자 메시지만 처리
-		let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifiers.bubbleUI, for: indexPath) as! BubbleViewCell
+		let cell = tableView.dequeueReusableCell(
+			withIdentifier: BubbleViewCell.id,
+			for: indexPath
+		) as! BubbleViewCell
 		cell.configure(with: message)
 		return cell
 	}
