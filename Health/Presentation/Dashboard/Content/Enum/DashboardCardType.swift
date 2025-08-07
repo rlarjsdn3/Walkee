@@ -69,7 +69,7 @@ extension DashboardCardType {
         case .walkingStepLength:                return status(forStepLength: value, age: age)
         case .walkingAsymmetryPercentage:       return status(forAsymmetryPercentage: value, age: age)
         case .walkingSpeed:                     return status(forWalkingSpeed: value, age: age)
-        case .walkingDoubleSupportPercentage:   return status(forAsymmetryPercentage: value, age: age)
+        case .walkingDoubleSupportPercentage:   return status(forDoubleSupportPercentage: value, age: age)
         }
     }
 
