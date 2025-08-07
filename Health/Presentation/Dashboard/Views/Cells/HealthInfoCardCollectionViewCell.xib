@@ -18,35 +18,36 @@
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 <subviews>
                     <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="gtD-oe-s59">
-                        <rect key="frame" x="8" y="8" width="284" height="48"/>
+                        <rect key="frame" x="12" y="8" width="276" height="48"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="P45-tQ-8zG">
-                                <rect key="frame" x="0.0" y="6" width="36" height="36"/>
+                                <rect key="frame" x="0.0" y="8" width="32" height="32"/>
                                 <subviews>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="arv-ex-YfA">
-                                        <rect key="frame" x="8" y="8" width="20" height="20"/>
+                                        <rect key="frame" x="8" y="8" width="16" height="16"/>
                                     </imageView>
                                 </subviews>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" secondItem="P45-tQ-8zG" secondAttribute="height" multiplier="1:1" id="3Qd-22-Tot"/>
                                     <constraint firstAttribute="trailing" secondItem="arv-ex-YfA" secondAttribute="trailing" constant="8" id="4ir-kP-zxg"/>
+                                    <constraint firstAttribute="width" constant="32" id="Ot9-eY-QDb"/>
                                     <constraint firstItem="arv-ex-YfA" firstAttribute="top" secondItem="P45-tQ-8zG" secondAttribute="top" constant="8" id="SJb-h3-WGT"/>
                                     <constraint firstAttribute="bottom" secondItem="arv-ex-YfA" secondAttribute="bottom" constant="8" id="aXq-6D-ifn"/>
                                     <constraint firstItem="arv-ex-YfA" firstAttribute="leading" secondItem="P45-tQ-8zG" secondAttribute="leading" constant="8" id="jG6-gq-7dJ"/>
+                                    <constraint firstAttribute="height" constant="32" id="vW4-Hj-2Oi"/>
                                 </constraints>
                             </view>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="AVf-2p-VfL">
-                                <rect key="frame" x="44" y="7.3333333333333321" width="240" height="33.666666666666671"/>
+                                <rect key="frame" x="40" y="7.3333333333333321" width="236" height="33.666666666666671"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="252" horizontalCompressionResistancePriority="751" text="걸음" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wMV-cm-r7I">
-                                        <rect key="frame" x="0.0" y="0.0" width="240" height="13.333333333333334"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="236" height="13.333333333333334"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleCaption2"/>
                                         <color key="textColor" systemColor="secondaryLabelColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" horizontalCompressionResistancePriority="751" text="1,000보" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="e7A-fc-gRb">
-                                        <rect key="frame" x="0.0" y="13.333333333333334" width="240" height="20.333333333333329"/>
+                                        <rect key="frame" x="0.0" y="13.333333333333334" width="236" height="20.333333333333329"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
@@ -54,17 +55,14 @@
                                 </subviews>
                             </stackView>
                         </subviews>
-                        <constraints>
-                            <constraint firstItem="P45-tQ-8zG" firstAttribute="height" secondItem="gtD-oe-s59" secondAttribute="height" multiplier="0.75" id="cxm-xZ-iY7"/>
-                        </constraints>
                     </stackView>
                 </subviews>
             </view>
             <viewLayoutGuide key="safeArea" id="ZTg-uK-7eu"/>
             <constraints>
                 <constraint firstAttribute="bottom" secondItem="gtD-oe-s59" secondAttribute="bottom" constant="8" id="6If-mi-mAr"/>
-                <constraint firstAttribute="trailing" secondItem="gtD-oe-s59" secondAttribute="trailing" constant="8" id="WdT-rD-ciJ"/>
-                <constraint firstItem="gtD-oe-s59" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="8" id="ps7-lh-tqI"/>
+                <constraint firstAttribute="trailing" secondItem="gtD-oe-s59" secondAttribute="trailing" constant="12" id="WdT-rD-ciJ"/>
+                <constraint firstItem="gtD-oe-s59" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="12" id="ps7-lh-tqI"/>
                 <constraint firstItem="gtD-oe-s59" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="8" id="yrz-kq-K6r"/>
             </constraints>
             <size key="customSize" width="461" height="111"/>

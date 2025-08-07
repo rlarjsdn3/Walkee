@@ -31,12 +31,12 @@ final class HealthInfoStackCellViewModel {
 
     @Injected var healthService: (any HealthService)
 
-    convenience init() {
-        self.init(cardStack: .activeEnergyBurned)
+    convenience init() { // 임시 코드
+        self.init(.activeEnergyBurned)
     }
 
     ///
-    init(cardStack: DashboardStackType) {
+    init(_ cardStack: DashboardStackType) {
         self.stackType = cardStack
     }
     

@@ -64,6 +64,16 @@ extension DashboardCardType {
     }
 
     ///
+    func status(_ value: Double, age: Int) -> DashboardCardType.GaitStatus {
+        switch self {
+        case .walkingStepLength:                return status(forStepLength: value, age: age)
+        case .walkingAsymmetryPercentage:       return status(forAsymmetryPercentage: value, age: age)
+        case .walkingSpeed:                     return status(forWalkingSpeed: value, age: age)
+        case .walkingDoubleSupportPercentage:   return status(forAsymmetryPercentage: value, age: age)
+        }
+    }
+
+    ///
     func status(forStepLength centi: Double, age: Int) -> DashboardCardType.GaitStatus {
         switch age {
         case (..<20):   return evaluateStatusGreaterThan(centi, normal: 65, caution: 55) // 10대
@@ -128,7 +138,7 @@ extension DashboardCardType {
         }
 
         ///
-        var basckgroundColor: UIColor {
+        var backgroundColor: UIColor {
             switch self {
             case .normal:   return .systemGreen
             case .caution:  return .systemYellow

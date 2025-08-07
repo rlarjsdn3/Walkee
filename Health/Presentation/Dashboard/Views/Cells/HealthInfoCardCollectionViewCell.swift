@@ -52,7 +52,26 @@ final class HealthInfoCardCollectionViewCell: CoreCollectionViewCell {
 
 extension HealthInfoCardCollectionViewCell {
 
-    func configure(with viewModel: HealthInfoCardCellViewModel) {
-        symbolContainerView.backgroundColor = .systemRed
+    func configure(with viewModel: HealthInfoCardCellViewModel, age: Int) {
+
+        Task {
+            do {
+                let hkData = try await viewModel.fetchStatisticsHealthKitData(options: .mostRecent)
+                let status = viewModel.evaluateStatus(hkData.value, age: age)
+
+                let systemImage = UIImage(systemName: status.systemName)?
+                    .applyingSymbolConfiguration(UIImage.SymbolConfiguration(paletteColors: [.white]))?
+                    .applyingSymbolConfiguration(UIImage.SymbolConfiguration(weight: .semibold))
+                symbolImage.image = systemImage
+                symbolContainerView.backgroundColor = status.backgroundColor
+                titleLabel.text = viewModel.cardType.title
+                valueLabel.attributedText = NSAttributedString(string: "1,000보")
+                    .font(.preferredFont(forTextStyle: .footnote), to: "보")
+            } catch {
+                // TODO: - UI 예외 처리하기
+                print("Failed to fetch HealthKit data: \(error)")
+                return
+            }
+        }
     }
 }

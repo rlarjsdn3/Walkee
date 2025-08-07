@@ -123,6 +123,34 @@ extension DashboardContent.Section {
         }
     }
 
+    func setContentConfiguration(
+        basicSupplementaryView: inout UICollectionViewListCell,
+        detailButton: UIButton
+    ) {
+        var config = basicSupplementaryView.defaultContentConfiguration()
+        config.textProperties.font = .preferredFont(forTextStyle: .headline)
+        config.directionalLayoutMargins = NSDirectionalEdgeInsets(
+            top: 12, leading: 0,
+            bottom: 12,trailing: 0
+        )
+
+        switch self {
+        case .charts:
+            // TODO: -
+            config.text = "보행 밸런스 분석"
+            basicSupplementaryView.contentConfiguration = config
+        case .alan:
+            config.text = "보행 밸런스 분석"
+            basicSupplementaryView.contentConfiguration = config
+        case .card:
+            config.text = "보행 밸런스 분석"
+            basicSupplementaryView.accessories = [.customView(configuration: .init(customView: detailButton, placement: .trailing()))]
+            basicSupplementaryView.contentConfiguration = config
+        default:
+            return
+        }
+    }
+
 }
 
 @MainActor
