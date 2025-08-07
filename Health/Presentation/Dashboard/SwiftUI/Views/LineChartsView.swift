@@ -23,9 +23,10 @@ struct LineChartsView: View {
                 x: .value("date", data.endDate.description),
                 y: .value("value", data.value)
             )
-            .foregroundStyle(.accent)
+            .foregroundStyle(.gray)
             .symbol(.circle)
-            .symbolSize(50)
+            .symbolSize(25)
+            .lineStyle(StrokeStyle(lineWidth: 1.5))
             .interpolationMethod(.catmullRom)
         }
         .chartXAxis(.hidden)
