@@ -37,6 +37,6 @@ struct AppConfiguration {
     ///
     /// - **Important**: Info.plist에 `CURRENT_CLIENT_ID` 키가 올바르게 설정되어 있는지 확인하세요.
     static var clientID: String {
-        Bundle.main.infoDictionary?["CURRENT_CLIENT_ID"] as? String ?? "unknown"
+        Bundle.main.object(forInfoDictionaryKey: "Client ID") as? String ?? "unknown"
     }
 }

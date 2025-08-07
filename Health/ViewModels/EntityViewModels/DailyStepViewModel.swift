@@ -9,6 +9,7 @@ import Foundation
 import CoreData
 
 final class DailyStepViewModel: ObservableObject {
+
     private let context: NSManagedObjectContext
 
     @Published var dailySteps: [DailyStepEntity] = []
@@ -19,7 +20,7 @@ final class DailyStepViewModel: ObservableObject {
         fetchAllDailySteps()
     }
 
-    //전체 DailyStepEntity 목록 불러오기
+    // 전체 DailyStepEntity 목록 불러오기
     func fetchAllDailySteps() {
         let request: NSFetchRequest<DailyStepEntity> = DailyStepEntity.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(keyPath: \DailyStepEntity.date, ascending: false)]
@@ -31,7 +32,7 @@ final class DailyStepViewModel: ObservableObject {
         }
     }
 
-    //특정 id로 DailyStepEntity 가져오기
+    // 특정 id로 DailyStepEntity 가져오기
     func fetchDailyStep(by id: UUID) -> DailyStepEntity? {
         let request: NSFetchRequest<DailyStepEntity> = DailyStepEntity.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
@@ -45,11 +46,13 @@ final class DailyStepViewModel: ObservableObject {
         }
     }
 
-    //새 DailyStepEntity 저장 또는 기존 업데이트
-    func saveDailyStep(id: UUID? = nil,
-                       date: Date,
-                       stepCount: Int32,
-                       goalStepCount: Int32) {
+    // 새 DailyStepEntity 저장 또는 기존 업데이트
+    func saveDailyStep(
+        id: UUID? = nil,
+        date: Date,
+        stepCount: Int32,
+        goalStepCount: Int32
+    ) {
         let entity: DailyStepEntity
         if let id = id, let existing = fetchDailyStep(by: id) {
             entity = existing
@@ -70,7 +73,60 @@ final class DailyStepViewModel: ObservableObject {
         }
     }
 
-    //삭제
+    /// 해당 날짜에 대응하는 DailyStep이 있으면 업데이트, 없으면 새로 생성합니다.
+    ///
+    /// - Parameters:
+    ///   - date: 저장할 날짜 (가능하면 00:00 정규화 추천)
+    ///   - stepCount: 해당 날짜의 걸음 수
+    ///   - goalStepCount: 해당 날짜에 유효한 목표 걸음 수 스냅샷
+    func upsertDailyStep(
+        for date: Date,
+        stepCount: Int32,
+        goalStepCount: Int32
+    ) {
+        let request: NSFetchRequest<DailyStepEntity> = DailyStepEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "date == %@", date as CVarArg)
+        request.fetchLimit = 1
+
+        do {
+            let existing = try context.fetch(request).first
+            let entity = existing ?? DailyStepEntity(context: context)
+
+            if existing == nil {
+                entity.id = UUID()
+                entity.date = date
+            }
+
+            entity.stepCount = stepCount
+            entity.goalStepCount = goalStepCount
+
+            try context.save()
+            fetchAllDailySteps()
+        } catch {
+            errorMessage = "Daily Step upsert 실패: \(error.localizedDescription)"
+        }
+    }
+
+    /// 마지막 저장 날짜 이후 오늘까지 누락된 날짜들을 반환합니다.
+    ///
+    /// - Parameter today: 오늘 날짜 (00:00으로 정규화된 값 권장)
+    /// - Returns: 누락된 날짜 배열 (오름차순)
+    func fetchMissingDates(until today: Date) -> [Date] {
+        let savedDates = dailySteps.compactMap { $0.date?.startOfDay() }
+        let lastSavedDate = savedDates.max() ?? Calendar.current.date(byAdding: .day, value: -7, to: today)!
+
+        var dates: [Date] = []
+        var current = Calendar.current.date(byAdding: .day, value: 1, to: lastSavedDate)!
+
+        while current <= today {
+            dates.append(current)
+            current = Calendar.current.date(byAdding: .day, value: 1, to: current)!
+        }
+
+        return dates
+    }
+
+    // 삭제
     func deleteDailyStep(_ dailyStep: DailyStepEntity) {
         context.delete(dailyStep)
         do {

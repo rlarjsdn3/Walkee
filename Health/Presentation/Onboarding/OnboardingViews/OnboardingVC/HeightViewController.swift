@@ -6,10 +6,12 @@
 //
 
 import UIKit
+import CoreData
 
 class HeightViewController: CoreViewController {
-
+    
     @IBOutlet weak var heightInputField: UITextField!
+    @IBOutlet weak var errorLabel: UILabel!
     
     private let cmLabel: UILabel = {
         let label = UILabel()
@@ -31,11 +33,15 @@ class HeightViewController: CoreViewController {
     }()
     
     private let progressIndicatorStackView = ProgressIndicatorStackView(totalPages: 4)
-
+    
     private var continueButtonBottomConstraint: NSLayoutConstraint?
-
+    
+    // Core Data
+    private let context = CoreDataStack.shared.persistentContainer.viewContext
+    private var userInfo: UserInfoEntity?
+    
     override func initVM() {}
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -50,14 +56,41 @@ class HeightViewController: CoreViewController {
         
         let backBarButton = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
         navigationItem.backBarButtonItem = backBarButton
+        
+        errorLabel.isHidden = true
+        errorLabel.textColor = .red
+        
+        fetchUserInfo()
+        
+        if let height = userInfo?.height, height > 0 {
+            heightInputField.text = String(Int(height))
+            validateInput()
+        }
     }
-
-
+    
+    private func fetchUserInfo() {
+        let request: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
+        do {
+            let results = try context.fetch(request)
+            if let first = results.first {
+                self.userInfo = first
+            } else {
+                let newUser = UserInfoEntity(context: context)
+                newUser.id = UUID()
+                newUser.createdAt = Date()
+                self.userInfo = newUser
+                try context.save()
+            }
+        } catch {
+            print("Fetch error: \(error)")
+        }
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         progressIndicatorStackView.isHidden = false
     }
-
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         progressIndicatorStackView.isHidden = true
@@ -69,11 +102,11 @@ class HeightViewController: CoreViewController {
             view.addSubview($0)
         }
     }
-
+    
     override func setupAttribute() {
         progressIndicatorStackView.updateProgress(to: 0.625)
     }
-
+    
     override func setupConstraints() {
         continueButtonBottomConstraint = continueButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
         
@@ -94,30 +127,67 @@ class HeightViewController: CoreViewController {
     }
     
     @objc private func textFieldDidChange(_ textField: UITextField) {
-        validateInput()
-
-        if let text = textField.text, text.count == 3 {
-            textField.resignFirstResponder()
+        guard let text = textField.text else { return }
+        
+        if text.isEmpty {
+            hideError()
+            disableContinueButton()
+        } else if text.count <= 3 {
+            validateInput()
+        } else {
+            textField.text = String(text.prefix(3))
+            validateInput()
         }
     }
-
+    
     private func validateInput() {
-        guard let text = heightInputField.text, let weight = Int(text), (100...250).contains(weight) else {
-            continueButton.isEnabled = false
-            continueButton.backgroundColor = .buttonBackground
-            heightInputField.textColor = .label
+        guard let text = heightInputField.text, let height = Int(text) else {
+            disableContinueButton()
+            hideError()
             return
         }
+        
+        if height > 210 {
+            showError()
+            disableContinueButton()
+            heightInputField.resignFirstResponder()
+        } else if height >= 130 {
+            hideError()
+            enableContinueButton()
+        } else {
+            hideError()
+            disableContinueButton()
+        }
+    }
+    
+    private func showError(text: String = "130 ~ 210 사이의 값을 입력해주세요.") {
+        errorLabel.isHidden = false
+        errorLabel.text = text
+        errorLabel.textColor = .red
+    }
+    
+    private func hideError() {
+        errorLabel.isHidden = true
+        errorLabel.text = ""
+    }
+    
+    private func disableContinueButton() {
+        continueButton.isEnabled = false
+        continueButton.backgroundColor = .buttonBackground
+        heightInputField.textColor = .label
+    }
+    
+    private func enableContinueButton() {
         continueButton.isEnabled = true
         continueButton.backgroundColor = .accent
         heightInputField.textColor = .accent
     }
-
+    
     private func registerForKeyboardNotifications() {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
-
+    
     @objc private func keyboardWillShow(_ notification: Notification) {
         guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
         continueButtonBottomConstraint?.constant = -keyboardFrame.height - 10
@@ -125,30 +195,38 @@ class HeightViewController: CoreViewController {
             self.view.layoutIfNeeded()
         }
     }
-
+    
     @objc private func keyboardWillHide(_ notification: Notification) {
         continueButtonBottomConstraint?.constant = -20
         UIView.animate(withDuration: 0.3) {
             self.view.layoutIfNeeded()
         }
     }
-
+    
     private func setupTapGestureToDismissKeyboard() {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tapGesture.cancelsTouchesInView = false
         view.addGestureRecognizer(tapGesture)
     }
-
+    
     @objc private func dismissKeyboard() {
         view.endEditing(true)
     }
     
     @objc private func continueButtonTapped() {
-        guard continueButton.isEnabled else { return }
-        performSegue(withIdentifier: "goToHealthLink", sender: self)
+        guard continueButton.isEnabled,
+              let text = heightInputField.text,
+              let heightValue = Double(text) else { return }
+        
+        userInfo?.height = heightValue
+        do {
+            try context.save()
+            performSegue(withIdentifier: "goToDiseaseTap", sender: self)
+        } catch {
+            print("Failed to save height: \(error)")
+        }
     }
-
-
+    
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
@@ -156,17 +234,16 @@ class HeightViewController: CoreViewController {
 
 extension HeightViewController: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        
         let allowedCharacters = CharacterSet.decimalDigits
         if string.rangeOfCharacter(from: allowedCharacters.inverted) != nil {
             return false
         }
-
+        
         let currentText = textField.text ?? ""
         let prospectiveText = (currentText as NSString).replacingCharacters(in: range, with: string)
         return prospectiveText.count <= 3
     }
-
+    
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true

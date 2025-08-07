@@ -21,7 +21,6 @@ extension UserInfoEntity {
     @NSManaged public var gender: String?
     @NSManaged public var height: Double
     @NSManaged public var id: UUID?
-    @NSManaged public var username: String?
     @NSManaged public var weight: Double
     @NSManaged public var dailyStep: NSSet?
     @NSManaged public var goalStepCount: NSSet?

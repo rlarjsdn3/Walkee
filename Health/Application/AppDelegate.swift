@@ -25,6 +25,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         DIContainer.shared.registerHealthService()
         DIContainer.shared.registerNetworkService()
+
         CoreDataStack.shared.insertDummyData()
         
         

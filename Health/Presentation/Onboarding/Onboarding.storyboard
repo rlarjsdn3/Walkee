@@ -25,7 +25,7 @@
                                 </constraints>
                             </imageView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qc1-bk-YY1">
-                                <rect key="frame" x="140" y="168" width="122" height="35"/>
+                                <rect key="frame" x="139" y="208" width="122" height="35"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="filled" title="Debuging"/>
                                 <connections>
@@ -38,9 +38,9 @@
                         <constraints>
                             <constraint firstItem="t5L-9X-9pv" firstAttribute="centerX" secondItem="5EZ-qb-Rvc" secondAttribute="centerX" id="ANn-qp-SaZ"/>
                             <constraint firstItem="t5L-9X-9pv" firstAttribute="centerY" secondItem="5EZ-qb-Rvc" secondAttribute="centerY" id="H3q-lr-yeB"/>
-                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="qc1-bk-YY1" secondAttribute="trailing" constant="140" id="UDA-fa-vyE"/>
-                            <constraint firstItem="qc1-bk-YY1" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" id="r3G-4Q-HgD"/>
-                            <constraint firstItem="qc1-bk-YY1" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="140" id="v7p-4n-9hg"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="qc1-bk-YY1" secondAttribute="trailing" constant="141" id="UDA-fa-vyE"/>
+                            <constraint firstItem="qc1-bk-YY1" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" constant="40" id="hrF-Yn-88O"/>
+                            <constraint firstItem="qc1-bk-YY1" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="139" id="v7p-4n-9hg"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="IeC-4y-Zir"/>
@@ -159,20 +159,31 @@
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
                                 <textInputTraits key="textInputTraits" spellCheckingType="no" keyboardType="numberPad" returnKeyType="done" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
                             </textField>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="1000" verticalCompressionResistancePriority="1000" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oup-qX-kbR">
+                                <rect key="frame" x="20" y="481" width="362" height="14.333333333333314"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleCaption1"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vW4-aD-9Ar"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="hAW-KS-XK4" firstAttribute="centerY" secondItem="dRu-12-2UK" secondAttribute="centerY" id="FOn-zm-el0"/>
+                            <constraint firstItem="oup-qX-kbR" firstAttribute="centerX" secondItem="hAW-KS-XK4" secondAttribute="centerX" id="HlF-ue-L8t"/>
+                            <constraint firstItem="oup-qX-kbR" firstAttribute="leading" secondItem="vW4-aD-9Ar" secondAttribute="leading" constant="20" id="Hth-Ak-B2Z"/>
+                            <constraint firstItem="vW4-aD-9Ar" firstAttribute="trailing" secondItem="oup-qX-kbR" secondAttribute="trailing" constant="20" id="L1h-Cp-H3B"/>
                             <constraint firstItem="hAW-KS-XK4" firstAttribute="centerX" secondItem="dRu-12-2UK" secondAttribute="centerX" id="ZfP-TW-Oei"/>
                             <constraint firstItem="vW4-aD-9Ar" firstAttribute="trailing" secondItem="ycv-JD-noa" secondAttribute="trailing" constant="20" id="gDx-oe-QGR"/>
                             <constraint firstItem="ycv-JD-noa" firstAttribute="top" secondItem="vW4-aD-9Ar" secondAttribute="top" constant="70" id="jg5-Ao-nOy"/>
                             <constraint firstItem="ycv-JD-noa" firstAttribute="leading" secondItem="vW4-aD-9Ar" secondAttribute="leading" constant="20" id="nQE-ak-gIx"/>
+                            <constraint firstItem="oup-qX-kbR" firstAttribute="top" secondItem="hAW-KS-XK4" secondAttribute="bottom" constant="24" id="pvz-b8-Hhp"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" largeTitleDisplayMode="never" id="Ezz-LN-cou"/>
                     <connections>
                         <outlet property="ageInputField" destination="hAW-KS-XK4" id="N8X-r8-ay9"/>
+                        <outlet property="errorLabel" destination="oup-qX-kbR" id="1Pd-ge-OkK"/>
                         <segue destination="3Hs-PQ-OGm" kind="show" identifier="goToWeightInfo" id="jy5-4l-1xB"/>
                     </connections>
                 </viewController>
@@ -203,19 +214,30 @@
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
                                 <textInputTraits key="textInputTraits" spellCheckingType="no" keyboardType="numberPad" returnKeyType="done" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
                             </textField>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="1000" verticalCompressionResistancePriority="1000" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MFN-Q1-5mt">
+                                <rect key="frame" x="20" y="481" width="362" height="14.333333333333314"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleCaption1"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="VWS-Gh-Be8"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
+                            <constraint firstItem="MFN-Q1-5mt" firstAttribute="top" secondItem="MBV-gl-LZA" secondAttribute="bottom" constant="24" id="4PZ-SI-zb5"/>
                             <constraint firstItem="Ska-x0-2uO" firstAttribute="leading" secondItem="VWS-Gh-Be8" secondAttribute="leading" constant="20" id="D60-hc-Jaa"/>
+                            <constraint firstItem="MFN-Q1-5mt" firstAttribute="leading" secondItem="VWS-Gh-Be8" secondAttribute="leading" constant="20" id="L5b-sb-5dD"/>
                             <constraint firstItem="MBV-gl-LZA" firstAttribute="centerY" secondItem="Ogr-ui-Uhg" secondAttribute="centerY" id="X9l-mu-TZp"/>
                             <constraint firstItem="VWS-Gh-Be8" firstAttribute="trailing" secondItem="Ska-x0-2uO" secondAttribute="trailing" constant="20" id="cEk-Ns-4kL"/>
+                            <constraint firstItem="MFN-Q1-5mt" firstAttribute="centerX" secondItem="MBV-gl-LZA" secondAttribute="centerX" id="oQ2-ni-jID"/>
                             <constraint firstItem="Ska-x0-2uO" firstAttribute="top" secondItem="VWS-Gh-Be8" secondAttribute="top" constant="70" id="sNH-V5-MEv"/>
+                            <constraint firstItem="VWS-Gh-Be8" firstAttribute="trailing" secondItem="MFN-Q1-5mt" secondAttribute="trailing" constant="20" id="v07-5O-L4l"/>
                             <constraint firstItem="MBV-gl-LZA" firstAttribute="centerX" secondItem="Ogr-ui-Uhg" secondAttribute="centerX" id="zhR-2l-v7v"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" largeTitleDisplayMode="never" id="EdL-mC-dCR"/>
                     <connections>
+                        <outlet property="errorLabel" destination="MFN-Q1-5mt" id="MZJ-0Q-x7J"/>
                         <outlet property="weightInputField" destination="MBV-gl-LZA" id="sHA-9N-EPQ"/>
                         <segue destination="ye2-gc-ZBC" kind="show" identifier="goToHeightInfo" id="6t5-tj-YRJ"/>
                     </connections>
@@ -247,6 +269,12 @@
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
                                 <textInputTraits key="textInputTraits" spellCheckingType="no" keyboardType="numberPad" returnKeyType="done" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
                             </textField>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="1000" verticalCompressionResistancePriority="1000" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4nP-gH-NA4">
+                                <rect key="frame" x="20" y="481" width="362" height="14.333333333333314"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleCaption1"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="rvf-Hr-gyf"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -254,19 +282,43 @@
                             <constraint firstItem="Hfb-gN-7Hw" firstAttribute="top" secondItem="rvf-Hr-gyf" secondAttribute="top" constant="70" id="39R-Ph-wmC"/>
                             <constraint firstItem="Hfb-gN-7Hw" firstAttribute="leading" secondItem="rvf-Hr-gyf" secondAttribute="leading" constant="20" id="8Xg-16-6Q9"/>
                             <constraint firstItem="6xh-tM-tSN" firstAttribute="centerY" secondItem="eJR-uP-Ler" secondAttribute="centerY" id="9ze-Sh-bgx"/>
+                            <constraint firstItem="rvf-Hr-gyf" firstAttribute="trailing" secondItem="4nP-gH-NA4" secondAttribute="trailing" constant="20" id="Iwg-80-j5R"/>
+                            <constraint firstItem="4nP-gH-NA4" firstAttribute="centerX" secondItem="6xh-tM-tSN" secondAttribute="centerX" id="UN9-3J-rba"/>
+                            <constraint firstItem="4nP-gH-NA4" firstAttribute="leading" secondItem="rvf-Hr-gyf" secondAttribute="leading" constant="20" id="VgW-od-3Sz"/>
                             <constraint firstItem="rvf-Hr-gyf" firstAttribute="trailing" secondItem="Hfb-gN-7Hw" secondAttribute="trailing" constant="20" id="ZIS-H8-n7i"/>
                             <constraint firstItem="6xh-tM-tSN" firstAttribute="centerX" secondItem="eJR-uP-Ler" secondAttribute="centerX" id="dUT-EI-cIC"/>
+                            <constraint firstItem="4nP-gH-NA4" firstAttribute="top" secondItem="6xh-tM-tSN" secondAttribute="bottom" constant="24" id="xpA-Zc-W5B"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" largeTitleDisplayMode="never" id="XPX-cO-FJ7"/>
                     <connections>
+                        <outlet property="errorLabel" destination="4nP-gH-NA4" id="5yn-TR-ODh"/>
                         <outlet property="heightInputField" destination="6xh-tM-tSN" id="Bqg-9r-Mgi"/>
-                        <segue destination="Loh-xd-3Eb" kind="show" identifier="goToHealthLink" id="toW-Zh-d6N"/>
+                        <segue destination="0RQ-ca-avW" kind="show" identifier="goToDiseaseTap" id="nR8-Bh-14p"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="sM6-uT-qhR" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="4518" y="432"/>
+        </scene>
+        <!--Disease View Controller-->
+        <scene sceneID="HO5-nZ-yWX">
+            <objects>
+                <viewController id="0RQ-ca-avW" customClass="DiseaseViewController" customModule="Health" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="i3G-ch-9IE">
+                        <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="167-xC-vNX"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="RS3-OZ-rF0"/>
+                    <connections>
+                        <segue destination="Loh-xd-3Eb" kind="show" identifier="goToHealthLink" id="dsH-32-uL2"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Ajr-ac-KKb" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="5340" y="432"/>
         </scene>
         <!--Health Link View Controller-->
         <scene sceneID="rqf-xG-WZh">
@@ -355,7 +407,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0Sn-OL-2hO" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="5296.7441860465115" y="431.3304721030043"/>
+            <point key="canvasLocation" x="6287" y="432"/>
         </scene>
     </scenes>
     <resources>

@@ -123,6 +123,34 @@ extension DashboardContent.Section {
         }
     }
 
+    func setContentConfiguration(
+        basicSupplementaryView: inout UICollectionViewListCell,
+        detailButton: UIButton
+    ) {
+        var config = basicSupplementaryView.defaultContentConfiguration()
+        config.textProperties.font = .preferredFont(forTextStyle: .headline)
+        config.directionalLayoutMargins = NSDirectionalEdgeInsets(
+            top: 12, leading: 0,
+            bottom: 12,trailing: 0
+        )
+
+        switch self {
+        case .charts:
+            // TODO: -
+            config.text = "보행 밸런스 분석"
+            basicSupplementaryView.contentConfiguration = config
+        case .alan:
+            config.text = "보행 밸런스 분석"
+            basicSupplementaryView.contentConfiguration = config
+        case .card:
+            config.text = "보행 밸런스 분석"
+            basicSupplementaryView.accessories = [.customView(configuration: .init(customView: detailButton, placement: .trailing()))]
+            basicSupplementaryView.contentConfiguration = config
+        default:
+            return
+        }
+    }
+
 }
 
 @MainActor
@@ -134,7 +162,7 @@ extension DashboardContent.Section {
         case .ring:     buildRingLayout(environment)
         case .charts:   buildChartsLayout(environment)
         case .alan:     buildAlanLayout(environment)
-        case .card:    buildStackLayout(environment)
+        case .card:    buildCardLayout(environment)
         case .bottom:   buildTopLayout(environment)
         }
     }
@@ -288,8 +316,7 @@ extension DashboardContent.Section {
         return section
     }
 
-    private func buildStackLayout(_ environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
-        // TODO: - 레이아웃 코드 작성하기
+    private func buildCardLayout(_ environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
 
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(0.5),
@@ -299,13 +326,13 @@ extension DashboardContent.Section {
 
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(77)
+            heightDimension: .absolute(66) // TODO: - 레이아웃 재검토 및 수치 조정하기
         )
         let group = NSCollectionLayoutGroup.horizontal(
             layoutSize: groupSize,
             subitems: [item, item]
         )
-        group.interItemSpacing = .flexible(8)
+        group.interItemSpacing = .flexible(12)
 
         let headerSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
@@ -320,7 +347,7 @@ extension DashboardContent.Section {
         let section = NSCollectionLayoutSection(group: group)
         section.boundarySupplementaryItems = [header]
 
-        section.interGroupSpacing = 8
+        section.interGroupSpacing = 12
         section.contentInsets = NSDirectionalEdgeInsets(
             top: 0, leading: UICollectionViewConstant.defaultInset,
             bottom: 0, trailing: UICollectionViewConstant.defaultInset

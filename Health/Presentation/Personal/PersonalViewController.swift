@@ -13,13 +13,11 @@ class PersonalViewController: CoreGradientViewController {
     @IBOutlet weak var collectionView: UICollectionView!
 
     private var dataSource: PersonalDiffableDataSource?
-    override func initVM() {
 
-    }
+    override func initVM() { }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
         setupDataSource()
         applySnapshot()
     }
@@ -31,72 +29,77 @@ class PersonalViewController: CoreGradientViewController {
 
     override func setupAttribute() {
         super.setupAttribute()
-
         applyBackgroundGradient(.midnightBlack)
         collectionView.backgroundColor = .clear
         collectionView.delegate = self
-        collectionView.setCollectionViewLayout(
-            createCollectionViewLayout(),
-            animated: false
-        )
+        collectionView.setCollectionViewLayout(createCollectionViewLayout(), animated: false)
     }
 
     private func createCollectionViewLayout() -> UICollectionViewLayout {
         let sectionProvider: UICollectionViewCompositionalLayoutSectionProvider = { [weak self] sectionIndex, environment in
-            guard let section = self?.dataSource?.sectionIdentifier(for: sectionIndex)
-            else { return nil }
-
+            guard let section = self?.dataSource?.sectionIdentifier(for: sectionIndex) else { return nil }
             return section.buildLayout(environment)
         }
 
         let config = UICollectionViewCompositionalLayoutConfiguration()
-        config.interSectionSpacing = 10
-        return UICollectionViewCompositionalLayout(
-            sectionProvider: sectionProvider,
-            configuration: config
-        )
+        config.interSectionSpacing = 15
+        return UICollectionViewCompositionalLayout(sectionProvider: sectionProvider, configuration: config)
+    }
+
+    private func weekSummaryCellRegistration() -> UICollectionView.CellRegistration<WeekSummaryCell, Void> {
+        UICollectionView.CellRegistration<WeekSummaryCell, Void>(cellNib: WeekSummaryCell.nib) { cell, indexPath, _ in
+            // WeekSummaryCell 셀 설정
+        }
+    }
+
+    private func monthSummaryCellRegistration() -> UICollectionView.CellRegistration<MonthSummaryCell, Void> {
+        UICollectionView.CellRegistration<MonthSummaryCell, Void>(cellNib: MonthSummaryCell.nib) { cell, indexPath, _ in
+            // MonthSummaryCell 셀 설정
+        }
+    }
+
+    private func createWalkingHeaderRegistration() -> UICollectionView.CellRegistration<WalkingHeaderCell, Void> {
+        UICollectionView.CellRegistration<WalkingHeaderCell, Void>(cellNib: WalkingHeaderCell.nib) { cell, indexPath, _ in
+            // WalkingHeaderCell 셀 설정
+        }
+    }
+
+    private func createWalkingFilterRegistration() -> UICollectionView.CellRegistration<WalkingFilterCell, Void> {
+        UICollectionView.CellRegistration<WalkingFilterCell, Void>(cellNib: WalkingFilterCell.nib) { cell, indexPath, _ in
+            // WalkingFilterCell 셀 설정
+        }
     }
 
     private func setupDataSource() {
-        let segmentCellRegistration = createSegmentCellRegistration()
-        let chartCellRegistration = createChartCellRegistration()
+        let weekSummaryRegistration = weekSummaryCellRegistration()
+        let monthSummaryRegistration = monthSummaryCellRegistration()
+        let walkingHeaderRegistration = createWalkingHeaderRegistration()
+        let walkingFilterRegistration = createWalkingFilterRegistration()
 
         dataSource = PersonalDiffableDataSource(collectionView: collectionView) { collectionView, indexPath, item in
-            item.dequeueReusableCollectionViewCell(
-                collectionView: collectionView,
-                segmentCellRegistration: segmentCellRegistration,
-                chartCellRegistration: chartCellRegistration,
-                indexPath: indexPath
-            )
-        }
-    }
-
-    private func createSegmentCellRegistration() -> UICollectionView.CellRegistration<AnalysisPeriodCell, Void> {
-        UICollectionView.CellRegistration<AnalysisPeriodCell, Void>(cellNib: AnalysisPeriodCell.nib) { cell, indexPath, _ in
-            // 셀 설정은 셀 자체에서 처리
-        }
-    }
-
-    private func createChartCellRegistration() -> UICollectionView.CellRegistration<UICollectionViewCell, Void> {
-        UICollectionView.CellRegistration<UICollectionViewCell, Void>(cellNib: AnalysisStatCell.nib) { cell, indexPath, _ in
-            guard cell is AnalysisStatCell else { return }
+            switch item {
+            case .weekSummaryItem:
+                return collectionView.dequeueConfiguredReusableCell(using: weekSummaryRegistration, for: indexPath, item: ())
+            case .walkingHeaderItem:
+                return collectionView.dequeueConfiguredReusableCell(using: walkingHeaderRegistration, for: indexPath, item: ())
+            case .walkingFilterItem:
+                return collectionView.dequeueConfiguredReusableCell(using: walkingFilterRegistration, for: indexPath, item: ())
+            case .monthSummaryItem:
+                return collectionView.dequeueConfiguredReusableCell(using: monthSummaryRegistration, for: indexPath, item: ())
+            }
         }
     }
 
     private func applySnapshot() {
         var snapshot = NSDiffableDataSourceSnapshot<PersonalContent.Section, PersonalContent.Item>()
-        snapshot.appendSections([.segment, .chart])
-        snapshot.appendItems([.segmentControl], toSection: .segment)
-        snapshot.appendItems([.chartData], toSection: .chart)
+        snapshot.appendSections([.weekSummary, .walkingHeader, .walkingFilter])
+        snapshot.appendItems([.weekSummaryItem, .monthSummaryItem], toSection: .weekSummary)
+        snapshot.appendItems([.walkingHeaderItem], toSection: .walkingHeader)
+        snapshot.appendItems([.walkingFilterItem], toSection: .walkingFilter)
         dataSource?.apply(snapshot, animatingDifferences: true)
     }
 }
 
 extension PersonalViewController: UICollectionViewDelegate {
-
-    func collectionView(
-        _ collectionView: UICollectionView,
-        didHighlightItemAt indexPath: IndexPath
-    ) {
-    }
+    func collectionView(_ collectionView: UICollectionView, didHighlightItemAt indexPath: IndexPath) { }
 }
