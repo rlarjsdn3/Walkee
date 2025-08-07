@@ -8,7 +8,8 @@
 import UIKit
 
 final class BubbleViewCell: CoreTableViewCell {
-
+	static let cellID = "BubbleViewCell"
+	
 	@IBOutlet weak var bubbleView: UIView!
 	@IBOutlet weak var promptMsgLabel: UILabel!
 	

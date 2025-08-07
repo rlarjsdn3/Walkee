@@ -15,9 +15,10 @@ class ChatbotViewController: CoreGradientViewController {
 	@IBOutlet weak var sendButton: UIButton!
 	
 	private var messages: [ChatMessage] = []
+	
 	private let cellIdentifiers = (
-		header: "HeaderTitleCell",
-		bubble: "BubbleViewCell"
+		header: ChatbotHeaderTitleCell.cellID,
+		bubbleUI: BubbleViewCell.cellID
 	)
 	
 	private let hasFixedHeader = true
@@ -90,13 +91,10 @@ class ChatbotViewController: CoreGradientViewController {
 		tableView.contentInset = UIEdgeInsets(top: 32, left: 0, bottom: 80, right: 0)
 		tableView.scrollIndicatorInsets = tableView.contentInset
 		
-		// 셀 등록
-		// HeaderTitleCell - 코드로 구성된 셀
-		tableView.register(HeaderTitleCell.self, forCellReuseIdentifier: cellIdentifiers.header)
+		tableView.register(ChatbotHeaderTitleCell.self, forCellReuseIdentifier: cellIdentifiers.header)
 		
-		// BubbleViewCell - XIB로 구성된 셀
-		let bubbleNib = UINib(nibName: cellIdentifiers.bubble, bundle: nil)
-		tableView.register(bubbleNib, forCellReuseIdentifier: cellIdentifiers.bubble)
+		let bubbleNib = UINib(nibName: cellIdentifiers.bubbleUI, bundle: nil)
+		tableView.register(bubbleNib, forCellReuseIdentifier: cellIdentifiers.bubbleUI)
 	}
 	
 	private func setTextFieldAttribute() {
@@ -225,7 +223,7 @@ extension ChatbotViewController: UITableViewDataSource {
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		// 첫 번째 행은 HeaderTitleCell (고정)
 		if hasFixedHeader && indexPath.row == 0 {
-			let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifiers.header, for: indexPath) as! HeaderTitleCell
+			let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifiers.header, for: indexPath) as! ChatbotHeaderTitleCell
 			cell.configure(with: "걸음에 대해 궁금한 점을 물어보세요.")
 			return cell
 		}
@@ -235,7 +233,7 @@ extension ChatbotViewController: UITableViewDataSource {
 		let message = messages[messageIndex]
 		
 		// 현재는 사용자 메시지만 처리
-		let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifiers.bubble, for: indexPath) as! BubbleViewCell
+		let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifiers.bubbleUI, for: indexPath) as! BubbleViewCell
 		cell.configure(with: message)
 		return cell
 	}

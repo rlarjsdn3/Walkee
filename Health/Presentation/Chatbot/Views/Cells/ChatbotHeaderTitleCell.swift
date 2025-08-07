@@ -1,5 +1,5 @@
 //
-//  HeaderTitleCell.swift
+//  ChatbotHeaderTitleCell.swift
 //  Health
 //
 //  Created by Seohyun Kim on 8/5/25.
@@ -7,8 +7,9 @@
 
 import UIKit
 
-final class HeaderTitleCell: CoreTableViewCell {
-
+final class ChatbotHeaderTitleCell: CoreTableViewCell {
+	static let cellID = "ChatbotHeaderTitleCell"
+	
 	private let chatbotImageView: UIImageView = {
 		let imageView = UIImageView()
 		imageView.image = UIImage(named: "chatBot")
