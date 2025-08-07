@@ -9,7 +9,7 @@ import UIKit
 
 class MonthSummaryCell: CoreCollectionViewCell {
 
-    @IBOutlet weak var monthlyBackgroungView: UIView!
+    @IBOutlet weak var monthlyBackgroundView: UIView!
     @IBOutlet weak var monthSummaryLabel: UILabel!
     @IBOutlet weak var walkingLabel: UILabel!
     @IBOutlet weak var walkingSubLabel: UILabel!
@@ -26,7 +26,7 @@ class MonthSummaryCell: CoreCollectionViewCell {
 
     override func setupAttribute() {
         super.setupAttribute()
-        monthlyBackgroungView.applyCornerStyle(.medium)
+        monthlyBackgroundView.applyCornerStyle(.medium)
 
         //현재 월 가져오기
         let dateFormatter = DateFormatter()
@@ -43,10 +43,10 @@ class MonthSummaryCell: CoreCollectionViewCell {
          updateBackgroundHeight()
 
          // 백그라운드뷰 너비 설정
-         monthlyBackgroungView.translatesAutoresizingMaskIntoConstraints = false
+         monthlyBackgroundView.translatesAutoresizingMaskIntoConstraints = false
          NSLayoutConstraint.activate([
-             monthlyBackgroungView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 0),
-             monthlyBackgroungView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 0)
+             monthlyBackgroundView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 0),
+             monthlyBackgroundView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 0)
          ])
      }
 

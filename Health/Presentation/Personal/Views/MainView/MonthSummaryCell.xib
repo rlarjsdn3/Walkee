@@ -18,7 +18,7 @@
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 <subviews>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="7월 기록 요약" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="omY-84-VhQ">
-                        <rect key="frame" x="5" y="0.0" width="117.33333333333334" height="26.333333333333332"/>
+                        <rect key="frame" x="5" y="0.0" width="117.33333333333333" height="26.333333333333332"/>
                         <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
@@ -146,7 +146,7 @@
                 <outlet property="distanceLabel" destination="1bI-zz-HJB" id="FxC-3o-7JK"/>
                 <outlet property="distanceSubLabel" destination="Tpz-zX-wrA" id="o3t-l6-Zvn"/>
                 <outlet property="monthSummaryLabel" destination="omY-84-VhQ" id="odO-Gc-428"/>
-                <outlet property="monthlyBackgroungView" destination="aan-of-cHS" id="39O-sp-arb"/>
+                <outlet property="monthlyBackgroundView" destination="aan-of-cHS" id="39O-sp-arb"/>
                 <outlet property="walkingLabel" destination="IM2-td-MUR" id="bcP-Vn-qtP"/>
                 <outlet property="walkingSubLabel" destination="Ods-hd-9ii" id="9AH-Gp-BF0"/>
             </connections>
