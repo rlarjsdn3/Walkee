@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Network
 
 class ChatbotViewController: CoreGradientViewController {
 	private let viewModel = AlanViewModel()
@@ -18,6 +19,8 @@ class ChatbotViewController: CoreGradientViewController {
 	private var messages: [ChatMessage] = []
 
 	private let hasFixedHeader = true
+	// 네트워크 상태 변화 구독을 위한 Task
+	private var networkStatusObservationTask: Task<Void, Never>?
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -27,6 +30,8 @@ class ChatbotViewController: CoreGradientViewController {
 		setupTableView()
 		setupKeyboardObservers()
 		setupTapGesture()
+		
+		setupNetworkMonitoring()
 		
 	}
 	
@@ -91,9 +96,29 @@ class ChatbotViewController: CoreGradientViewController {
 		scrollToBottom()
 	}
 	
-	private func handleNetworkError(_ errorMessage: String) {
-		let userMessage = getUserDetailErrorMessage(from: errorMessage)
-		let errorResponse = ChatMessage(text: userMessage, type: .ai)
+	private func handleNetworkError(with error: Error) {
+		let networkError: NetworkError
+		
+		if let castedError = error as? NetworkError {
+			networkError = castedError
+		} else if let urlError = error as? URLError {
+			switch urlError.code {
+			case .notConnectedToInternet:
+				networkError = .notConnectedToInternet
+			case .timedOut:
+				networkError = .timedOut
+			default:
+				networkError = .requestFailed(urlError)
+			}
+		} else {
+			// NetworkError로 캐스팅할 수 없는 경우, 알 수 없는 오류로 처리
+			networkError = .unknown
+		}
+		
+		let errorMessage = networkError.errorDetailMsgs
+		
+		// 챗봇 응답으로 에러 메시지 추가
+		let errorResponse = ChatMessage(text: errorMessage, type: .ai)
 		messages.append(errorResponse)
 		
 		let insertIndex = hasFixedHeader ? messages.count : messages.count - 1
@@ -101,41 +126,41 @@ class ChatbotViewController: CoreGradientViewController {
 		tableView.insertRows(at: [indexPath], with: .bottom)
 		
 		scrollToBottom()
-	}
-	
-	private func handleAPIError(_ errorMessage: String) {
-		handleNetworkError(errorMessage)
-	}
-	
-	private func getUserDetailErrorMessage(from error: String) -> String {
 		
-		if let networkError = error as? NetworkError {
-			switch networkError {
-			case .badURL:
-				return "잘못된 주소입니다."
-				
-			case .requestFailed(let underlyingError):
-				// 원본 에러를 분석
-				return analyzeUnderlyingError(underlyingError)
-				
-			case .invalidResponse:
-				return "서버 응답에 문제가 있습니다."
-				
-			case .decodingFailed(_):
-				return "응답 데이터 처리 중 문제가 발생했습니다."
-				
-			case .validationFailed(let message):
-				return "입력 내용을 확인해주세요: \(message)"
-				
-			case .unknown:
-				return "알 수 없는 오류가 발생했습니다."
+		showToast(message: errorMessage)
+	}
+	
+	private func handleStringErrorMessage(with message: String) {
+		let networkError = NetworkError.customMessage(message)
+		// Error 타입을 String으로 처리하기 위함
+		handleNetworkError(with: networkError)
+	}
+	
+	
+	/// NetworkMonitor를 사용해 네트워크 상태 변화 감지하고 토스트 메시지 표시하기 위함
+	private func setupNetworkMonitoring() {
+		networkStatusObservationTask = Task {
+			do {
+				for await isConnected in await NetworkMonitor.shared.networkStatusStream() {
+					if isConnected {
+						// 연결이 복구되었을 때 토스트 메시지 표시
+						await MainActor.run {
+							self.showToast(message: "네트워크 연결이 복구되었습니다.")
+						}
+					} else {
+						// 연결이 끊겼을 때 토스트 메시지 표시
+						let errorMessage = NetworkError.notConnectedToInternet.errorDetailMsgs
+						await MainActor.run {
+							self.showToast(message: errorMessage)
+						}
+					}
+				}
+			} catch {
+				// 스트림 처리 중 오류 발생 시 (예: Task.cancel()로 인한 종료)
+				print("네트워크 상태 스트림 오류: \(error.localizedDescription)")
 			}
 		}
-		
-		return analyzeUnderlyingError(error)
-		
 	}
-	
 	
 	private func setupTableView() {
 		tableView.delegate = self
@@ -237,8 +262,9 @@ class ChatbotViewController: CoreGradientViewController {
 				self.sendButton.alpha = 1
 			}
 			
-			if let errorMessage = viewModel.errorMessage {
-				self.handleNetworkError(errorMessage)
+			// Error타입인데, AlanViewModel에서 errorMessage를 String 타입으로 받음으로 별도로 string으로 처리
+			if let errorMessageString = viewModel.errorMessage {
+				self.handleStringErrorMessage(with: errorMessageString)
 			}
 		}
 	}
@@ -292,6 +318,9 @@ class ChatbotViewController: CoreGradientViewController {
 	
 	deinit {
 		NotificationCenter.default.removeObserver(self)
+		// 네트워크 상태 구독 Task 취소
+		
+		networkStatusObservationTask?.cancel()
 	}
 }
 
