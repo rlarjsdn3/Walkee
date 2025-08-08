@@ -57,7 +57,7 @@ final class GoalStepCountViewModel: ObservableObject {
         let normalizedDate = date.startOfDay()
 
         let request: NSFetchRequest<GoalStepCountEntity> = GoalStepCountEntity.fetchRequest()
-        request.predicate = NSPredicate(format: "effectiveDate <= %@", date as CVarArg)
+        request.predicate = NSPredicate(format: "effectiveDate <= %@", normalizedDate as CVarArg)
         request.sortDescriptors = [NSSortDescriptor(keyPath: \GoalStepCountEntity.effectiveDate, ascending: false)]
         request.fetchLimit = 1
 
