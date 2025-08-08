@@ -10,16 +10,18 @@ import HealthKit
 final class HealthInfoCardCellViewModel {
 
     let cardType: DashboardCardType
+    let age: Int
 
     @Injected var healthService: (any HealthService)
 
     convenience init() { // 임시 코드
-        self.init(.walkingStepLength)
+        self.init(.walkingStepLength, age: 27)
     }
 
     ///
-    init(_ cardType: DashboardCardType) {
+    init(_ cardType: DashboardCardType, age: Int) {
         self.cardType = cardType
+        self.age = age
     }
 
     /// <#Description#>
@@ -42,7 +44,7 @@ final class HealthInfoCardCellViewModel {
     }
 
     ///
-    func evaluateStatus(_ value: Double, age: Int) -> DashboardCardType.GaitStatus {
+    func evaluateStatus(_ value: Double) -> DashboardCardType.GaitStatus {
         cardType.status(value, age: age)
     }
 }
