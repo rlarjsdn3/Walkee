@@ -12,8 +12,9 @@ class GenderSelectViewController: CoreViewController {
 
     @IBOutlet weak var femaleButton: UIButton!
     @IBOutlet weak var maleButton: UIButton!
+    @IBOutlet weak var femaleGender: UILabel!
+    @IBOutlet weak var maleGender: UILabel!
     
-
     private enum Gender {
         case male
         case female
@@ -69,6 +70,8 @@ class GenderSelectViewController: CoreViewController {
 
     override func setupAttribute() {
         progressIndicatorStackView.updateProgress(to: 0.25)
+        femaleGender.text = "여성"
+        maleGender.text = "남성"
     }
 
     override func setupConstraints() {
@@ -147,16 +150,25 @@ class GenderSelectViewController: CoreViewController {
 
     private func updateGenderSelectionUI() {
         let defaultBG = UIColor.buttonBackground
-        let defaultText = UIColor.white
         let selectedBG = UIColor.accent
-        let selectedText = UIColor.white
-
+        
+        let defaultTextColor = UIColor.white
+        let selectedTextColor = UIColor.black
+        
+        let defaultFont = UIFont.systemFont(ofSize: 17, weight: .regular)
+        let selectedFont = UIFont.systemFont(ofSize: 17, weight: .bold)
+        
         femaleButton.tintColor = (selectedGender == .female) ? selectedBG : defaultBG
-        femaleButton.setTitleColor((selectedGender == .female) ? selectedText : defaultText, for: .normal)
-
         maleButton.tintColor = (selectedGender == .male) ? selectedBG : defaultBG
-        maleButton.setTitleColor((selectedGender == .male) ? selectedText : defaultText, for: .normal)
+        
+        femaleGender.textColor = (selectedGender == .female) ? selectedTextColor : defaultTextColor
+        femaleGender.font = (selectedGender == .female) ? selectedFont : defaultFont
+        
+        maleGender.textColor = (selectedGender == .male) ? selectedTextColor : defaultTextColor
+        maleGender.font = (selectedGender == .male) ? selectedFont : defaultFont
     }
+
+
 
     private func updateContinueButtonState() {
         let isSelected = (selectedGender != nil)

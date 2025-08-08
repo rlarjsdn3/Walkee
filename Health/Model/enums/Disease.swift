@@ -10,23 +10,23 @@ import Foundation
 enum Disease: String, CaseIterable, Codable {
     case arthritis
     case parkinsons
+    case scoliosis
     case stroke
-    case muscularDystrophy
-    case multipleSclerosis
-    case peripheralNeuropathy
-    case chronicPain
-    case fracture
+    case vestibulardisorder
+    case plantafasciitis
+    case other
+    case none
 
     var localizedName: String {
         switch self {
         case .arthritis: return "관절염"
         case .parkinsons: return "파킨슨병"
+        case .scoliosis: return "척추측만증"
         case .stroke: return "뇌졸중"
-        case .muscularDystrophy: return "근이영양증"
-        case .multipleSclerosis: return "다발성 경화증"
-        case .peripheralNeuropathy: return "말초신경병증"
-        case .chronicPain: return "만성통증"
-        case .fracture: return "골절"
+        case .vestibulardisorder: return "전정기관장애"
+        case .plantafasciitis: return "족저근막염"
+        case .other: return "기타"
+        case .none: return "없음"
         }
     }
 }
