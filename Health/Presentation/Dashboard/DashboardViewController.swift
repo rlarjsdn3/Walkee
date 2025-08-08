@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class DashboardViewController: CoreViewController {
+final class DashboardViewController: CoreGradientViewController {
 
     typealias DashboardDiffableDataSource = UICollectionViewDiffableDataSource<DashboardContent.Section, DashboardContent.Item>
 
@@ -33,6 +33,7 @@ final class DashboardViewController: CoreViewController {
 
     override func setupAttribute() {
         dashboardCollectionView.delegate = self
+        dashboardCollectionView.backgroundColor = .clear
         dashboardCollectionView.setCollectionViewLayout(
             createCollectionViewLayout(),
             animated: false
@@ -45,6 +46,8 @@ final class DashboardViewController: CoreViewController {
             top: 46, left: .zero,
             bottom: 24, right: .zero
         )
+
+        applyBackgroundGradient(.midnightBlack)
     }
 
     private func createCollectionViewLayout() -> UICollectionViewLayout {
