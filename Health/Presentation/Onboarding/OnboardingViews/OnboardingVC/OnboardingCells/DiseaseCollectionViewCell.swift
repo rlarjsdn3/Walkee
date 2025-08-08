@@ -14,7 +14,7 @@ class DiseaseCollectionViewCell: CoreCollectionViewCell {
     
     override func setupHierarchy() {
         super.setupHierarchy()
-        contentView.layer.cornerRadius = 12
+        contentView.applyCornerStyle(.medium)
         contentView.layer.masksToBounds = true
     }
     
