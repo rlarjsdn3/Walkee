@@ -1,6 +1,9 @@
 import Foundation
 
-/// DIContainer의 네트워크 서비스 등록을 위한 확장
+/// DIContainer의 서비스 등록을 위한 확장
+///
+/// 이 확장은 애플리케이션에서 사용하는 모든 서비스와 ViewModel을 의존성 주입 컨테이너에 등록하는 메서드들을 제공합니다.
+/// 일부 서비스는 빌드 구성(DEBUG/RELEASE)에 따라 적절한 구현체를 선택하여 등록합니다.
 extension DIContainer {
 
     /// 네트워크 서비스를 의존성 주입 컨테이너에 등록합니다.
@@ -33,27 +36,60 @@ extension DIContainer {
         }
     }
 
+    /// 일일 걸음 수 관리를 담당하는 ViewModel을 의존성 주입 컨테이너에 등록합니다.
+    ///
+    /// `DailyStepViewModel`은 Core Data를 통해 일일 걸음 수 데이터의 CRUD 작업을 처리합니다.
+    /// Core Data의 `viewContext`를 사용하여 메인 스레드에서 UI 업데이트를 보장합니다.
+    ///
+    /// - Parameter context: Core Data의 관리 객체 컨텍스트로 `CoreDataStack.shared.viewContext` 사용
+    /// - Requires: `CoreDataStack.shared`가 초기화되어 있어야 합니다.
     func registerDailyStepViewModel() {
-        self.register(type: DailyStepViewModel.self) { _ in
+        self.register(.dailyStepViewModel) { _ in
             DailyStepViewModel(context: CoreDataStack.shared.viewContext)
         }
     }
 
+    /// 목표 걸음 수 설정을 담당하는 ViewModel을 의존성 주입 컨테이너에 등록합니다.
+    ///
+    /// `GoalStepCountViewModel`은 사용자의 일일 목표 걸음 수를 관리하며,
+    /// Core Data를 통해 목표 값의 영속성을 보장합니다.
+    ///
+    /// - Parameter context: Core Data의 관리 객체 컨텍스트로 `CoreDataStack.shared.viewContext` 사용
+    /// - Requires: `CoreDataStack.shared`가 초기화되어 있어야 합니다.
     func registerGoalStepCountViewModel() {
-        self.register(type: GoalStepCountViewModel.self) { _ in
+        self.register(.goalStepCountViewModel) { _ in
             GoalStepCountViewModel(context: CoreDataStack.shared.viewContext)
         }
     }
 
     /// 걸음 수 동기화를 담당하는 ViewModel을 의존성 주입 컨테이너에 등록합니다.
     ///
-    /// 내부적으로 `@Injected`를 사용하는 의존성(`HealthService`, `DailyStepViewModel`, `GoalStepCountViewModel`)이 먼저 등록되어 있어야 합니다.
+    /// `StepSyncViewModel`은 HealthKit에서 걸음 수 데이터를 가져와 로컬 Core Data와 동기화하는 작업을 담당합니다.
+    /// Swift Concurrency를 사용하여 비동기 동기화 작업을 수행하며, 내부적으로 `@Injected` 프로퍼티 래퍼를 사용하여
+    /// 다른 서비스들에 의존합니다.
+    ///
+    /// - Important: 다음 의존성들이 먼저 등록되어 있어야 합니다:
+    ///   - `HealthService`: HealthKit 데이터 조회를 위함
+    ///   - `DailyStepViewModel`: 일일 걸음 수 데이터 관리를 위함
+    ///   - `GoalStepCountViewModel`: 목표 걸음 수 관리를 위함
     func registerStepSyncViewModel() {
-        self.register(type: StepSyncViewModel.self, name: nil) { _ in
+        self.register(.stepSyncViewModel) { _ in
             StepSyncViewModel()
         }
     }
 
+    /// 모든 서비스와 ViewModel을 의존성 주입 컨테이너에 일괄 등록합니다.
+    ///
+    /// 이 메서드는 애플리케이션에서 사용하는 모든 의존성을 올바른 순서로 등록합니다.
+    /// 의존성 간의 순환 참조를 방지하고 `@Injected` 프로퍼티 래퍼가 올바르게 작동하도록
+    /// 등록 순서가 중요합니다.
+    ///
+    /// ## 등록되는 서비스 및 ViewModel (등록 순서):
+    /// 1. `NetworkService` - 네트워크 통신 서비스 (독립적)
+    /// 2. `HealthService` - HealthKit 데이터 조회 서비스 (독립적)
+    /// 3. `DailyStepViewModel` - 일일 걸음 수 관리 (Core Data 의존)
+    /// 4. `GoalStepCountViewModel` - 목표 걸음 수 관리 (Core Data 의존)
+    /// 5. `StepSyncViewModel` - 걸음 수 동기화 (위 모든 서비스에 의존)
     func registerAllServices() {
         registerNetworkService()
         registerHealthService()
