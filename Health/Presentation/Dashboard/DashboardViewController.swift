@@ -147,13 +147,15 @@ fileprivate extension DashboardViewController {
     func createAlanSummaryCellRegistration() -> UICollectionView.CellRegistration<AlanActivitySummaryCollectionViewCell, AlanActivitySummaryCellViewModel> {
         // TODO: - 셀 콘텐츠 구성하기
         UICollectionView.CellRegistration<AlanActivitySummaryCollectionViewCell, AlanActivitySummaryCellViewModel>(cellNib: AlanActivitySummaryCollectionViewCell.nib) { cell, indexPath, viewModel in
+            cell.didReceiveSummaryMessage = { [weak self] _ in self?.dashboardCollectionView.collectionViewLayout.invalidateLayout() }
+            cell.configure(with: viewModel)
         }
     }
 
     func createHealthInfoCardCellRegistration() -> UICollectionView.CellRegistration<HealthInfoCardCollectionViewCell, HealthInfoCardCellViewModel> {
         // TODO: - 셀 콘텐츠 구성하기
         UICollectionView.CellRegistration<HealthInfoCardCollectionViewCell, HealthInfoCardCellViewModel>(cellNib: HealthInfoCardCollectionViewCell.nib) { cell, indexPath, viewModel in
-            cell.configure(with: viewModel, age: 27) // TODO: - 실제 CoreData에서 가져오기
+            cell.configure(with: viewModel) // TODO: - 실제 CoreData에서 가져오기
         }
     }
 
@@ -166,6 +168,7 @@ fileprivate extension DashboardViewController {
             config.textProperties.color = .secondaryLabel
             config.textProperties.alignment = .center
             cell.contentConfiguration = config
+            cell.backgroundConfiguration?.backgroundColor = .clear
         }
     }
 

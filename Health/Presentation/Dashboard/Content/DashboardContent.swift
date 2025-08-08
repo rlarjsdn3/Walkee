@@ -140,7 +140,7 @@ extension DashboardContent.Section {
             config.text = "보행 밸런스 분석"
             basicSupplementaryView.contentConfiguration = config
         case .alan:
-            config.text = "보행 밸런스 분석"
+            config.text = "AI 요약 리포트"
             basicSupplementaryView.contentConfiguration = config
         case .card:
             config.text = "보행 밸런스 분석"
@@ -283,13 +283,13 @@ extension DashboardContent.Section {
 
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(77)
+            heightDimension: .estimated(44)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(77)
+            heightDimension: .estimated(44)
         )
         let group = NSCollectionLayoutGroup.vertical(
             layoutSize: groupSize,
