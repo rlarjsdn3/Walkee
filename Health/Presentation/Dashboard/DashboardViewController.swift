@@ -7,6 +7,8 @@
 
 import UIKit
 
+import TSAlertController
+
 final class DashboardViewController: CoreGradientViewController {
 
     typealias DashboardDiffableDataSource = UICollectionViewDiffableDataSource<DashboardContent.Section, DashboardContent.Item>
@@ -179,7 +181,7 @@ fileprivate extension DashboardViewController {
             else { return }
 
             var reusableSupplementaryView = supplementaryView
-            let infoDetailBtn = InfoDetailButton(touchHandler: { _ in print("Info Detail Button Tapped") }) // TODO: - DetailButton 리팩토링, 플로팅 시트 띄우기
+            let infoDetailBtn = InfoDetailButton(touchHandler: { [weak self] _ in self?.showWalkingBalanceAnaysisDescriptionsAlert() })
             section.setContentConfiguration(
                 basicSupplementaryView: &reusableSupplementaryView,
                 detailButton: infoDetailBtn
@@ -194,5 +196,38 @@ extension DashboardViewController: UICollectionViewDelegate {
         _ collectionView: UICollectionView,
         didHighlightItemAt indexPath: IndexPath
     ) {
+    }
+}
+
+fileprivate extension DashboardViewController {
+
+    func showWalkingBalanceAnaysisDescriptionsAlert() {
+        let descsView = HeaderDescriptionsView()
+        descsView.descriptions = [
+            WalkingBalanceAnaysisString.stepLength,
+            WalkingBalanceAnaysisString.walkingSpeed,
+            WalkingBalanceAnaysisString.walkingAsymmetryPercentage,
+            WalkingBalanceAnaysisString.doubleSupportPercentage
+        ]
+
+        let alert = TSAlertController(
+            descsView,
+            options: [.dismissOnSwipeDown, .interactiveScaleAndDrag],
+            preferredStyle: .floatingSheet
+        )
+
+        if traitCollection.verticalSizeClass == .regular
+            && traitCollection.horizontalSizeClass == .regular {
+            alert.preferredStyle = .alert
+            alert.viewConfiguration.size.width = .proportional(minimumRatio: 0.66, maximumRatio: 0.66)
+        }
+
+        let okAction = TSAlertAction(title: "확인")
+        okAction.configuration.backgroundColor = .accent
+        okAction.configuration.titleAttributes = [.font: UIFont.preferredFont(forTextStyle: .headline),
+                                                  .foregroundColor: UIColor.systemBackground]
+        alert.addAction(okAction)
+
+        present(alert, animated: true)
     }
 }

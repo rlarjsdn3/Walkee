@@ -30,16 +30,16 @@ final class HeaderLabelView: UIView {
         self.addSubviews(headerImageView, descriptionLabel)
 
         headerImageView.image = UIImage(systemName: "circle.fill")?
-            .applyingSymbolConfiguration(.init(pointSize: 10))
+            .applyingSymbolConfiguration(.init(pointSize: 6))
         headerImageView.translatesAutoresizingMaskIntoConstraints = false
         headerImageView.tintColor = .buttonBackground
         NSLayoutConstraint.activate([
-            headerImageView.topAnchor.constraint(equalTo: topAnchor, constant: 17),
+            headerImageView.topAnchor.constraint(equalTo: topAnchor, constant: 18),
             headerImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
             headerImageView.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -12)
         ])
 
-        descriptionLabel.font = .systemFont(ofSize: 17, weight: .medium)
+        descriptionLabel.font = .systemFont(ofSize: 17, weight: .regular)
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             descriptionLabel.leadingAnchor.constraint(equalTo: headerImageView.trailingAnchor, constant: 12),
@@ -52,7 +52,7 @@ final class HeaderLabelView: UIView {
     private func updateDescriptionLabel() {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = 4
-        descriptionLabel.numberOfLines = 3
+        descriptionLabel.numberOfLines = 5
         descriptionLabel.attributedText = NSAttributedString(string: desc ?? "")
             .applyingAttribute(.paragraphStyle, value: paragraphStyle)
     }

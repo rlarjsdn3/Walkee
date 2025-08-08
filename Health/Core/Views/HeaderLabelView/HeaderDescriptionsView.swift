@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class WalkingBalanceDescriptionsView: UIView {
+final class HeaderDescriptionsView: UIView {
 
     private let descriptionsStackView = UIStackView()
 
@@ -48,5 +48,4 @@ final class WalkingBalanceDescriptionsView: UIView {
             descriptionsStackView.addArrangedSubview(headerLabel)
         }
     }
-
 }
