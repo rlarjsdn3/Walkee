@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C7178BA82E448029004A87B2 /* app-release.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = C7178BA72E448029004A87B2 /* app-release.xcconfig */; };
-		C7178BA92E448029004A87B2 /* app-debug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = C7178BA62E448029004A87B2 /* app-debug.xcconfig */; };
+		A686BBAC2E457D47003784EC /* app-debug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = A686BBAB2E457D47003784EC /* app-debug.xcconfig */; };
+		A686BBAE2E457D52003784EC /* app-release.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = A686BBAD2E457D52003784EC /* app-release.xcconfig */; };
 		C76CA76E2E3AE2110040EF75 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = C76CA76D2E3AE2110040EF75 /* FirebaseAnalyticsCore */; };
 		C76CA80E2E3B2D1A0040EF75 /* TSAlertController in Frameworks */ = {isa = PBXBuildFile; productRef = C76CA80D2E3B2D1A0040EF75 /* TSAlertController */; };
 /* End PBXBuildFile section */
@@ -24,8 +24,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		C7178BA62E448029004A87B2 /* app-debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "app-debug.xcconfig"; sourceTree = "<group>"; };
-		C7178BA72E448029004A87B2 /* app-release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "app-release.xcconfig"; sourceTree = "<group>"; };
+		A686BBAB2E457D47003784EC /* app-debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "app-debug.xcconfig"; sourceTree = "<group>"; };
+		A686BBAD2E457D52003784EC /* app-release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "app-release.xcconfig"; sourceTree = "<group>"; };
 		C76490972E3790170062054D /* Health.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Health.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C76490C32E3790410062054D /* HealthTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HealthTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -83,8 +83,8 @@
 				C76490C42E3790410062054D /* HealthTests */,
 				C76CA76C2E3AE2110040EF75 /* Frameworks */,
 				C76490982E3790170062054D /* Products */,
-				C7178BA62E448029004A87B2 /* app-debug.xcconfig */,
-				C7178BA72E448029004A87B2 /* app-release.xcconfig */,
+				A686BBAB2E457D47003784EC /* app-debug.xcconfig */,
+				A686BBAD2E457D52003784EC /* app-release.xcconfig */,
 			);
 			sourceTree = "<group>";
 		};
@@ -203,8 +203,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C7178BA82E448029004A87B2 /* app-release.xcconfig in Resources */,
-				C7178BA92E448029004A87B2 /* app-debug.xcconfig in Resources */,
+				A686BBAE2E457D52003784EC /* app-release.xcconfig in Resources */,
+				A686BBAC2E457D47003784EC /* app-debug.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -245,14 +245,14 @@
 /* Begin XCBuildConfiguration section */
 		C76490AB2E3790180062054D /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C7178BA62E448029004A87B2 /* app-debug.xcconfig */;
+			baseConfigurationReference = A686BBAB2E457D47003784EC /* app-debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Health/Health.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 4Y28MK847F;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Health/Resources/Info.plist;
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "걷기 및 활동 데이터를 분석하여 AI가 맞춤 건강 정보를 제공합니다. 일일 걸음 수, 이동 거리, 활동 에너지를 바탕으로 건강 상태를 파악하고 개인화된 추천을 받기 위해 사용자의 건강 데이터 접근이 필요합니다.";
@@ -283,14 +283,14 @@
 		};
 		C76490AC2E3790180062054D /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C7178BA72E448029004A87B2 /* app-release.xcconfig */;
+			baseConfigurationReference = A686BBAD2E457D52003784EC /* app-release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Health/Health.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 4Y28MK847F;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Health/Resources/Info.plist;
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "걷기 및 활동 데이터를 분석하여 AI가 맞춤 건강 정보를 제공합니다. 일일 걸음 수, 이동 거리, 활동 에너지를 바탕으로 건강 상태를 파악하고 개인화된 추천을 받기 위해 사용자의 건강 데이터 접근이 필요합니다.";
