@@ -8,8 +8,7 @@
 import UIKit
 
 final class ChatbotHeaderTitleCell: CoreTableViewCell {
-	static let cellID = "ChatbotHeaderTitleCell"
-	
+
 	private let chatbotImageView: UIImageView = {
 		let imageView = UIImageView()
 		imageView.image = UIImage(named: "chatBot")

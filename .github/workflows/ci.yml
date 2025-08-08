@@ -14,10 +14,20 @@ jobs:
         steps:
         - name: Checkout Repository
           uses: actions/checkout@v4
-          
+
         - name: Set Specific Xcode Version
           run: sudo xcode-select -s /Applications/Xcode_16.1.app/Contents/Developer
-          
+
+        - name: Generate app-debug xcconfig
+          run: echo "${{ secrets.DEBUG_XCCONFIG }}" > ./app-debug.xcconfig
+
+        - name: Generate app-release xcconfig
+          run: echo "${{ secrets.DEBUG_XCCONFIG }}" > ./app-release.xcconfig
+
         - name: 🛠️ Start Xcode Build
           run: |
-            xcodebuild clean test -project Health.xcodeproj -scheme Health-DEBUG -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.1'
+            xcodebuild clean test \
+            -project Health.xcodeproj \
+            -scheme Health-DEBUG \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.1' \
+            -xcconfig ./app-debug.xcconfig

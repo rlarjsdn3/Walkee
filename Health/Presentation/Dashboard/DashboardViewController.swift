@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class DashboardViewController: CoreViewController {
+final class DashboardViewController: CoreGradientViewController {
 
     typealias DashboardDiffableDataSource = UICollectionViewDiffableDataSource<DashboardContent.Section, DashboardContent.Item>
 
@@ -33,6 +33,7 @@ final class DashboardViewController: CoreViewController {
 
     override func setupAttribute() {
         dashboardCollectionView.delegate = self
+        dashboardCollectionView.backgroundColor = .clear
         dashboardCollectionView.setCollectionViewLayout(
             createCollectionViewLayout(),
             animated: false
@@ -45,6 +46,8 @@ final class DashboardViewController: CoreViewController {
             top: 46, left: .zero,
             bottom: 24, right: .zero
         )
+
+        applyBackgroundGradient(.midnightBlack)
     }
 
     private func createCollectionViewLayout() -> UICollectionViewLayout {
@@ -108,7 +111,7 @@ final class DashboardViewController: CoreViewController {
         snapshot.appendItems([.barCharts(.init())], toSection: .charts)
         snapshot.appendItems([.alanSummary(.init())], toSection: .alan)
         snapshot.appendItems([.cardInfo(.init()),  .cardInfo(.init()), .cardInfo(.init()), .cardInfo(.init())], toSection: .card)
-        snapshot.appendItems([.text(.init())], toSection: .bottom)
+        snapshot.appendItems([.text], toSection: .bottom)
         dataSource?.apply(snapshot)
     }
 }
@@ -144,19 +147,28 @@ fileprivate extension DashboardViewController {
     func createAlanSummaryCellRegistration() -> UICollectionView.CellRegistration<AlanActivitySummaryCollectionViewCell, AlanActivitySummaryCellViewModel> {
         // TODO: - 셀 콘텐츠 구성하기
         UICollectionView.CellRegistration<AlanActivitySummaryCollectionViewCell, AlanActivitySummaryCellViewModel>(cellNib: AlanActivitySummaryCollectionViewCell.nib) { cell, indexPath, viewModel in
+            cell.didReceiveSummaryMessage = { [weak self] _ in self?.dashboardCollectionView.collectionViewLayout.invalidateLayout() }
+            cell.configure(with: viewModel)
         }
     }
 
     func createHealthInfoCardCellRegistration() -> UICollectionView.CellRegistration<HealthInfoCardCollectionViewCell, HealthInfoCardCellViewModel> {
         // TODO: - 셀 콘텐츠 구성하기
         UICollectionView.CellRegistration<HealthInfoCardCollectionViewCell, HealthInfoCardCellViewModel>(cellNib: HealthInfoCardCollectionViewCell.nib) { cell, indexPath, viewModel in
-            cell.configure(with: viewModel, age: 27) // TODO: - 실제 CoreData에서 가져오기
+            cell.configure(with: viewModel) // TODO: - 실제 CoreData에서 가져오기
         }
     }
 
-    func createTextCellRegistration() -> UICollectionView.CellRegistration<TextCollectionViewCell, TextCellViewModel> {
+    func createTextCellRegistration() -> UICollectionView.CellRegistration<UICollectionViewListCell, Void> {
         // TODO: - 셀 콘텐츠 구성하기
-        UICollectionView.CellRegistration<TextCollectionViewCell, TextCellViewModel>(cellNib: TextCollectionViewCell.nib) { cell, indexPath, viewModel in
+        UICollectionView.CellRegistration<UICollectionViewListCell, Void> { cell, indexPath, viewModel in
+            var config = cell.defaultContentConfiguration()
+            config.text = "Alan AI는 정보 제공시 실수를 할 수 있으니 다시 한번 확인하세요."
+            config.textProperties.font = .preferredFont(forTextStyle: .footnote)
+            config.textProperties.color = .secondaryLabel
+            config.textProperties.alignment = .center
+            cell.contentConfiguration = config
+            cell.backgroundConfiguration?.backgroundColor = .clear
         }
     }
 

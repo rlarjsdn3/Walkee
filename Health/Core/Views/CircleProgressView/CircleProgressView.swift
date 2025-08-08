@@ -126,6 +126,8 @@ final class CircleProgressView: CoreView {
     }
     
     override func setupAttribute() {
+        backgroundColor = .clear
+
         containerStackView.axis = .vertical
         containerStackView.spacing = 16
         containerStackView.distribution = .equalCentering
