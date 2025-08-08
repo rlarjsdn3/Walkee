@@ -1,5 +1,5 @@
 //
-//  EditBodyInfoViewController.swift
+//  BodyInfoViewController.swift
 //  Health
 //
 //  Created by 하재준 on 8/7/25.
@@ -14,7 +14,7 @@ struct BodyInfoItem {
     let detail: String
 }
 
-class EditBodyInfoViewController: CoreGradientViewController {
+class BodyInfoViewController: CoreGradientViewController {
     @IBOutlet weak var tableView: UITableView!
     
     private var items: [BodyInfoItem] = [
@@ -34,10 +34,18 @@ class EditBodyInfoViewController: CoreGradientViewController {
         tableView.backgroundColor = .clear
         tableView.separatorColor = .darkGray
     }
+    
+    func presentEditSheet() {
+        let vc = EditViewController()
+        if let sheet = vc.sheetPresentationController {
+            sheet.detents = [.medium()]
+        }
+        present(vc, animated: true)
+    }
 
 }
 
-extension EditBodyInfoViewController: UITableViewDataSource {
+extension BodyInfoViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return items.count
     }
@@ -61,8 +69,10 @@ extension EditBodyInfoViewController: UITableViewDataSource {
     }
 }
 
-extension EditBodyInfoViewController: UITableViewDelegate {
+extension BodyInfoViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        
+        presentEditSheet()
     }
 }
