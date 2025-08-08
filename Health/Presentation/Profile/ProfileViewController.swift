@@ -15,9 +15,7 @@ struct ProfileCellModel {
 }
 
 class ProfileViewController: CoreGradientViewController {
-    
-    
-    
+        
     @IBOutlet weak var tableView: UITableView!
     
     private let sectionTitles: [String?] = [
@@ -65,11 +63,12 @@ class ProfileViewController: CoreGradientViewController {
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "profileCell")
         tableView.rowHeight = 68
         tableView.backgroundColor = .clear
-        
-        
-        
     }
     
+    @objc private func switchChanged(_ sender: UISwitch) {
+        print("Apple 건강 앱 권한 상태:", sender.isOn)
+        sectionItems[sender.tag][0].switchState = sender.isOn
+    }
     
 }
 
@@ -97,7 +96,6 @@ extension ProfileViewController: UITableViewDataSource {
         cell.contentConfiguration = content
         cell.backgroundColor = UIColor.buttonText.withAlphaComponent(0.1)
         
-        
         if model.isSwitch {
             let toggle = UISwitch(frame: .zero)
             toggle.isOn = model.switchState
@@ -120,31 +118,15 @@ extension ProfileViewController: UITableViewDelegate {
         
         let model = sectionItems[indexPath.section][indexPath.row]
         
-        switch (indexPath.section, indexPath.row) {
-        case (0, 0):
+        switch model.title {
+        case "신체 정보":
             performSegue(withIdentifier: "bodyInfo", sender: nil)
+        case "목표 걸음 설정":
             break
-        case (1, 0):
-            break
-        case (1, 1):
+        case "일반 설정":
             break
         default:
             break
         }
-    }
-    
-//    func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
-//        guard let header = view as? UITableViewHeaderFooterView else { return }
-//        
-//        header.textLabel?.font = UIFont.systemFont(ofSize: 13, weight: .regular)
-//        header.textLabel?.textColor = .label
-//    }
-}
-
-// MARK: - UISwitch 액션
-extension ProfileViewController {
-    @objc private func switchChanged(_ sender: UISwitch) {
-        print("Apple 건강 앱 권한 상태:", sender.isOn)
-        sectionItems[sender.tag][0].switchState = sender.isOn
     }
 }
