@@ -60,7 +60,7 @@ extension NSCollectionLayoutEnvironment {
         let sizeClasses = (traitCollection.verticalSizeClass,
                            traitCollection.horizontalSizeClass)
         switch sizeClasses {
-        case (.compact, .regular): // iPhone 세로 방향
+        case (.regular, .compact): // iPhone 세로 방향
             return iPhonePortrait()
         case (.regular, .regular): // iPad 세로 및 가로 방향
             if UIApplication.shared.isPortrait { return iPadPortrait() }
