@@ -17,7 +17,7 @@
                 <rect key="frame" x="0.0" y="0.0" width="300" height="64"/>
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 <subviews>
-                    <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="gtD-oe-s59">
+                    <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="12" translatesAutoresizingMaskIntoConstraints="NO" id="gtD-oe-s59">
                         <rect key="frame" x="12" y="8" width="276" height="48"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="P45-tQ-8zG">
@@ -38,16 +38,16 @@
                                 </constraints>
                             </view>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="AVf-2p-VfL">
-                                <rect key="frame" x="40" y="7.3333333333333321" width="236" height="33.666666666666671"/>
+                                <rect key="frame" x="44" y="7.3333333333333321" width="232" height="33.666666666666671"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="252" horizontalCompressionResistancePriority="751" text="걸음" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wMV-cm-r7I">
-                                        <rect key="frame" x="0.0" y="0.0" width="236" height="13.333333333333334"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="232" height="13.333333333333334"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleCaption2"/>
                                         <color key="textColor" systemColor="secondaryLabelColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" horizontalCompressionResistancePriority="751" text="1,000보" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="e7A-fc-gRb">
-                                        <rect key="frame" x="0.0" y="13.333333333333334" width="236" height="20.333333333333329"/>
+                                        <rect key="frame" x="0.0" y="13.333333333333334" width="232" height="20.333333333333329"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>

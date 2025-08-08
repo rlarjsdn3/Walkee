@@ -45,7 +45,7 @@ final class HealthInfoStackCellViewModel {
     ///   - startDate: <#startDate description#>
     ///   - endDate: <#endDate description#>
     /// - Returns: <#description#>
-    func fetchStatisticsData(
+    func fetchStatisticsHKData(
         from startDate: Date,
         to endDate: Date,
         options: HKStatisticsOptions
@@ -64,7 +64,7 @@ final class HealthInfoStackCellViewModel {
     ///   - startDate: <#startDate description#>
     ///   - endDate: <#endDate description#>
     /// - Returns: <#description#>
-    func fetchStatisticsCollectionData(
+    func fetchStatisticsCollectionHKData(
         from startDate: Date,
         to endDate: Date,
         options: HKStatisticsOptions,

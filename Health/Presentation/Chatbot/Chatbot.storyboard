@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Y6W-OH-hqX">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="yZA-Tc-F2L">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
@@ -10,81 +10,97 @@
     </dependencies>
     <scenes>
         <!--Chatbot View Controller-->
-        <scene sceneID="s0d-6b-0kx">
+        <scene sceneID="HVz-bE-kUx">
             <objects>
-                <viewController storyboardIdentifier="Chatbot" useStoryboardIdentifierAsRestorationIdentifier="YES" id="Y6W-OH-hqX" customClass="ChatbotViewController" customModule="Health" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="5EZ-qb-Rvc">
+                <viewController id="yZA-Tc-F2L" customClass="ChatbotViewController" customModule="Health" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="bIH-9k-yXg">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="   걸어봇에게 물어보세요." minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="vTQ-Uc-sUk">
-                                <rect key="frame" x="16" y="682" width="361" height="54"/>
-                                <color key="backgroundColor" name="boxColor"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="54" id="kiQ-Gd-ZAs"/>
-                                </constraints>
-                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
-                                <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" returnKeyType="done" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
-                            </textField>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Alan AI는 정보 제공시 실수를 할 수 있으니 다시 한번 확인하세요." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1RW-dO-zDG">
-                                <rect key="frame" x="40" y="744" width="313" height="15"/>
-                                <fontDescription key="fontDescription" style="UICTFontTextStyleCaption1"/>
-                                <color key="textColor" name="buttonTextColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3rs-Qu-hxy">
-                                <rect key="frame" x="315" y="687.66666666666663" width="54" height="43"/>
-                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" image="paperplane.fill" catalog="system">
-                                    <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage" configurationType="pointSize" pointSize="24" scale="default"/>
-                                </buttonConfiguration>
-                                <connections>
-                                    <action selector="sendButtonTapped:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="0Dl-aP-qJb"/>
-                                </connections>
-                            </button>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="URS-8S-MEB">
-                                <rect key="frame" x="0.0" y="0.0" width="393" height="734"/>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="Sjn-mm-DvB">
+                                <rect key="frame" x="0.0" y="0.0" width="393" height="728"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </tableView>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="3mU-rj-JGX">
+                                <rect key="frame" x="16" y="691.66666666666663" width="361" height="76.333333333333371"/>
+                                <subviews>
+                                    <stackView opaque="NO" contentMode="scaleToFill" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="JcR-5o-DiP">
+                                        <rect key="frame" x="0.0" y="0.0" width="361" height="54"/>
+                                        <subviews>
+                                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="    걸어봇에게 물어보세요." textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="o50-vy-lbP">
+                                                <rect key="frame" x="0.0" y="0.0" width="305" height="54"/>
+                                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
+                                                <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" returnKeyType="done" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
+                                            </textField>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Jhw-LG-ZoI">
+                                                <rect key="frame" x="313" y="0.0" width="48" height="54"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" constant="48" id="hjq-4q-gJk"/>
+                                                    <constraint firstAttribute="height" constant="54" id="tHv-qc-zKU"/>
+                                                </constraints>
+                                                <color key="tintColor" systemColor="labelColor"/>
+                                                <state key="normal" title="Button"/>
+                                                <buttonConfiguration key="configuration" style="plain" image="paperplane.fill" catalog="system">
+                                                    <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage" configurationType="pointSize" pointSize="22"/>
+                                                </buttonConfiguration>
+                                                <connections>
+                                                    <action selector="sendButtonTapped:" destination="yZA-Tc-F2L" eventType="touchUpInside" id="xSl-Ua-B6q"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                        <color key="backgroundColor" name="boxBgColor"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="54" id="Xy2-pH-nEn"/>
+                                        </constraints>
+                                    </stackView>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Alan AI는 정보 제공시 실수를 할 수 있으니 다시 한번 확인하세요." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3Dn-0Q-cLi">
+                                        <rect key="frame" x="0.0" y="62.000000000000007" width="361" height="14.333333333333336"/>
+                                        <fontDescription key="fontDescription" style="UICTFontTextStyleCaption1"/>
+                                        <color key="textColor" name="buttonTextColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </stackView>
                         </subviews>
-                        <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
+                        <viewLayoutGuide key="safeArea" id="vgf-3o-Tx2"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="URS-8S-MEB" firstAttribute="trailing" secondItem="vDu-zF-Fre" secondAttribute="trailing" id="8gz-eo-P8F"/>
-                            <constraint firstItem="1RW-dO-zDG" firstAttribute="centerX" secondItem="5EZ-qb-Rvc" secondAttribute="centerX" id="9m3-87-axn"/>
-                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="vTQ-Uc-sUk" secondAttribute="trailing" constant="16" id="HHC-st-7X8"/>
-                            <constraint firstItem="1RW-dO-zDG" firstAttribute="top" secondItem="vTQ-Uc-sUk" secondAttribute="bottom" constant="8" id="S7a-c0-Ax2"/>
-                            <constraint firstItem="3rs-Qu-hxy" firstAttribute="centerY" secondItem="vTQ-Uc-sUk" secondAttribute="centerY" id="UYx-B0-15v"/>
-                            <constraint firstItem="URS-8S-MEB" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="asd-zI-9e7"/>
-                            <constraint firstItem="URS-8S-MEB" firstAttribute="top" secondItem="5EZ-qb-Rvc" secondAttribute="top" id="iqm-78-ouN"/>
-                            <constraint firstItem="vTQ-Uc-sUk" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="16" id="pYg-2t-8Vp"/>
-                            <constraint firstItem="1RW-dO-zDG" firstAttribute="top" secondItem="URS-8S-MEB" secondAttribute="bottom" constant="10" id="th8-6f-Brb"/>
-                            <constraint firstItem="vTQ-Uc-sUk" firstAttribute="bottom" secondItem="vDu-zF-Fre" secondAttribute="bottom" constant="-48" id="vf5-or-Tci"/>
-                            <constraint firstItem="vTQ-Uc-sUk" firstAttribute="trailing" secondItem="3rs-Qu-hxy" secondAttribute="trailing" constant="8" id="zID-c6-OUK"/>
+                            <constraint firstItem="3mU-rj-JGX" firstAttribute="bottom" secondItem="vgf-3o-Tx2" secondAttribute="bottom" constant="-16" id="ODB-MH-Tcl"/>
+                            <constraint firstItem="vgf-3o-Tx2" firstAttribute="bottom" secondItem="Sjn-mm-DvB" secondAttribute="bottom" constant="56" id="RqY-8N-hsN"/>
+                            <constraint firstItem="Sjn-mm-DvB" firstAttribute="top" secondItem="bIH-9k-yXg" secondAttribute="top" id="eXd-xE-YDp"/>
+                            <constraint firstItem="Sjn-mm-DvB" firstAttribute="leading" secondItem="vgf-3o-Tx2" secondAttribute="leading" id="ioe-9z-joi"/>
+                            <constraint firstItem="vgf-3o-Tx2" firstAttribute="trailing" secondItem="3mU-rj-JGX" secondAttribute="trailing" constant="16" id="kHh-e7-Smv"/>
+                            <constraint firstItem="3mU-rj-JGX" firstAttribute="leading" secondItem="vgf-3o-Tx2" secondAttribute="leading" constant="16" id="oL1-rU-rTT"/>
+                            <constraint firstItem="Sjn-mm-DvB" firstAttribute="trailing" secondItem="vgf-3o-Tx2" secondAttribute="trailing" id="zec-a9-W3H"/>
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="chattingTextField" destination="vTQ-Uc-sUk" id="lM1-Sg-XPe"/>
-                        <outlet property="sendButton" destination="3rs-Qu-hxy" id="d66-B9-CwP"/>
-                        <outlet property="tableView" destination="URS-8S-MEB" id="1t5-yt-O9q"/>
-                        <outlet property="textFieldBottomConstraint" destination="vf5-or-Tci" id="Fmp-oM-h4M"/>
+                        <outlet property="chattingContainerStackView" destination="3mU-rj-JGX" id="kTS-Vf-4iy"/>
+                        <outlet property="chattingInputStackView" destination="JcR-5o-DiP" id="lDv-9C-jgs"/>
+                        <outlet property="chattingTextField" destination="o50-vy-lbP" id="pDR-5e-edJ"/>
+                        <outlet property="containerViewBottomConstraint" destination="ODB-MH-Tcl" id="UcB-4b-CDa"/>
+                        <outlet property="sendButton" destination="Jhw-LG-ZoI" id="CFe-Za-2Lz"/>
+                        <outlet property="tableView" destination="Sjn-mm-DvB" id="kml-mG-8HL"/>
                     </connections>
                 </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="Ief-a0-LHa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="1Ug-WZ-KCe" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="107.63358778625954" y="-27.464788732394368"/>
+            <point key="canvasLocation" x="617.55725190839689" y="-20.422535211267608"/>
         </scene>
     </scenes>
     <resources>
         <image name="paperplane.fill" catalog="system" width="128" height="119"/>
-        <namedColor name="boxColor">
-            <color red="0.19215686274509805" green="0.19607843137254902" blue="0.25490196078431371" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        <namedColor name="boxBgColor">
+            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="buttonTextColor">
             <color red="0.41568627450980394" green="0.41568627450980394" blue="0.41568627450980394" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>
+        <systemColor name="labelColor">
+            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

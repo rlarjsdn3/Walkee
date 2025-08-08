@@ -6,27 +6,32 @@
 //
 
 import UIKit
+import Network
 
 class ChatbotViewController: CoreGradientViewController {
+	private let viewModel = AlanViewModel()
 	
 	@IBOutlet weak var tableView: UITableView!
-	@IBOutlet weak var textFieldBottomConstraint: NSLayoutConstraint!
+	@IBOutlet weak var containerViewBottomConstraint: NSLayoutConstraint!
+	@IBOutlet weak var chattingInputStackView: UIStackView!
+	@IBOutlet weak var chattingContainerStackView: UIStackView!
 	@IBOutlet weak var chattingTextField: UITextField!
 	@IBOutlet weak var sendButton: UIButton!
 	
 	private var messages: [ChatMessage] = []
 
 	private let hasFixedHeader = true
+	// 네트워크 상태 변화 구독을 위한 Task
+	private var networkStatusObservationTask: Task<Void, Never>?
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		
 		setupAttribute()
-		
+		setupConstraints()
 		setupTableView()
 		setupKeyboardObservers()
 		setupTapGesture()
-		
 	}
 	
 	override func viewWillAppear(_ animated: Bool) {
@@ -41,17 +46,9 @@ class ChatbotViewController: CoreGradientViewController {
 		navigationController?.setNavigationBarHidden(false, animated: animated)
 	}
 	
-	override func viewDidAppear(_ animated: Bool) {
-		super.viewDidAppear(animated)
-		
-		// UITextField를 맨 앞으로 가져오기
-		view.bringSubviewToFront(chattingTextField)
-		view.bringSubviewToFront(sendButton)
-	}
-	
-	// TODO: 차후 챗봇 뷰모델 생성해서 넣을 예정
 	override func initVM() {
-		
+		super.initVM()
+		bindViewModel()
 	}
 	
 	override func setupHierarchy() {
@@ -63,13 +60,93 @@ class ChatbotViewController: CoreGradientViewController {
 		chattingTextField.autocorrectionType = .no
 		chattingTextField.delegate = self
 		
-		setTextFieldAttribute()
+		setupStackViewStyles()
+		
+		automaticallyAdjustsScrollViewInsets = false
 	}
 	
 	@IBAction func sendButtonTapped(_ sender: UIButton) {
 		sendMessage()
 	}
 	
+	private func bindViewModel() {
+		viewModel.didReceiveResponseText = { [weak self] responseText in
+			guard let self = self else { return }
+			Task { @MainActor in
+				self.handleAIResponse(responseText)
+			}
+		}
+	}
+	
+	private func handleAIResponse(_ responseText: String) {
+		let aiMessage = ChatMessage(text: responseText, type: .ai)
+		messages.append(aiMessage)
+		
+		let insertIndex = hasFixedHeader ? messages.count : messages.count - 1
+		let indexPath = IndexPath(row: insertIndex, section: 0)
+		tableView.insertRows(at: [indexPath], with: .bottom)
+		
+		scrollToBottom()
+	}
+	
+	private func handleNetworkError(with error: Error) {
+		let networkError: NetworkError
+		
+		if let castedError = error as? NetworkError {
+			networkError = castedError
+		} else if let urlError = error as? URLError {
+			switch urlError.code {
+			case .notConnectedToInternet:
+				networkError = .notConnectedToInternet
+			case .timedOut:
+				networkError = .timedOut
+			default:
+				networkError = .requestFailed(urlError)
+			}
+		} else {
+			// NetworkError로 캐스팅할 수 없는 경우, 알 수 없는 오류로 처리
+			networkError = .unknown
+		}
+		
+		let errorMessage = networkError.localizedDescription
+		
+		// 챗봇 응답으로 에러 메시지 추가
+		let errorResponse = ChatMessage(text: errorMessage, type: .ai)
+		messages.append(errorResponse)
+		
+		let insertIndex = hasFixedHeader ? messages.count : messages.count - 1
+		let indexPath = IndexPath(row: insertIndex, section: 0)
+		tableView.insertRows(at: [indexPath], with: .bottom)
+		
+		scrollToBottom()
+		
+		showToast(message: errorMessage)
+	}
+	
+	/// NetworkMonitor를 사용해 네트워크 상태 변화 감지하고 토스트 메시지 표시하기 위함
+	private func setupNetworkMonitoring() {
+		networkStatusObservationTask = Task {
+			do {
+				for await isConnected in await NetworkMonitor.shared.networkStatusStream() {
+					if isConnected {
+						// 연결이 복구되었을 때 토스트 메시지 표시
+						await MainActor.run {
+							self.showToast(message: "네트워크 연결이 복구되었습니다.")
+						}
+					} else {
+						// 연결이 끊겼을 때 토스트 메시지 표시
+						let errorMessage = NetworkError.notConnectedToInternet.errorDetailMsgs
+						await MainActor.run {
+							self.showToast(message: errorMessage)
+						}
+					}
+				}
+			} catch {
+				// 스트림 처리 중 오류 발생 시 (예: Task.cancel()로 인한 종료)
+				print("네트워크 상태 스트림 오류: \(error.localizedDescription)")
+			}
+		}
+	}
 	
 	private func setupTableView() {
 		tableView.delegate = self
@@ -77,6 +154,10 @@ class ChatbotViewController: CoreGradientViewController {
 		tableView.backgroundColor = .clear
 		tableView.separatorStyle = .none
 		tableView.keyboardDismissMode = .interactive
+		
+		if #available(iOS 11.0, *) {
+			tableView.contentInsetAdjustmentBehavior = .never
+		}
 		
 		// 동적 높이를 위한 설정
 		tableView.estimatedRowHeight = 60
@@ -91,22 +172,31 @@ class ChatbotViewController: CoreGradientViewController {
 		
 		let bubbleNib = BubbleViewCell.nib
 		tableView.register(bubbleNib, forCellReuseIdentifier: BubbleViewCell.id)
+		
+		let aiResponseNib = AIResponseCell.nib
+		tableView.register(aiResponseNib, forCellReuseIdentifier: AIResponseCell.id)
 	}
 	
-	private func setTextFieldAttribute() {
-		chattingTextField.backgroundColor = .boxBg
-		chattingTextField.layer.cornerRadius = 12
-		chattingTextField.layer.masksToBounds = true
-		chattingTextField.layer.borderColor = UIColor.buttonText.cgColor
-		chattingTextField.layer.borderWidth = 1.0
+	private func setupStackViewStyles() {
+		chattingContainerStackView.layer.cornerRadius = 12
+		chattingContainerStackView.layer.masksToBounds = true
+		chattingContainerStackView.isLayoutMarginsRelativeArrangement = true
+		chattingContainerStackView.layoutMargins = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
 		
+		chattingInputStackView.backgroundColor = .boxBg
+		chattingInputStackView.layer.cornerRadius = 12
+		chattingInputStackView.layer.masksToBounds = true
+		chattingInputStackView.layer.borderColor = UIColor.buttonText.cgColor
+		chattingInputStackView.layer.borderWidth = 1.0
+		
+		// TextField 설정
+		chattingTextField.backgroundColor = .clear
 		chattingTextField.isUserInteractionEnabled = true
 		chattingTextField.isEnabled = true
 		
-		chattingTextField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: chattingTextField.frame.height))
+		// 좌측 여백
+		chattingTextField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 44))
 		chattingTextField.leftViewMode = .always
-		chattingTextField.rightView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: chattingTextField.frame.height))
-		chattingTextField.rightViewMode = .always
 		
 		let placeholderText = "걸어봇에게 물어보세요."
 		let placeholderColor = UIColor.buttonBackground.withAlphaComponent(0.5)
@@ -155,6 +245,32 @@ class ChatbotViewController: CoreGradientViewController {
 		
 		// 최신 메시지로 스크롤
 		scrollToBottom()
+		
+		sendButton.isEnabled = false
+		sendButton.alpha = 0.5
+		
+		// API 호출
+		Task {
+			await viewModel.sendQuestion(text)
+			
+			await MainActor.run {
+				self.sendButton.isEnabled = true
+				self.sendButton.alpha = 1
+			}
+			
+			// Error타입인데, AlanViewModel에서 errorMessage를 String 타입으로 받음으로 별도로 string으로 처리
+			if let errorMessageString = viewModel.errorMessage {
+				let errorResponse = ChatMessage(text: errorMessageString, type: .ai)
+				messages.append(errorResponse)
+				
+				let insertIndex = hasFixedHeader ? messages.count : messages.count - 1
+				let indexPath = IndexPath(row: insertIndex, section: 0)
+				tableView.insertRows(at: [indexPath], with: .bottom)
+				
+				scrollToBottom()
+				showToast(message: errorMessageString)
+			}
+		}
 	}
 	
 	private func scrollToBottom() {
@@ -174,18 +290,31 @@ class ChatbotViewController: CoreGradientViewController {
 			  let duration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else { return }
 		
 		let keyboardHeight = keyboardFrame.height
-		textFieldBottomConstraint.constant = -keyboardHeight - 8
-
-		UIView.animate(withDuration: duration) {
-			self.view.layoutIfNeeded()
+		let safeAreaBottomInset = view.safeAreaInsets.bottom
+		
+		// 제약조건 방향 확인
+		let isStackViewFirst = containerViewBottomConstraint.firstItem === chattingContainerStackView
+	
+		if isStackViewFirst {
+			let newConstant = -(keyboardHeight - safeAreaBottomInset + 16)
+			containerViewBottomConstraint.constant = newConstant
+			print("- new constant (StackView first): \(newConstant)")
+		} else {
+			let newConstant = keyboardHeight - safeAreaBottomInset + 16
+			containerViewBottomConstraint.constant = newConstant
+			print("- new constant (SafeArea first): \(newConstant)")
 		}
 		
-		Task { @MainActor in
-			do {
-				try await Task.sleep(for: .milliseconds(100))
-				scrollToBottom()
-			} catch {
-				print("error", error)
+		// TableView content inset 조정
+		let tableBottomInset = keyboardHeight + 74
+		tableView.contentInset = UIEdgeInsets(top: 32, left: 0, bottom: tableBottomInset, right: 0)
+		tableView.scrollIndicatorInsets = tableView.contentInset
+		
+		UIView.animate(withDuration: duration, delay: 0, options: [.curveEaseOut]) {
+			self.view.layoutIfNeeded()
+		} completion: { _ in
+			DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+				self.scrollToBottom()
 			}
 		}
 	}
@@ -194,18 +323,27 @@ class ChatbotViewController: CoreGradientViewController {
 		guard let userInfo = notification.userInfo,
 			  let duration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else { return }
 		
-		textFieldBottomConstraint.constant = -48
+		let isStackViewFirst = containerViewBottomConstraint.firstItem === chattingContainerStackView
 		
-		tableView.contentInset = UIEdgeInsets(top: 32, left: 0, bottom: 80, right: 0)
+		if isStackViewFirst {
+			containerViewBottomConstraint.constant = -48
+		} else {
+			containerViewBottomConstraint.constant = 48
+		}
+		
+		tableView.contentInset = UIEdgeInsets(top: 32, left: 0, bottom: 20, right: 0)
 		tableView.scrollIndicatorInsets = tableView.contentInset
 		
-		UIView.animate(withDuration: duration) {
+		UIView.animate(withDuration: duration, delay: 0, options: [.curveEaseOut]) {
 			self.view.layoutIfNeeded()
 		}
 	}
 	
 	deinit {
 		NotificationCenter.default.removeObserver(self)
+		// 네트워크 상태 구독 Task 취소
+		
+		networkStatusObservationTask?.cancel()
 	}
 }
 
@@ -227,17 +365,26 @@ extension ChatbotViewController: UITableViewDataSource {
 			return cell
 		}
 		
-		// 사용자 메시지 처리
 		let messageIndex = hasFixedHeader ? indexPath.row - 1 : indexPath.row
 		let message = messages[messageIndex]
 		
-		// 현재는 사용자 메시지만 처리
-		let cell = tableView.dequeueReusableCell(
-			withIdentifier: BubbleViewCell.id,
-			for: indexPath
-		) as! BubbleViewCell
-		cell.configure(with: message)
-		return cell
+		switch message.type {
+		case .user:
+			let cell = tableView.dequeueReusableCell(
+				withIdentifier: BubbleViewCell.id,
+				for: indexPath
+			) as! BubbleViewCell
+			cell.configure(with: message)
+			return cell
+			
+		case .ai:
+			let cell = tableView.dequeueReusableCell(
+				withIdentifier: AIResponseCell.id,
+				for: indexPath
+			) as! AIResponseCell
+			cell.configure(with: message.text)
+			return cell
+		}
 	}
 }
 
@@ -248,10 +395,16 @@ extension ChatbotViewController: UITableViewDelegate {
 	}
 	
 	func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
-		// HeaderTitleCell은 조금 더 큰 높이 예상
 		if hasFixedHeader && indexPath.row == 0 {
 			return 80
 		}
+		
+		let messageIndex = hasFixedHeader ? indexPath.row - 1 : indexPath.row
+		if messageIndex < messages.count {
+			let message = messages[messageIndex]
+			return message.type == .ai ? 120 : 60
+		}
+		
 		return 60
 	}
 }
@@ -265,13 +418,28 @@ extension ChatbotViewController: UITextFieldDelegate {
 	
 	func textFieldDidBeginEditing(_ textField: UITextField) {
 		// 텍스트필드 편집 시작할 때 최신 메시지로 스크롤 해 줌.
-		Task { @MainActor in
-			do {
-				try await Task.sleep(for: .milliseconds(300))
-				scrollToBottom()
-			} catch {
-				print("error", error)
-			}
+		DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+			self.scrollToBottom()
 		}
+//		Task { @MainActor in
+//			do {
+//				try await Task.sleep(for: .milliseconds(300))
+//				scrollToBottom()
+//			} catch {
+//				print("error", error)
+//			}
+//		}
+	}
+	
+	func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+		let newText = (textField.text as NSString?)?.replacingCharacters(in: range, with: string) ?? ""
+		let hasText = !newText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+		
+		// Swift Concurrency로 UI 업데이트
+		Task { @MainActor in
+			self.sendButton.alpha = hasText ? 1.0 : 0.6
+			self.sendButton.isEnabled = hasText
+		}
+		return true
 	}
 }

@@ -16,6 +16,7 @@ class AIResponseCell: CoreTableViewCell {
 	override func setupAttribute() {
 		super.setupAttribute()
 		
+		selectionStyle = .none
 		responseTextView.textContainer.lineFragmentPadding = 0
 		responseTextView.textContainerInset = .zero
 		
