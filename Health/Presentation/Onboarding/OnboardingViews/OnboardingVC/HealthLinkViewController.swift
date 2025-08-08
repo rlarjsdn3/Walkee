@@ -70,6 +70,7 @@ class HealthLinkViewController: CoreViewController {
         linkSettingView.backgroundColor = UIColor(named: "boxBgColor")
         linkSettingView.applyCornerStyle(.medium)
         linkSettingView.clipsToBounds = true
+        linkedSwitch.isOn = false
     }
     
     override func setupConstraints() {
@@ -79,7 +80,7 @@ class HealthLinkViewController: CoreViewController {
             continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             continueButton.heightAnchor.constraint(equalToConstant: 48),
             
-            progressIndicatorStackView.topAnchor.constraint(equalTo: view.topAnchor, constant: 78),
+            progressIndicatorStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -24),
             progressIndicatorStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             progressIndicatorStackView.heightAnchor.constraint(equalToConstant: 4),
             progressIndicatorStackView.widthAnchor.constraint(equalToConstant: 320)
