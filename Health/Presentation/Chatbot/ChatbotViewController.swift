@@ -108,7 +108,7 @@ class ChatbotViewController: CoreGradientViewController {
 			networkError = .unknown
 		}
 		
-		let errorMessage = networkError.errorDetailMsgs
+		let errorMessage = networkError.localizedDescription
 		
 		// 챗봇 응답으로 에러 메시지 추가
 		let errorResponse = ChatMessage(text: errorMessage, type: .ai)
@@ -122,13 +122,6 @@ class ChatbotViewController: CoreGradientViewController {
 		
 		showToast(message: errorMessage)
 	}
-	
-	private func handleStringErrorMessage(with message: String) {
-		let networkError = NetworkError.customMessage(message)
-		// Error 타입을 String으로 처리하기 위함
-		handleNetworkError(with: networkError)
-	}
-	
 	
 	/// NetworkMonitor를 사용해 네트워크 상태 변화 감지하고 토스트 메시지 표시하기 위함
 	private func setupNetworkMonitoring() {
@@ -267,7 +260,15 @@ class ChatbotViewController: CoreGradientViewController {
 			
 			// Error타입인데, AlanViewModel에서 errorMessage를 String 타입으로 받음으로 별도로 string으로 처리
 			if let errorMessageString = viewModel.errorMessage {
-				self.handleStringErrorMessage(with: errorMessageString)
+				let errorResponse = ChatMessage(text: errorMessageString, type: .ai)
+				messages.append(errorResponse)
+				
+				let insertIndex = hasFixedHeader ? messages.count : messages.count - 1
+				let indexPath = IndexPath(row: insertIndex, section: 0)
+				tableView.insertRows(at: [indexPath], with: .bottom)
+				
+				scrollToBottom()
+				showToast(message: errorMessageString)
 			}
 		}
 	}

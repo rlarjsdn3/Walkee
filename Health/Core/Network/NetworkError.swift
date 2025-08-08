@@ -4,7 +4,7 @@ import Foundation
 ///
 /// 네트워크 요청 과정에서 발생할 수 있는 다양한 오류 상황을 캡슐화합니다.
 /// 각 케이스는 특정한 오류 상황을 나타내며, 적절한 오류 처리를 위해 사용됩니다.
-enum NetworkError: Error {
+enum NetworkError: Error, LocalizedError {
 	//  MARK: - API 관련 에러
     /// 잘못된 URL로 인한 오류
     ///
@@ -48,12 +48,7 @@ enum NetworkError: Error {
 	/// 위의 카테고리에 속하지 않는 예상치 못한 오류 상황에 사용됩니다.
 	case unknown
 	
-	/// viewModel 등에서 String으로 전달되는 일반 오류 메시지를 위한 케이스 추가
-	case customMessage(String)
-}
-
-extension NetworkError {
-	var errorDetailMsgs: String {
+	var errorDescription: String? {
 		switch self {
 		case .badURL:
 			return "잘못된 주소입니다."
@@ -71,9 +66,12 @@ extension NetworkError {
 			return "입력 내용을 확인해주세요: \(message)"
 		case .unknown:
 			return "일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
-		/// 새로운 케이스에 대한 메시지 반환
-		case .customMessage(let message):
-			return message
 		}
+	}
+}
+
+extension NetworkError {
+	var errorDetailMsgs: String {
+		return errorDescription ?? "알 수 없는 오류가 발생했습니다."
 	}
 }
