@@ -62,7 +62,7 @@ final class AlanActivitySummaryCellViewModel { // TODO: - HashableViewModel 공�
         walkingStepLength: Double? = nil,
         walkingAsymmetryPercentage: Double? = nil,
         walkingSpeed: Double? = nil,
-        walkdingDoubleSupportPercentage: Double? = nil,
+        walkdingDoubleSupportPercentage: Double? = nil
     ) async -> String {
         // TODO: - 받은 매개변수에 따라 프롬프트 작성하기
         var message: String = ""
