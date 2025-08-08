@@ -9,6 +9,7 @@ import UIKit
 import Network
 
 class ChatbotViewController: CoreGradientViewController {
+	// 뷰모델 생성
 	private let viewModel = AlanViewModel()
 	
 	@IBOutlet weak var tableView: UITableView!
@@ -23,6 +24,8 @@ class ChatbotViewController: CoreGradientViewController {
 	private let hasFixedHeader = true
 	// 네트워크 상태 변화 구독을 위한 Task
 	private var networkStatusObservationTask: Task<Void, Never>?
+	// 키보드 실제 높이 상태
+	private var currentKeyboardHeight: CGFloat = 0
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -44,6 +47,14 @@ class ChatbotViewController: CoreGradientViewController {
 		super.viewWillDisappear(animated)
 		
 		navigationController?.setNavigationBarHidden(false, animated: animated)
+	}
+	
+	override func viewDidLayoutSubviews() {
+		super.viewDidLayoutSubviews()
+		
+		if currentKeyboardHeight == 0 {
+			updateTableViewContentInset()
+		}
 	}
 	
 	override func initVM() {
@@ -84,9 +95,23 @@ class ChatbotViewController: CoreGradientViewController {
 		
 		let insertIndex = hasFixedHeader ? messages.count : messages.count - 1
 		let indexPath = IndexPath(row: insertIndex, section: 0)
-		tableView.insertRows(at: [indexPath], with: .bottom)
-		
-		scrollToBottom()
+
+		if #available(iOS 17.0, *) {
+			tableView.performBatchUpdates {
+				tableView.insertRows(at: [indexPath], with: .bottom)
+			} completion: { _ in
+				// 셀 추가 후 스크롤
+				Task { @MainActor in
+					try await Task.sleep(for: .milliseconds(50))
+					self.scrollToBottom()
+				}
+			}
+		} else {
+			tableView.insertRows(at: [indexPath], with: .bottom)
+			DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+				self.scrollToBottom()
+			}
+		}
 	}
 	
 	private func handleNetworkError(with error: Error) {
@@ -155,26 +180,33 @@ class ChatbotViewController: CoreGradientViewController {
 		tableView.separatorStyle = .none
 		tableView.keyboardDismissMode = .interactive
 		
-		if #available(iOS 11.0, *) {
-			tableView.contentInsetAdjustmentBehavior = .never
+		if #available(iOS 17.0, *) {
+			tableView.selfSizingInvalidation = .enabledIncludingConstraints
 		}
+		
+		tableView.contentInsetAdjustmentBehavior = .never
 		
 		// 동적 높이를 위한 설정
 		tableView.estimatedRowHeight = 60
 		tableView.rowHeight = UITableView.automaticDimension
 		
-		// 입력창 공간 확보를 위한 content inset
-		tableView.contentInset = UIEdgeInsets(top: 32, left: 0, bottom: 80, right: 0)
-		tableView.scrollIndicatorInsets = tableView.contentInset
-		
-		tableView
-			.register(ChatbotHeaderTitleCell.self, forCellReuseIdentifier: ChatbotHeaderTitleCell.id)
-		
+		tableView.register(ChatbotHeaderTitleCell.self, forCellReuseIdentifier: ChatbotHeaderTitleCell.id)
 		let bubbleNib = BubbleViewCell.nib
 		tableView.register(bubbleNib, forCellReuseIdentifier: BubbleViewCell.id)
-		
 		let aiResponseNib = AIResponseCell.nib
 		tableView.register(aiResponseNib, forCellReuseIdentifier: AIResponseCell.id)
+		
+		updateTableViewContentInset()
+	}
+	
+	private func updateTableViewContentInset() {
+		// 입력창 높이를 실시간으로 계산
+		let inputContainerHeight = chattingContainerStackView.frame.height
+		let safeAreaBottom = view.safeAreaInsets.bottom
+		let bottomInset = max(inputContainerHeight + 32, 100) // 최소 80 보장
+		
+		tableView.contentInset = UIEdgeInsets(top: 32, left: 0, bottom: bottomInset, right: 0)
+		tableView.scrollIndicatorInsets = tableView.contentInset
 	}
 	
 	private func setupStackViewStyles() {
@@ -209,18 +241,51 @@ class ChatbotViewController: CoreGradientViewController {
 	
 	private func setupKeyboardObservers() {
 		NotificationCenter.default.addObserver(
-			self,
-			selector: #selector(keyboardWillShow(notification:)),
-			name: UIResponder.keyboardWillShowNotification,
-			object: nil
-		)
+			forName: UIResponder.keyboardWillChangeFrameNotification,
+			object: nil,
+			queue: nil) { [weak self] notification in
+				self?.handleKeyboardFrameChange(notification)
+			}
+	}
+	private func handleKeyboardFrameChange(_ notification: Notification) {
+		guard let info = notification.userInfo,
+			  let duration = info[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double,
+			  let curve = info[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt,
+			  let frame = (info[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else { return }
 		
-		NotificationCenter.default.addObserver(
-			self,
-			selector: #selector(keyboardWillHide(notification:)),
-			name: UIResponder.keyboardWillHideNotification,
-			object: nil
-		)
+		let keyboardHeight = view.convert(frame, from: nil).intersection(view.bounds).height
+		self.currentKeyboardHeight = keyboardHeight
+		
+		let safeAreaBottomInset = view.safeAreaInsets.bottom
+		let isStackViewFirst = containerViewBottomConstraint.firstItem === chattingContainerStackView
+		
+		UIView.animate(
+			withDuration: duration,
+			delay: 0,
+			options: UIView.AnimationOptions(rawValue: curve << 16)
+		) {
+			if keyboardHeight <= 0 {
+				// dismiss
+				self.containerViewBottomConstraint.constant = isStackViewFirst ? -48 : 48
+				self.updateTableViewContentInset()
+			} else {
+				// present
+				self.containerViewBottomConstraint.constant = isStackViewFirst
+					? -(keyboardHeight - safeAreaBottomInset)
+					:  (keyboardHeight - safeAreaBottomInset)
+
+				// 최신 레이아웃 적용 후 입력창 높이로 inset 계산
+				self.view.layoutIfNeeded()
+				let inputHeight = self.chattingContainerStackView.frame.height
+				let bottomInset = keyboardHeight + inputHeight + 8
+				self.tableView.contentInset = UIEdgeInsets(top: 32, left: 0, bottom: bottomInset, right: 0)
+				self.tableView.scrollIndicatorInsets = self.tableView.contentInset
+			}
+		} completion: { _ in
+			DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+				self.scrollToBottom()
+			}
+		}
 	}
 	
 	private func setupTapGesture() {
@@ -257,8 +322,6 @@ class ChatbotViewController: CoreGradientViewController {
 				self.sendButton.isEnabled = true
 				self.sendButton.alpha = 1
 			}
-			
-			// Error타입인데, AlanViewModel에서 errorMessage를 String 타입으로 받음으로 별도로 string으로 처리
 			if let errorMessageString = viewModel.errorMessage {
 				let errorResponse = ChatMessage(text: errorMessageString, type: .ai)
 				messages.append(errorResponse)
@@ -276,69 +339,14 @@ class ChatbotViewController: CoreGradientViewController {
 	private func scrollToBottom() {
 		let totalRows = hasFixedHeader ? messages.count + 1 : messages.count
 		guard totalRows > 0 else { return }
-		
 		let lastIndexPath = IndexPath(row: totalRows - 1, section: 0)
 		tableView.scrollToRow(at: lastIndexPath, at: .bottom, animated: true)
 	}
+	
 	@objc private func dismissKeyboard() {
 		view.endEditing(true)
 	}
-	
-	@objc private func keyboardWillShow(notification: Notification) {
-		guard let userInfo = notification.userInfo,
-			  let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
-			  let duration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else { return }
 		
-		let keyboardHeight = keyboardFrame.height
-		let safeAreaBottomInset = view.safeAreaInsets.bottom
-		
-		// 제약조건 방향 확인
-		let isStackViewFirst = containerViewBottomConstraint.firstItem === chattingContainerStackView
-	
-		if isStackViewFirst {
-			let newConstant = -(keyboardHeight - safeAreaBottomInset + 16)
-			containerViewBottomConstraint.constant = newConstant
-			print("- new constant (StackView first): \(newConstant)")
-		} else {
-			let newConstant = keyboardHeight - safeAreaBottomInset + 16
-			containerViewBottomConstraint.constant = newConstant
-			print("- new constant (SafeArea first): \(newConstant)")
-		}
-		
-		// TableView content inset 조정
-		let tableBottomInset = keyboardHeight + 74
-		tableView.contentInset = UIEdgeInsets(top: 32, left: 0, bottom: tableBottomInset, right: 0)
-		tableView.scrollIndicatorInsets = tableView.contentInset
-		
-		UIView.animate(withDuration: duration, delay: 0, options: [.curveEaseOut]) {
-			self.view.layoutIfNeeded()
-		} completion: { _ in
-			DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-				self.scrollToBottom()
-			}
-		}
-	}
-	
-	@objc private func keyboardWillHide(notification: Notification) {
-		guard let userInfo = notification.userInfo,
-			  let duration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else { return }
-		
-		let isStackViewFirst = containerViewBottomConstraint.firstItem === chattingContainerStackView
-		
-		if isStackViewFirst {
-			containerViewBottomConstraint.constant = -48
-		} else {
-			containerViewBottomConstraint.constant = 48
-		}
-		
-		tableView.contentInset = UIEdgeInsets(top: 32, left: 0, bottom: 20, right: 0)
-		tableView.scrollIndicatorInsets = tableView.contentInset
-		
-		UIView.animate(withDuration: duration, delay: 0, options: [.curveEaseOut]) {
-			self.view.layoutIfNeeded()
-		}
-	}
-	
 	deinit {
 		NotificationCenter.default.removeObserver(self)
 		// 네트워크 상태 구독 Task 취소

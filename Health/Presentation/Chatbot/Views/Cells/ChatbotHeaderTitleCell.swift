@@ -35,6 +35,7 @@ final class ChatbotHeaderTitleCell: CoreTableViewCell {
 			setupConstraints()
 			setupAttribute()
 		}
+		
 	}
 	
 	required init?(coder: NSCoder) {
