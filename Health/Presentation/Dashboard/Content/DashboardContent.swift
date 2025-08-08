@@ -37,8 +37,8 @@ enum DashboardContent {
         case alanSummary(AlanActivitySummaryCellViewModel)
         /// 건강 카드 셀
         case cardInfo(HealthInfoCardCellViewModel)
-        /// 일반 텍스트 셀
-        case text(TextCellViewModel)
+        /// 경고 텍스트 셀
+        case text
     }
 }
 
@@ -53,7 +53,7 @@ extension DashboardContent.Item {
         barChartsCellRegistration: UICollectionView.CellRegistration<DashboardBarChartsCollectionViewCell, DashboardBarChartsCellViewModel>,
         alanSummaryCellRegistration: UICollectionView.CellRegistration<AlanActivitySummaryCollectionViewCell, AlanActivitySummaryCellViewModel>,
         healthInfoCardCellRegistration: UICollectionView.CellRegistration<HealthInfoCardCollectionViewCell, HealthInfoCardCellViewModel>,
-        textCellRegistration: UICollectionView.CellRegistration<TextCollectionViewCell, TextCellViewModel>,
+        textCellRegistration: UICollectionView.CellRegistration<UICollectionViewListCell, Void>,
         indexPath: IndexPath
     ) -> UICollectionViewCell {
         switch self {
@@ -94,11 +94,11 @@ extension DashboardContent.Item {
                 item: viewModel
             )
 
-        case let .text(viewModel):
+        case .text:
             return collectionView.dequeueConfiguredReusableCell(
                 using: textCellRegistration,
                 for: indexPath,
-                item: viewModel
+                item: ()
             )
         }
     }
@@ -318,19 +318,27 @@ extension DashboardContent.Section {
 
     private func buildCardLayout(_ environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
 
+        let itemWidthDimension: NSCollectionLayoutDimension = environment.horizontalSizeClass(
+            compact: .fractionalWidth(0.5),
+            regular: .fractionalWidth(0.25)
+        )
         let itemSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(0.5),
+            widthDimension: itemWidthDimension,
             heightDimension: .fractionalHeight(1.0)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
+        let subitems: [NSCollectionLayoutItem] = environment.horizontalSizeClass(
+            compact: [item, item],
+            regular: [item, item, item, item]
+        )
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
             heightDimension: .absolute(66) // TODO: - 레이아웃 재검토 및 수치 조정하기
         )
         let group = NSCollectionLayoutGroup.horizontal(
             layoutSize: groupSize,
-            subitems: [item, item]
+            subitems: subitems
         )
         group.interItemSpacing = .flexible(12)
 
