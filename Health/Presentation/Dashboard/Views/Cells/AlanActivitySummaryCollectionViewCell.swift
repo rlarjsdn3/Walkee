@@ -14,7 +14,7 @@ final class AlanActivitySummaryCollectionViewCell: CoreCollectionViewCell {
     ///
     var didReceiveSummaryMessage: ((String) -> Void)?
 
-    override func setupAttribute() {
+    override func setupAttribute() { // TODO: - 대시보드 공통 Core 셀 구현하기
 //       self.applyCornerStyle(.medium)
         self.backgroundColor = .boxBg
         self.layer.cornerRadius = 12 // medium
@@ -46,15 +46,14 @@ final class AlanActivitySummaryCollectionViewCell: CoreCollectionViewCell {
 
 extension AlanActivitySummaryCollectionViewCell {
 
-    func configure(with viewModel: AlanViewModel) {
-        viewModel.didReceiveResponseText = { [weak self] text in
-            self?.summaryLabel.text = text
-            self?.didReceiveSummaryMessage?(text)
-        }
-
-        // TODO: - 프롬프트 설계하기
+    // Note: - 본래 ViewModel에서 모든 데이터를 전달하는 게 맞으나,
+    //
+    func configure(with viewModel: AlanActivitySummaryCellViewModel) {
         Task {
-            await viewModel.sendQuestion("안녕하세요! 오늘 서울 날씨와 폭염 지수를 알려주세요. 100자 이내로만 대답해주세요.")
+            // TOOD: - HealthKit으로부터 사용자 건강 데이터 가져오기
+            let message = await viewModel.askAlanToSummarizeActivity()
+            self.summaryLabel.text = message
+            didReceiveSummaryMessage?(message)
         }
     }
 }

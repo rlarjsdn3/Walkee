@@ -147,10 +147,8 @@ fileprivate extension DashboardViewController {
     func createAlanSummaryCellRegistration() -> UICollectionView.CellRegistration<AlanActivitySummaryCollectionViewCell, AlanActivitySummaryCellViewModel> {
         // TODO: - 셀 콘텐츠 구성하기
         UICollectionView.CellRegistration<AlanActivitySummaryCollectionViewCell, AlanActivitySummaryCellViewModel>(cellNib: AlanActivitySummaryCollectionViewCell.nib) { cell, indexPath, viewModel in
-            cell.didReceiveSummaryMessage = { [weak self] _ in
-                self?.dashboardCollectionView.collectionViewLayout.invalidateLayout()
-            }
-            cell.configure(with: AlanViewModel())
+            cell.didReceiveSummaryMessage = { [weak self] _ in self?.dashboardCollectionView.collectionViewLayout.invalidateLayout() }
+            cell.configure(with: viewModel)
         }
     }
 

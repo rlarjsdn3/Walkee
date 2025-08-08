@@ -83,7 +83,7 @@ extension HealthInfoStackCollectionViewCell {
     ) {
         Task {
             do {
-                let hkDatas = try await viewModel.fetchStatisticsCollectionData(
+                let hkDatas = try await viewModel.fetchStatisticsCollectionHKData(
                     from: .now.addingTimeInterval(-7 * 86_400).startOfDay(),
                     to: .now.endOfDay(),
                     options: .cumulativeSum
