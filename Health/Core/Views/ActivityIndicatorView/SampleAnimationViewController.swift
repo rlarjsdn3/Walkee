@@ -22,6 +22,7 @@ class SampleAnimationViewController: UIViewController {
 		indicator.startAnimating()
 	}
 	
+	/// 사용 예시 메서드입니다.
 	private func setupIndicator() {
 		indicator.color = .accent
 		indicator.dotDiameter = 50
