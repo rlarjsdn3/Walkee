@@ -12,7 +12,7 @@ final class LoadingResponseCell: CoreTableViewCell {
 		let v = CustomActivityIndicatorView()
 		v.translatesAutoresizingMaskIntoConstraints = false
 		v.dotDiameter = 30
-		v.color = .systemTeal
+		v.color = .accent
 		return v
 	}()
 
