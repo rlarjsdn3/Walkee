@@ -48,7 +48,7 @@
                                 </constraints>
                             </stackView>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="tnC-dL-fb0">
-                                <rect key="frame" x="0.0" y="164" width="440" height="724"/>
+                                <rect key="frame" x="0.0" y="179" width="440" height="709"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="x2E-v0-yix">
                                     <size key="itemSize" width="128" height="128"/>
@@ -79,7 +79,7 @@
                             <constraint firstItem="9cF-px-nXb" firstAttribute="leading" secondItem="5EZ-qb-Rvc" secondAttribute="leading" constant="16" id="UVI-MB-elJ"/>
                             <constraint firstItem="tnC-dL-fb0" firstAttribute="trailing" secondItem="vDu-zF-Fre" secondAttribute="trailing" id="bxk-wg-wau"/>
                             <constraint firstItem="9cF-px-nXb" firstAttribute="top" secondItem="5EZ-qb-Rvc" secondAttribute="top" constant="64" id="hqj-LM-m16"/>
-                            <constraint firstItem="tnC-dL-fb0" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" constant="40" id="vGx-jD-5CO"/>
+                            <constraint firstItem="tnC-dL-fb0" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" constant="55" id="vGx-jD-5CO"/>
                         </constraints>
                     </view>
                     <connections>

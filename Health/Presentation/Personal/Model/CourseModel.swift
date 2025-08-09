@@ -15,16 +15,6 @@ struct WalkingCourse: Codable, Hashable {
     let sigun: String         // 지역 (울산 남구)
     let gpxpath: String       // GPX 파일 경로
     let crsTotlRqrmHour: String //총 소요 시간
-
-    // GPX URL에서 파일 경로 추출
-    var gpxFilePath: String {
-        // "https://www.durunubi.kr/editImgUp.do?filePath=/data/koreamobility/course/summap/T_CRS_MNG0000004191.gpx"
-        // -> "/data/koreamobility/course/summap/T_CRS_MNG0000004191.gpx"
-        if let range = gpxpath.range(of: "filePath=") {
-            return String(gpxpath[range.upperBound...])
-        }
-        return gpxpath
-    }
 }
 
 // API 응답용 래퍼 (전체 구조는 유지하되 필요한 부분만 파싱)
