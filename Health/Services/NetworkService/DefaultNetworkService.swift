@@ -96,13 +96,13 @@ final class DefaultNetworkService: NetworkService {
             }
 
             switch httpResponse.statusCode {
-            case 200..<300:
-                return try JSONDecoder().decode(T.self, from: data)
+            	case 200..<300:
+               	 return try JSONDecoder().decode(T.self, from: data)
 
-            case 422:
-                let validationError = try? JSONDecoder().decode(HTTPValidationError.self, from: data)
-                let message = validationError?.detail.first?.msg ?? "Validation failed"
-                throw NetworkError.validationFailed(message)
+           	 case 422:
+               	 let validationError = try? JSONDecoder().decode(HTTPValidationError.self, from: data)
+              	  let message = validationError?.detail.first?.msg ?? "Validation failed"
+               	 throw NetworkError.validationFailed(message)
 
             default:
                 throw NetworkError.invalidResponse
