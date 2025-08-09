@@ -18,11 +18,11 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="Sjn-mm-DvB">
-                                <rect key="frame" x="0.0" y="0.0" width="393" height="728"/>
+                                <rect key="frame" x="0.0" y="0.0" width="393" height="704"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </tableView>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="3mU-rj-JGX">
-                                <rect key="frame" x="16" y="691.66666666666663" width="361" height="76.333333333333371"/>
+                                <rect key="frame" x="16" y="707.66666666666663" width="361" height="76.333333333333371"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="JcR-5o-DiP">
                                         <rect key="frame" x="0.0" y="0.0" width="361" height="54"/>
@@ -67,8 +67,8 @@
                         <viewLayoutGuide key="safeArea" id="vgf-3o-Tx2"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="3mU-rj-JGX" firstAttribute="bottom" secondItem="vgf-3o-Tx2" secondAttribute="bottom" constant="-16" id="ODB-MH-Tcl"/>
-                            <constraint firstItem="vgf-3o-Tx2" firstAttribute="bottom" secondItem="Sjn-mm-DvB" secondAttribute="bottom" constant="56" id="RqY-8N-hsN"/>
+                            <constraint firstItem="3mU-rj-JGX" firstAttribute="bottom" secondItem="vgf-3o-Tx2" secondAttribute="bottom" id="ODB-MH-Tcl"/>
+                            <constraint firstItem="vgf-3o-Tx2" firstAttribute="bottom" secondItem="Sjn-mm-DvB" secondAttribute="bottom" constant="80" id="RqY-8N-hsN"/>
                             <constraint firstItem="Sjn-mm-DvB" firstAttribute="top" secondItem="bIH-9k-yXg" secondAttribute="top" id="eXd-xE-YDp"/>
                             <constraint firstItem="Sjn-mm-DvB" firstAttribute="leading" secondItem="vgf-3o-Tx2" secondAttribute="leading" id="ioe-9z-joi"/>
                             <constraint firstItem="vgf-3o-Tx2" firstAttribute="trailing" secondItem="3mU-rj-JGX" secondAttribute="trailing" constant="16" id="kHh-e7-Smv"/>
