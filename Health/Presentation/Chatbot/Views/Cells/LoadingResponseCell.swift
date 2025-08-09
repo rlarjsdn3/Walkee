@@ -45,8 +45,7 @@ final class LoadingResponseCell: CoreTableViewCell {
 		}
 	}
 
-
-	// 외부에서 문구/애니메이션 제어
+	// 문구/애니메이션 제어 메서드
 	func configure(text: String? = nil, animating: Bool = true) {
 		if let t = text { messageLabel.text = t }
 		animating ? indicator.startAnimating() : indicator.stopAnimating()
