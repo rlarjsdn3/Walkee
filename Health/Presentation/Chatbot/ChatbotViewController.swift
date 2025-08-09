@@ -33,21 +33,21 @@ final class ChatbotViewController: CoreGradientViewController {
 
 	/// 현재 대화에 표시되는 메시지 목록
 	private var messages: [ChatMessage] = []
-
 	/// 고정 헤더 챗봇 타이틀
 	private let hasFixedHeader = true
-
-	// MARK: - Keyboard State
-
+	/// 네트워크 상태
 	private var networkStatusObservationTask: Task<Void, Never>?
-
+	// MARK: - Keyboard State
 	/// 현재 키보드 높이
 	private var currentKeyboardHeight: CGFloat = 0
 	/// 직전 키보드 높이 — 최초 present 여부 판단에 사용
 	private var previousKeyboardHeight: CGFloat = 0
-
 	/// 키보드와 입력창 사이에 둘 여유 버퍼
 	private let bottomBuffer: CGFloat = 8
+	/// 응답 관련 속성
+	private var isWaitingResponse = false
+	private var waitingHintTask: Task<Void, Never>?
+
 
 	// MARK: - Lifecycle
 
@@ -151,7 +151,7 @@ final class ChatbotViewController: CoreGradientViewController {
 		tableView.register(ChatbotHeaderTitleCell.self, forCellReuseIdentifier: ChatbotHeaderTitleCell.id)
 		tableView.register(BubbleViewCell.nib, forCellReuseIdentifier: BubbleViewCell.id)
 		tableView.register(AIResponseCell.nib, forCellReuseIdentifier: AIResponseCell.id)
-
+		tableView.register(LoadingResponseCell.self, forCellReuseIdentifier: LoadingResponseCell.id)
 		updateTableViewContentInset()
 	}
 
@@ -296,9 +296,13 @@ final class ChatbotViewController: CoreGradientViewController {
 
 		sendButton.isEnabled = false
 		sendButton.alpha = 0.5
+		
+		showWaitingCell()
 
 		Task {
 			await viewModel.sendQuestion(text)
+			hideWaitingCell()
+			
 			sendButton.isEnabled = true
 			sendButton.alpha = 1
 			if let error = viewModel.errorMessage {
@@ -335,6 +339,42 @@ final class ChatbotViewController: CoreGradientViewController {
 	@objc private func dismissKeyboard() {
 		view.endEditing(true)
 	}
+	
+	private func loadingIndexPath() -> IndexPath {
+		let row = (hasFixedHeader ? messages.count + 1 : messages.count)
+		return IndexPath(row: row, section: 0)
+	}
+	
+	private func showWaitingCell() {
+		guard !isWaitingResponse else { return }
+		isWaitingResponse = true
+		tableView.insertRows(at: [loadingIndexPath()], with: .fade)
+		scrollToBottomIfNeeded(force: true)
+
+		waitingHintTask?.cancel()
+		waitingHintTask = Task { @MainActor in
+			try? await Task.sleep(nanoseconds: 8_000_000_000)
+			guard isWaitingResponse,
+				  let cell = tableView.cellForRow(at: loadingIndexPath()) as? LoadingResponseCell
+			else { return }
+			cell.configure(text: "응답을 생성하고 있어요. 조금만 더 기다려주세요…", animating: true)
+		}
+	}
+	
+	private func hideWaitingCell() {
+		waitingHintTask?.cancel()
+		waitingHintTask = nil
+		guard isWaitingResponse else { return }
+		isWaitingResponse = false
+
+		let idx = loadingIndexPath()
+		if tableView.numberOfRows(inSection: 0) > idx.row {
+			tableView.deleteRows(at: [idx], with: .fade)
+		} else {
+			tableView.reloadData() // 안전망
+		}
+	}
+
 //	viewDidDisappear에서 cancel처리 함 - Swift 6 경고 이슈로 그렇게 처리함
 // TODO: 그치만 정말 deinit을 설정하지 않아도 되는 것은 좀 더 검증이 차후 필요할 것 같음.
 //	deinit {
@@ -346,8 +386,8 @@ final class ChatbotViewController: CoreGradientViewController {
 // MARK: - UITableViewDataSource
 extension ChatbotViewController: UITableViewDataSource {
 	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-		// HeaderTitleCell(고정) + 사용자 메시지들
-		return hasFixedHeader ? messages.count + 1 : messages.count
+		let base = hasFixedHeader ? messages.count + 1 : messages.count
+		return isWaitingResponse ? base + 1 : base
 	}
 	
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -358,6 +398,13 @@ extension ChatbotViewController: UITableViewDataSource {
 				for: indexPath
 			) as! ChatbotHeaderTitleCell
 			cell.configure(with: "걸음에 대해 궁금한 점을 물어보세요.")
+			return cell
+		}
+		
+		let lastRow = tableView.numberOfRows(inSection: 0) - 1
+		if isWaitingResponse && indexPath.row == lastRow {
+			let cell = tableView.dequeueReusableCell(withIdentifier: LoadingResponseCell.id, for: indexPath) as! LoadingResponseCell
+			cell.configure()
 			return cell
 		}
 		
