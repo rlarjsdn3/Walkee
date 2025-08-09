@@ -53,6 +53,8 @@ final class DailyStepViewModel: ObservableObject {
         stepCount: Int32,
         goalStepCount: Int32
     ) {
+        let normalizedDate = date.startOfDay()
+
         let entity: DailyStepEntity
         if let id = id, let existing = fetchDailyStep(by: id) {
             entity = existing
@@ -61,7 +63,7 @@ final class DailyStepViewModel: ObservableObject {
             entity.id = UUID()
         }
 
-        entity.date = date
+        entity.date = normalizedDate
         entity.stepCount = stepCount
         entity.goalStepCount = goalStepCount
 
@@ -84,8 +86,10 @@ final class DailyStepViewModel: ObservableObject {
         stepCount: Int32,
         goalStepCount: Int32
     ) {
+        let normalizedDate = date.startOfDay()
+
         let request: NSFetchRequest<DailyStepEntity> = DailyStepEntity.fetchRequest()
-        request.predicate = NSPredicate(format: "date == %@", date as CVarArg)
+        request.predicate = NSPredicate(format: "date == %@", normalizedDate as CVarArg)
         request.fetchLimit = 1
 
         do {
@@ -94,7 +98,7 @@ final class DailyStepViewModel: ObservableObject {
 
             if existing == nil {
                 entity.id = UUID()
-                entity.date = date
+                entity.date = normalizedDate
             }
 
             entity.stepCount = stepCount
@@ -112,13 +116,14 @@ final class DailyStepViewModel: ObservableObject {
     /// - Parameter today: 오늘 날짜 (00:00으로 정규화된 값 권장)
     /// - Returns: 누락된 날짜 배열 (오름차순)
     func fetchMissingDates(until today: Date) -> [Date] {
+        let normalizedToday = today.startOfDay()
         let savedDates = dailySteps.compactMap { $0.date?.startOfDay() }
         let lastSavedDate = savedDates.max() ?? Calendar.current.date(byAdding: .day, value: -7, to: today)!
 
         var dates: [Date] = []
         var current = Calendar.current.date(byAdding: .day, value: 1, to: lastSavedDate)!
 
-        while current <= today {
+        while current <= normalizedToday {
             dates.append(current)
             current = Calendar.current.date(byAdding: .day, value: 1, to: current)!
         }

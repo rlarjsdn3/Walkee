@@ -8,7 +8,6 @@
 import UIKit
 
 final class BubbleViewCell: CoreTableViewCell {
-	static let cellID = "BubbleViewCell"
 	
 	@IBOutlet weak var bubbleView: UIView!
 	@IBOutlet weak var promptMsgLabel: UILabel!
@@ -108,7 +107,7 @@ final class BubbleViewCell: CoreTableViewCell {
 		let minWidth: CGFloat = 60
 		
 		// 텍스트 크기 계산
-		let font = promptMsgLabel.font ?? UIFont.systemFont(ofSize: 16)
+		let font = promptMsgLabel.font ?? UIFont.preferredFont(forTextStyle: .footnote)
 		let textAttributes = [NSAttributedString.Key.font: font]
 		
 		let textRect = text.boundingRect(

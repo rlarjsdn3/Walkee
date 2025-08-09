@@ -52,12 +52,12 @@ final class HealthInfoCardCollectionViewCell: CoreCollectionViewCell {
 
 extension HealthInfoCardCollectionViewCell {
 
-    func configure(with viewModel: HealthInfoCardCellViewModel, age: Int) {
+    func configure(with viewModel: HealthInfoCardCellViewModel) {
 
         Task {
             do {
                 let hkData = try await viewModel.fetchStatisticsHealthKitData(options: .mostRecent)
-                let status = viewModel.evaluateStatus(hkData.value, age: age)
+                let status = viewModel.evaluateStatus(hkData.value)
 
                 let systemImage = UIImage(systemName: status.systemName)?
                     .applyingSymbolConfiguration(UIImage.SymbolConfiguration(paletteColors: [.white]))?
