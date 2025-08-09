@@ -312,7 +312,7 @@ final class ChatbotViewController: CoreGradientViewController {
 		}
 	}
 
-	/// AI 응답을 추가하고 강제 스크롤
+	/// AI 응답을 추가될 때 '응답 시작 시점'
 	private func appendAIResponseAndScroll(_ text: String) {
 		messages.append(ChatMessage(text: text, type: .ai))
 		let insertIndex = hasFixedHeader ? messages.count : messages.count - 1
@@ -324,14 +324,14 @@ final class ChatbotViewController: CoreGradientViewController {
 			}, completion: { _ in
 				Task { @MainActor in
 					try await Task.sleep(for: .milliseconds(50))
-					self.scrollToBottomIfNeeded(force: true)
+					self.tableView.scrollToRow(at: indexPath, at: .top, animated: true)
 				}
 			})
 		} else {
 			tableView.insertRows(at: [indexPath], with: .bottom)
 			Task { @MainActor in
 				try await Task.sleep(for: .milliseconds(100))
-				self.scrollToBottomIfNeeded(force: true)
+				self.tableView.scrollToRow(at: indexPath, at: .top, animated: true)
 			}
 		}
 	}
@@ -348,14 +348,19 @@ final class ChatbotViewController: CoreGradientViewController {
 	private func showWaitingCell() {
 		guard !isWaitingResponse else { return }
 		isWaitingResponse = true
-		tableView.insertRows(at: [loadingIndexPath()], with: .fade)
-		scrollToBottomIfNeeded(force: true)
+		
+		let index = loadingIndexPath()
+		tableView.insertRows(at: [index], with: .fade)
+		
+		if shouldAutoScroll() {
+			tableView.scrollToRow(at: index, at: .top, animated: true)
+		}
 
 		waitingHintTask?.cancel()
 		waitingHintTask = Task { @MainActor in
 			try? await Task.sleep(nanoseconds: 8_000_000_000)
 			guard isWaitingResponse,
-				  let cell = tableView.cellForRow(at: loadingIndexPath()) as? LoadingResponseCell
+				  let cell = tableView.cellForRow(at: index) as? LoadingResponseCell
 			else { return }
 			cell.configure(text: "응답을 생성하고 있어요. 조금만 더 기다려주세요…", animating: true)
 		}
