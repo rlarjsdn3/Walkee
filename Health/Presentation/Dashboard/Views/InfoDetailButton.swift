@@ -43,7 +43,7 @@ final class InfoDetailButton: UIButton { // TODO: - 조금 더 범용적으로 �
 
     private func setConfiguration() {
         var config = UIButton.Configuration.filled()
-        config.image = UIImage(systemName: "exclamationmark.circle.fill")? // TODO: - 다른 이미지로 변경할 수 있도록 속성 제공하기
+        config.image = UIImage(systemName: "info.circle.fill")? // TODO: - 다른 이미지로 변경할 수 있도록 속성 제공하기
             .applyingSymbolConfiguration(.init(paletteColors: [.systemGray2]))
         config.baseBackgroundColor = .clear
         config.background.backgroundColor = .clear
