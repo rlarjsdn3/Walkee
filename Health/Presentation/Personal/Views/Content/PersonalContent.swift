@@ -27,6 +27,7 @@ enum PersonalContent {
     enum Item: Hashable {
         case weekSummaryItem
         case monthSummaryItem
+        case aiSummaryItem
         case walkingHeaderItem
         case walkingFilterItem
         case recommendPlaceItem(WalkingCourse)
@@ -41,6 +42,7 @@ extension PersonalContent.Item {
         collectionView: UICollectionView,
         weekSummaryCellRegistration: UICollectionView.CellRegistration<UICollectionViewCell, Void>,
         monthSummaryItemRegistration: UICollectionView.CellRegistration<UICollectionViewCell, Void>,
+        aiSummaryItemRegistration: UICollectionView.CellRegistration<UICollectionViewCell, Void>,
         walkigHeaderCellRegistration: UICollectionView.CellRegistration<UICollectionViewCell, Void>,
         walkingFilterCellRegistration: UICollectionView.CellRegistration<UICollectionViewCell, Void>,
         recommendPlaceCellRegistration: UICollectionView.CellRegistration<UICollectionViewCell, Void>,
@@ -54,6 +56,12 @@ extension PersonalContent.Item {
                 item: ()
             )
         case.weekSummaryItem:
+            return collectionView.dequeueConfiguredReusableCell(
+                using: weekSummaryCellRegistration,
+                for: indexPath,
+                item: ()
+            )
+        case.aiSummaryItem:
             return collectionView.dequeueConfiguredReusableCell(
                 using: weekSummaryCellRegistration,
                 for: indexPath,
@@ -107,24 +115,39 @@ extension PersonalContent.Section {
 
         // iPad 판단
         let isPad = environment.traitCollection.userInterfaceIdiom == .pad
+        let isLandscape = containerWidth > environment.container.effectiveContentSize.height
 
-        // iPad일 경우 2개 보이도록 설정
-        let itemsPerRow: CGFloat = isPad ? 2 : 1
-        let interItemSpacing: CGFloat = isPad ? 32 : 0
+        // iPad 방향에 따른 셀 개수 설정
+        let itemsPerRow: CGFloat
+        let interItemSpacing: CGFloat
+
+        if isPad && isLandscape {
+            // iPad 가로: 3개
+            itemsPerRow = 3
+            interItemSpacing = 16
+        } else if isPad {
+            // iPad 세로: 2개
+            itemsPerRow = 2
+            interItemSpacing = 10
+        } else {
+            // iPhone: 1개
+            itemsPerRow = 1
+            interItemSpacing = 0
+        }
 
         let totalSpacing = horizontalInset * 2 + interItemSpacing * (itemsPerRow - 1)
         let itemWidth = (containerWidth - totalSpacing) / itemsPerRow
 
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .absolute(itemWidth),
-            heightDimension: .estimated(350)
+            heightDimension: .estimated(60)
         )
 
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .absolute(containerWidth - horizontalInset * 2),
-            heightDimension: .estimated(350)
+            heightDimension: .estimated(60)
         )
 
         let group = NSCollectionLayoutGroup.horizontal(
@@ -143,8 +166,14 @@ extension PersonalContent.Section {
             trailing: horizontalInset
         )
 
-        // iPad는 스크롤만, iPhone은 groupPaging
-        section.orthogonalScrollingBehavior = isPad ? .continuous : .groupPaging
+        // 스크롤 설정 조정
+        if isPad && isLandscape {
+            // iPad 가로: 스크롤 불필요
+            section.orthogonalScrollingBehavior = .none
+        } else {
+            // iPad 세로 & iPhone: 페이징 스크롤
+            section.orthogonalScrollingBehavior = .groupPaging
+        }
 
         return section
     }

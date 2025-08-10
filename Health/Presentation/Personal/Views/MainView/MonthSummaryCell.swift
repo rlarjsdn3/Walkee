@@ -41,13 +41,6 @@ class MonthSummaryCell: CoreCollectionViewCell {
 
          // 초기 높이 설정
          updateBackgroundHeight()
-
-         // 백그라운드뷰 너비 설정
-         monthlyBackgroundView.translatesAutoresizingMaskIntoConstraints = false
-         NSLayoutConstraint.activate([
-             monthlyBackgroundView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 0),
-             monthlyBackgroundView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 0)
-         ])
      }
 
      // 기기와 방향에 따른 백그라운드 높이 조정
