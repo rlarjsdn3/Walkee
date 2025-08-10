@@ -17,6 +17,8 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>TourAPIServiceKey</key>
+	<string>$(TOUR_API_SERVICE_KEY)</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

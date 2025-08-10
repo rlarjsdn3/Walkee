@@ -28,12 +28,12 @@ struct AppConfiguration {
     /// - Note: 강제 언래핑(!)을 사용하므로 URL 문자열이 항상 유효해야 합니다.
     static let baseURL = URL(string: "https://kdt-api-function.azurewebsites.net")!
 
-    // 두루누비 API 설정 추가
-    ///한국관광공사 두루누비 API URL
+    /// 두루누비 API 설정 추가
+    //한국관광공사 두루누비 API URL
     static let tourAPIBaseURL = URL(string: "http://apis.data.go.kr/B551011/Durunubi")!
     
     //두루누비 API서비스 키
-    static let tourAPIServiceKey = "+WDbwCcbExGwifwnw3UtciWJVsS4Bgf/bCLk5AE3jakkte4V5OaX7GSU+tkj5ScHHjF6sfb8MiYvAQ5nMsGM6Q=="
+    static let tourAPIServiceKey = Bundle.main.infoDictionary?["TourAPIServiceKey"] as? String ?? ""
 
     /// 현재 앱의 클라이언트 식별자
     ///
