@@ -69,8 +69,10 @@ final class LoadingResponseCell: CoreTableViewCell {
 		messageLabel.setContentCompressionResistancePriority(.defaultHigh, for: .vertical)
 		
 		NSLayoutConstraint.activate([
-			hstack.leadingAnchor.constraint(equalTo: contentView.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-			hstack.trailingAnchor.constraint(lessThanOrEqualTo: contentView.safeAreaLayoutGuide.trailingAnchor, constant: -80),
+			hstack.leadingAnchor.constraint(equalTo: contentView.safeAreaLayoutGuide.leadingAnchor,
+											constant: 16),
+			hstack.trailingAnchor.constraint(lessThanOrEqualTo: contentView.safeAreaLayoutGuide.trailingAnchor,
+											 constant: -80),
 			hstack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
 			hstack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
 			
@@ -78,23 +80,8 @@ final class LoadingResponseCell: CoreTableViewCell {
 			indicator.heightAnchor.constraint(equalTo: indicator.widthAnchor)
 		])
 		
-		let screenWidth = UIScreen.main.bounds.width
-		let maxTextWidth: CGFloat
-
-		switch screenWidth {
-		case ...320:        // iPhone SE 1세대 이하
-			maxTextWidth = 240
-		case 321...375:     // iPhone 8, SE 2세대
-			maxTextWidth = 280
-		case 376...414:     // iPhone 8 Plus, 11
-			maxTextWidth = 320
-		default:            // iPhone 12 Pro Max 이상
-			maxTextWidth = 350
-		}
-		
-		let maxWidthConstraint = hstack.widthAnchor.constraint(
-			lessThanOrEqualToConstant: maxTextWidth + 22 + 10
-		)
+		let maxTextWidth = ChatbotWidthCalculator.maxContentWidth(for: .loadingText)
+		let maxWidthConstraint = hstack.widthAnchor.constraint(lessThanOrEqualToConstant: maxTextWidth + 22 + 10)
 		maxWidthConstraint.priority = .defaultHigh
 		maxWidthConstraint.isActive = true
 	}
