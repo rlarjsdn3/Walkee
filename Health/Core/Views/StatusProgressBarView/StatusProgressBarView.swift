@@ -1,6 +1,6 @@
 //
 //  StatusProgressBarView.swift
-//  StatusProgressBarProject
+//  Health
 //
 //  Created by 김건우 on 8/9/25.
 //
@@ -54,7 +54,7 @@ final class StatusProgressBarView: UIView {
         didSet { self.setNeedsLayout() }
     }
 
-    ///
+    /// 인디케이터 Dot의 가로/세로 크기를 나타냅니다.
     let dotSize: CGFloat = 10
     /// 프로그래스 바의 높이를 나타냅니다.
     let barHeight: CGFloat = 20
@@ -90,8 +90,8 @@ final class StatusProgressBarView: UIView {
         xAxisLabelStackView.distribution = .equalCentering
         xAxisLabelStackView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            xAxisLabelStackView.leadingAnchor.constraint(equalTo: progressBarView.leadingAnchor, constant: 8),
-            xAxisLabelStackView.trailingAnchor.constraint(equalTo: progressBarView.trailingAnchor, constant: -8),
+            xAxisLabelStackView.leadingAnchor.constraint(equalTo: progressBarView.leadingAnchor, constant: 4),
+            xAxisLabelStackView.trailingAnchor.constraint(equalTo: progressBarView.trailingAnchor, constant: -4),
             xAxisLabelStackView.topAnchor.constraint(equalTo: progressBarView.bottomAnchor, constant: 4),
             xAxisLabelStackView.heightAnchor.constraint(equalToConstant: barHeight)
         ])
@@ -118,8 +118,8 @@ final class StatusProgressBarView: UIView {
             graphInConstruction = false
         }
 
-        setNeedsLayout()
-        layoutIfNeeded()
+        progressBarView.setNeedsLayout()
+        progressBarView.layoutIfNeeded()
         
         let maxValue = thresholdsValues.max() ?? 0.0
         let minValue = thresholdsValues.min() ?? 0.0
@@ -161,7 +161,11 @@ final class StatusProgressBarView: UIView {
         }
     }
     
-    private func add(label: UILabel, xAixsStackView: UIStackView, value: Double) {
+    private func add(
+        label: UILabel,
+        xAixsStackView: UIStackView,
+        value: Double
+    ) {
         if let formatter = numberFormatter { label.text = formatter.string(for: value) }
         else { label.text = value.formatted() }
         label.font = .monospacedSystemFont(ofSize: 13, weight: .regular)
@@ -181,14 +185,20 @@ final class StatusProgressBarView: UIView {
         ])
     }
 
-    private func add(indicator view: UIView, parentView: UIView, currentValue: Double, minValue: Double, maxValue: Double) {
-        setNeedsLayout()
-        layoutIfNeeded()
+    private func add(
+        indicator dot: UIView,
+        parentView: UIView,
+        currentValue: Double,
+        minValue: Double,
+        maxValue: Double
+    ) {
+        parentView.setNeedsLayout()
+        parentView.layoutIfNeeded()
 
-        parentView.addSubview(view)
-        view.layer.cornerRadius = dotSize / 2
-        view.backgroundColor = indicatorDotColor
-        view.translatesAutoresizingMaskIntoConstraints = false
+        parentView.addSubview(dot)
+        dot.layer.cornerRadius = dotSize / 2
+        dot.backgroundColor = indicatorDotColor
+        dot.translatesAutoresizingMaskIntoConstraints = false
         
         // currentValue를 0~1 범위의 비율 값으로 변환합니다.
         let range = max(maxValue - minValue, 1e-9) // 구간의 전체 길이 계산
@@ -200,20 +210,20 @@ final class StatusProgressBarView: UIView {
         let leadingPadding = barWidth * clamped - (dotSize / 2.0)
 
         NSLayoutConstraint.activate([
-            view.centerYAnchor.constraint(equalTo: parentView.centerYAnchor),
-            view.widthAnchor.constraint(equalToConstant: dotSize),
-            view.heightAnchor.constraint(equalToConstant: dotSize)
+            dot.centerYAnchor.constraint(equalTo: parentView.centerYAnchor),
+            dot.widthAnchor.constraint(equalToConstant: dotSize),
+            dot.heightAnchor.constraint(equalToConstant: dotSize)
         ])
         
         if leadingPadding < (dotSize / 2.0) {
             // 점의 중심이 시작점을 벗어나 왼쪽으로 가면 막대의 시작점에 위치시킵니다.
-            view.leadingAnchor.constraint(equalTo: parentView.leadingAnchor, constant: 0).isActive = true
+            dot.leadingAnchor.constraint(equalTo: parentView.leadingAnchor, constant: 0).isActive = true
         } else if leadingPadding >= barWidth - (dotSize / 2.0) {
             // 점의 중심이 끝점을 벗어나 오른쪽으로 이동하면 막대의 끝점에 위치시킵니다.
-            view.leadingAnchor.constraint(equalTo: parentView.leadingAnchor, constant: barWidth - dotSize).isActive = true
+            dot.leadingAnchor.constraint(equalTo: parentView.leadingAnchor, constant: barWidth - dotSize).isActive = true
         } else {
             // 점의 중심이 정상 범위 내라면 계산된 위치에 위치시킵니다.
-            view.leadingAnchor.constraint(equalTo: parentView.leadingAnchor, constant: leadingPadding).isActive = true
+            dot.leadingAnchor.constraint(equalTo: parentView.leadingAnchor, constant: leadingPadding).isActive = true
         }
     }
     
@@ -229,9 +239,9 @@ final class StatusProgressBarView: UIView {
 
         // 처음과 마지막 색상을 제외한 중간 색상이 차지하는 너비 비율
         let segmentFraction = 1.0 / Double(thresholdsColors.count)
+        // 각 색상 사이에 자연스러운 그라디언트 효과를 주기 위해 겹침 비율
         let overlapFraction = segmentFraction * 0.15
-        let hlafSegment = segmentFraction / 1.5
-   
+        
         // 각 색상이 차지하는 영역을 계산합니다.
         let locations: [NSNumber] = thresholdsColors.enumerated()
             .flatMap { offset, _ in
@@ -240,10 +250,10 @@ final class StatusProgressBarView: UIView {
 
                 if offset == 0 {
                     // 첫 번째 색상인 경우
-                    return [0.0, hlafSegment - overlapFraction]
+                    return [0.0, segmentFraction - overlapFraction]
                 } else if offset == thresholdsColors.count - 1 {
                     // 마지막에 위치한 색상인 경우
-                    return [(base + hlafSegment + overlapFraction), 1.0]
+                    return [base + overlapFraction, 1.0]
                 } else {
                     // 중간에 위치한 색상인 경우
                     return [base + overlapFraction,
@@ -258,13 +268,3 @@ final class StatusProgressBarView: UIView {
         view.layer.addSublayer(gradientLayer)
     }
 }
-
-#Preview(traits: .fixedLayout(width: 300, height: 200)) {
-    let view = StatusProgressBarView()
-    view.thresholdsColors = [.systemBlue, .systemOrange, .systemYellow]
-    view.thresholdsValues = [10, 25, 45, 55]
-    view.currentValue = 25
-    view.isHiddenFirstAndLastThreshold = true
-    return view
-}
-
