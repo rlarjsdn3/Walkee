@@ -17,9 +17,7 @@ import Network
 ///   - 그 외(키보드 이동/패닝) - 하단 근처 & 드래깅 아님일 때만 스크롤
 @MainActor
 final class ChatbotViewController: CoreGradientViewController {
-
 	// MARK: - Outlets & Dependencies
-
 	private let viewModel = AlanViewModel()
 
 	@IBOutlet private weak var tableView: UITableView!
@@ -30,7 +28,6 @@ final class ChatbotViewController: CoreGradientViewController {
 	@IBOutlet private weak var sendButton: UIButton!
 
 	// MARK: - Data
-
 	/// 현재 대화에 표시되는 메시지 목록
 	private var messages: [ChatMessage] = []
 	/// 고정 헤더 챗봇 타이틀
@@ -48,9 +45,7 @@ final class ChatbotViewController: CoreGradientViewController {
 	private var isWaitingResponse = false
 	private var waitingHintTask: Task<Void, Never>?
 
-
 	// MARK: - Lifecycle
-
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		setupAttribute()
@@ -242,7 +237,6 @@ final class ChatbotViewController: CoreGradientViewController {
 	}
 
 	// MARK: - Auto Scroll
-
 	/// 필요 시만 또는 강제로 스크롤을 하단으로 이동
 	private func scrollToBottomIfNeeded(force: Bool = false) {
 		guard force || shouldAutoScroll() else { return }
@@ -275,7 +269,6 @@ final class ChatbotViewController: CoreGradientViewController {
 	}
 
 	// MARK: - Actions
-
 	@IBAction private func sendButtonTapped(_ sender: UIButton) {
 		sendMessage()
 	}

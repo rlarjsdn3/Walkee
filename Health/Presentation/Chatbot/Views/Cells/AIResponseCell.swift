@@ -8,7 +8,6 @@
 import UIKit
 
 class AIResponseCell: CoreTableViewCell {
-
 	@IBOutlet weak var responseTextView: UITextView!
 	@IBOutlet weak var textViewWidthConstraint: NSLayoutConstraint!
 	@IBOutlet weak var textViewTrailingConstraint: NSLayoutConstraint!

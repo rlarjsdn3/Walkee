@@ -8,7 +8,6 @@
 import UIKit
 
 final class BubbleViewCell: CoreTableViewCell {
-	
 	@IBOutlet weak var bubbleView: UIView!
 	@IBOutlet weak var promptMsgLabel: UILabel!
 	
@@ -98,7 +97,6 @@ final class BubbleViewCell: CoreTableViewCell {
 		configure(with: message.text)
 	}
 	
-	
 	private func setupUserBubbleCorners() {
 		bubbleView.layer.maskedCorners = [
 			.layerMinXMinYCorner,
@@ -106,7 +104,6 @@ final class BubbleViewCell: CoreTableViewCell {
 			.layerMaxXMaxYCorner
 		]
 	}
-	
 	
 	/// 컨텐츠 기반 폭(constant) 설정
 	/// - Parameter text: 텍스트
@@ -158,6 +155,5 @@ final class BubbleViewCell: CoreTableViewCell {
 		
 		bubbleLeadingConstraint.priority = .init(250)
 		bubbleLeadingConstraint.constant = 60
-	}
-	
+	}	
 }

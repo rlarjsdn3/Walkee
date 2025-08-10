@@ -9,14 +9,11 @@ import UIKit
 
 // MARK: Custom Activity Indicator 적용하는 예시 SampleViewController
 class SampleAnimationViewController: UIViewController {
-	
 	private let indicator = CustomActivityIndicatorView()
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		
 		view.backgroundColor = .systemBackground
-		
 		setupIndicator()
 		indicator.startAnimating()
 	}

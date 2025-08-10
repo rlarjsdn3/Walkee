@@ -8,7 +8,6 @@
 import UIKit
 
 final class ChatbotHeaderTitleCell: CoreTableViewCell {
-
 	private let chatbotImageView: UIImageView = {
 		let imageView = UIImageView()
 		imageView.image = UIImage(named: "chatBot")
@@ -84,5 +83,4 @@ final class ChatbotHeaderTitleCell: CoreTableViewCell {
 	func configure(with text: String) {
 		welcomeLabel.text = text
 	}
-	
 }
