@@ -10,7 +10,7 @@
 		A686BBAC2E457D47003784EC /* app-debug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = A686BBAB2E457D47003784EC /* app-debug.xcconfig */; };
 		A686BBAE2E457D52003784EC /* app-release.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = A686BBAD2E457D52003784EC /* app-release.xcconfig */; };
 		C76CA76E2E3AE2110040EF75 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = C76CA76D2E3AE2110040EF75 /* FirebaseAnalyticsCore */; };
-		C76CA80E2E3B2D1A0040EF75 /* TSAlertController in Frameworks */ = {isa = PBXBuildFile; productRef = C76CA80D2E3B2D1A0040EF75 /* TSAlertController */; };
+		C7DC8D422E4640E400DC0E68 /* TSAlertController in Frameworks */ = {isa = PBXBuildFile; productRef = C7DC8D412E4640E400DC0E68 /* TSAlertController */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,7 +61,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C76CA80E2E3B2D1A0040EF75 /* TSAlertController in Frameworks */,
+				C7DC8D422E4640E400DC0E68 /* TSAlertController in Frameworks */,
 				C76CA76E2E3AE2110040EF75 /* FirebaseAnalyticsCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -125,7 +125,7 @@
 			name = Health;
 			packageProductDependencies = (
 				C76CA76D2E3AE2110040EF75 /* FirebaseAnalyticsCore */,
-				C76CA80D2E3B2D1A0040EF75 /* TSAlertController */,
+				C7DC8D412E4640E400DC0E68 /* TSAlertController */,
 			);
 			productName = Health;
 			productReference = C76490972E3790170062054D /* Health.app */;
@@ -184,8 +184,8 @@
 			mainGroup = C764908E2E3790170062054D;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				C76491E52E37A0C30062054D /* XCRemoteSwiftPackageReference "TSAlertController-iOS" */,
 				C76CA76B2E3AE1F70040EF75 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				C7DC8D402E4640E400DC0E68 /* XCRemoteSwiftPackageReference "TSAlertController-iOS" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C76490982E3790170062054D /* Products */;
@@ -521,20 +521,20 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		C76491E52E37A0C30062054D /* XCRemoteSwiftPackageReference "TSAlertController-iOS" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/rlarjsdn3/TSAlertController-iOS.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
-			};
-		};
 		C76CA76B2E3AE1F70040EF75 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 12.0.0;
+			};
+		};
+		C7DC8D402E4640E400DC0E68 /* XCRemoteSwiftPackageReference "TSAlertController-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/rlarjsdn3/TSAlertController-iOS.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -545,9 +545,9 @@
 			package = C76CA76B2E3AE1F70040EF75 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAnalyticsCore;
 		};
-		C76CA80D2E3B2D1A0040EF75 /* TSAlertController */ = {
+		C7DC8D412E4640E400DC0E68 /* TSAlertController */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = C76491E52E37A0C30062054D /* XCRemoteSwiftPackageReference "TSAlertController-iOS" */;
+			package = C7DC8D402E4640E400DC0E68 /* XCRemoteSwiftPackageReference "TSAlertController-iOS" */;
 			productName = TSAlertController;
 		};
 /* End XCSwiftPackageProductDependency section */
