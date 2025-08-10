@@ -164,15 +164,6 @@ extension UIView {
 
 // MARK: - UIViewController Helper for Theme Updates
 extension UIViewController {
-	
-	// 다크모드 변경 감지를 위한 헬퍼 메서드
-	func setupGradientTraitObserver() {
-		// iOS 13+ 에서만 다크모드 변경 감지 가능
-		if #available(iOS 13.0, *) {
-			
-		}
-	}
-	
 	// 이 메서드를 ViewController의 traitCollectionDidChange에서 호출
 	func handleGradientTraitCollectionChange() {
 		updateGradientsInView(view)
