@@ -13,13 +13,16 @@ class PersonalViewController: CoreGradientViewController {
     @IBOutlet weak var collectionView: UICollectionView!
 
     private var dataSource: PersonalDiffableDataSource?
+    private var courses: [WalkingCourse] = []
+    private var networkService = DefaultNetworkService()
 
     override func initVM() { }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupDataSource()
-        applySnapshot()
+        applyInitialSnapshot()
+        loadWalkingCourses()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -30,7 +33,6 @@ class PersonalViewController: CoreGradientViewController {
     override func setupAttribute() {
         super.setupAttribute()
         applyBackgroundGradient(.midnightBlack)
-        collectionView.backgroundColor = .clear
         collectionView.delegate = self
         collectionView.setCollectionViewLayout(createCollectionViewLayout(), animated: false)
     }
@@ -70,11 +72,18 @@ class PersonalViewController: CoreGradientViewController {
         }
     }
 
+    private func createRecommendPlaceCellRegistration() -> UICollectionView.CellRegistration<RecommendPlaceCell, WalkingCourse> {
+        UICollectionView.CellRegistration<RecommendPlaceCell, WalkingCourse>(cellNib: RecommendPlaceCell.nib) { cell, indexPath, course in
+            cell.configure(with: course)  // 실제 데이터로 설정
+        }
+    }
+
     private func setupDataSource() {
         let weekSummaryRegistration = weekSummaryCellRegistration()
         let monthSummaryRegistration = monthSummaryCellRegistration()
         let walkingHeaderRegistration = createWalkingHeaderRegistration()
         let walkingFilterRegistration = createWalkingFilterRegistration()
+        let recommendPlaceRegistration = createRecommendPlaceCellRegistration()
 
         dataSource = PersonalDiffableDataSource(collectionView: collectionView) { collectionView, indexPath, item in
             switch item {
@@ -86,17 +95,61 @@ class PersonalViewController: CoreGradientViewController {
                 return collectionView.dequeueConfiguredReusableCell(using: walkingFilterRegistration, for: indexPath, item: ())
             case .monthSummaryItem:
                 return collectionView.dequeueConfiguredReusableCell(using: monthSummaryRegistration, for: indexPath, item: ())
+            case .recommendPlaceItem(let course):  // 실제 데이터 전달
+                return collectionView.dequeueConfiguredReusableCell(using: recommendPlaceRegistration, for: indexPath, item: course)
             }
         }
     }
 
-    private func applySnapshot() {
+    // MARK: - Snapshot Methods
+    // 초기 스냅샷 (데이터 로드 전)
+    private func applyInitialSnapshot() {
         var snapshot = NSDiffableDataSourceSnapshot<PersonalContent.Section, PersonalContent.Item>()
         snapshot.appendSections([.weekSummary, .walkingHeader, .walkingFilter])
         snapshot.appendItems([.weekSummaryItem, .monthSummaryItem], toSection: .weekSummary)
         snapshot.appendItems([.walkingHeaderItem], toSection: .walkingHeader)
         snapshot.appendItems([.walkingFilterItem], toSection: .walkingFilter)
+        // recommendPlace 섹션은 아직 추가하지 않음 (데이터가 없으므로)
+        dataSource?.apply(snapshot, animatingDifferences: false)
+    }
+
+    // 데이터 로드 후 스냅샷
+    private func applyDataSnapshot() {
+        var snapshot = NSDiffableDataSourceSnapshot<PersonalContent.Section, PersonalContent.Item>()
+
+        // 모든 섹션 추가
+        snapshot.appendSections([.weekSummary, .walkingHeader, .walkingFilter, .recommendPlace])
+        snapshot.appendItems([.weekSummaryItem, .monthSummaryItem], toSection: .weekSummary)
+        snapshot.appendItems([.walkingHeaderItem], toSection: .walkingHeader)
+        snapshot.appendItems([.walkingFilterItem], toSection: .walkingFilter)
+
+        // 실제 코스 데이터 추가
+        let courseItems = courses.map { PersonalContent.Item.recommendPlaceItem($0) }
+        snapshot.appendItems(courseItems, toSection: .recommendPlace)
+
         dataSource?.apply(snapshot, animatingDifferences: true)
+    }
+
+    private func loadWalkingCourses() {
+        // networkService를 Task 외부에서 캡처
+        let service = networkService
+
+        Task {
+            do {
+                let response = try await service.request(
+                    endpoint: .walkingCourses(pageNo: 1, numOfRows: 20),
+                    as: WalkingCourseResponse.self
+                )
+
+                await MainActor.run {
+                    self.courses = response.response.body.items.item
+                    self.applyDataSnapshot()
+                    print("✅ 로드된 코스 수: \(self.courses.count)")
+                }
+            } catch {
+                print("❌ 코스 로드 실패: \(error)")
+            }
+        }
     }
 }
 

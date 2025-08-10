@@ -39,7 +39,7 @@ class MonthSummaryCell: CoreCollectionViewCell {
     override func setupConstraints() {
          super.setupConstraints()
 
-         // 🔥 초기 높이 설정
+         // 초기 높이 설정
          updateBackgroundHeight()
 
          // 백그라운드뷰 너비 설정

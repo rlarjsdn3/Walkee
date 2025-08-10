@@ -7,7 +7,7 @@
 
 import UIKit
 
-class WalkingFilterCell: UICollectionViewCell {
+class WalkingFilterCell: CoreCollectionViewCell {
 
     @IBOutlet weak var level1Label: UIButton!
     @IBOutlet weak var level2Label: UIButton!
@@ -18,4 +18,10 @@ class WalkingFilterCell: UICollectionViewCell {
         // Initialization code
     }
 
+    override func setupConstraints() {
+        super.setupConstraints()
+        level1Label.applyCornerStyle(.medium)
+        level2Label.applyCornerStyle(.medium)
+        level3Label.applyCornerStyle(.medium)
+    }
 }
