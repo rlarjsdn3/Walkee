@@ -7,6 +7,12 @@
 
 import UIKit
 
+// 예시 데이터 모델 (실제 프로젝트에 맞게 수정)
+//struct Place: Hashable {
+//    let id = UUID() // 각 아이템을 고유하게 식별하기 위함
+//    let name: String
+//}
+
 enum PersonalContent {
 
     // 섹션 정의
@@ -14,6 +20,7 @@ enum PersonalContent {
         case weekSummary
         case walkingHeader
         case walkingFilter
+        case recommendPlace
     }
 
     // 아이템 정의
@@ -22,7 +29,7 @@ enum PersonalContent {
         case monthSummaryItem
         case walkingHeaderItem
         case walkingFilterItem
-
+        case recommendPlaceItem(WalkingCourse)
     }
 }
 
@@ -36,6 +43,7 @@ extension PersonalContent.Item {
         monthSummaryItemRegistration: UICollectionView.CellRegistration<UICollectionViewCell, Void>,
         walkigHeaderCellRegistration: UICollectionView.CellRegistration<UICollectionViewCell, Void>,
         walkingFilterCellRegistration: UICollectionView.CellRegistration<UICollectionViewCell, Void>,
+        recommendPlaceCellRegistration: UICollectionView.CellRegistration<UICollectionViewCell, Void>,
         indexPath: IndexPath
     ) -> UICollectionViewCell {
         switch self {
@@ -63,6 +71,12 @@ extension PersonalContent.Item {
                 for: indexPath,
                 item: ()
             )
+        case .recommendPlaceItem:
+            return collectionView.dequeueConfiguredReusableCell(
+                using: recommendPlaceCellRegistration,
+                for: indexPath,
+                item: ()
+            )
         }
     }
 }
@@ -79,6 +93,9 @@ extension PersonalContent.Section {
             return buildHeaderLayout(environment)
         case .walkingFilter:
             return buildFilterLayout(environment)
+        case .recommendPlace:
+            // 이 부분을 list 생성자 대신 아래의 수동 레이아웃으로 교체합니다.
+            return buildCardListLayout(environment)
         }
     }
 
@@ -149,29 +166,121 @@ extension PersonalContent.Section {
         section.contentInsets = NSDirectionalEdgeInsets(
             top: 0,
             leading: UICollectionViewConstant.defaultInset,
-            bottom: 10,
-            trailing: UICollectionViewConstant.defaultInset
+            bottom: 5,
+            trailing: 0
         )
         return section
     }
 
     //필터 버튼 레이아웃
     private func buildFilterLayout(_ environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
+
+        let containerWidth = environment.container.effectiveContentSize.width
+        let isPad = environment.traitCollection.userInterfaceIdiom == .pad
+        let isLandscape = containerWidth > environment.container.effectiveContentSize.height
+
+        let widthRatio: CGFloat
+
+        if isPad { // 기기가 아이패드일 경우
+            if isLandscape {
+                // 아이패드 + 가로 모드
+                widthRatio = 0.5
+            } else {
+                // 아이패드 + 세로 모드
+                widthRatio = 0.7
+            }
+        } else { // 기기가 아이폰일 경우
+            widthRatio = 0.9
+        }
+
+        // 위에서 결정된 비율에 따라 셀의 최종 너비를 pt단위로 계산합니다.
+        let finalWidth = containerWidth * widthRatio
+
         let itemSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(0.8),
-            heightDimension: .estimated(35)
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .estimated(50)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
+        // 그룹의 너비를 위에서 계산한 `finalWidth`의 절대값으로 고정합니다.
         let groupSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(0.8),
-            heightDimension: .estimated(35)
+            widthDimension: .absolute(finalWidth),
+            heightDimension: .estimated(50)
         )
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
 
         let section = NSCollectionLayoutSection(group: group)
         section.contentInsets = NSDirectionalEdgeInsets(
             top: 0,
+            leading: UICollectionViewConstant.defaultInset,
+            bottom: 0,
+            trailing: UICollectionViewConstant.defaultInset
+        )
+        return section
+    }
+
+    // 카드 리스트 형태를 위한 새로운 레이아웃 함수
+    private func buildCardListLayout(_ environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
+
+        let containerWidth = environment.container.effectiveContentSize.width
+        let isPad = environment.traitCollection.userInterfaceIdiom == .pad
+        let isLandscape = containerWidth > environment.container.effectiveContentSize.height
+
+        // 아이패드 대응: 열 개수 설정
+        let columnsCount: Int
+        let horizontalSpacing: CGFloat
+        let horizontalInset: CGFloat
+
+        if isPad {
+            if isLandscape {
+                columnsCount = 2     // iPad 가로: 2열
+                horizontalSpacing = 16
+                horizontalInset = 32
+            } else {
+                columnsCount = 2     // iPad 세로: 2열
+                horizontalSpacing = 16
+                horizontalInset = 24
+            }
+        } else {
+            columnsCount = 1         // iPhone: 1열
+            horizontalSpacing = 0
+            horizontalInset = 16
+        }
+
+        // 아이템 크기 설정
+        let itemSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0 / CGFloat(columnsCount)),  // 열 개수에 따라 나누기
+            heightDimension: .estimated(100)
+        )
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+
+        // 그룹 크기 설정
+        let groupSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .estimated(100)
+        )
+
+        let group: NSCollectionLayoutGroup
+        if isPad {
+            // iPad: 수평 그룹 (2열)
+            group = NSCollectionLayoutGroup.horizontal(
+                layoutSize: groupSize,
+                subitem: item,
+                count: columnsCount
+            )
+            group.interItemSpacing = .fixed(horizontalSpacing)
+        } else {
+            // iPhone: 수직 그룹 (1열)
+            group = NSCollectionLayoutGroup.vertical(
+                layoutSize: groupSize,
+                subitems: [item]
+            )
+        }
+
+        let section = NSCollectionLayoutSection(group: group)
+        section.interGroupSpacing = 12  // 각 그룹(행) 사이의 간격
+        section.contentInsets = NSDirectionalEdgeInsets(
+            top: 10,
             leading: UICollectionViewConstant.defaultInset,
             bottom: 0,
             trailing: UICollectionViewConstant.defaultInset
