@@ -7,8 +7,7 @@
 
 import UIKit
 
-
-// MARK: Custom Activity Indicator 적용하는 SampleViewController
+// MARK: Custom Activity Indicator 적용하는 예시 SampleViewController
 class SampleAnimationViewController: UIViewController {
 	
 	private let indicator = CustomActivityIndicatorView()
@@ -20,6 +19,11 @@ class SampleAnimationViewController: UIViewController {
 		
 		setupIndicator()
 		indicator.startAnimating()
+	}
+	
+	override func viewWillDisappear(_ animated: Bool) {
+		super.viewWillDisappear(animated)
+		indicator.stopAnimating()
 	}
 	
 	/// 사용 예시 메서드입니다.
