@@ -3,7 +3,6 @@
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
-        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -17,14 +16,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="월별 기록" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xiu-eq-WpN">
-                                <rect key="frame" x="145" y="64" width="103.33333333333331" height="33.666666666666657"/>
-                                <fontDescription key="fontDescription" style="UICTFontTextStyleTitle1"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="2Le-zB-m9C">
-                                <rect key="frame" x="0.0" y="113.66666666666669" width="393" height="738.33333333333326"/>
+                                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="VcW-an-Zd1">
                                     <size key="itemSize" width="128" height="128"/>
@@ -44,15 +37,12 @@
                                 </cells>
                             </collectionView>
                         </subviews>
-                        <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstAttribute="bottom" secondItem="2Le-zB-m9C" secondAttribute="bottom" id="2Ql-6p-eNk"/>
                             <constraint firstItem="2Le-zB-m9C" firstAttribute="leading" secondItem="5EZ-qb-Rvc" secondAttribute="leading" id="826-EY-kME"/>
                             <constraint firstAttribute="trailing" secondItem="2Le-zB-m9C" secondAttribute="trailing" id="98L-ox-m3H"/>
-                            <constraint firstItem="2Le-zB-m9C" firstAttribute="top" secondItem="xiu-eq-WpN" secondAttribute="bottom" constant="16" id="PMi-Zy-wqR"/>
-                            <constraint firstItem="xiu-eq-WpN" firstAttribute="top" secondItem="5EZ-qb-Rvc" secondAttribute="top" constant="64" id="Rek-U9-S3z"/>
-                            <constraint firstItem="xiu-eq-WpN" firstAttribute="centerX" secondItem="5EZ-qb-Rvc" secondAttribute="centerX" id="b4M-oM-h5U"/>
+                            <constraint firstItem="2Le-zB-m9C" firstAttribute="top" secondItem="5EZ-qb-Rvc" secondAttribute="top" id="yyB-sf-Q8c"/>
                         </constraints>
                     </view>
                     <connections>
@@ -61,7 +51,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ief-a0-LHa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="134" y="-4"/>
+            <point key="canvasLocation" x="133.58778625954199" y="-4.2253521126760569"/>
         </scene>
     </scenes>
     <resources>
