@@ -203,7 +203,7 @@ extension DashboardContent.Section {
 
         let trailingItemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .fractionalHeight(0.31)
+            heightDimension: .fractionalHeight(0.33)
         )
         let trailingItem = NSCollectionLayoutItem(layoutSize: trailingItemSize)
 
@@ -216,7 +216,7 @@ extension DashboardContent.Section {
             repeatingSubitem: trailingItem,
             count: 3
         )
-        trailingGroup.interItemSpacing = .fixed(12)
+        trailingGroup.interItemSpacing = .flexible(12)
 
         let nestedGroupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
