@@ -135,12 +135,9 @@ extension DashboardContent.Section {
         )
 
         switch self {
-        case .charts:
-            // TODO: -
-            config.text = "보행 밸런스 분석"
-            basicSupplementaryView.contentConfiguration = config
         case .alan:
             config.text = "AI 요약 리포트"
+            basicSupplementaryView.accessories = []
             basicSupplementaryView.contentConfiguration = config
         case .card:
             config.text = "보행 밸런스 분석"
@@ -162,7 +159,7 @@ extension DashboardContent.Section {
         case .ring:     buildRingLayout(environment)
         case .charts:   buildChartsLayout(environment)
         case .alan:     buildAlanLayout(environment)
-        case .card:    buildCardLayout(environment)
+        case .card:     buildCardLayout(environment)
         case .bottom:   buildTopLayout(environment)
         }
     }

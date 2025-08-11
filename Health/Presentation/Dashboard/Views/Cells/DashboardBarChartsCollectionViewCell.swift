@@ -37,24 +37,17 @@ extension DashboardBarChartsCollectionViewCell {
 
         Task {
             do {
-                let hkDatas = try await viewModel.fetchStatisticsCollectionHKData()
-                let avgData = try await viewModel.fetchStatisticsCollectionHKData(options: .discreteAverage)
+                let hkDatas = try await viewModel.fetchStatisticsCollectionHKDatas(options: .cumulativeSum)
+                let avgData = try await viewModel.fetchStatisticsCollectionHKDatas(options: .discreteAverage)
 
                 // TODO: - 코드 리팩토링하기
+                barChartsView.chartData = prepareChartData(hkDatas, type: viewModel.backType)
                 if case .daysBack = viewModel.backType {
-                    if traitCollection.horizontalSizeClass == .compact &&
-                        traitCollection.verticalSizeClass == .regular {
-                        barChartsView.chartData = prepareChartData(hkDatas, upTo: 7)
-                    } else {
-                        barChartsView.chartData = prepareChartData(hkDatas, upTo: 14)
-                    }
+                    
                 } else {
                     if traitCollection.horizontalSizeClass == .compact &&
                         traitCollection.verticalSizeClass == .regular {
                         barChartsView.configuration.barWidth = 12
-                        barChartsView.chartData = prepareChartData(hkDatas, upTo: 12)
-                    } else {
-                        barChartsView.chartData = prepareChartData(hkDatas, upTo: 12)
                     }
                 }
 
@@ -65,14 +58,26 @@ extension DashboardBarChartsCollectionViewCell {
             } catch {
                 // TODO: - 예외 UI 출력하기
                 print("🔴 Failed to fetch HealthKit Datas: \(error)")
-                return
             }
         }
     }
 
-    private func prepareChartData(_ hkDatas: [HealthKitData], upTo count: Int) -> BarChartsView.ChartData {
-        let prefixedDatas: [HealthKitData] = Array(hkDatas.prefix(upTo: count))
-        let chartsElements = prefixedDatas.map { BarChartsView.ChartData.Element(value: $0.value, date: $0.startDate) }
+    private func prepareChartData(_ hkDatas: [HealthKitData], type: BarChartsBackType) -> BarChartsView.ChartData {
+        let chartsElements = hkDatas.map {
+            if case .daysBack = type {
+                return BarChartsView.ChartData.Element(
+                    value: $0.value,
+                    xLabel: $0.startDate.formatted(using: .weekdayShortand),
+                    date: $0.startDate
+                )
+            } else {
+                return BarChartsView.ChartData.Element(
+                    value: $0.value,
+                    xLabel: $0.startDate.formatted(.dateTime.month(.defaultDigits)) + "월",
+                    date: $0.startDate
+                )
+            }
+        }
         let reversedChartsElements = Array(chartsElements.reversed())
         return BarChartsView.ChartData(elements: reversedChartsElements) // TODO: - 목표 걸음수 Limit 값 넣기
     }

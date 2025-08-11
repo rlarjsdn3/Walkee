@@ -65,7 +65,7 @@ final class HealthInfoStackCollectionViewCell: CoreCollectionViewCell {
 
 extension HealthInfoStackCollectionViewCell {
 
-    func configure(
+    func bind(
         with viewModel: HealthInfoStackCellViewModel,
         parent: UIViewController?
     ) {
@@ -74,29 +74,25 @@ extension HealthInfoStackCollectionViewCell {
             .font(.preferredFont(forTextStyle: .footnote), to: "보") // TODO: - 실제 값 할당하기
         symbolImageView.image = UIImage(systemName: viewModel.systemName)
 
-        configureLineChartsHostingController(with: viewModel, parent: parent)
+        addLineChartsHostingController(with: viewModel, parent: parent)
     }
 
-    private func configureLineChartsHostingController(
+    private func addLineChartsHostingController(
         with viewModel: HealthInfoStackCellViewModel,
         parent: UIViewController?
     ) {
         Task {
             do {
-                let hkDatas = try await viewModel.fetchStatisticsCollectionHKData(
-                    from: .now.addingTimeInterval(-7 * 86_400).startOfDay(),
-                    to: .now.endOfDay(),
-                    options: .cumulativeSum
-                ).prefix(through: 7)
+                let hkDatas = try await viewModel.fetchStatisticsCollectionHKData(options: .cumulativeSum)
 
-                let chartsData = Array(hkDatas)
+                let chartsData = Array(hkDatas.prefix(upTo: 7))
                 let hostingVC = LineChartsHostingController(chartsData: chartsData)
 
                 parent?.addChild(hostingVC, to: chartsContainerView)
                 self.lineChartsHostingController = hostingVC
-
             } catch {
-                print("❌ Failed to fetch HealthKit data: \(error)")
+                // TODO: - 예외 처리 UI 코드 작성하기
+                print("🔴 Failed to fetch HealthKit data: \(error)")
             }
         }
     }

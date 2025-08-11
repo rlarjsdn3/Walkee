@@ -54,12 +54,12 @@ final class DashboardBarChartsCellViewModel { // TODO: - Cell에서 처리하고
 
     ///
     convenience init?(
-        back backType: BarChartsBackType,
-        reference: Date = .now
+        anchorDate: Date = .now,
+        back backType: BarChartsBackType
     ) {
         guard let result = Self.makeDateSpan(
             for: backType,
-            reference: reference
+            anchor: anchorDate
         ) else { return nil }
 
         self.init(
@@ -71,7 +71,7 @@ final class DashboardBarChartsCellViewModel { // TODO: - Cell에서 처리하고
     }
 
     ///
-    func fetchStatisticsCollectionHKData(options: HKStatisticsOptions = .cumulativeSum) async throws -> [HealthKitData] {
+    func fetchStatisticsCollectionHKDatas(options: HKStatisticsOptions) async throws -> [HealthKitData] {
         try await healthService.fetchStatisticsCollection(
             for: .stepCount,
             from: startDate,
@@ -87,14 +87,13 @@ extension DashboardBarChartsCellViewModel {
 
     private static func makeDateSpan(
         for backType: BarChartsBackType,
-        reference: Date
+        anchor reference: Date
     ) -> (start: Date, end: Date, interval: DateComponents)? {
 
         switch backType {
         case .daysBack(let value):
             let n = max(0, abs(value))
 
-            // 기준: 오늘의 끝
             guard let endOfDay = reference.endOfDay() as Date?,
                   let startDate = endOfDay.addingDays(-n),
                   let endDate = endOfDay.endOfDay() as Date?
@@ -105,7 +104,6 @@ extension DashboardBarChartsCellViewModel {
         case .monthsBack(let value):
             let n = max(0, abs(value))
 
-            // 기준: 이번 달의 끝
             guard let endOfMonth = reference.endOfMonth(),
                   let startDate = endOfMonth.addingMonths(-n),
                   let endDate = endOfMonth.endOfMonth()

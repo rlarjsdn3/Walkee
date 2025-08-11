@@ -15,8 +15,15 @@ final class DailyGoalRingCollectionViewCell: CoreCollectionViewCell {
 
 extension DailyGoalRingCollectionViewCell {
 
-    func configure(with viewModel: DailyGoalRingCellViewModel) {
-        circleProgressView.totalValue = viewModel.goalStepCount
-        circleProgressView.currentValue = viewModel.currentStepCount
+    func bind(with viewModel: DailyGoalRingCellViewModel) {
+        Task {
+            do {
+                circleProgressView.totalValue = viewModel.goalStepCount
+                circleProgressView.currentValue = try await viewModel.fetchStatisticsHKData().value
+            } catch {
+                // TODO: - 예외 UI 코드 작성하기
+                print("🔴 Failed to fetch statistics HKData: \(error)")
+            }
+        }
     }
 }

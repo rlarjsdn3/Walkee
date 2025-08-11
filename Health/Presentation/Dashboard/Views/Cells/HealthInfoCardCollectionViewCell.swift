@@ -48,12 +48,12 @@ final class HealthInfoCardCollectionViewCell: CoreCollectionViewCell {
 
 extension HealthInfoCardCollectionViewCell {
 
-    func configure(with viewModel: HealthInfoCardCellViewModel) {
+    func bind(with viewModel: HealthInfoCardCellViewModel) {
 
         Task {
             do {
                 let hkData = try await viewModel.fetchStatisticsHealthKitData(options: .mostRecent)
-                let status = viewModel.evaluateStatus(hkData.value)
+                let status = viewModel.evaluateGaitStatus(hkData.value)
 
                 titleLabel.text = viewModel.cardType.title
                 valueLabel.attributedText = NSAttributedString(string: "1,000보") // TODO: - 실제 데이터 가져오기
@@ -69,8 +69,7 @@ extension HealthInfoCardCollectionViewCell {
                 statusProgressBarView.higherIsBetter = viewModel.cardType.higerIsBetter
             } catch {
                 // TODO: - UI 예외 처리하기
-                print("Failed to fetch HealthKit data: \(error)")
-                return
+                print("🔴 Failed to fetch HealthKit data: \(error)")
             }
         }
     }

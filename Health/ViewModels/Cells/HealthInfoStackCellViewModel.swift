@@ -12,6 +12,7 @@ typealias HealthKitData = (startDate: Date, endDate: Date, value: Double)
 
 final class HealthInfoStackCellViewModel {
 
+    let anchorDate: Date
     let stackType: DashboardStackType
 
     ///
@@ -32,12 +33,16 @@ final class HealthInfoStackCellViewModel {
     @Injected var healthService: (any HealthService)
 
     convenience init() { // 임시 코드
-        self.init(.activeEnergyBurned)
+        self.init(stackType: .activeEnergyBurned)
     }
 
     ///
-    init(_ cardStack: DashboardStackType) {
-        self.stackType = cardStack
+    init(
+        anchorDate: Date = .now,
+        stackType: DashboardStackType
+    ) {
+        self.anchorDate = anchorDate
+        self.stackType = stackType
     }
     
     /// <#Description#>
@@ -45,15 +50,11 @@ final class HealthInfoStackCellViewModel {
     ///   - startDate: <#startDate description#>
     ///   - endDate: <#endDate description#>
     /// - Returns: <#description#>
-    func fetchStatisticsHKData(
-        from startDate: Date,
-        to endDate: Date,
-        options: HKStatisticsOptions
-    ) async throws -> HealthKitData {
+    func fetchStatisticsHKData(options: HKStatisticsOptions) async throws -> HealthKitData {
         try await healthService.fetchStatistics(
             for: stackType.quantityTypeIdentifier,
-            from: startDate,
-            to: endDate,
+            from: anchorDate.startOfDay(),
+            to: anchorDate.endOfDay(),
             options: options,
             unit: stackType.unit
         )
@@ -65,15 +66,13 @@ final class HealthInfoStackCellViewModel {
     ///   - endDate: <#endDate description#>
     /// - Returns: <#description#>
     func fetchStatisticsCollectionHKData(
-        from startDate: Date,
-        to endDate: Date,
         options: HKStatisticsOptions,
         interval intervalComponents: DateComponents = .init(day: 1)
     ) async throws -> [HealthKitData] {
         try await healthService.fetchStatisticsCollection(
             for: stackType.quantityTypeIdentifier,
-            from: startDate,
-            to: endDate,
+            from: anchorDate.startOfDay(),
+            to: anchorDate.endOfDay(),
             options: options,
             interval: intervalComponents,
             unit: stackType.unit

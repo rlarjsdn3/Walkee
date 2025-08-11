@@ -115,7 +115,7 @@ final class MockHealthService: HealthService {
         interval intervalComponents: DateComponents,
         unit: HKUnit
     ) async throws -> [HKResult] {
-        let samples: [HKResult] = (0..<30).map { index in
+        let samples: [HKResult] = (0..<7).map { index in
             let date = Date.now.addingTimeInterval(TimeInterval(-index * 86_400))
             let (startDay, endDay) = date.rangeOfDay()
             return (startDay, endDay, Double.random(in: 0..<1000))
