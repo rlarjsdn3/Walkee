@@ -41,7 +41,7 @@ class AISummaryCell: CoreCollectionViewCell {
                 heightRatio = 0.18  // 18%
             } else {
                 // iPad 세로: 기본 비율
-                heightRatio = 0.20  // 25%
+                heightRatio = 0.20  // 20%
             }
         } else {
             // iPhone: 기본 비율
