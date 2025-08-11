@@ -8,15 +8,6 @@
 import UIKit
 import Network
 
-
-//private struct KeyboardChangePayload: Sendable {
-//	let duration: Double
-//	let curveRaw: UInt
-//	let endX: Double
-//	let endY: Double
-//	let endW: Double
-//	let endH: Double
-//}
 /// Alan 챗 화면 컨트롤러.
 ///
 /// - 키보드 프레임 변화: **단일 노티(`keyboardWillChangeFrame`)**로 show/hide/패닝까지 처리
