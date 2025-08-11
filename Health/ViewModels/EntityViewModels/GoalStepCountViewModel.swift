@@ -54,8 +54,10 @@ final class GoalStepCountViewModel: ObservableObject {
     /// - Parameter date: 찾고자 하는 날짜
     /// - Returns: 해당 날짜에 유효한 목표 걸음 수 또는 nil
     func goalStepCount(for date: Date) -> Int32? {
+        let normalizedDate = date.startOfDay()
+
         let request: NSFetchRequest<GoalStepCountEntity> = GoalStepCountEntity.fetchRequest()
-        request.predicate = NSPredicate(format: "effectiveDate <= %@", date as CVarArg)
+        request.predicate = NSPredicate(format: "effectiveDate <= %@", normalizedDate as CVarArg)
         request.sortDescriptors = [NSSortDescriptor(keyPath: \GoalStepCountEntity.effectiveDate, ascending: false)]
         request.fetchLimit = 1
 
@@ -73,6 +75,8 @@ final class GoalStepCountViewModel: ObservableObject {
         goalStepCount: Int32,
         effectiveDate: Date
     ) {
+        let normalizedEffectiveDate = effectiveDate.startOfDay()
+
         let entity: GoalStepCountEntity
         if let id = id, let existing = fetchGoalStepCount(by: id) {
             entity = existing
@@ -82,7 +86,7 @@ final class GoalStepCountViewModel: ObservableObject {
         }
 
         entity.goalStepCount = goalStepCount
-        entity.effectiveDate = effectiveDate
+        entity.effectiveDate = normalizedEffectiveDate
 
         do {
             try context.save()

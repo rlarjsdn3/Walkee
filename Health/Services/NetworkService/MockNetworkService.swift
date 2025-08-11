@@ -59,12 +59,14 @@ final class MockNetworkService: NetworkService {
     /// - Returns: Mock JSON 파일명 (확장자 제외)
     private func getMockFileName(for endpoint: APIEndpoint) -> String {
         switch endpoint {
-            case .ask:
-                return "mock_ask_response"
-            case .askStreaming:
-                return "mock_ask_streaming_response"
-            case .resetState:
-                return "mock_reset_state_response"
+        	case .ask:
+            	return "mock_ask_response"
+        	case .askStreaming:
+            	return "mock_ask_streaming_response"
+        	case .resetState:
+            	return "mock_reset_state_response"
+        	case .walkingCourses:
+            	return "mock_walking_courses_response"
         }
     }
 }
