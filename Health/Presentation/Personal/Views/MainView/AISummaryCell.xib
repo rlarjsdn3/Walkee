@@ -26,7 +26,7 @@
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NQc-Tl-1Xd">
                         <rect key="frame" x="0.0" y="31.333333333333329" width="276" height="139.66666666666669"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="이번주 +520보 달성! 학교 운동장 2바퀴 반 추가예요. 8월 총합으로 제주 올레길 완주급! 285kcal 소모는 라면 1개 태우기 성공!" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Uqy-ul-Qcd">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="이번주 +520보 달성! 학교 운동장 2바퀴 반 추가예요. 8월 총합으로 제주 올레길 완주급! 285kcal 소모는 라면 1개 태우기 성공!" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Uqy-ul-Qcd">
                                 <rect key="frame" x="16" y="16.000000000000007" width="244" height="107.66666666666669"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                 <nil key="textColor"/>

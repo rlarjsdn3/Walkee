@@ -3,8 +3,8 @@
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
-        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -44,16 +44,16 @@
                                         </subviews>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="9ar-hd-o0N">
-                                        <rect key="frame" x="0.0" y="88.666666666666686" width="298" height="24"/>
+                                        <rect key="frame" x="0.0" y="88.666666666666686" width="330.66666666666669" height="24"/>
                                         <subviews>
                                             <stackView opaque="NO" contentMode="scaleToFill" alignment="bottom" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="IJD-BE-ATk">
-                                                <rect key="frame" x="0.0" y="0.0" width="119.33333333333333" height="24"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="130.33333333333334" height="24"/>
                                                 <subviews>
                                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="figure.run" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="4Cd-Z9-pi7">
                                                         <rect key="frame" x="0.0" y="3.6666666666666856" width="18.333333333333332" height="20.333333333333332"/>
                                                     </imageView>
                                                     <stackView opaque="NO" contentMode="scaleToFill" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="RfT-ht-Eh1">
-                                                        <rect key="frame" x="26.333333333333343" y="0.0" width="93" height="24"/>
+                                                        <rect key="frame" x="26.333333333333343" y="0.0" width="104" height="24"/>
                                                         <subviews>
                                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="총 거리" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MoV-r4-zU4">
                                                                 <rect key="frame" x="0.0" y="0.0" width="57" height="24"/>
@@ -62,8 +62,8 @@
                                                                 <nil key="highlightedColor"/>
                                                             </label>
                                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="17Km" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vqH-Y3-HTf">
-                                                                <rect key="frame" x="62" y="0.0" width="31" height="24"/>
-                                                                <fontDescription key="fontDescription" style="UICTFontTextStyleCaption1"/>
+                                                                <rect key="frame" x="62" y="0.0" width="42" height="24"/>
+                                                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                                                 <nil key="textColor"/>
                                                                 <nil key="highlightedColor"/>
                                                             </label>
@@ -72,13 +72,13 @@
                                                 </subviews>
                                             </stackView>
                                             <stackView opaque="NO" contentMode="scaleToFill" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="gw1-0w-DbB">
-                                                <rect key="frame" x="139.33333333333337" y="0.0" width="158.66666666666663" height="24"/>
+                                                <rect key="frame" x="150.33333333333331" y="0.0" width="180.33333333333331" height="24"/>
                                                 <subviews>
                                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="fitness.timer.fill" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="GOn-Hu-pJh">
                                                         <rect key="frame" x="0.0" y="0.66666666666666607" width="19.666666666666668" height="22.666666666666671"/>
                                                     </imageView>
                                                     <stackView opaque="NO" contentMode="scaleToFill" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="9I9-Bm-zok">
-                                                        <rect key="frame" x="27.666666666666657" y="0.0" width="131" height="24"/>
+                                                        <rect key="frame" x="27.666666666666657" y="0.0" width="152.66666666666666" height="24"/>
                                                         <subviews>
                                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="소요시간" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GA9-Nf-8i2">
                                                                 <rect key="frame" x="0.0" y="0.0" width="69.333333333333329" height="24"/>
@@ -87,8 +87,8 @@
                                                                 <nil key="highlightedColor"/>
                                                             </label>
                                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="7시간 30분" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="K1g-4l-9EY">
-                                                                <rect key="frame" x="74.333333333333343" y="0.0" width="56.666666666666657" height="24"/>
-                                                                <fontDescription key="fontDescription" style="UICTFontTextStyleCaption1"/>
+                                                                <rect key="frame" x="74.333333333333314" y="0.0" width="78.333333333333314" height="24"/>
+                                                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                                                 <nil key="textColor"/>
                                                                 <nil key="highlightedColor"/>
                                                             </label>
@@ -106,7 +106,7 @@
                                 </constraints>
                             </stackView>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemGray5Color"/>
+                        <color key="backgroundColor" name="boxBgColor"/>
                         <constraints>
                             <constraint firstAttribute="bottom" secondItem="GhU-1Y-KS7" secondAttribute="bottom" constant="10" id="IQI-X0-yUs"/>
                             <constraint firstItem="GhU-1Y-KS7" firstAttribute="top" secondItem="Coa-gn-qKb" secondAttribute="bottom" constant="20" id="Joq-S7-2rL"/>
@@ -142,8 +142,8 @@
     <resources>
         <image name="figure.run" catalog="system" width="115" height="128"/>
         <image name="fitness.timer.fill" catalog="system" width="128" height="123"/>
-        <systemColor name="systemGray5Color">
-            <color red="0.8980392157" green="0.8980392157" blue="0.91764705879999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </systemColor>
+        <namedColor name="boxBgColor">
+            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
     </resources>
 </document>

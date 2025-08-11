@@ -140,14 +140,14 @@ extension PersonalContent.Section {
 
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .absolute(itemWidth),
-            heightDimension: .estimated(60)
+            heightDimension: .estimated(250)
         )
 
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .absolute(containerWidth - horizontalInset * 2),
-            heightDimension: .estimated(60)
+            heightDimension: .estimated(250)
         )
 
         let group = NSCollectionLayoutGroup.horizontal(
@@ -181,13 +181,13 @@ extension PersonalContent.Section {
     private func buildHeaderLayout(_ environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(60)
+            heightDimension: .estimated(80)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(60)
+            heightDimension: .estimated(80)
         )
         let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
 
@@ -208,43 +208,38 @@ extension PersonalContent.Section {
         let isPad = environment.traitCollection.userInterfaceIdiom == .pad
         let isLandscape = containerWidth > environment.container.effectiveContentSize.height
 
-        let widthRatio: CGFloat
+        // 버튼의 고정 높이 설정
+        let buttonHeight: CGFloat = 30
 
-        if isPad { // 기기가 아이패드일 경우
-            if isLandscape {
-                // 아이패드 + 가로 모드
-                widthRatio = 0.5
-            } else {
-                // 아이패드 + 세로 모드
-                widthRatio = 0.7
-            }
-        } else { // 기기가 아이폰일 경우
-            widthRatio = 0.9
-        }
-
-        // 위에서 결정된 비율에 따라 셀의 최종 너비를 pt단위로 계산합니다.
-        let finalWidth = containerWidth * widthRatio
-
+        // 각 아이템(버튼)의 크기 설정
         let itemSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(50)
+            widthDimension: .estimated(80),
+            heightDimension: .absolute(buttonHeight) // 높이는 고정
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
-        // 그룹의 너비를 위에서 계산한 `finalWidth`의 절대값으로 고정합니다.
+        // 그룹사이즈 설정
         let groupSize = NSCollectionLayoutSize(
-            widthDimension: .absolute(finalWidth),
-            heightDimension: .estimated(50)
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .absolute(buttonHeight)
         )
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+
+        // 가로 방향으로 여러 버튼 배치
+        let group = NSCollectionLayoutGroup.horizontal(
+            layoutSize: groupSize,
+            subitems: [item]
+        )
 
         let section = NSCollectionLayoutSection(group: group)
+
+        // 섹션의 여백을 설정합니다
         section.contentInsets = NSDirectionalEdgeInsets(
             top: 0,
             leading: UICollectionViewConstant.defaultInset,
             bottom: 0,
             trailing: UICollectionViewConstant.defaultInset
         )
+
         return section
     }
 
@@ -258,22 +253,22 @@ extension PersonalContent.Section {
         // 아이패드 대응: 열 개수 설정
         let columnsCount: Int
         let horizontalSpacing: CGFloat
-        let horizontalInset: CGFloat
+
 
         if isPad {
             if isLandscape {
                 columnsCount = 2     // iPad 가로: 2열
                 horizontalSpacing = 16
-                horizontalInset = 32
+
             } else {
                 columnsCount = 2     // iPad 세로: 2열
                 horizontalSpacing = 16
-                horizontalInset = 24
+
             }
         } else {
             columnsCount = 1         // iPhone: 1열
             horizontalSpacing = 0
-            horizontalInset = 16
+
         }
 
         // 아이템 크기 설정
@@ -311,7 +306,7 @@ extension PersonalContent.Section {
         section.contentInsets = NSDirectionalEdgeInsets(
             top: 10,
             leading: UICollectionViewConstant.defaultInset,
-            bottom: 0,
+            bottom: 15,
             trailing: UICollectionViewConstant.defaultInset
         )
         return section
