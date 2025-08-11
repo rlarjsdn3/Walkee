@@ -20,7 +20,7 @@ class DiseaseCollectionViewCell: CoreCollectionViewCell {
     
     override func setupAttribute() {
         super.setupAttribute()
-        contentView.backgroundColor = .buttonBackground
+        contentView.backgroundColor = .boxBg
         diseaseLabel.textColor = .white
         diseaseLabel.font = .systemFont(ofSize: 16)
     }
@@ -32,7 +32,7 @@ class DiseaseCollectionViewCell: CoreCollectionViewCell {
                 diseaseLabel.textColor = .black
                 diseaseLabel.font = .boldSystemFont(ofSize: 16)
             } else {
-                contentView.backgroundColor = .buttonBackground
+                contentView.backgroundColor = .boxBg
                 diseaseLabel.textColor = .white
                 diseaseLabel.font = .systemFont(ofSize: 16)
             }

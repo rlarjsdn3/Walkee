@@ -8,7 +8,7 @@
 import UIKit
 import CoreData
 
-class HeightViewController: CoreViewController {
+class HeightViewController: CoreGradientViewController {
     
     @IBOutlet weak var heightInputField: UITextField!
     @IBOutlet weak var errorLabel: UILabel!
@@ -44,6 +44,8 @@ class HeightViewController: CoreViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        applyBackgroundGradient(.midnightBlack)
         
         heightInputField.delegate = self
         heightInputField.keyboardType = .numberPad
@@ -154,6 +156,7 @@ class HeightViewController: CoreViewController {
         } else if height >= 130 {
             hideError()
             enableContinueButton()
+            heightInputField.resignFirstResponder()
         } else {
             hideError()
             disableContinueButton()

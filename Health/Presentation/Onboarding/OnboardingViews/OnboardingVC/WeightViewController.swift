@@ -8,7 +8,7 @@
 import UIKit
 import CoreData
 
-class WeightViewController: CoreViewController {
+class WeightViewController: CoreGradientViewController {
     
     @IBOutlet weak var weightInputField: UITextField!
     @IBOutlet weak var errorLabel: UILabel!
@@ -42,6 +42,7 @@ class WeightViewController: CoreViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        applyBackgroundGradient(.midnightBlack)
         weightInputField.delegate = self
         weightInputField.keyboardType = .numberPad
         weightInputField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
