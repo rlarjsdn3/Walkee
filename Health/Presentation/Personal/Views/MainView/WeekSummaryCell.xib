@@ -3,6 +3,7 @@
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -82,7 +83,7 @@
                                 </constraints>
                             </stackView>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemGray4Color"/>
+                        <color key="backgroundColor" name="boxBgColor"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="254.66999999999999" id="DcG-0l-C2I"/>
                             <constraint firstItem="KmK-Rx-Tf2" firstAttribute="top" secondItem="aw2-2O-Rk7" secondAttribute="top" constant="16" id="Q4D-Nf-vVo"/>
@@ -95,7 +96,6 @@
                 <constraints>
                     <constraint firstItem="aw2-2O-Rk7" firstAttribute="leading" secondItem="tB6-3j-phh" secondAttribute="leading" id="4ZG-G4-2Rg"/>
                     <constraint firstItem="aw2-2O-Rk7" firstAttribute="leading" secondItem="tB6-3j-phh" secondAttribute="leading" id="4dT-Kl-QCx"/>
-                    <constraint firstItem="aw2-2O-Rk7" firstAttribute="centerX" secondItem="tB6-3j-phh" secondAttribute="centerX" id="Ahb-dR-jG3"/>
                     <constraint firstAttribute="trailing" secondItem="aw2-2O-Rk7" secondAttribute="trailing" id="Qg5-Tk-heH"/>
                     <constraint firstItem="zIx-qZ-V2K" firstAttribute="top" secondItem="tB6-3j-phh" secondAttribute="top" id="f5U-eB-RbX"/>
                     <constraint firstItem="zIx-qZ-V2K" firstAttribute="leading" secondItem="tB6-3j-phh" secondAttribute="leading" constant="5" id="lzZ-xI-k4Q"/>
@@ -116,11 +116,11 @@
         </collectionViewCell>
     </objects>
     <resources>
+        <namedColor name="boxBgColor">
+            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
         <systemColor name="systemBrownColor">
-            <color red="0.63529411764705879" green="0.51764705882352946" blue="0.36862745098039218" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </systemColor>
-        <systemColor name="systemGray4Color">
-            <color red="0.81960784313725488" green="0.81960784313725488" blue="0.83921568627450982" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.63529411759999999" green="0.51764705879999995" blue="0.36862745099999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

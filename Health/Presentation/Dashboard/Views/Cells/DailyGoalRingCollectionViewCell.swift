@@ -9,7 +9,6 @@ import UIKit
 
 final class DailyGoalRingCollectionViewCell: CoreCollectionViewCell {
 
-    @IBOutlet weak var anchorDateLabel: UILabel!
     @IBOutlet weak var circleProgressView: CircleProgressView!
 
 }
@@ -17,7 +16,6 @@ final class DailyGoalRingCollectionViewCell: CoreCollectionViewCell {
 extension DailyGoalRingCollectionViewCell {
 
     func configure(with viewModel: DailyGoalRingCellViewModel) {
-        anchorDateLabel.text = viewModel.anchorDateText
         circleProgressView.totalValue = viewModel.goalStepCount
         circleProgressView.currentValue = viewModel.currentStepCount
     }

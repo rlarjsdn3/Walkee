@@ -52,10 +52,12 @@ final class CalendarMonthCell: CoreCollectionViewCell {
         let weekday = calendar.component(.weekday, from: firstDay)
         datesWithBlank = Array(repeating: Date.distantPast, count: weekday - 1) + dates
 
+        dateCollectionView.layoutIfNeeded() // 현재 셀 폭 반영
+
         // 셀 크기 동적 조정을 위한 dateCollectionView 높이 계산
         let totalItems = datesWithBlank.count
         let numberOfRows = Int(ceil(Double(totalItems) / 7.0))
-        let itemWidth = UIScreen.main.bounds.width / 7
+        let itemWidth = dateCollectionView.bounds.width / 7
         dateCollectionViewHeightConstraint.constant = CGFloat(numberOfRows) * itemWidth
 
         dateCollectionView.reloadData()

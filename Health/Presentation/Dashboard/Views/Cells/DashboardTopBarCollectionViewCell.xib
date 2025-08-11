@@ -33,14 +33,23 @@
                             </label>
                         </subviews>
                     </stackView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="(12:12 기준)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qed-i5-SIL">
+                        <rect key="frame" x="255.66666666666666" y="43.333333333333336" width="67.333333333333343" height="15.666666666666664"/>
+                        <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
+                        <color key="textColor" systemColor="secondaryLabelColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
                 </subviews>
             </view>
             <constraints>
+                <constraint firstAttribute="bottom" secondItem="qed-i5-SIL" secondAttribute="bottom" constant="4" id="B1Z-d5-Slt"/>
+                <constraint firstAttribute="trailing" secondItem="qed-i5-SIL" secondAttribute="trailing" id="BQh-n3-TWJ"/>
                 <constraint firstAttribute="bottom" secondItem="ocx-lB-TQw" secondAttribute="bottom" id="RX2-x1-n76"/>
                 <constraint firstItem="ocx-lB-TQw" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="uNO-Ea-T7d"/>
             </constraints>
             <size key="customSize" width="323" height="93"/>
             <connections>
+                <outlet property="anchorDateLabel" destination="qed-i5-SIL" id="3Xx-Od-1RL"/>
                 <outlet property="dateLabel" destination="Ta0-nO-WxM" id="63g-Es-1DD"/>
                 <outlet property="weekDayLabel" destination="p6v-0f-Dle" id="6mT-y0-oXs"/>
             </connections>

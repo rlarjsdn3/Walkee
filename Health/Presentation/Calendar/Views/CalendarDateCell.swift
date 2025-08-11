@@ -11,6 +11,7 @@ final class CalendarDateCell: CoreCollectionViewCell {
     @IBOutlet weak var circleViewTrailingConstraint: NSLayoutConstraint!
 
     private let progressBar = CalendarProgressBar()
+    private let borderLayer = CAShapeLayer()
 
     private var previousInset: CGFloat?
 
@@ -40,15 +41,42 @@ final class CalendarDateCell: CoreCollectionViewCell {
 
         // 불필요한 layout 반복 방지
         if previousInset != inset {
-            circleViewTopConstraint.constant = inset
-            circleViewBottomConstraint.constant = inset
-            circleViewLeadingConstraint.constant = inset
-            circleViewTrailingConstraint.constant = inset
-
+            updateCircleViewConstraints(inset: inset)
             previousInset = inset
         }
 
+        configureCircleViewUI()
+    }
+
+    private func updateCircleViewConstraints(inset: CGFloat) {
+        circleViewTopConstraint.constant = inset
+        circleViewBottomConstraint.constant = inset
+        circleViewLeadingConstraint.constant = inset
+        circleViewTrailingConstraint.constant = inset
+    }
+
+    private func configureCircleViewUI() {
         circleView.applyCornerStyle(.circular) // 가로/세로 전환시
+
+        if traitCollection.userInterfaceStyle == .light {
+            let borderWidth = bounds.width * 0.08
+            let radius = (min(circleView.bounds.width, circleView.bounds.height) - borderWidth) / 2
+            let path = UIBezierPath(
+                arcCenter: CGPoint(x: circleView.bounds.midX, y: circleView.bounds.midY),
+                radius: radius,
+                startAngle: 0,
+                endAngle: CGFloat.pi * 2,
+                clockwise: true
+            )
+
+            borderLayer.path = path.cgPath
+            borderLayer.strokeColor = UIColor(named: "boxBgLightModeStrokeColor")?.cgColor
+            borderLayer.fillColor = UIColor.clear.cgColor
+            borderLayer.lineWidth = borderWidth
+
+            // ProgressBar 아래에 border 추가
+            circleView.layer.insertSublayer(borderLayer, below: progressBar.layer)
+        }
     }
 
     func configure(date: Date, currentSteps: Int, goalSteps: Int) {
@@ -60,22 +88,25 @@ final class CalendarDateCell: CoreCollectionViewCell {
 
         circleView.applyCornerStyle(.circular) // 초기 진입시
         dateLabel.text = "\(date.day)"
-        progressBar.progress = CGFloat(currentSteps) / CGFloat(goalSteps)
-        progressBar.isHidden = false
 
         let isCompleted = currentSteps >= goalSteps
+
         if isCompleted {
-            circleView.backgroundColor = UIColor.white
-            dateLabel.textColor = UIColor.black
+            circleView.backgroundColor = UIColor.accent
+            borderLayer.isHidden = true
+            progressBar.isHidden = true
         } else {
-            circleView.backgroundColor = UIColor(hex: "#6A6A6A")
-            dateLabel.textColor = UIColor.white
+            circleView.backgroundColor = UIColor.boxBg
+            borderLayer.isHidden = false
+            progressBar.isHidden = false
+            progressBar.progress = CGFloat(currentSteps) / CGFloat(goalSteps)
         }
     }
 
     private func configureForBlank() {
         circleView.backgroundColor = .clear
         dateLabel.text = ""
+        borderLayer.isHidden = true
         progressBar.isHidden = true
     }
 }
