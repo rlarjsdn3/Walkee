@@ -48,7 +48,7 @@ final class DefaultHealthService: HealthService {
     ///         이 메서드는 앱 실행 초기에 반드시 호출되어야 합니다.
     ///
     /// - Important: iOS 시뮬레이터는 HealthKit을 지원하지 않으며, 실제 기기에서만 정상 동작합니다.
-    func requestAuthorization() async throws {
+    func requestAuthorization() async throws -> Bool {
         guard HKHealthStore.isHealthDataAvailable() else {
             throw HKError(.errorHealthDataUnavailable)
         }
@@ -57,12 +57,37 @@ final class DefaultHealthService: HealthService {
             toShare: [],
             read: typesForAuthorization
         )
+        
+        return await checkHasAnyReadPermission()
     }
 
+    /// HealthKit에서 읽기 권한이 부여된 데이터 타입이 하나라도 있는지 비동기적으로 검사합니다.
     ///
-    func authorizationStatus(for type: HKObjectType) -> HKAuthorizationStatus {
-        healthStore.authorizationStatus(for: type)
+    /// 이 메서드는 `typesForAuthorization`에 포함된 모든 HealthKit 데이터 타입의
+    /// 권한 상태를 병렬로 확인합니다. 하나라도 읽기 권한(`.sharingAuthorized`)이 있으면
+    /// `true`, 전혀 없으면 `false`를 반환합니다.
+    ///
+    /// - Important: 온보딩 또는 설정 화면에서 스위치 상태(on/off)를 갱신할 때 활용하세요.
+    /// - Returns: 읽기 권한이 하나라도 허가되었으면 `true`, 아니면 `false`를 반환합니다.
+    func checkHasAnyReadPermission() async -> Bool {
+        
+        await withTaskGroup(of: Bool.self, returning: Bool.self) { group in
+            for type in typesForAuthorization {
+                group.addTask {
+                    return await self.authorizationStatus(
+                        for: HKQuantityTypeIdentifier(rawValue: type.identifier)
+                    )
+                }
+            }
+            
+            for await bool in group {
+                if bool { return true }
+            }
+            
+            return false
+        }
     }
+
 
     
     // MARK: - Samples
@@ -475,6 +500,35 @@ final class DefaultHealthService: HealthService {
 }
 
 
+
+// MARK: - Helper
+
+fileprivate extension DefaultHealthService  {
+    
+    func authorizationStatus(for identifier: HKQuantityTypeIdentifier) async -> Bool {
+        guard let fromDate: Date = .now.addingDays(-365)
+        else { return false }
+        
+        // 1년 전부터 오늘까지의 특정 데이터를 하나라도 가져올 수 있다면 읽기 권한이 허가된 걸로 간주합니다.
+        return await withCheckedContinuation { continuation in
+            fetchSamples(
+                for: identifier,
+                from: fromDate,
+                to: .now,
+                limit: 1,
+                sortDescriptors: nil
+            ) { result in
+                switch result {
+                case .success(let sample):
+                    if !sample.isEmpty { continuation.resume(returning: true) }
+                    else { continuation.resume(returning: false) }
+                case .failure:
+                    continuation.resume(returning: false)
+                }
+            }
+        }
+    }
+}
 
 
 fileprivate extension HKStatisticsOptions{
