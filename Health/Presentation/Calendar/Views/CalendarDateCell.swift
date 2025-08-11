@@ -40,15 +40,31 @@ final class CalendarDateCell: CoreCollectionViewCell {
 
         // 불필요한 layout 반복 방지
         if previousInset != inset {
-            circleViewTopConstraint.constant = inset
-            circleViewBottomConstraint.constant = inset
-            circleViewLeadingConstraint.constant = inset
-            circleViewTrailingConstraint.constant = inset
-
+            updateCircleViewConstraints(inset: inset)
             previousInset = inset
         }
 
+        configureCircleViewUI()
+    }
+
+    private func updateCircleViewConstraints(inset: CGFloat) {
+        circleViewTopConstraint.constant = inset
+        circleViewBottomConstraint.constant = inset
+        circleViewLeadingConstraint.constant = inset
+        circleViewTrailingConstraint.constant = inset
+    }
+
+    private func configureCircleViewUI() {
         circleView.applyCornerStyle(.circular) // 가로/세로 전환시
+
+        if traitCollection.userInterfaceStyle == .light {
+            circleView.layer.borderWidth = 1.0 / UIScreen.main.scale
+            // TODO: borderColor를 Asset으로 지정
+            circleView.layer.borderColor = UIColor(hex: "D8D8D8").cgColor
+        } else {
+            circleView.layer.borderWidth = 0
+            circleView.layer.borderColor = nil
+        }
     }
 
     func configure(date: Date, currentSteps: Int, goalSteps: Int) {
@@ -64,13 +80,7 @@ final class CalendarDateCell: CoreCollectionViewCell {
         progressBar.isHidden = false
 
         let isCompleted = currentSteps >= goalSteps
-        if isCompleted {
-            circleView.backgroundColor = UIColor.white
-            dateLabel.textColor = UIColor.black
-        } else {
-            circleView.backgroundColor = UIColor(hex: "#6A6A6A")
-            dateLabel.textColor = UIColor.white
-        }
+        circleView.backgroundColor = isCompleted ? UIColor.accent : UIColor.boxBg
     }
 
     private func configureForBlank() {
