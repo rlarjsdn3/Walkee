@@ -8,6 +8,7 @@
 import UIKit
 
 /// 챗봇 셀들에서 공통으로 쓰는 최대 너비 계산기
+@MainActor
 struct ChatbotWidthCalculator {
 	
 	/// 디바이스/프로파일에 따른 “텍스트 컨텐츠” 기준의 최대 너비(패딩 제외)
