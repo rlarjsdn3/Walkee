@@ -90,11 +90,17 @@ extension ProfileViewController: UITableViewDataSource {
         let model = sectionItems[indexPath.section][indexPath.row]
         
         var content = cell.defaultContentConfiguration()
-        content.text  = model.title
         content.image = UIImage(systemName: model.iconName)
+        content.text = model.title
         content.imageProperties.tintColor = .systemGray
+        
         cell.contentConfiguration = content
         cell.backgroundColor = UIColor.buttonText.withAlphaComponent(0.1)
+        
+        let bgView = UIView()
+        bgView.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.2)
+        cell.selectedBackgroundView = bgView
+        cell.selectionStyle = .default
         
         if model.isSwitch {
             let toggle = UISwitch(frame: .zero)
@@ -104,6 +110,10 @@ extension ProfileViewController: UITableViewDataSource {
             toggle.addTarget(self, action: #selector(switchChanged(_:)), for: .valueChanged)
             cell.accessoryView = toggle
             cell.selectionStyle = .none
+        } else {
+            cell.accessoryView = nil
+            cell.accessoryType = .disclosureIndicator
+            cell.selectionStyle = .default
         }
         
         return cell

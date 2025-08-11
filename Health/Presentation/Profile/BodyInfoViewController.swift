@@ -7,11 +7,19 @@
 
 import UIKit
 import CoreData
+import TSAlertController
 
 struct BodyInfoItem {
     let iconName: String
     let title: String
     let detail: String
+}
+
+enum EditKind {
+    case gender
+    case height
+    case weight
+    case birthday
 }
 
 class BodyInfoViewController: CoreGradientViewController {
@@ -32,15 +40,36 @@ class BodyInfoViewController: CoreGradientViewController {
         tableView.delegate = self
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "bodyInfoCell")
         tableView.backgroundColor = .clear
-        tableView.separatorColor = .darkGray
+        tableView.rowHeight = 68
+
     }
     
     func presentEditSheet() {
-        let vc = EditViewController()
-        if let sheet = vc.sheetPresentationController {
-            sheet.detents = [.medium()]
+        let view = EditStepGoalView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            view.heightAnchor.constraint(equalToConstant: 300)
+        ])
+        
+        let alertController = TSAlertController(
+            view,
+            options: [.interactiveScaleAndDrag, .dismissOnTapOutside],
+            preferredStyle: .actionSheet
+        )
+        
+        alertController.configuration.prefersGrabberVisible = false
+        alertController.configuration.enteringTransition = .slideUp
+        alertController.configuration.exitingTransition = .slideDown
+        alertController.configuration.headerAnimation = .slideUp
+        alertController.configuration.buttonGroupAnimation = .slideUp
+        alertController.viewConfiguration.spacing.keyboardSpacing = 100
+        
+        let action = TSAlertAction(title: "확인", style: .default) { _ in
+            print("확인")
         }
-        present(vc, animated: true)
+        alertController.addAction(action)
+        
+        present(alertController, animated: true)
     }
 
 }
@@ -54,16 +83,17 @@ extension BodyInfoViewController: UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: "bodyInfoCell", for: indexPath)
         let item = items[indexPath.row]
         
-        var content = UIListContentConfiguration.valueCell()
-        content.image            = UIImage(systemName: item.iconName)
-        content.text             = item.title
-        content.secondaryText    = item.detail
-        content.secondaryTextProperties.color   = .systemGray
+        var content = cell.defaultContentConfiguration()
+        content.image = UIImage(systemName: item.iconName)
+        content.text = item.title
+        content.imageProperties.tintColor = .systemGray
+        content.secondaryText = item.detail
+        content.secondaryTextProperties.color = .systemGray
         
         cell.contentConfiguration = content
-        cell.accessoryType        = .none
-        cell.selectionStyle       = .none
-        cell.backgroundColor      = .clear
+        cell.accessoryType = .none
+        cell.selectionStyle = .none
+        cell.backgroundColor = UIColor.buttonText.withAlphaComponent(0.1)
 
         return cell
     }
