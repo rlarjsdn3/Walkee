@@ -8,7 +8,7 @@
 import UIKit
 import CoreData
 
-class GenderSelectViewController: CoreViewController {
+class GenderSelectViewController: CoreGradientViewController {
 
     @IBOutlet weak var femaleButton: UIButton!
     @IBOutlet weak var maleButton: UIButton!
@@ -41,6 +41,7 @@ class GenderSelectViewController: CoreViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        applyBackgroundGradient(.midnightBlack)
         continueButton.addTarget(self, action: #selector(continueButtonTapped), for: .touchUpInside)
         updateGenderSelectionUI()
         updateContinueButtonState()

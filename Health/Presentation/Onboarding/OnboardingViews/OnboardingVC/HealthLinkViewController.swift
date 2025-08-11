@@ -6,8 +6,9 @@
 //
 
 import UIKit
+import HealthKit
 
-class HealthLinkViewController: CoreViewController {
+class HealthLinkViewController: CoreGradientViewController {
     
     @IBOutlet weak var userDescriptionLabel: UILabel!
     @IBOutlet weak var healthAppIcon: UIImageView!
@@ -35,6 +36,8 @@ class HealthLinkViewController: CoreViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        applyBackgroundGradient(.midnightBlack)
+        
         continueButton.addTarget(self, action: #selector(continueButtonTapped), for: .touchUpInside)
         let backBarButton = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
         navigationItem.backBarButtonItem = backBarButton
@@ -58,7 +61,7 @@ class HealthLinkViewController: CoreViewController {
     }
     
     override func setupAttribute() {
-        progressIndicatorStackView.updateProgress(to: 0.75)
+        progressIndicatorStackView.updateProgress(to: 0.875)
 
         healthAppIcon.image = UIImage(systemName: "heart.fill")
         
