@@ -74,8 +74,9 @@ final class CalendarDateCell: CoreCollectionViewCell {
             borderLayer.fillColor = UIColor.clear.cgColor
             borderLayer.lineWidth = borderWidth
 
-            // ProgressBar 아래에 border 추가
             circleView.layer.insertSublayer(borderLayer, below: progressBar.layer)
+        } else {
+            borderLayer.removeFromSuperlayer()
         }
     }
 
@@ -97,7 +98,13 @@ final class CalendarDateCell: CoreCollectionViewCell {
             progressBar.isHidden = true
         } else {
             circleView.backgroundColor = UIColor.boxBg
-            borderLayer.isHidden = false
+
+            if traitCollection.userInterfaceStyle == .light {
+                borderLayer.isHidden = false
+            } else {
+                borderLayer.isHidden = true
+            }
+
             progressBar.isHidden = false
             progressBar.progress = CGFloat(currentSteps) / CGFloat(goalSteps)
         }
