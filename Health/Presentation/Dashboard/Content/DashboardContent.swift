@@ -319,27 +319,34 @@ extension DashboardContent.Section {
     private func buildCardLayout(_ environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
 
         let itemWidthDimension: NSCollectionLayoutDimension = environment.horizontalSizeClass(
-            compact: .fractionalWidth(0.5),
+            compact: .fractionalWidth(1.0),
             regular: .fractionalWidth(0.25)
         )
         let itemSize = NSCollectionLayoutSize(
             widthDimension: itemWidthDimension,
-            heightDimension: .fractionalHeight(1.0)
+            heightDimension: .estimated(200)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
         let subitems: [NSCollectionLayoutItem] = environment.horizontalSizeClass(
-            compact: [item, item],
+            compact: [item],
             regular: [item, item, item, item]
         )
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(66) // TODO: - 레이아웃 재검토 및 수치 조정하기
+            heightDimension: .estimated(200) // TODO: - 레이아웃 재검토 및 수치 조정하기
         )
-        let group = NSCollectionLayoutGroup.horizontal(
-            layoutSize: groupSize,
-            subitems: subitems
-        )
+        let group: NSCollectionLayoutGroup = environment.horizontalSizeClass {
+            NSCollectionLayoutGroup.vertical(
+                layoutSize: groupSize,
+                subitems: subitems
+            )
+        } regular: {
+            NSCollectionLayoutGroup.horizontal(
+                layoutSize: groupSize,
+                subitems: subitems
+            )
+        }()
         group.interItemSpacing = .flexible(12)
 
         let headerSize = NSCollectionLayoutSize(

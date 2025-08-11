@@ -79,18 +79,20 @@ extension DashboardCardType {
     ///
     func status(forStepLength centi: Double, age: Int) -> DashboardCardType.GaitStatus {
         let thresholds: [Double] = stepLengthThresholdValues(age: age)
-        let normal = thresholds[1]  // 주어진 연령대에 해당하는 주의(Caution) 범위의 첫 번째 값 (lowerBound)
-        let caution = thresholds[2] // 주어진 연령대에 해당하는 주의(Caution) 범위의  마지막 값 (upperBound)
+        let normal = thresholds[2]  // 주어진 연령대에 해당하는 주의(Caution) 범위의 첫 번째 값 (lowerBound)
+        let caution = thresholds[1] // 주어진 연령대에 해당하는 주의(Caution) 범위의  마지막 값 (upperBound)
 
+        // higer is better
         return evaluateStatusGreaterThan(centi, normal: normal, caution: caution)
     }
 
     ///
     func status(forWalkingSpeed mps: Double, age: Int) -> DashboardCardType.GaitStatus {
         let thresholds: [Double] = walkingSpeedThresholdValue(age: age)
-        let normal = thresholds[1]  // 주어진 연령대에 해당하는 주의(Caution) 범위의 첫 번째 값 (lowerBound)
-        let caution = thresholds[2] // 주어진 연령대에 해당하는 주의(Caution) 범위의  마지막 값 (upperBound)
+        let normal = thresholds[2]  // 주어진 연령대에 해당하는 주의(Caution) 범위의 첫 번째 값 (lowerBound)
+        let caution = thresholds[1] // 주어진 연령대에 해당하는 주의(Caution) 범위의  마지막 값 (upperBound)
 
+        // higer is better
         return evaluateStatusGreaterThan(mps, normal: normal, caution: caution)
     }
 
@@ -100,6 +102,7 @@ extension DashboardCardType {
         let normal = thresholds[1]  // 주어진 연령대에 해당하는 주의(Caution) 범위의 첫 번째 값 (lowerBound)
         let caution = thresholds[2] // 주어진 연령대에 해당하는 주의(Caution) 범위의  마지막 값 (upperBound)
 
+        // lower is better
         return evaluateStatusLessThan(percentage, normal: normal, caution: caution) // 전 연령 공통
     }
 
@@ -109,6 +112,7 @@ extension DashboardCardType {
         let normal = thresholds[1]  // 주어진 연령대에 해당하는 주의(Caution) 범위의 첫 번째 값 (lowerBound)
         let caution = thresholds[2] // 주어진 연령대에 해당하는 주의(Caution) 범위의  마지막 값 (upperBound)
 
+        // lower is better
         return evaluateStatusLessThan(percentage, normal: normal, caution: caution)
     }
 }
@@ -172,6 +176,7 @@ extension DashboardCardType {
 
 extension DashboardCardType {
 
+    ///
     var higerIsBetter: Bool {
         switch self {
         case .walkingSpeed, .walkingStepLength:                            return true
@@ -183,13 +188,13 @@ extension DashboardCardType {
 
 extension DashboardCardType {
 
-    enum GaitStatus {
+    enum GaitStatus: String {
         ///
-        case normal
+        case normal  = "정상"
         ///
-        case caution
+        case caution = "주의"
         ///
-        case warning
+        case warning = "경고"
 
         ///
         var systemName: String {
@@ -211,7 +216,7 @@ extension DashboardCardType {
 
         ///
         var secondaryBackgroundColor: UIColor {
-            backgroundColor.withAlphaComponent(0.5)
+            backgroundColor.withAlphaComponent(0.1)
         }
     }
 }
