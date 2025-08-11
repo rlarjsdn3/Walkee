@@ -163,7 +163,7 @@ extension Date {
 
     ///
     func addingMonths(_ months: Int) -> Date? {
-        calendar.date(bySetting: .month, value: months, of: self)
+        calendar.date(byAdding: .month, value: months, to: self)
     }
 }
 

@@ -40,6 +40,7 @@ extension DashboardBarChartsCollectionViewCell {
                 let hkDatas = try await viewModel.fetchStatisticsCollectionHKData()
                 let avgData = try await viewModel.fetchStatisticsCollectionHKData(options: .discreteAverage)
 
+                // TODO: - 코드 리팩토링하기
                 if case .daysBack = viewModel.backType {
                     if traitCollection.horizontalSizeClass == .compact &&
                         traitCollection.verticalSizeClass == .regular {
@@ -48,7 +49,13 @@ extension DashboardBarChartsCollectionViewCell {
                         barChartsView.chartData = prepareChartData(hkDatas, upTo: 14)
                     }
                 } else {
-                    barChartsView.chartData = prepareChartData(hkDatas, upTo: 12)
+                    if traitCollection.horizontalSizeClass == .compact &&
+                        traitCollection.verticalSizeClass == .regular {
+                        barChartsView.configuration.barWidth = 12
+                        barChartsView.chartData = prepareChartData(hkDatas, upTo: 12)
+                    } else {
+                        barChartsView.chartData = prepareChartData(hkDatas, upTo: 12)
+                    }
                 }
 
                 // TODO: - 평균값 포매팅 및 글자 폰트 다시 처리하기

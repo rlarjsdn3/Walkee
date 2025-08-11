@@ -110,7 +110,13 @@ final class DashboardViewController: CoreGradientViewController {
         snapshot.appendSections([.top, .ring, .charts, .alan, .card, .bottom])
         snapshot.appendItems([.topBar], toSection: .top)
         snapshot.appendItems([.goalRing(.init()), .stackInfo(.init()), .stackInfo(.init()), .stackInfo(.init())], toSection: .ring)
-        snapshot.appendItems([.barCharts(.init(back: .daysBack(7))!)], toSection: .charts)
+
+        snapshot.appendItems(
+            [.barCharts(.init(back: .daysBack(7))!),
+             .barCharts(.init(back: .monthsBack(12))!)],
+            toSection: .charts
+        )
+
         snapshot.appendItems([.alanSummary(.init())], toSection: .alan)
         snapshot.appendItems([.cardInfo(.init()),  .cardInfo(.init()), .cardInfo(.init()), .cardInfo(.init())], toSection: .card)
         snapshot.appendItems([.text], toSection: .bottom)
