@@ -26,23 +26,12 @@
                                     <constraint firstAttribute="height" constant="120" id="zRQ-sY-Tzj"/>
                                 </constraints>
                             </imageView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qc1-bk-YY1">
-                                <rect key="frame" x="139" y="208" width="122" height="35"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="filled" title="Debuging"/>
-                                <connections>
-                                    <action selector="debugMode:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="zbG-Q0-rSd"/>
-                                </connections>
-                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="t5L-9X-9pv" firstAttribute="centerX" secondItem="5EZ-qb-Rvc" secondAttribute="centerX" id="ANn-qp-SaZ"/>
                             <constraint firstItem="t5L-9X-9pv" firstAttribute="centerY" secondItem="5EZ-qb-Rvc" secondAttribute="centerY" id="H3q-lr-yeB"/>
-                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="qc1-bk-YY1" secondAttribute="trailing" constant="141" id="UDA-fa-vyE"/>
-                            <constraint firstItem="qc1-bk-YY1" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" constant="40" id="hrF-Yn-88O"/>
-                            <constraint firstItem="qc1-bk-YY1" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="139" id="v7p-4n-9hg"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="IeC-4y-Zir"/>
@@ -64,13 +53,13 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" spacing="45" translatesAutoresizingMaskIntoConstraints="NO" id="DCc-HP-5JK">
-                                <rect key="frame" x="78.666666666666686" y="387" width="245" height="100"/>
+                                <rect key="frame" x="58.666666666666657" y="377" width="285" height="120"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TCQ-d8-z0K">
-                                        <rect key="frame" x="0.0" y="0.0" width="100" height="100"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="120" height="120"/>
                                         <constraints>
-                                            <constraint firstAttribute="width" constant="100" id="Q4P-mG-Oag"/>
-                                            <constraint firstAttribute="height" constant="100" id="uqm-7P-a9g"/>
+                                            <constraint firstAttribute="width" constant="120" id="Q4P-mG-Oag"/>
+                                            <constraint firstAttribute="height" constant="120" id="uqm-7P-a9g"/>
                                         </constraints>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="filled" title="" cornerStyle="capsule"/>
@@ -79,10 +68,10 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JsL-Wl-VOl">
-                                        <rect key="frame" x="145" y="0.0" width="100" height="100"/>
+                                        <rect key="frame" x="165" y="0.0" width="120" height="120"/>
                                         <constraints>
-                                            <constraint firstAttribute="height" constant="100" id="fLL-aL-FRn"/>
-                                            <constraint firstAttribute="width" constant="100" id="wmI-SL-15Y"/>
+                                            <constraint firstAttribute="height" constant="120" id="fLL-aL-FRn"/>
+                                            <constraint firstAttribute="width" constant="120" id="wmI-SL-15Y"/>
                                         </constraints>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="filled" title="" cornerStyle="capsule"/>
@@ -99,14 +88,14 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VUD-Ki-YLx">
-                                <rect key="frame" x="107.99999999999999" y="427" width="41.333333333333329" height="20.333333333333314"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <rect key="frame" x="85.333333333333343" y="420.33333333333331" width="66.333333333333343" height="33.666666666666686"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleTitle1"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jVr-0Q-cfk">
-                                <rect key="frame" x="253.00000000000003" y="427" width="41.333333333333343" height="20.333333333333314"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <rect key="frame" x="250.33333333333334" y="420.33333333333331" width="66.333333333333343" height="33.666666666666686"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleTitle1"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
@@ -423,7 +412,7 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Niz-4d-1kV">
                                         <rect key="frame" x="0.0" y="0.0" width="362" height="55"/>
                                         <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Apple 건강 앱 데이터 접근 권한" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7SW-Zw-GlZ">
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Apple 건강 앱 데이터 접근 권한" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7SW-Zw-GlZ">
                                                 <rect key="frame" x="12" y="18" width="287" height="19.333333333333329"/>
                                                 <fontDescription key="fontDescription" style="UICTFontTextStyleCallout"/>
                                                 <nil key="textColor"/>
@@ -451,8 +440,8 @@
                                 </constraints>
                             </stackView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="label" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Qdr-8Z-lhJ">
-                                <rect key="frame" x="30" y="481.33333333333331" width="36" height="20.333333333333314"/>
-                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                                <rect key="frame" x="30.000000000000004" y="481.33333333333331" width="34.333333333333343" height="19.333333333333314"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleCallout"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>

@@ -15,9 +15,22 @@ class HealthLinkViewController: CoreGradientViewController {
     @IBOutlet weak var linkedSwitch: UISwitch!
     @IBOutlet weak var supUserDescriptionLabel: UILabel!
     @IBOutlet weak var linkSettingView: UIView!
+
+    private let healthService = DefaultHealthService()
     
-    @IBAction func linkAction(_ sender: Any) {
-       
+    @IBAction func linkAction(_ sender: UISwitch) {
+        if sender.isOn {
+            Task {
+                await requestHealthKitAuthorization()
+                
+ // 권한이 부여되면 상태 저장 (권한 확인 후 저장하는 부분은 requestHealthKitAuthorization 내에서도 관리 가능하도록 설계
+                UserDefaults.standard.set(true, forKey: "HealthKitLinked")
+            }
+        } else {
+            sender.isOn = false
+            UserDefaults.standard.set(false, forKey: "HealthKitLinked")
+            showAlert(title: "연동 해제됨", message: "Apple 건강 앱과의 연동이 해제되었습니다.")
+        }
     }
     
     private let continueButton: UIButton = {
@@ -25,8 +38,7 @@ class HealthLinkViewController: CoreGradientViewController {
         button.setTitle("다음", for: .normal)
         button.backgroundColor = UIColor.accent
         button.setTitleColor(.white, for: .normal)
-        button.layer.cornerRadius = 12
-        button.isEnabled = true
+        button.applyCornerStyle(.medium)
         return button
     }()
     
@@ -39,8 +51,10 @@ class HealthLinkViewController: CoreGradientViewController {
         applyBackgroundGradient(.midnightBlack)
         
         continueButton.addTarget(self, action: #selector(continueButtonTapped), for: .touchUpInside)
-        let backBarButton = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
-        navigationItem.backBarButtonItem = backBarButton
+        navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
+
+        let isLinked = UserDefaults.standard.bool(forKey: "HealthKitLinked")
+        linkedSwitch.isOn = isLinked
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -67,13 +81,12 @@ class HealthLinkViewController: CoreGradientViewController {
         
         userDescriptionLabel.text = "사용자 데이터 입력 및 \n건강 앱 정보 가져오기 권한 설정"
         
-        supUserDescriptionLabel.text = "신체 측정값을 가져와서 걸음 수를 Apple 건강 앱과 지속적으로\n 동기화 할 수 있습니다."
-        supUserDescriptionLabel.alpha = 0.3
+        supUserDescriptionLabel.text = "신체 측정값을 가져와서 걸음 수를 Apple 건강 앱과\n 지속적으로 동기화 할 수 있습니다."
+        supUserDescriptionLabel.alpha = 0.5
 
         linkSettingView.backgroundColor = UIColor(named: "boxBgColor")
         linkSettingView.applyCornerStyle(.medium)
         linkSettingView.clipsToBounds = true
-        linkedSwitch.isOn = false
     }
     
     override func setupConstraints() {
@@ -91,6 +104,55 @@ class HealthLinkViewController: CoreGradientViewController {
     }
     
     @objc private func continueButtonTapped() {
-        //main storyboard 로 이동할 로직 구현
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        
+        guard let tabBarController = storyboard.instantiateInitialViewController() as? UITabBarController else {
+            print("Main.storyboard의 초기 뷰컨트롤러가 UITabBarController가 아닙니다.")
+            return
+        }
+        
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            window.rootViewController = tabBarController
+            window.makeKeyAndVisible()
+            
+            UIView.transition(with: window,
+                              duration: 0.5,
+                              options: [.transitionCrossDissolve],
+                              animations: nil,
+                              completion: nil)
+        }
+        UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
+    }
+
+    private func requestHealthKitAuthorization() async {
+        do {
+            let granted = try await healthService.requestAuthorization()
+            if granted {
+                showAlert(title: "연동 완료", message: "Apple 건강 앱과의 연동이 완료되었습니다.")
+                UserDefaults.standard.set(true, forKey: "HealthKitLinked")
+            } else {
+                linkedSwitch.isOn = false
+                UserDefaults.standard.set(false, forKey: "HealthKitLinked")
+                showAlert(title: "연동 실패", message: "건강 앱 접근 권한이 없습니다.")
+            }
+        } catch {
+            linkedSwitch.isOn = false
+            UserDefaults.standard.set(false, forKey: "HealthKitLinked")
+            showAlert(title: "오류", message: "HealthKit 권한 요청 중 오류가 발생했습니다.\n\(error.localizedDescription)")
+        }
+    }
+}
+
+extension HealthLinkViewController {
+    func showAlert(title: String, message: String, completion: (() -> Void)? = nil) {
+        let alertController = UIAlertController(title: title,
+                                                message: message,
+                                                preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "확인", style: .default) { _ in
+            completion?()
+        }
+        alertController.addAction(okAction)
+        present(alertController, animated: true)
     }
 }

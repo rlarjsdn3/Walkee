@@ -13,13 +13,39 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     @Injected var stepSyncViewModel: StepSyncViewModel
 
-    func scene(
-        _ scene: UIScene,
-        willConnectTo session: UISceneSession,
-        options connectionOptions: UIScene.ConnectionOptions
-    ) {
-        guard let _ = (scene as? UIWindowScene) else { return }
+    func scene(_ scene: UIScene,
+               willConnectTo session: UISceneSession,
+               options connectionOptions: UIScene.ConnectionOptions) {
+        
+        guard let windowScene = (scene as? UIWindowScene) else { return }
+        window = UIWindow(windowScene: windowScene)
+        
+        // UserDefaults에서 온보딩 완료 여부 확인
+        let hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
+        
+        let storyboard: UIStoryboard
+        let rootVC: UIViewController
+        
+        if hasCompletedOnboarding {
+            // 온보딩 완료 → 메인 화면 (예: Main.storyboard 초기 VC)
+            storyboard = UIStoryboard(name: "Main", bundle: nil)
+            guard let mainVC = storyboard.instantiateInitialViewController() else {
+                fatalError("Main.storyboard 초기 뷰컨트롤러 없음")
+            }
+            rootVC = mainVC
+        } else {
+            // 온보딩 미완료 → 온보딩 화면 (예: Onboarding.storyboard 초기 VC)
+            storyboard = UIStoryboard(name: "Onboarding", bundle: nil)
+            guard let onboardingVC = storyboard.instantiateInitialViewController() else {
+                fatalError("Onboarding.storyboard 초기 뷰컨트롤러 없음")
+            }
+            rootVC = onboardingVC
+        }
+        
+        window?.rootViewController = rootVC
+        window?.makeKeyAndVisible()
     }
+
 
     func sceneDidDisconnect(_ scene: UIScene) {
     }
