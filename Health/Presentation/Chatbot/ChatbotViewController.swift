@@ -35,6 +35,7 @@ final class ChatbotViewController: CoreGradientViewController {
 	/// 네트워크 상태
 	private var networkStatusObservationTask: Task<Void, Never>?
 	// MARK: - Keyboard State
+	private let keyboardObserver = KeyboardObserver()
 	/// 현재 키보드 높이
 	private var currentKeyboardHeight: CGFloat = 0
 	/// 직전 키보드 높이 — 최초 present 여부 판단에 사용
@@ -71,6 +72,9 @@ final class ChatbotViewController: CoreGradientViewController {
 		super.viewDidDisappear(animated)
 		networkStatusObservationTask?.cancel()
 		networkStatusObservationTask = nil
+		
+		// Keyboard Observer 중지
+		keyboardObserver.stopObserving()
 	}
 
 	override func viewDidLayoutSubviews() {
@@ -163,29 +167,55 @@ final class ChatbotViewController: CoreGradientViewController {
 	}
 
 	// MARK: - Keyboard Handling
-
 	/// 키보드 높이 변화를 감지해 레이아웃과 스크롤을 업데이트
 	/// - 하이브리드 자동 스크롤 규칙:
 	///   - **처음 present**: 무조건 최신 메시지로 스크롤
 	///   - 그 외: near-bottom & not-dragging일 때만 스크롤
 	private func setupKeyboardObservers() {
-		NotificationCenter.default.addObserver(
-			forName: UIResponder.keyboardWillChangeFrameNotification,
-			object: nil,
-			queue: .main
-		) { [weak self] noti in
-			self?.onKeyboardFrameChanged(noti)
+		keyboardObserver.startObserving { [weak self] payload in
+			guard let self else { return }
+			self.applyKeyboardChange(payload)
 		}
 	}
+	
+	@MainActor
+	private func applyKeyboardChange(_ payload: KeyboardChangePayload) {
+		let endFrame = CGRect(x: payload.endX, y: payload.endY, width: payload.endW, height: payload.endH)
+		let height = view.convert(endFrame, from: nil).intersection(view.bounds).height
 
-	private func onKeyboardFrameChanged(_ n: Notification) {
-		guard
-			let info = n.userInfo,
-			let duration = info[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double,
-			let curve = info[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt,
-			let endFrame = (info[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
+		let wasHidden = (currentKeyboardHeight == 0)
+		let willShow  = (height > 0)
+		let isFirstPresent = wasHidden && willShow
+
+		previousKeyboardHeight = currentKeyboardHeight
+		currentKeyboardHeight  = height
+
+		UIView.animate(withDuration: payload.duration,
+					   delay: 0,
+					   options: UIView.AnimationOptions(rawValue: payload.curveRaw << 16)) {
+			self.updateInputContainerConstraint(forKeyboardHeight: height)
+			self.view.layoutIfNeeded()
+			self.updateTableInsets(forKeyboardHeight: height)
+		} completion: { _ in
+			Task { @MainActor in
+				try await Task.sleep(for: .milliseconds(40))
+				if isFirstPresent {
+					self.scrollToBottomIfNeeded(force: true)
+				} else {
+					self.scrollToBottomIfNeeded()
+				}
+			}
+		}
+	}
+	
+	@MainActor
+	private func onKeyboardFrameChanged(_ noti: Notification) {
+		guard let info = noti.userInfo,
+			  let duration = info[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double,
+			  let curve = info[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt,
+			  let endFrame = (info[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
 		else { return }
-
+		
 		let height = view.convert(endFrame, from: nil).intersection(view.bounds).height
 
 		let wasHidden = (currentKeyboardHeight == 0)
@@ -294,13 +324,16 @@ final class ChatbotViewController: CoreGradientViewController {
 
 		Task {
 			await viewModel.sendQuestion(text)
-			hideWaitingCell()
 			
-			sendButton.isEnabled = true
-			sendButton.alpha = 1
-			if let error = viewModel.errorMessage {
-				appendAIResponseAndScroll(error)
-				showToast(message: error)
+			await MainActor.run {
+				hideWaitingCell()
+				sendButton.isEnabled = true
+				sendButton.alpha = 1
+				
+				if let error = viewModel.errorMessage {
+					appendAIResponseAndScroll(error)
+					showToast(message: error)
+				}
 			}
 		}
 	}

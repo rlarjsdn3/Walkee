@@ -32,6 +32,7 @@ class PersonalViewController: CoreGradientViewController {
 
     override func setupAttribute() {
         super.setupAttribute()
+        collectionView.backgroundColor = .clear
         applyBackgroundGradient(.midnightBlack)
         collectionView.delegate = self
         collectionView.setCollectionViewLayout(createCollectionViewLayout(), animated: false)
@@ -60,6 +61,12 @@ class PersonalViewController: CoreGradientViewController {
         }
     }
 
+    private func aiSummaryCellRegistration() -> UICollectionView.CellRegistration<AISummaryCell, Void> {
+        UICollectionView.CellRegistration<AISummaryCell, Void>(cellNib: AISummaryCell.nib) { cell, indexPath, _ in
+            // AISummaryCell 셀 설정
+        }
+    }
+
     private func createWalkingHeaderRegistration() -> UICollectionView.CellRegistration<WalkingHeaderCell, Void> {
         UICollectionView.CellRegistration<WalkingHeaderCell, Void>(cellNib: WalkingHeaderCell.nib) { cell, indexPath, _ in
             // WalkingHeaderCell 셀 설정
@@ -74,13 +81,14 @@ class PersonalViewController: CoreGradientViewController {
 
     private func createRecommendPlaceCellRegistration() -> UICollectionView.CellRegistration<RecommendPlaceCell, WalkingCourse> {
         UICollectionView.CellRegistration<RecommendPlaceCell, WalkingCourse>(cellNib: RecommendPlaceCell.nib) { cell, indexPath, course in
-            cell.configure(with: course)  // 실제 데이터로 설정
+            cell.configure(with: course)
         }
     }
 
     private func setupDataSource() {
         let weekSummaryRegistration = weekSummaryCellRegistration()
         let monthSummaryRegistration = monthSummaryCellRegistration()
+        let aiSummaryCellRegistration = aiSummaryCellRegistration()
         let walkingHeaderRegistration = createWalkingHeaderRegistration()
         let walkingFilterRegistration = createWalkingFilterRegistration()
         let recommendPlaceRegistration = createRecommendPlaceCellRegistration()
@@ -95,7 +103,9 @@ class PersonalViewController: CoreGradientViewController {
                 return collectionView.dequeueConfiguredReusableCell(using: walkingFilterRegistration, for: indexPath, item: ())
             case .monthSummaryItem:
                 return collectionView.dequeueConfiguredReusableCell(using: monthSummaryRegistration, for: indexPath, item: ())
-            case .recommendPlaceItem(let course):  // 실제 데이터 전달
+            case .aiSummaryItem:
+                return collectionView.dequeueConfiguredReusableCell(using: aiSummaryCellRegistration, for: indexPath, item: ())
+            case .recommendPlaceItem(let course): 
                 return collectionView.dequeueConfiguredReusableCell(using: recommendPlaceRegistration, for: indexPath, item: course)
             }
         }
@@ -106,7 +116,7 @@ class PersonalViewController: CoreGradientViewController {
     private func applyInitialSnapshot() {
         var snapshot = NSDiffableDataSourceSnapshot<PersonalContent.Section, PersonalContent.Item>()
         snapshot.appendSections([.weekSummary, .walkingHeader, .walkingFilter])
-        snapshot.appendItems([.weekSummaryItem, .monthSummaryItem], toSection: .weekSummary)
+        snapshot.appendItems([.weekSummaryItem, .monthSummaryItem, .aiSummaryItem], toSection: .weekSummary)
         snapshot.appendItems([.walkingHeaderItem], toSection: .walkingHeader)
         snapshot.appendItems([.walkingFilterItem], toSection: .walkingFilter)
         // recommendPlace 섹션은 아직 추가하지 않음 (데이터가 없으므로)
@@ -119,7 +129,7 @@ class PersonalViewController: CoreGradientViewController {
 
         // 모든 섹션 추가
         snapshot.appendSections([.weekSummary, .walkingHeader, .walkingFilter, .recommendPlace])
-        snapshot.appendItems([.weekSummaryItem, .monthSummaryItem], toSection: .weekSummary)
+        snapshot.appendItems([.weekSummaryItem, .monthSummaryItem, .aiSummaryItem], toSection: .weekSummary)
         snapshot.appendItems([.walkingHeaderItem], toSection: .walkingHeader)
         snapshot.appendItems([.walkingFilterItem], toSection: .walkingFilter)
 
@@ -137,7 +147,7 @@ class PersonalViewController: CoreGradientViewController {
         Task {
             do {
                 let response = try await service.request(
-                    endpoint: .walkingCourses(pageNo: 1, numOfRows: 20),
+                    endpoint: .walkingCourses(pageNo: 1, numOfRows: 10),
                     as: WalkingCourseResponse.self
                 )
 

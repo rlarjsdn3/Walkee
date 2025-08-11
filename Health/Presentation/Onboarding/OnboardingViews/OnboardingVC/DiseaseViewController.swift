@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class DiseaseViewController: CoreViewController {
+class DiseaseViewController: CoreGradientViewController {
     
     @IBOutlet weak var descriptionLabel: UILabel!
     @IBOutlet weak var diseaseCollectionView: UICollectionView!
@@ -39,6 +39,7 @@ class DiseaseViewController: CoreViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        applyBackgroundGradient(.midnightBlack)
         setupCollectionView()
         continueButton.addTarget(self, action: #selector(continueButtonTapped), for: .touchUpInside)
         let backBarButton = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)

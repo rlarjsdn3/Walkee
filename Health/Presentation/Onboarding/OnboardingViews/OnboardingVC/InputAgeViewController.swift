@@ -8,7 +8,7 @@
 import UIKit
 import CoreData
 
-class InputAgeViewController: CoreViewController {
+class InputAgeViewController: CoreGradientViewController {
     
     @IBOutlet weak var ageInputField: UITextField!
     @IBOutlet weak var errorLabel: UILabel!
@@ -31,6 +31,8 @@ class InputAgeViewController: CoreViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        applyBackgroundGradient(.midnightBlack)
         
         ageInputField.delegate = self
         ageInputField.keyboardType = .numberPad
@@ -128,7 +130,7 @@ class InputAgeViewController: CoreViewController {
     private func disableContinueButton() {
         continueButton.isEnabled = false
         continueButton.backgroundColor = .buttonBackground
-        ageInputField.textColor = .white
+        ageInputField.textColor = .label
     }
     
     private func enableContinueButton() {
