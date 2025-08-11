@@ -110,7 +110,7 @@ final class DashboardViewController: CoreGradientViewController {
         snapshot.appendSections([.top, .ring, .charts, .alan, .card, .bottom])
         snapshot.appendItems([.topBar], toSection: .top)
         snapshot.appendItems([.goalRing(.init()), .stackInfo(.init()), .stackInfo(.init()), .stackInfo(.init())], toSection: .ring)
-        snapshot.appendItems([.barCharts(.init())], toSection: .charts)
+        snapshot.appendItems([.barCharts(.init(back: .daysBack(7))!)], toSection: .charts)
         snapshot.appendItems([.alanSummary(.init())], toSection: .alan)
         snapshot.appendItems([.cardInfo(.init()),  .cardInfo(.init()), .cardInfo(.init()), .cardInfo(.init())], toSection: .card)
         snapshot.appendItems([.text], toSection: .bottom)
@@ -143,6 +143,7 @@ fileprivate extension DashboardViewController {
     func createBarChartsCellRegistration() -> UICollectionView.CellRegistration<DashboardBarChartsCollectionViewCell, DashboardBarChartsCellViewModel> {
         // TODO: - 셀 콘텐츠 구성하기
         UICollectionView.CellRegistration<DashboardBarChartsCollectionViewCell, DashboardBarChartsCellViewModel>(cellNib: DashboardBarChartsCollectionViewCell.nib) { cell, indexPath, viewModel in
+            cell.bind(with: viewModel)
         }
     }
 

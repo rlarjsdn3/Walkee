@@ -113,7 +113,7 @@ extension DashboardContent.Section {
         indexPath: IndexPath
     ) -> UICollectionReusableView? {
         switch self {
-        case .charts, .alan, .card:
+        case .alan, .card:
             return collectionView.dequeueConfiguredReusableSupplementary(
                 using: basicSupplementaryViewRegistration,
                 for: indexPath
@@ -258,19 +258,7 @@ extension DashboardContent.Section {
             subitems: [item]
         )
 
-        let headerSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(44)
-        )
-        let header = NSCollectionLayoutBoundarySupplementaryItem(
-            layoutSize: headerSize,
-            elementKind: UICollectionView.elementKindSectionHeader,
-            alignment: .top
-        )
-
         let section = NSCollectionLayoutSection(group: group)
-        section.boundarySupplementaryItems = [header]
-
         section.contentInsets = NSDirectionalEdgeInsets(
             top: 0, leading: UICollectionViewConstant.defaultInset,
             bottom: 0, trailing: UICollectionViewConstant.defaultInset
