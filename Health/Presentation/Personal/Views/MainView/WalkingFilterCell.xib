@@ -16,25 +16,25 @@
                 <rect key="frame" x="0.0" y="0.0" width="368" height="34"/>
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 <subviews>
-                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillProportionally" spacing="15" translatesAutoresizingMaskIntoConstraints="NO" id="2B4-RP-UuY">
+                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillProportionally" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="2B4-RP-UuY">
                         <rect key="frame" x="0.0" y="0.0" width="368" height="34"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OFX-ry-2LF">
-                                <rect key="frame" x="0.0" y="0.0" width="107.66666666666667" height="34"/>
+                                <rect key="frame" x="0.0" y="0.0" width="111.33333333333333" height="34"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="filled" title="심신 안정">
                                     <fontDescription key="titleFontDescription" style="UICTFontTextStyleHeadline"/>
                                 </buttonConfiguration>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hiu-Gd-BFf">
-                                <rect key="frame" x="122.66666666666667" y="0.0" width="138.66666666666663" height="34"/>
+                                <rect key="frame" x="121.33333333333333" y="0.0" width="143.66666666666669" height="34"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="filled" title="심페기능향상">
                                     <fontDescription key="titleFontDescription" style="UICTFontTextStyleHeadline"/>
                                 </buttonConfiguration>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="iY1-79-XE1">
-                                <rect key="frame" x="276.33333333333331" y="0.0" width="91.666666666666686" height="34"/>
+                                <rect key="frame" x="275" y="0.0" width="93" height="34"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="filled" title="챌린지">
                                     <fontDescription key="titleFontDescription" style="UICTFontTextStyleHeadline"/>
