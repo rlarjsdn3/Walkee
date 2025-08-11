@@ -9,17 +9,23 @@ import HealthKit
 
 final class HealthInfoCardCellViewModel {
 
+    let anchorDate: Date
     let cardType: DashboardCardType
     let age: Int
 
     @Injected var healthService: (any HealthService)
 
     convenience init() { // 임시 코드
-        self.init(.walkingStepLength, age: 27)
+        self.init(anchorDate: .now, cardType: .walkingStepLength, age: 27)
     }
 
     ///
-    init(_ cardType: DashboardCardType, age: Int) {
+    init(
+        anchorDate: Date = .now,
+        cardType: DashboardCardType,
+        age: Int
+    ) {
+        self.anchorDate = anchorDate
         self.cardType = cardType
         self.age = age
     }
@@ -29,22 +35,18 @@ final class HealthInfoCardCellViewModel {
     ///   - startDate: <#startDate description#>
     ///   - endDate: <#endDate description#>
     /// - Returns: <#description#>
-    func fetchStatisticsHealthKitData(
-        from startDate: Date = .now.startOfDay(),
-        to endDate: Date = .now.endOfDay(),
-        options: HKStatisticsOptions
-    ) async throws -> HealthKitData {
+    func fetchStatisticsHealthKitData(options: HKStatisticsOptions) async throws -> HealthKitData {
         try await healthService.fetchStatistics(
             for: cardType.quantityTypeIdentifier,
-            from: startDate,
-            to: endDate,
+            from: anchorDate.startOfDay(),
+            to: anchorDate.endOfDay(),
             options: options,
             unit: cardType.unit
         )
     }
 
     ///
-    func evaluateStatus(_ value: Double) -> DashboardCardType.GaitStatus {
+    func evaluateGaitStatus(_ value: Double) -> DashboardCardType.GaitStatus {
         cardType.status(value, age: age)
     }
 }

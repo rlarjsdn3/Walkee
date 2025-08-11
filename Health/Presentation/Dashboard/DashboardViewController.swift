@@ -110,7 +110,13 @@ final class DashboardViewController: CoreGradientViewController {
         snapshot.appendSections([.top, .ring, .charts, .alan, .card, .bottom])
         snapshot.appendItems([.topBar], toSection: .top)
         snapshot.appendItems([.goalRing(.init()), .stackInfo(.init()), .stackInfo(.init()), .stackInfo(.init())], toSection: .ring)
-        snapshot.appendItems([.barCharts(.init())], toSection: .charts)
+
+        snapshot.appendItems(
+            [.barCharts(.init(back: .daysBack(7))!),
+             .barCharts(.init(back: .monthsBack(12))!)],
+            toSection: .charts
+        )
+
         snapshot.appendItems([.alanSummary(.init())], toSection: .alan)
         snapshot.appendItems([.cardInfo(.init()),  .cardInfo(.init()), .cardInfo(.init()), .cardInfo(.init())], toSection: .card)
         snapshot.appendItems([.text], toSection: .bottom)
@@ -121,43 +127,42 @@ final class DashboardViewController: CoreGradientViewController {
 fileprivate extension DashboardViewController {
 
     func createTopBarCellRegistration() -> UICollectionView.CellRegistration<DashboardTopBarCollectionViewCell, Void> {
-        // TODO: - 셀 콘텐츠 구성하기
         UICollectionView.CellRegistration<DashboardTopBarCollectionViewCell, Void>(cellNib: DashboardTopBarCollectionViewCell.nib) { cell, indexPath, _ in
+            cell.update(with: .now) // TODO: - 실제 날짜 값으로 전달하기
         }
     }
 
     func createDailyGoalRingCellRegistration() -> UICollectionView.CellRegistration<DailyGoalRingCollectionViewCell, DailyGoalRingCellViewModel> {
-        // TODO: - 셀 콘텐츠 구성하기
         UICollectionView.CellRegistration<DailyGoalRingCollectionViewCell, DailyGoalRingCellViewModel>(cellNib: DailyGoalRingCollectionViewCell.nib) { cell, indexPath, viewModel in
-            cell.configure(with: viewModel)
+            cell.bind(with: viewModel)
         }
     }
 
     func createHealthInfoStackCellRegistration() -> UICollectionView.CellRegistration<HealthInfoStackCollectionViewCell, HealthInfoStackCellViewModel> {
-        // TODO: - 셀 콘텐츠 구성하기
         UICollectionView.CellRegistration<HealthInfoStackCollectionViewCell, HealthInfoStackCellViewModel>(cellNib: HealthInfoStackCollectionViewCell.nib) { cell, indexPath, viewModel in
-            cell.configure(with: viewModel, parent: self)
+            cell.bind(with: viewModel, parent: self)
         }
     }
 
     func createBarChartsCellRegistration() -> UICollectionView.CellRegistration<DashboardBarChartsCollectionViewCell, DashboardBarChartsCellViewModel> {
-        // TODO: - 셀 콘텐츠 구성하기
         UICollectionView.CellRegistration<DashboardBarChartsCollectionViewCell, DashboardBarChartsCellViewModel>(cellNib: DashboardBarChartsCollectionViewCell.nib) { cell, indexPath, viewModel in
+            cell.bind(with: viewModel)
         }
     }
 
     func createAlanSummaryCellRegistration() -> UICollectionView.CellRegistration<AlanActivitySummaryCollectionViewCell, AlanActivitySummaryCellViewModel> {
-        // TODO: - 셀 콘텐츠 구성하기
         UICollectionView.CellRegistration<AlanActivitySummaryCollectionViewCell, AlanActivitySummaryCellViewModel>(cellNib: AlanActivitySummaryCollectionViewCell.nib) { cell, indexPath, viewModel in
-            cell.didReceiveSummaryMessage = { [weak self] _ in self?.dashboardCollectionView.collectionViewLayout.invalidateLayout() }
-            cell.configure(with: viewModel)
+            cell.didReceiveAIMessage = { [weak self] _ in
+                self?.dashboardCollectionView.collectionViewLayout.invalidateLayout()
+            }
+            cell.bind(with: viewModel)
         }
     }
 
     func createHealthInfoCardCellRegistration() -> UICollectionView.CellRegistration<HealthInfoCardCollectionViewCell, HealthInfoCardCellViewModel> {
         // TODO: - 셀 콘텐츠 구성하기
         UICollectionView.CellRegistration<HealthInfoCardCollectionViewCell, HealthInfoCardCellViewModel>(cellNib: HealthInfoCardCollectionViewCell.nib) { cell, indexPath, viewModel in
-            cell.configure(with: viewModel) // TODO: - 실제 CoreData에서 가져오기
+            cell.bind(with: viewModel) // TODO: - 실제 CoreData에서 가져오기
         }
     }
 

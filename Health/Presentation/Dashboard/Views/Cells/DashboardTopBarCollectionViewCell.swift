@@ -21,3 +21,12 @@ final class DashboardTopBarCollectionViewCell: CoreCollectionViewCell {
         anchorDateLabel.text = "(\(Date.now.formatted(using: .h_m)) 기준)"
     }
 }
+
+extension DashboardTopBarCollectionViewCell {
+
+    func update(with date: Date) {
+        dateLabel.text = date.formatted(using: .md)
+        weekDayLabel.text = date.formatted(using: .weekday)
+        anchorDateLabel.text = "(\(date.formatted(using: .h_m)) 기준)"
+    }
+}

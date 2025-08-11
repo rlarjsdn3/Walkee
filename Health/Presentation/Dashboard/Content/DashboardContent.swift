@@ -113,7 +113,7 @@ extension DashboardContent.Section {
         indexPath: IndexPath
     ) -> UICollectionReusableView? {
         switch self {
-        case .charts, .alan, .card:
+        case .alan, .card:
             return collectionView.dequeueConfiguredReusableSupplementary(
                 using: basicSupplementaryViewRegistration,
                 for: indexPath
@@ -135,12 +135,9 @@ extension DashboardContent.Section {
         )
 
         switch self {
-        case .charts:
-            // TODO: -
-            config.text = "보행 밸런스 분석"
-            basicSupplementaryView.contentConfiguration = config
         case .alan:
             config.text = "AI 요약 리포트"
+            basicSupplementaryView.accessories = []
             basicSupplementaryView.contentConfiguration = config
         case .card:
             config.text = "보행 밸런스 분석"
@@ -162,14 +159,12 @@ extension DashboardContent.Section {
         case .ring:     buildRingLayout(environment)
         case .charts:   buildChartsLayout(environment)
         case .alan:     buildAlanLayout(environment)
-        case .card:    buildCardLayout(environment)
+        case .card:     buildCardLayout(environment)
         case .bottom:   buildTopLayout(environment)
         }
     }
 
     private func buildTopLayout(_ environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
-        // TODO: - 레이아웃 재검토 및 수치 조정하기
-
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1),
             heightDimension: .estimated(50)
@@ -194,7 +189,6 @@ extension DashboardContent.Section {
     }
 
     private func buildRingLayout(_ environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
-
         let leadingItemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(0.65),
             heightDimension: .fractionalHeight(1.0)
@@ -220,7 +214,7 @@ extension DashboardContent.Section {
 
         let nestedGroupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(225) // TODO: - 레이아웃 재검토 및 수치 조정하기
+            heightDimension: .absolute(225)
 
         )
         let nestedGroup = NSCollectionLayoutGroup.horizontal(
@@ -241,46 +235,48 @@ extension DashboardContent.Section {
     }
 
     private func buildChartsLayout(_ environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
-        // TODO: - 레이아웃 재검토 및 수치 조정하기
-
+        let itemWidthDimension: NSCollectionLayoutDimension = environment.orientation(
+            iPhonePortrait: .fractionalWidth(1.0),
+            iPadPortrait: .fractionalWidth(1.0),
+            iPadLandscape: .fractionalWidth(0.5)
+        )
         let itemSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
+            widthDimension: itemWidthDimension,
             heightDimension: .absolute(300)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
+        let groupWidthDimension: NSCollectionLayoutDimension = environment.orientation(
+            iPhonePortrait: .fractionalWidth(0.9),
+            iPadPortrait: .fractionalWidth(0.9),
+            iPadLandscape: .fractionalWidth(1.0)
+        )
         let groupSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
+            widthDimension: groupWidthDimension,
             heightDimension: .absolute(300)
         )
-        let group = NSCollectionLayoutGroup.vertical(
+        let group = NSCollectionLayoutGroup.horizontal(
             layoutSize: groupSize,
             subitems: [item]
         )
-
-        let headerSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(44)
-        )
-        let header = NSCollectionLayoutBoundarySupplementaryItem(
-            layoutSize: headerSize,
-            elementKind: UICollectionView.elementKindSectionHeader,
-            alignment: .top
-        )
+        group.interItemSpacing = .fixed(12)
 
         let section = NSCollectionLayoutSection(group: group)
-        section.boundarySupplementaryItems = [header]
-
+        section.interGroupSpacing = UICollectionViewConstant.defaultInset
         section.contentInsets = NSDirectionalEdgeInsets(
             top: 0, leading: UICollectionViewConstant.defaultInset,
             bottom: 0, trailing: UICollectionViewConstant.defaultInset
         )
+        section.orthogonalScrollingBehavior = environment.orientation(
+            iPhonePortrait: .groupPaging,
+            iPadPortrait: .groupPaging,
+            iPadLandscape: .none
+        )
+
         return section
     }
 
     private func buildAlanLayout(_ environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
-        // TODO: - 레이아웃 코드 작성하기
-
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
             heightDimension: .estimated(44)
@@ -317,7 +313,6 @@ extension DashboardContent.Section {
     }
 
     private func buildCardLayout(_ environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
-
         let itemWidthDimension: NSCollectionLayoutDimension = environment.horizontalSizeClass(
             compact: .fractionalWidth(1.0),
             regular: .fractionalWidth(0.25)
