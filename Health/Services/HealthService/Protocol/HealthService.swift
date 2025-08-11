@@ -41,10 +41,16 @@ protocol HealthService {
     /// 사용자의 동의를 받아 HealthKit 데이터 읽기 및 쓰기 권한을 요청합니다.
     /// HealthKit 사용 가능 여부를 확인한 후, 권한 요청을 수행합니다.
     /// - Throws: `HKError.errorHealthDataUnavailable` 또는 권한 요청 실패 시 에러를 던집니다.
-    func requestAuthorization() async throws
+    func requestAuthorization() async throws -> Bool
 
+    /// HealthKit에서 읽기 권한이 부여된 데이터 타입이 하나라도 있는지 비동기적으로 검사합니다.
     ///
-    func authorizationStatus(for type: HKObjectType) -> HKAuthorizationStatus
+    /// 이 메서드는 `typesForAuthorization`에 포함된 모든 HealthKit 데이터 타입에 대해
+    /// 권한 상태를 병렬로 확인합니다. 하나라도 읽기 권한(`.sharingAuthorized`)이 있으면
+    /// `true`를 반환하고, 전혀 없으면 `false`를 반환합니다.
+    ///
+    /// - Returns: 읽기 권한이 하나라도 존재하면 `true`, 아니면 `false`.
+    func checkHasAnyReadPermission() async -> Bool
 
 
     /// 지정한 양적 데이터(identifier)를 기준으로 HealthKit에서 샘플 데이터를 비동기적으로 가져오고,
