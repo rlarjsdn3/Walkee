@@ -48,9 +48,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="GYD-Jy-4pd">
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="insetGrouped" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" estimatedSectionHeaderHeight="-1" sectionFooterHeight="18" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="GYD-Jy-4pd">
                                 <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </tableView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Ugp-v8-Ytf"/>
@@ -88,43 +87,6 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ddq-qo-kZX" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="138.1679389312977" y="-2.1126760563380285"/>
-        </scene>
-        <!--Edit View Controller-->
-        <scene sceneID="qVc-sM-ZxV">
-            <objects>
-                <viewController id="YPi-BB-9s1" customClass="EditViewController" customModule="Health" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="BtS-1E-cmu">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="R6R-yU-zzr">
-                                <rect key="frame" x="158" y="700" width="77" height="35"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Cancel"/>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7hW-d8-UDu">
-                                <rect key="frame" x="32" y="627" width="329" height="54"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="54" id="fzt-eS-mdc"/>
-                                </constraints>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="filled" title="확인"/>
-                            </button>
-                        </subviews>
-                        <viewLayoutGuide key="safeArea" id="jyW-RG-aSL"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        <constraints>
-                            <constraint firstItem="R6R-yU-zzr" firstAttribute="top" secondItem="7hW-d8-UDu" secondAttribute="bottom" constant="19" id="4iF-5a-scM"/>
-                            <constraint firstItem="jyW-RG-aSL" firstAttribute="trailing" secondItem="7hW-d8-UDu" secondAttribute="trailing" constant="32" id="LFo-g0-Rmw"/>
-                            <constraint firstItem="7hW-d8-UDu" firstAttribute="leading" secondItem="jyW-RG-aSL" secondAttribute="leading" constant="32" id="cjI-Rt-kDV"/>
-                            <constraint firstItem="jyW-RG-aSL" firstAttribute="bottom" secondItem="R6R-yU-zzr" secondAttribute="bottom" constant="49" id="ulZ-rD-ysA"/>
-                            <constraint firstItem="R6R-yU-zzr" firstAttribute="centerX" secondItem="BtS-1E-cmu" secondAttribute="centerX" id="w1h-vy-6ua"/>
-                        </constraints>
-                    </view>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="ecw-1a-46U" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="138" y="794"/>
         </scene>
     </scenes>
     <resources>
