@@ -152,6 +152,17 @@ extension Date {
 }
 
 extension Date {
+    
+    /// 현재 날짜에서 지정한 일 수를 더하거나 뺀 새로운 날짜를 반환합니다.
+    ///
+    /// - Parameter days: 더하거나 뺄 일 수입니다. 양수면 미래 날짜, 음수면 과거 날짜를 반환합니다.
+    /// - Returns: 계산된 새로운 `Date` 객체. 계산이 불가능한 경우 `nil`을 반환합니다.
+    func addingDays(_ days: Int) -> Date? {
+        calendar.date(byAdding: .day, value: days, to: self)
+    }
+}
+
+extension Date {
 
     /// 주어진 날짜와 특정 캘린더 컴포넌트 단위로 값이 동일한지 비교합니다.
     ///

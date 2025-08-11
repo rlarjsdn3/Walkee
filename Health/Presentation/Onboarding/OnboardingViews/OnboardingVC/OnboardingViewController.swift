@@ -7,10 +7,9 @@
 
 import UIKit
 
-class OnboardingViewController: CoreViewController {
+class OnboardingViewController: CoreGradientViewController {
     
     @IBOutlet weak var appImageView: UIImageView!
-    
     
     @IBAction func debugMode(_ sender: Any) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
@@ -33,7 +32,6 @@ class OnboardingViewController: CoreViewController {
         }
     }
 
-    
     private let descriptionLabel: UILabel = {
         let label = UILabel()
         label.text = "사용자에게 더 정확한 운동측정과 맞춤 추천을 제공하기 위해 사용자 입력 정보가 필요합니다."
@@ -59,11 +57,15 @@ class OnboardingViewController: CoreViewController {
     override func initVM() {}
     
     override func viewDidLoad() {
-          super.viewDidLoad()
-          continueButton.addTarget(self, action: #selector(continueButtonTapped), for: .touchUpInside)
+        super.viewDidLoad()
+        
+        applyBackgroundGradient(.midnightBlack)
+        
+        continueButton.addTarget(self, action: #selector(continueButtonTapped), for: .touchUpInside)
+        
         let backBarButton = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
-           navigationItem.backBarButtonItem = backBarButton
-      }
+        navigationItem.backBarButtonItem = backBarButton
+    }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)

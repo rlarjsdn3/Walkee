@@ -38,14 +38,15 @@ final class MockHealthService: HealthService {
     ///
     /// - Important: `DEBUG` 모드에서는 아무런 동작을 수행하지 않습니다.
     /// 반드시 `RELEASE` 스킴으로 전환 후, 호출하세요.
-    func requestAuthorization() async throws {
+    func requestAuthorization() async throws -> Bool {
+        return true
     }
 
     ///
     /// - Important: `DEBUG` 모드에서는 `.sharingAutorized` 값만 반환합니다.
     /// 반드시 `RELEASE` 스킴으로 전환 후, 호출하세요.
-    func authorizationStatus(for type: HKObjectType) -> HKAuthorizationStatus {
-        .sharingAuthorized
+    func checkHasAnyReadPermission() async -> Bool {
+        return true
     }
 
 

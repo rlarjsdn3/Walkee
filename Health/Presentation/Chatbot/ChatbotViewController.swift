@@ -169,16 +169,23 @@ final class ChatbotViewController: CoreGradientViewController {
 	///   - **처음 present**: 무조건 최신 메시지로 스크롤
 	///   - 그 외: near-bottom & not-dragging일 때만 스크롤
 	private func setupKeyboardObservers() {
-		NotificationCenter.default.addObserver(
-			forName: UIResponder.keyboardWillChangeFrameNotification,
-			object: nil,
-			queue: .main
-		) { [weak self] noti in
-			self?.onKeyboardFrameChanged(noti)
-		}
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(onKeyboardFrameChanged(_:)),
+            name: UIResponder.keyboardWillChangeFrameNotification,
+            object: nil
+        )
+        
+//		NotificationCenter.default.addObserver(
+//			forName: UIResponder.keyboardWillChangeFrameNotification,
+//			object: nil,
+//			queue: .main
+//		) { [weak self] noti in
+//			self?.onKeyboardFrameChanged(noti)
+//		}
 	}
 
-	private func onKeyboardFrameChanged(_ n: Notification) {
+	@objc private func onKeyboardFrameChanged(_ n: Notification) {
 		guard
 			let info = n.userInfo,
 			let duration = info[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double,
