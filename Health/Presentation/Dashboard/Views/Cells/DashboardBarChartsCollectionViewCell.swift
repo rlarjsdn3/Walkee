@@ -54,7 +54,7 @@ extension DashboardBarChartsCollectionViewCell {
                 // TODO: - 평균값 포매팅 및 글자 폰트 다시 처리하기
 
                 headerLabelView.text = viewModel.headerTitle
-                averageValueLabel.text = avgData.first?.value.formatted() ?? "0" + "보"
+                averageValueLabel.text = (avgData.first?.value.formatted() ?? "0") + "보"
             } catch {
                 // TODO: - 예외 UI 출력하기
                 print("🔴 Failed to fetch HealthKit Datas: \(error)")
@@ -67,7 +67,7 @@ extension DashboardBarChartsCollectionViewCell {
             if case .daysBack = type {
                 return BarChartsView.ChartData.Element(
                     value: $0.value,
-                    xLabel: $0.startDate.formatted(using: .weekdayShortand),
+                    xLabel: $0.startDate.formatted(using: .weekdayShorthand),
                     date: $0.startDate
                 )
             } else {
