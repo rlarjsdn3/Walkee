@@ -5,122 +5,60 @@
 //  Created by 김건우 on 8/5/25.
 //
 
+import Combine
 import HealthKit
 
-enum BarChartsBackType {
-    /// 기준 시점부터 n일 전까지 포함
-    case daysBack(Int)
-    /// 기준 시점부터 n개월 전까지 포함
-    case monthsBack(Int)
-
-    ///
-    var count: Int {
-        switch self {
-        case let .daysBack(value), let .monthsBack(value):
-            return max(0, abs(value))
-        }
-    }
-}
-
 final class DashboardBarChartsCellViewModel { // TODO: - Cell에서 처리하고 있는 HKData 페치 로직을 VC의 VM으로 빼보기
-
-    let startDate: Date
-    let endDate: Date
-    let interval: DateComponents
-    let backType: BarChartsBackType
-
+    
+    ///
+    struct ItemID: Hashable {
+        let id: UUID = UUID()
+        let kind: BarChartsBackKind
+    }
+    
+    ///
+    private(set) var itemID: ItemID
+    
     /// 섹션/막대 범위를 설명하는 헤더 타이틀
     var headerTitle: String {
-        switch backType {
+        switch itemID.kind {
         case .daysBack(let n):   return "지난 \(max(0, abs(n)))일 간 걸음 수 분석"
         case .monthsBack(let n): return "지난 \(max(0, abs(n)))개월 간 걸음 수 분석"
         }
     }
-
-    @Injected private var healthService: (any HealthService)
-
+    
     ///
-    private init(
-        startDate: Date,
-        endDate: Date,
-        interval: DateComponents,
-        backType: BarChartsBackType
-    ) {
-        self.startDate = startDate
-        self.endDate = endDate
-        self.interval = interval
-        self.backType = backType
+    private let stateSubject = CurrentValueSubject<HKLoadState, Never>(.idle)
+    
+    ///
+    var statePublisher: AnyPublisher<HKLoadState, Never> {
+        stateSubject.eraseToAnyPublisher()
     }
-
+    
     ///
-    convenience init?(
-        anchorDate: Date = .now,
-        back backType: BarChartsBackType
-    ) {
-        guard let result = Self.makeDateSpan(
-            for: backType,
-            anchor: anchorDate
-        ) else { return nil }
-
-        self.init(
-            startDate: result.start,
-            endDate: result.end,
-            interval: result.interval,
-            backType: backType
-        )
+    var didChange: ((ItemID) -> Void)?
+    
+    ///
+    init(itemID: ItemID) {
+        self.itemID = itemID
     }
-
+    
     ///
-    func fetchStatisticsCollectionHKDatas(options: HKStatisticsOptions) async throws -> [HKData] {
-        try await healthService.fetchStatisticsCollection(
-            for: .stepCount,
-            from: startDate,
-            to: endDate,
-            options: options,
-            interval: interval,
-            unit: .count()
-        )
+    func setState(_ new: HKLoadState) {
+        stateSubject.send(new)
+        didChange?(itemID)
     }
 }
 
-extension DashboardBarChartsCellViewModel {
-
-    private static func makeDateSpan(
-        for backType: BarChartsBackType,
-        anchor reference: Date
-    ) -> (start: Date, end: Date, interval: DateComponents)? {
-
-        switch backType {
-        case .daysBack(let value):
-            let n = max(0, abs(value))
-
-            guard let endOfDay = reference.endOfDay() as Date?,
-                  let startDate = endOfDay.addingDays(-n),
-                  let endDate = endOfDay.endOfDay() as Date?
-            else { return nil }
-
-            return (start: startDate, end: endDate, interval: .init(day: 1))
-
-        case .monthsBack(let value):
-            let n = max(0, abs(value))
-
-            guard let endOfMonth = reference.endOfMonth(),
-                  let startDate = endOfMonth.addingMonths(-n),
-                  let endDate = endOfMonth.endOfMonth()
-            else { return nil }
-
-            return (start: startDate, end: endDate, interval: .init(month: 1))
-        }
-    }
-}
 
 extension DashboardBarChartsCellViewModel: Hashable {
 
     nonisolated func hash(into hasher: inout Hasher) {
-        hasher.combine(ObjectIdentifier(self))
+        hasher.combine(itemID)
     }
 
     nonisolated static func == (lhs: DashboardBarChartsCellViewModel, rhs: DashboardBarChartsCellViewModel) -> Bool {
-        return ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
+        return lhs.itemID.id == rhs.itemID.id
+                && lhs.itemID.kind == rhs.itemID.kind
     }
 }

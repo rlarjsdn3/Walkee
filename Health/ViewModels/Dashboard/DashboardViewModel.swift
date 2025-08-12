@@ -8,6 +8,12 @@
 import HealthKit
 
 final class DashboardViewModel {
+    
+    ///
+    struct DashboardEnvironment {
+        let vericalClassIsRegular: Bool
+        let horizontalClassIsRegular: Bool
+    }
 
     private(set) var anchorDate: Date
 
@@ -16,6 +22,9 @@ final class DashboardViewModel {
     
     private(set) var cardIDs: [HealthInfoCardCellViewModel.ItemID] = []
     private(set) var cardCells: [HealthInfoCardCellViewModel.ItemID: HealthInfoCardCellViewModel] = [:]
+    
+    private(set) var chartsIDs: [DashboardBarChartsCellViewModel.ItemID] = []
+    private(set) var chartsCells: [DashboardBarChartsCellViewModel.ItemID: DashboardBarChartsCellViewModel] = [:]
 
     // TODO: - Alan 서버에서 요약문을 가져오는 서비스 객체 주입하기
     // TODO: - 코어 데이터에서 사용자 정보 가져오는 서비스 객체 주입하기
@@ -27,9 +36,10 @@ final class DashboardViewModel {
     }
 
     ///
-    func buildDashboardCells() {
+    func buildDashboardCells(for environment: DashboardEnvironment) {
         buildStackCells()
         buildCardCells()
+        buildBarChartsCells(for: environment)
     }
 
     private func buildStackCells() {
@@ -66,6 +76,32 @@ final class DashboardViewModel {
         cardIDs = newIDs
         cardCells = newCells
     }
+    
+    private func buildBarChartsCells(for environment: DashboardEnvironment) {
+        var newIDs: [DashboardBarChartsCellViewModel.ItemID] = []
+        if environment.vericalClassIsRegular
+            && environment.horizontalClassIsRegular {
+            // 레이아웃 환경이 아이패드인 경우
+            newIDs = [
+                DashboardBarChartsCellViewModel.ItemID(kind: .daysBack(14)),
+                DashboardBarChartsCellViewModel.ItemID(kind: .monthsBack(12))
+            ]
+        } else {
+            // 레이아웃 환경이 아이폰인 경우
+            newIDs = [
+                DashboardBarChartsCellViewModel.ItemID(kind: .daysBack(7)),
+                DashboardBarChartsCellViewModel.ItemID(kind: .monthsBack(12))
+            ]
+        }
+        
+        var newCells: [DashboardBarChartsCellViewModel.ItemID: DashboardBarChartsCellViewModel] = [:]
+        newIDs.forEach { id in
+            newCells.updateValue(DashboardBarChartsCellViewModel(itemID: id), forKey: id)
+        }
+        
+        chartsIDs = newIDs
+        chartsCells = newCells
+    }
 }
 
 extension DashboardViewModel {
@@ -73,6 +109,7 @@ extension DashboardViewModel {
     func loadHKData() {
         loadHKDataForStackCells()
         loadHKDataForCardCells()
+        loadHKDataForBarChartsCells()
     }
 
     func loadHKDataForStackCells() {
@@ -80,7 +117,7 @@ extension DashboardViewModel {
             for (id, vm) in self.stackCells {
                 vm.setState(.loading)
                 // 지난 7일 간 라인 차트를 그리기 위해 7일 전 시간 구하기
-                guard let startDate: Date = .now.addingDays(-7) else {
+                guard let startDate: Date = anchorDate.endOfDay().addingDays(-7) else {
                     vm.setState(.failure(HKError(.unknownError)))
                     continue
                 }
@@ -125,6 +162,34 @@ extension DashboardViewModel {
                     )
                     
                     vm.setState(.success(data: data))
+                } catch {
+                    vm.setState(.failure(HKError(.unknownError)))
+                }
+            }
+        }
+    }
+    
+    func loadHKDataForBarChartsCells() {
+        Task {
+            for (id, vm) in self.chartsCells {
+                vm.setState(.loading)
+                //
+                guard let startDate = id.kind.startDate(anchorDate),
+                      let endDate = id.kind.endDate(anchorDate) else {
+                    throw HKError(.unknownError)
+                }
+                
+                do {
+                    let collection = try await fetchStatisticsCollectionHKData(
+                        for: .stepCount,
+                        from: startDate,
+                        to: endDate,
+                        options: .cumulativeSum,
+                        interval: id.kind.interval,
+                        unit: .count()
+                    )
+
+                    vm.setState(.success(collection: collection))
                 } catch {
                     vm.setState(.failure(HKError(.unknownError)))
                 }

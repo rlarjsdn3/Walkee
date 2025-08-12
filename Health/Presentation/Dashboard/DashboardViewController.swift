@@ -27,22 +27,25 @@ final class DashboardViewController: CoreGradientViewController {
         // TODO: - CalendarVC에서 날짜를 넘겨주기 위한 생성자 구성하기
     }
 
-
-    override func initVM() {
-        viewModel.buildDashboardCells()
-    }
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
         setupDataSource()
-        applySnapshot()
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+    override func viewIsAppearing(_ animated: Bool) {
+        super.viewIsAppearing(animated)
 
+        let vSizeClass = traitCollection.verticalSizeClass
+        let hSizeClass = traitCollection.horizontalSizeClass
+        let env = DashboardViewModel.DashboardEnvironment(
+            vericalClassIsRegular: vSizeClass == .regular,
+            horizontalClassIsRegular: hSizeClass == .regular
+        )
+        
+        viewModel.buildDashboardCells(for: env)
         viewModel.loadHKData()
+        applySnapshot()
     }
 
     override func setupAttribute() {
@@ -133,12 +136,13 @@ final class DashboardViewController: CoreGradientViewController {
         snapshot.appendItems(stackItems, toSection: .ring)
         // ------- 코드 리팩토링하기
         
-
-        snapshot.appendItems( // TODO: - 아이폰/아이패드에 맞게 분리하기
-            [.barCharts(.init(back: .daysBack(7))!),
-             .barCharts(.init(back: .monthsBack(12))!)],
-            toSection: .charts
-        )
+        // -------
+        var chartsItem: [DashboardContent.Item] = []
+        viewModel.chartsIDs.forEach { id in
+            chartsItem.append(.barCharts(id))
+        }
+        snapshot.appendItems(chartsItem, toSection: .charts)
+        // ------- 코드 리팩토링하기
 
         snapshot.appendItems([.alanSummary(.init())], toSection: .alan)
         
@@ -150,7 +154,10 @@ final class DashboardViewController: CoreGradientViewController {
         snapshot.appendItems(cardItems, toSection: .card)
         // ------- 코드 리팩토링하기
 
+        // -------
         snapshot.appendItems([.text], toSection: .bottom)
+        // ------- 코드 리팩토링하기
+        
         dataSource?.apply(snapshot)
     }
 }
@@ -176,9 +183,10 @@ fileprivate extension DashboardViewController {
         }
     }
 
-    func createBarChartsCellRegistration() -> UICollectionView.CellRegistration<DashboardBarChartsCollectionViewCell, DashboardBarChartsCellViewModel> {
-        UICollectionView.CellRegistration<DashboardBarChartsCollectionViewCell, DashboardBarChartsCellViewModel>(cellNib: DashboardBarChartsCollectionViewCell.nib) { cell, indexPath, viewModel in
-            cell.bind(with: viewModel)
+    func createBarChartsCellRegistration() -> UICollectionView.CellRegistration<DashboardBarChartsCollectionViewCell, DashboardBarChartsCellViewModel.ItemID> {
+        UICollectionView.CellRegistration<DashboardBarChartsCollectionViewCell, DashboardBarChartsCellViewModel.ItemID>(cellNib: DashboardBarChartsCollectionViewCell.nib) { [weak self] cell, indexPath, id in
+            guard let vm = self?.viewModel.chartsCells[id] else { return }
+            cell.bind(with: vm)
         }
     }
 

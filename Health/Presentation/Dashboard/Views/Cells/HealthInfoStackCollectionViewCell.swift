@@ -97,11 +97,14 @@ extension HealthInfoStackCollectionViewCell {
             return // TODO: - 로딩 시 Skeleton Effect 출력하기
 
         case let .success(data, collection):
+            guard let data = data,
+                  let collection = collection
+            else { return }
+            
             attrString = NSAttributedString(string: String(format: "%.1f", data.value) + unitString)
                 .font(.preferredFont(forTextStyle: .footnote), to: unitString)
                 .foregroundColor(.secondaryLabel, to: unitString)
 
-            guard let collection = collection else { return }
             addChartsHostingController(with: collection, parent: parent)
 
         case .failure:

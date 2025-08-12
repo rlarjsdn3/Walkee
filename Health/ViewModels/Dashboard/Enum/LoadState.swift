@@ -15,7 +15,7 @@ enum LoadState<Value> where Value: Equatable {
     ///
     case loading
     ///
-    case success(data: Value, collection: [Value]? = nil)
+    case success(data: Value? = nil, collection: [Value]? = nil)
     ///
     case failure(Error? = nil)
 }

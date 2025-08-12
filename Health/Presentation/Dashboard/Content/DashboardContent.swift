@@ -32,7 +32,7 @@ enum DashboardContent {
         /// 건강 정보 스택 셀
         case stackInfo(HealthInfoStackCellViewModel.ItemID)
         /// 막대 차트 셀
-        case barCharts(DashboardBarChartsCellViewModel)
+        case barCharts(DashboardBarChartsCellViewModel.ItemID)
         /// AI 요약 셀
         case alanSummary(AlanActivitySummaryCellViewModel)
         /// 건강 카드 셀
@@ -50,7 +50,7 @@ extension DashboardContent.Item {
         topBarCellRegistration: UICollectionView.CellRegistration<DashboardTopBarCollectionViewCell, Void>,
         dailyGoalRingCellRegistration: UICollectionView.CellRegistration<DailyGoalRingCollectionViewCell, DailyGoalRingCellViewModel>,
         healthInfoStackCellRegistration: UICollectionView.CellRegistration<HealthInfoStackCollectionViewCell, HealthInfoStackCellViewModel.ItemID>,
-        barChartsCellRegistration: UICollectionView.CellRegistration<DashboardBarChartsCollectionViewCell, DashboardBarChartsCellViewModel>,
+        barChartsCellRegistration: UICollectionView.CellRegistration<DashboardBarChartsCollectionViewCell, DashboardBarChartsCellViewModel.ItemID>,
         alanSummaryCellRegistration: UICollectionView.CellRegistration<AlanActivitySummaryCollectionViewCell, AlanActivitySummaryCellViewModel>,
         healthInfoCardCellRegistration: UICollectionView.CellRegistration<HealthInfoCardCollectionViewCell, HealthInfoCardCellViewModel.ItemID>,
         textCellRegistration: UICollectionView.CellRegistration<UICollectionViewListCell, Void>,
@@ -75,11 +75,11 @@ extension DashboardContent.Item {
                 for: indexPath,
                 item: id
             )
-        case let .barCharts(viewModel):
+        case let .barCharts(id):
             return collectionView.dequeueConfiguredReusableCell(
                 using: barChartsCellRegistration,
                 for: indexPath,
-                item: viewModel
+                item: id
             )
         case let .alanSummary(viewModel):
             return collectionView.dequeueConfiguredReusableCell(

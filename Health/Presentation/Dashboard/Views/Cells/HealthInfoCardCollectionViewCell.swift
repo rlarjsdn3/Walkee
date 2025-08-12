@@ -86,8 +86,9 @@ extension HealthInfoCardCollectionViewCell {
             return // TODO: - 스켈레톤 UI 구성하기
             
         case let .success(data, _):
+            guard let data = data else { return }
+            
             let status = viewModel.evaluateGaitStatus(data.value)
-    
             statusProgressBarView.currentValue = data.value
             statusProgressBarView.numberFormatter = {
                 switch viewModel.itemID.kind {

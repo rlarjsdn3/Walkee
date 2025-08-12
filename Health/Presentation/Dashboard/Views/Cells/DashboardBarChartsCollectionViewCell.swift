@@ -5,6 +5,7 @@
 //  Created by 김건우 on 8/5/25.
 //
 
+import Combine
 import UIKit
 
 final class DashboardBarChartsCollectionViewCell: CoreCollectionViewCell {
@@ -15,6 +16,8 @@ final class DashboardBarChartsCollectionViewCell: CoreCollectionViewCell {
     @IBOutlet weak var barChartsView: BarChartsView!
 
     private var viewModel: DashboardBarChartsCellViewModel!
+    
+    private var cancellable: Set<AnyCancellable> = []
 
     override func setupAttribute() {
 //       self.applyCornerStyle(.medium)
@@ -35,34 +38,55 @@ extension DashboardBarChartsCollectionViewCell {
     func bind(with viewModel: DashboardBarChartsCellViewModel) {
         self.viewModel = viewModel
 
-        Task {
-            do {
-                let hkDatas = try await viewModel.fetchStatisticsCollectionHKDatas(options: .cumulativeSum)
-                let avgData = hkDatas.reduce(0, { $0 + Int($1.value) }) / max(hkDatas.count, 1)
+        viewModel.statePublisher
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] state in self?.render(for: state) }
+            .store(in: &cancellable)
+    
+    }
+    
+    private func render(for state: HKLoadState) {
+        headerLabelView.text = viewModel.headerTitle
+        
+        switch state {
+        case .idle:
+            return // TODO: - 플레이스 홀더 UI 구성하기
+            
+        case .loading:
+            return // TODO: - 스켈레톤 UI 코드 구성하기
+            
+        case let .success(_, collection):
+            guard let collection = collection else { return }
+            
+            let avgValue = collection.reduce(0, { $0 + Int($1.value) }) / collection.count
+            
+            barChartsView.chartData = prepareChartData(
+                collection,
+                type: viewModel.itemID.kind
+            )
 
-                // TODO: - 코드 리팩토링하기
-                barChartsView.chartData = prepareChartData(hkDatas, type: viewModel.backType)
-                if case .daysBack = viewModel.backType {
-                    
-                } else {
-                    if traitCollection.horizontalSizeClass == .compact &&
-                        traitCollection.verticalSizeClass == .regular {
-                        barChartsView.configuration.barWidth = 12
-                    }
+            if case .monthsBack = viewModel.itemID.kind {
+                if traitCollection.horizontalSizeClass == .compact &&
+                    traitCollection.verticalSizeClass == .regular {
+                    barChartsView.configuration.barWidth = 12
                 }
-
-                // TODO: - 평균값 포매팅 및 글자 폰트 다시 처리하기
-
-                headerLabelView.text = viewModel.headerTitle
-                averageValueLabel.text = avgData.formatted() + "보"
-            } catch {
-                // TODO: - 예외 UI 출력하기
-                print("🔴 Failed to fetch HealthKit Datas: \(error)")
             }
+            
+            averageValueLabel.text = avgValue.formatted() + "걸음"
+            
+            
+            return //
+            
+        case .failure:
+            // TODO: - 예외 UI 로직 구현하기
+            
+            print("🔴 Failed to fetch HealthKit Datas: DashboardBarChartsCell (\(viewModel.itemID.kind))")
         }
     }
 
-    private func prepareChartData(_ hkDatas: [HKData], type: BarChartsBackType) -> BarChartsView.ChartData {
+
+    private func prepareChartData(_ hkDatas: [HKData], type: BarChartsBackKind) -> BarChartsView.ChartData {
         let chartsElements = hkDatas.map {
             if case .daysBack = type {
                 return BarChartsView.ChartData.Element(
@@ -79,6 +103,6 @@ extension DashboardBarChartsCollectionViewCell {
             }
         }
         let reversedChartsElements = Array(chartsElements.reversed())
-        return BarChartsView.ChartData(elements: reversedChartsElements) // TODO: - 목표 걸음수 Limit 값 넣기
+        return BarChartsView.ChartData(elements: reversedChartsElements)
     }
 }
