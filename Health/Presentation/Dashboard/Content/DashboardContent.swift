@@ -30,7 +30,7 @@ enum DashboardContent {
         /// 목표 링 셀
         case goalRing(DailyGoalRingCellViewModel)
         /// 건강 정보 스택 셀
-        case stackInfo(HealthInfoStackCellViewModel)
+        case stackInfo(HealthInfoStackCellViewModel.ItemID)
         /// 막대 차트 셀
         case barCharts(DashboardBarChartsCellViewModel)
         /// AI 요약 셀
@@ -49,7 +49,7 @@ extension DashboardContent.Item {
         collectionView: UICollectionView,
         topBarCellRegistration: UICollectionView.CellRegistration<DashboardTopBarCollectionViewCell, Void>,
         dailyGoalRingCellRegistration: UICollectionView.CellRegistration<DailyGoalRingCollectionViewCell, DailyGoalRingCellViewModel>,
-        healthInfoStackCellRegistration: UICollectionView.CellRegistration<HealthInfoStackCollectionViewCell, HealthInfoStackCellViewModel>,
+        healthInfoStackCellRegistration: UICollectionView.CellRegistration<HealthInfoStackCollectionViewCell, HealthInfoStackCellViewModel.ItemID>,
         barChartsCellRegistration: UICollectionView.CellRegistration<DashboardBarChartsCollectionViewCell, DashboardBarChartsCellViewModel>,
         alanSummaryCellRegistration: UICollectionView.CellRegistration<AlanActivitySummaryCollectionViewCell, AlanActivitySummaryCellViewModel>,
         healthInfoCardCellRegistration: UICollectionView.CellRegistration<HealthInfoCardCollectionViewCell, HealthInfoCardCellViewModel>,
@@ -69,11 +69,11 @@ extension DashboardContent.Item {
                 for: indexPath,
                 item: viewModel
             )
-        case let .stackInfo(viewModel):
+        case let .stackInfo(id):
             return collectionView.dequeueConfiguredReusableCell(
                 using: healthInfoStackCellRegistration,
                 for: indexPath,
-                item: viewModel
+                item: id
             )
         case let .barCharts(viewModel):
             return collectionView.dequeueConfiguredReusableCell(

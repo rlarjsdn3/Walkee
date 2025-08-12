@@ -1,5 +1,5 @@
 //
-//  DashboardStackType.swift
+//  DashboardStackKind.swift
 //  Health
 //
 //  Created by 김건우 on 8/6/25.
@@ -7,7 +7,7 @@
 
 import HealthKit
 
-enum DashboardStackType: CaseIterable {
+enum DashboardStackKind: CaseIterable {
 
     ///
     case distanceWalkingRunning
@@ -19,7 +19,7 @@ enum DashboardStackType: CaseIterable {
     case basalEnergyBurned
 }
 
-extension DashboardStackType {
+extension DashboardStackKind {
 
     ///
     var title: String? {

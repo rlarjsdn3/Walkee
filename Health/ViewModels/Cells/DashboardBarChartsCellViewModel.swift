@@ -71,7 +71,7 @@ final class DashboardBarChartsCellViewModel { // TODO: - Cell에서 처리하고
     }
 
     ///
-    func fetchStatisticsCollectionHKDatas(options: HKStatisticsOptions) async throws -> [HealthKitData] {
+    func fetchStatisticsCollectionHKDatas(options: HKStatisticsOptions) async throws -> [HKData] {
         try await healthService.fetchStatisticsCollection(
             for: .stepCount,
             from: startDate,

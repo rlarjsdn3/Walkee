@@ -5,6 +5,7 @@
 //  Created by 김건우 on 7/28/25.
 //
 
+import HealthKit
 import UIKit
 
 import TSAlertController
@@ -26,16 +27,22 @@ final class DashboardViewController: CoreGradientViewController {
         // TODO: - CalendarVC에서 날짜를 넘겨주기 위한 생성자 구성하기
     }
 
+
+    override func initVM() {
+        viewModel.buildDashboardCells()
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        Task {
-            let healthService = DefaultHealthService()
-            try await healthService.requestAuthorization() // - 임시 코드!! 반드시 삭제!! ⚠️
-        }
-
         setupDataSource()
         applySnapshot()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        viewModel.loadHKData()
     }
 
     override func setupAttribute() {
@@ -56,6 +63,7 @@ final class DashboardViewController: CoreGradientViewController {
 
         applyBackgroundGradient(.midnightBlack)
     }
+
 
     private func createCollectionViewLayout() -> UICollectionViewLayout {
         let sectionProvider: UICollectionViewCompositionalLayoutSectionProvider = { [weak self] sectionIndex, environment in
@@ -118,13 +126,20 @@ final class DashboardViewController: CoreGradientViewController {
         snapshot.appendItems([.topBar], toSection: .top)
 
 
-        snapshot.appendItems(
-            [.goalRing(.init(goalStepCount: 10_000)), // 실제 목표 걸음 수 데이터 주입하기
-             .stackInfo(.init(stackType: .distanceWalkingRunning)),
-             .stackInfo(.init(stackType: .appleExerciseTime)),
-             .stackInfo(.init(stackType: .activeEnergyBurned))],
-            toSection: .ring
-        )
+        var items: [DashboardContent.Item] = [.goalRing(.init(goalStepCount: 10_000))]
+        viewModel.stackIDs.forEach { id in
+            let vm = viewModel.stackCells[id]
+            vm?.didChange = { [weak self] id in
+                // Cannot use mutating member on immutable value: function call returns immutable value
+                guard var snapshot = self?.dataSource?.snapshot() else { return }
+                snapshot.reconfigureItems([.stackInfo(id)])
+                self?.dataSource?.apply(snapshot, animatingDifferences: false)
+            }
+            items.append(.stackInfo(id))
+        }
+
+        snapshot.appendItems(items, toSection: .ring)
+
 
         snapshot.appendItems( // TODO: - 아이폰/아이패드에 맞게 분리하기
             [.barCharts(.init(back: .daysBack(7))!),
@@ -161,9 +176,10 @@ fileprivate extension DashboardViewController {
         }
     }
 
-    func createHealthInfoStackCellRegistration() -> UICollectionView.CellRegistration<HealthInfoStackCollectionViewCell, HealthInfoStackCellViewModel> {
-        UICollectionView.CellRegistration<HealthInfoStackCollectionViewCell, HealthInfoStackCellViewModel>(cellNib: HealthInfoStackCollectionViewCell.nib) { cell, indexPath, viewModel in
-            cell.bind(with: viewModel, parent: self)
+    func createHealthInfoStackCellRegistration() -> UICollectionView.CellRegistration<HealthInfoStackCollectionViewCell, HealthInfoStackCellViewModel.ItemID> {
+        UICollectionView.CellRegistration<HealthInfoStackCollectionViewCell, HealthInfoStackCellViewModel.ItemID>(cellNib: HealthInfoStackCollectionViewCell.nib) { [weak self] cell, indexPath, id in
+            guard let vm = self?.viewModel.stackCells[id] else { return }
+            cell.bind(with: vm, parent: self)
         }
     }
 

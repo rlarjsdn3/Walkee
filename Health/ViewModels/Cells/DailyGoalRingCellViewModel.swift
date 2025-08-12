@@ -24,7 +24,7 @@ final class DailyGoalRingCellViewModel: @unchecked Sendable {
     }
 
     ///
-    func fetchStatisticsHKData() async throws -> HealthKitData {
+    func fetchStatisticsHKData() async throws -> HKData {
         try await healthService.fetchStatistics(
             for: .stepCount,
             from: anchorDate.startOfDay(),

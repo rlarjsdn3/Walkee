@@ -36,7 +36,7 @@ final class HealthInfoCardCellViewModel {
     /// - Parameter options: HealthKit 통계 조회 시 사용할 옵션입니다.
     /// - Returns: 지정한 기간과 옵션에 해당하는 `HealthKitData` 객체를 반환합니다.
     /// - Throws: HealthKit 데이터 조회에 실패할 경우 오류를 던집니다.
-    func fetchStatisticsHealthKitData(options: HKStatisticsOptions) async throws -> HealthKitData {
+    func fetchStatisticsHealthKitData(options: HKStatisticsOptions) async throws -> HKData {
         let startDate = (anchorDate.addingDays(-14) ?? anchorDate).startOfDay()
 
         return try await healthService.fetchStatistics(
