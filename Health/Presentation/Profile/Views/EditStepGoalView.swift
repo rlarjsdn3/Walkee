@@ -7,27 +7,30 @@
 
 import UIKit
 
-import UIKit
-
-final class EditStepGoalView: UIControl {
+final class EditStepGoalView: CoreView {
     
     var value: Int = 0 {
         didSet {
             value = max(minValue, min(maxValue, value))
-            updateUI()
             if oldValue != value {
-                sendActions(for: .valueChanged)
+                updateUI()
+                onValueChanged?(value)
             }
         }
     }
     
     var step: Int = 500
     var minValue: Int = 0
-    var maxValue: Int = 1_000_000
+    var maxValue: Int = 1_000_00
     
+    
+    var onValueChanged: ((Int) -> Void)?
+    
+    private let buttonDiameter: CGFloat = 72
+    private let accentColor: UIColor = .accent
+    private let valueFontSize: CGFloat = 88
     private let minusButton = UIButton(type: .system)
     private let plusButton = UIButton(type: .system)
-    private let valueLabel = UILabel()
     private let stack = UIStackView()
     
     private lazy var formatter: NumberFormatter = {
@@ -36,51 +39,95 @@ final class EditStepGoalView: UIControl {
         return f
     }()
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setup()
+    private let valueLabel: UILabel = {
+        let l = UILabel()
+        l.textAlignment = .center
+        l.adjustsFontSizeToFitWidth = true
+        l.minimumScaleFactor = 0.5
+        l.numberOfLines = 1
+        return l
+    }()
+    
+    private let unitLabel: UILabel = {
+        let l = UILabel()
+        l.textAlignment = .center
+        l.textColor = .secondaryLabel
+        l.font = .preferredFont(forTextStyle: .title3)
+        return l
+    }()
+    
+    
+    private let valueStack = UIStackView()
+    private let hStack = UIStackView()
+    
+    override func setupHierarchy() {
+        valueStack.addArrangedSubview(valueLabel)
+        valueStack.addArrangedSubview(unitLabel)
+        
+        hStack.addArrangedSubview(minusButton)
+        hStack.addArrangedSubview(valueStack)
+        hStack.addArrangedSubview(plusButton)
+        
+        addSubview(hStack)
     }
     
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        setup()
+    override func setupAttribute() {
+        super.setupAttribute()
+        backgroundColor = .clear
+        
+        [minusButton, plusButton].forEach { b in
+            b.translatesAutoresizingMaskIntoConstraints = false
+            b.tintColor = .white
+            b.backgroundColor = accentColor
+            b.layer.cornerRadius = buttonDiameter / 2
+            b.clipsToBounds = true
+            b.widthAnchor.constraint(equalToConstant: buttonDiameter).isActive = true
+            b.heightAnchor.constraint(equalToConstant: buttonDiameter).isActive = true
+            
+            // 굵은 심볼
+            let config = UIImage.SymbolConfiguration(pointSize: 28, weight: .bold, scale: .large)
+            b.setPreferredSymbolConfiguration(config, forImageIn: .normal)
+            
+            minusButton.setImage(UIImage(systemName: "minus"), for: .normal)
+            plusButton.setImage(UIImage(systemName: "plus"), for: .normal)
+            
+            minusButton.addTarget(self, action: #selector(decrease), for: .touchUpInside)
+            plusButton.addTarget(self, action: #selector(increase), for: .touchUpInside)
+            
+            valueStack.axis = .vertical
+            valueStack.alignment = .center
+            valueStack.spacing = 8
+            
+            valueLabel.font = .preferredFont(forTextStyle: .largeTitle)
+            valueLabel.adjustsFontForContentSizeCategory = true
+            
+            hStack.axis = .horizontal
+            hStack.alignment = .center
+            hStack.spacing = 24
+            hStack.translatesAutoresizingMaskIntoConstraints = false
+            
+            unitLabel.text = "걸음"
+            
+            updateUI()
+        }
     }
     
-    private func setup() {
-        minusButton.setTitle("−", for: .normal)
-        plusButton.setTitle("+", for: .normal)
-        minusButton.titleLabel?.font = .preferredFont(forTextStyle: .body)
-        plusButton.titleLabel?.font = .preferredFont(forTextStyle: .body)
-        
-        minusButton.widthAnchor.constraint(equalToConstant: 44).isActive = true
-        plusButton.widthAnchor.constraint(equalToConstant: 44).isActive = true
-        
-        minusButton.addTarget(self, action: #selector(decrease), for: .touchUpInside)
-        plusButton.addTarget(self, action: #selector(increase), for: .touchUpInside)
-        
-        valueLabel.font = .preferredFont(forTextStyle: .largeTitle)
-        valueLabel.textAlignment = .center
-        valueLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        valueLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-
-        stack.axis = .horizontal
-        stack.alignment = .center
-        stack.spacing = 8
-        stack.addArrangedSubview(minusButton)
-        stack.addArrangedSubview(valueLabel)
-        stack.addArrangedSubview(plusButton)
-        
-        addSubview(stack)
-        stack.translatesAutoresizingMaskIntoConstraints = false
+    override func setupConstraints() {
         NSLayoutConstraint.activate([
-            stack.leadingAnchor.constraint(equalTo: leadingAnchor),
-            stack.trailingAnchor.constraint(equalTo: trailingAnchor),
-            stack.topAnchor.constraint(equalTo: topAnchor),
-            stack.bottomAnchor.constraint(equalTo: bottomAnchor)
+            hStack.leadingAnchor.constraint(equalTo: leadingAnchor),
+            hStack.trailingAnchor.constraint(equalTo: trailingAnchor),
+            hStack.topAnchor.constraint(equalTo: topAnchor),
+            hStack.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
-        
-        updateUI()
     }
+    
+    
+    private func updateUI() {
+        valueLabel.text = formatter.string(from: NSNumber(value: value))
+        minusButton.isEnabled = value > minValue
+        plusButton.isEnabled  = value < maxValue
+    }
+    
     
     @objc private func decrease() {
         value -= step
@@ -90,12 +137,10 @@ final class EditStepGoalView: UIControl {
         value += step
     }
     
-    private func updateUI() {
-        valueLabel.text = formatter.string(from: NSNumber(value: value))
-    }
-    
     override var intrinsicContentSize: CGSize {
-        CGSize(width: 180, height: 44)
+        CGSize(width: 320, height: buttonDiameter + 40)
     }
-}
 
+    
+    
+}

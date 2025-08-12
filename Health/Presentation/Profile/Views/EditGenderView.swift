@@ -7,20 +7,25 @@
 
 import UIKit
 
-class EditGenderView: UIView {
+final class EditGenderView: CoreView {
     
     private let mintColor = UIColor.accent
     private let grayColor = UIColor.buttonBackground
     
     private let buttonSize = min(UIScreen.main.bounds.width, UIScreen.main.bounds.height) * 0.25
-
+    var selectedGender = ""
     
     private lazy var femaleButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("여성", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = grayColor
-        button.titleLabel?.font = UIFont.preferredFont(forTextStyle: .body)
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            button.titleLabel?.font = .preferredFont(forTextStyle: .largeTitle)
+        } else {
+            button.titleLabel?.font = .preferredFont(forTextStyle: .body)
+        }
+        button.titleLabel?.adjustsFontForContentSizeCategory = true
         button.clipsToBounds = true
         button.layer.cornerRadius = buttonSize / 2
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -33,7 +38,12 @@ class EditGenderView: UIView {
         button.setTitle("남성", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = grayColor
-        button.titleLabel?.font = UIFont.preferredFont(forTextStyle: .body)
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            button.titleLabel?.font = .preferredFont(forTextStyle: .largeTitle)
+        } else {
+            button.titleLabel?.font = .preferredFont(forTextStyle: .body)
+        }
+        button.titleLabel?.adjustsFontForContentSizeCategory = true
         button.clipsToBounds = true
         button.layer.cornerRadius = buttonSize / 2
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -50,28 +60,16 @@ class EditGenderView: UIView {
         return stack
     }()
     
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        
-        if traitCollection.preferredContentSizeCategory != previousTraitCollection?.preferredContentSizeCategory {
-            setNeedsLayout()
-        }
-    }
-
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setupUI()
+    override func setupAttribute() {
+        super.setupAttribute()
+        backgroundColor = .clear
     }
     
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        setupUI()
-    }
-    
-    private func setupUI() {
+    override func setupHierarchy() {
         addSubview(stackView)
-        
+    }
+    
+    override func setupConstraints() {
         NSLayoutConstraint.activate([
             stackView.centerXAnchor.constraint(equalTo: centerXAnchor),
             stackView.centerYAnchor.constraint(equalTo: centerYAnchor),
@@ -85,15 +83,23 @@ class EditGenderView: UIView {
         ])
     }
     
-    // MARK: - Actions
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        
+        if traitCollection.preferredContentSizeCategory != previousTraitCollection?.preferredContentSizeCategory {
+            setNeedsLayout()
+        }
+    }
     
     @objc private func femaleTapped() {
         femaleButton.backgroundColor = mintColor
         maleButton.backgroundColor = grayColor
+        selectedGender = "여성"
     }
     
     @objc private func maleTapped() {
         maleButton.backgroundColor = mintColor
         femaleButton.backgroundColor = grayColor
+        selectedGender = "남성"
     }
 }

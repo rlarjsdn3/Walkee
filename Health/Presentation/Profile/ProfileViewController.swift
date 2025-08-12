@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import TSAlertController
 
 struct ProfileCellModel {
     let title: String
@@ -98,7 +99,7 @@ extension ProfileViewController: UITableViewDataSource {
         cell.backgroundColor = UIColor.buttonText.withAlphaComponent(0.1)
         
         let bgView = UIView()
-        bgView.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.2)
+        bgView.backgroundColor = UIColor.systemGray.withAlphaComponent(0.2)
         cell.selectedBackgroundView = bgView
         cell.selectionStyle = .default
         
@@ -120,10 +121,10 @@ extension ProfileViewController: UITableViewDataSource {
     }
     
 }
+
 extension ProfileViewController: UITableViewDelegate {
     
-    func tableView(_ tableView: UITableView,
-                   didSelectRowAt indexPath: IndexPath) {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
         let model = sectionItems[indexPath.section][indexPath.row]
@@ -132,7 +133,11 @@ extension ProfileViewController: UITableViewDelegate {
         case "신체 정보":
             performSegue(withIdentifier: "bodyInfo", sender: nil)
         case "목표 걸음 설정":
-            break
+            presentSheet(on: self,
+                         buildView: { EditStepGoalView() }) { [weak self] view in
+                guard let self, let v = view as? EditStepGoalView else { return }
+                print(v.value)
+            }
         case "일반 설정":
             break
         default:
