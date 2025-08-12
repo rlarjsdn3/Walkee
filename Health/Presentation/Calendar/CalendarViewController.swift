@@ -128,7 +128,7 @@ private extension CalendarViewController {
 
     func bindViewModel() {
         calendarVM.onDataChanged = { [weak self] changes in
-            Task { @MainActor in
+            Task {
                 self?.handleDataChanges(changes)
             }
         }
