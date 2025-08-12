@@ -53,7 +53,7 @@ extension HealthInfoCardCollectionViewCell {
         Task {
             do {
                 titleLabel.text = viewModel.cardType.title
-                statusProgressBarView.higherIsBetter = viewModel.cardType.higerIsBetter
+                statusProgressBarView.higherIsBetter = viewModel.cardType.higherIsBetter
                 statusProgressBarView.thresholdsValues = viewModel.cardType.thresholdValues(age: viewModel.age)
 
                 let hkData = try await viewModel.fetchStatisticsHealthKitData(options: .mostRecent)
