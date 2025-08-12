@@ -69,31 +69,37 @@ extension HealthInfoStackCollectionViewCell {
         with viewModel: HealthInfoStackCellViewModel,
         parent: UIViewController?
     ) {
-        titleLabel.text = viewModel.title
-        valueLabel.attributedText = NSAttributedString(string: "1,000보")
-            .font(.preferredFont(forTextStyle: .footnote), to: "보") // TODO: - 실제 값 할당하기
-        symbolImageView.image = UIImage(systemName: viewModel.systemName)
+        Task { // TODO: - 아이패드에서 차트 UI가 제대로 예외처리되는지 확인하기
+            do {
+                titleLabel.text = viewModel.stackType.title
+                symbolImageView.image = UIImage(systemName: viewModel.stackType.systemName)
 
-        addLineChartsHostingController(with: viewModel, parent: parent)
+                let hkData = try await viewModel.fetchStatisticsHKData()
+                let chartsDatas = try await viewModel.fetchStatisticsCollectionHKData(options: .cumulativeSum)
+
+                let unitString = viewModel.stackType.unitString
+                valueLabel.attributedText = NSAttributedString(string: String(format: "%.1f", hkData.value) + unitString)
+                    .font(.preferredFont(forTextStyle: .footnote), to: unitString)
+                    .foregroundColor(.secondaryLabel, to: unitString)
+
+                addLineChartsHostingController(with: chartsDatas, parent: parent)
+            } catch {
+                let unitString = viewModel.stackType.unitString
+                valueLabel.attributedText = NSAttributedString(string: "- " + unitString)
+                    .font(.preferredFont(forTextStyle: .footnote), to: unitString)
+                    .foregroundColor(.secondaryLabel, to: unitString)
+
+                print("🔴 Failed to fetch HealthKit data: \(error) (HealthInfoStackCell)")
+            }
+        }
     }
 
     private func addLineChartsHostingController(
-        with viewModel: HealthInfoStackCellViewModel,
+        with chartsData: [HealthKitData],
         parent: UIViewController?
     ) {
-        Task {
-            do {
-                let hkDatas = try await viewModel.fetchStatisticsCollectionHKData(options: .cumulativeSum)
-
-                let chartsData = Array(hkDatas)
-                let hostingVC = LineChartsHostingController(chartsData: chartsData)
-
-                parent?.addChild(hostingVC, to: chartsContainerView)
-                self.lineChartsHostingController = hostingVC
-            } catch {
-                // TODO: - 예외 처리 UI 코드 작성하기
-                print("🔴 Failed to fetch HealthKit data: \(error)")
-            }
-        }
+        let hostingVC = LineChartsHostingController(chartsData: chartsData)
+        parent?.addChild(hostingVC, to: chartsContainerView)
+        self.lineChartsHostingController = hostingVC
     }
 }

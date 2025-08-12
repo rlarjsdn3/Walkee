@@ -24,8 +24,8 @@ extension DashboardStackType {
     ///
     var title: String? {
         switch self {
-        case .distanceWalkingRunning:           return "걷기 + 달리기 거리"
-        case .appleExerciseTime:                return "운동하기 시간"
+        case .distanceWalkingRunning:           return "걷기 거리"
+        case .appleExerciseTime:                return "운동 시간"
         case .activeEnergyBurned:               return "활동 에너지"
         case .basalEnergyBurned:                return "휴식 에너지"
         }

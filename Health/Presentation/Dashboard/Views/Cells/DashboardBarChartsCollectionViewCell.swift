@@ -38,7 +38,7 @@ extension DashboardBarChartsCollectionViewCell {
         Task {
             do {
                 let hkDatas = try await viewModel.fetchStatisticsCollectionHKDatas(options: .cumulativeSum)
-                let avgData = hkDatas.reduce(0, { $0 + Int($1.value) }) / hkDatas.count
+                let avgData = hkDatas.reduce(0, { $0 + Int($1.value) }) / max(hkDatas.count, 1)
 
                 // TODO: - 코드 리팩토링하기
                 barChartsView.chartData = prepareChartData(hkDatas, type: viewModel.backType)

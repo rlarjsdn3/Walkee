@@ -113,8 +113,18 @@ final class DashboardViewController: CoreGradientViewController {
 
         var snapshot = NSDiffableDataSourceSnapshot<DashboardContent.Section, DashboardContent.Item>()
         snapshot.appendSections([.top, .ring, .charts, .alan, .card, .bottom])
+
+
         snapshot.appendItems([.topBar], toSection: .top)
-        snapshot.appendItems([.goalRing(.init()), .stackInfo(.init()), .stackInfo(.init()), .stackInfo(.init())], toSection: .ring)
+
+
+        snapshot.appendItems(
+            [.goalRing(.init(goalStepCount: 10_000)), // 실제 목표 걸음 수 데이터 주입하기
+             .stackInfo(.init(stackType: .distanceWalkingRunning)),
+             .stackInfo(.init(stackType: .appleExerciseTime)),
+             .stackInfo(.init(stackType: .activeEnergyBurned))],
+            toSection: .ring
+        )
 
         snapshot.appendItems( // TODO: - 아이폰/아이패드에 맞게 분리하기
             [.barCharts(.init(back: .daysBack(7))!),
@@ -125,7 +135,7 @@ final class DashboardViewController: CoreGradientViewController {
         snapshot.appendItems([.alanSummary(.init())], toSection: .alan)
 
         snapshot.appendItems(
-            [.cardInfo(.init(cardType: .walkingSpeed, age: 27)),
+            [.cardInfo(.init(cardType: .walkingSpeed, age: 27)), // MARK: - 실제 나이 데이터 주입하기
              .cardInfo(.init(cardType: .walkingStepLength, age: 27)),
              .cardInfo(.init(cardType: .walkingAsymmetryPercentage, age: 27)),
              .cardInfo(.init(cardType: .walkingDoubleSupportPercentage, age: 27))],

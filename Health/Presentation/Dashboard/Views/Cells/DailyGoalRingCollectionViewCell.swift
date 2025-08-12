@@ -10,7 +10,6 @@ import UIKit
 final class DailyGoalRingCollectionViewCell: CoreCollectionViewCell {
 
     @IBOutlet weak var circleProgressView: CircleProgressView!
-
 }
 
 extension DailyGoalRingCollectionViewCell {
@@ -21,8 +20,9 @@ extension DailyGoalRingCollectionViewCell {
                 circleProgressView.totalValue = viewModel.goalStepCount
                 circleProgressView.currentValue = try await viewModel.fetchStatisticsHKData().value
             } catch {
-                // TODO: - 예외 UI 코드 작성하기
-                print("🔴 Failed to fetch statistics HKData: \(error)")
+                circleProgressView.currentValue = nil
+
+                print("🔴 Failed to fetch statistics HKData: \(error) (DailyGoalRingCell)")
             }
         }
     }
