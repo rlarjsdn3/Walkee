@@ -33,14 +33,14 @@ final class AlanActivitySummaryCellViewModel {
         guard await healthService.checkHasAnyReadPermission()
         else { throw HKError(.errorAuthorizationDenied) }
 
-        let activeEnergyBurned: HealthKitData? = try? await healthService.fetchStatistics(for: .stepCount, from: anchorDate.startOfDay(), to: anchorDate.endOfDay(), options: .cumulativeSum, unit: .count())
-        let distance: HealthKitData? = try? await healthService.fetchStatistics(for: .distanceWalkingRunning, from: anchorDate.startOfDay(), to: anchorDate.endOfDay(), options: .cumulativeSum, unit: .meterUnit(with: .kilo))
-        let excerciseTime: HealthKitData? = try? await healthService.fetchStatistics(for: .appleExerciseTime, from: anchorDate.startOfDay(), to: anchorDate.endOfDay(), options: .cumulativeSum, unit: .minute())
-        let stepCount: HealthKitData? = try? await healthService.fetchStatistics(for: .stepCount, from: anchorDate.startOfDay(), to: anchorDate.endOfDay(), options: .cumulativeSum, unit: .count())
-        let stepLength: HealthKitData? = try? await healthService.fetchStatistics(for: .walkingStepLength, from: anchorDate.startOfDay(), to: anchorDate.endOfDay(), options: .mostRecent, unit: .meterUnit(with: .centi))
-        let asymmetry: HealthKitData? = try? await healthService.fetchStatistics(for: .walkingAsymmetryPercentage, from: anchorDate.startOfDay(), to: anchorDate.endOfDay(), options: .mostRecent, unit: .percent())
-        let walkingSpeed: HealthKitData? = try? await healthService.fetchStatistics(for: .walkingSpeed, from: anchorDate.startOfDay(), to: anchorDate.endOfDay(), options: .mostRecent, unit: .meter().unitDivided(by: .second()))
-        let doubleSupport: HealthKitData? = try? await healthService.fetchStatistics(for: .walkingDoubleSupportPercentage, from: anchorDate.startOfDay(), to: anchorDate.endOfDay(), options: .mostRecent, unit: .percent())
+        let activeEnergyBurned: HKData? = try? await healthService.fetchStatistics(for: .stepCount, from: anchorDate.startOfDay(), to: anchorDate.endOfDay(), options: .cumulativeSum, unit: .count())
+        let distance: HKData? = try? await healthService.fetchStatistics(for: .distanceWalkingRunning, from: anchorDate.startOfDay(), to: anchorDate.endOfDay(), options: .cumulativeSum, unit: .meterUnit(with: .kilo))
+        let excerciseTime: HKData? = try? await healthService.fetchStatistics(for: .appleExerciseTime, from: anchorDate.startOfDay(), to: anchorDate.endOfDay(), options: .cumulativeSum, unit: .minute())
+        let stepCount: HKData? = try? await healthService.fetchStatistics(for: .stepCount, from: anchorDate.startOfDay(), to: anchorDate.endOfDay(), options: .cumulativeSum, unit: .count())
+        let stepLength: HKData? = try? await healthService.fetchStatistics(for: .walkingStepLength, from: anchorDate.startOfDay(), to: anchorDate.endOfDay(), options: .mostRecent, unit: .meterUnit(with: .centi))
+        let asymmetry: HKData? = try? await healthService.fetchStatistics(for: .walkingAsymmetryPercentage, from: anchorDate.startOfDay(), to: anchorDate.endOfDay(), options: .mostRecent, unit: .percent())
+        let walkingSpeed: HKData? = try? await healthService.fetchStatistics(for: .walkingSpeed, from: anchorDate.startOfDay(), to: anchorDate.endOfDay(), options: .mostRecent, unit: .meter().unitDivided(by: .second()))
+        let doubleSupport: HKData? = try? await healthService.fetchStatistics(for: .walkingDoubleSupportPercentage, from: anchorDate.startOfDay(), to: anchorDate.endOfDay(), options: .mostRecent, unit: .percent())
 
         // TODO: - 받은 매개변수에 따라 프롬프트 작성하기
         var message: String = ""

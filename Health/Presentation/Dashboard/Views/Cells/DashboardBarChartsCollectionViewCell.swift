@@ -62,7 +62,7 @@ extension DashboardBarChartsCollectionViewCell {
         }
     }
 
-    private func prepareChartData(_ hkDatas: [HealthKitData], type: BarChartsBackType) -> BarChartsView.ChartData {
+    private func prepareChartData(_ hkDatas: [HKData], type: BarChartsBackType) -> BarChartsView.ChartData {
         let chartsElements = hkDatas.map {
             if case .daysBack = type {
                 return BarChartsView.ChartData.Element(
