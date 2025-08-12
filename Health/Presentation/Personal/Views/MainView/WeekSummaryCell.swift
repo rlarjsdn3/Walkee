@@ -30,41 +30,12 @@ class WeekSummaryCell: CoreCollectionViewCell {
 
     override func setupConstraints() {
         super.setupConstraints()
+        BackgroundHeightUtils.updateBackgroundHeight(constraint: backgroundHeight, in: self)
 
-        updateBackgroundHeight()
-    }
-
-    private func updateBackgroundHeight() {
-        let screenHeight = UIScreen.main.bounds.height
-        let screenWidth = UIScreen.main.bounds.width
-
-        let heightRatio: CGFloat
-
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            if screenWidth > screenHeight {
-                heightRatio = 0.18  // iPad 가로: 18%
-            } else {
-                heightRatio = 0.20  // iPad 세로: 25%
-            }
-        } else {
-            heightRatio = 0.25  // iPhone: 25%
-        }
-
-        backgroundHeight.constant = screenHeight * heightRatio
-    }
-
-    // 회전 시 업데이트
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-
-        DispatchQueue.main.async {
-            self.updateBackgroundHeight()
-            UIView.animate(withDuration: 0.3) {
-                self.layoutIfNeeded()
-            }
+        registerForTraitChanges([UITraitHorizontalSizeClass.self]) { (self: Self, _) in
+            BackgroundHeightUtils.updateBackgroundHeight(constraint: self.backgroundHeight, in: self)
         }
     }
-
     // MARK: - 차트 관련 메서드
 
     // 목표 걸음 수와 함께 차트를 설정합니다
@@ -163,7 +134,7 @@ class WeekSummaryCell: CoreCollectionViewCell {
             barWidth: barWidth,
             textStyle: BarChartsView.Configuration.TextStyle(
                 xAxisLabelFont: .preferredFont(forTextStyle: .caption1),    // X축 라벨 (월, 화, 수...)
-                xAxisLabelTint: .secondaryLabel,                                     // X축 라벨 색상 (기본 텍스트 색)
+                xAxisLabelTint: .secondaryLabel,                            // X축 라벨 색상 (기본 텍스트 색)
                 valueLabelFont: .preferredFont(forTextStyle: .caption1),    // 막대 위 걸음 수
                 valueLabelTint: .label                                     // 막대 위 걸음 수 색상
             ),
