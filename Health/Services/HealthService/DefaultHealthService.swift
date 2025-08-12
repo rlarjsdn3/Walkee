@@ -115,7 +115,7 @@ final class DefaultHealthService: HealthService {
         limit: Int = HKObjectQueryNoLimit,
         sortDescriptors: [NSSortDescriptor]? = nil,
         unit: HKUnit
-    ) async throws -> [HKResult] {
+    ) async throws -> [HKData] {
         let samples: [HKQuantitySample] = try await fetchSamples(
             for: identifier,
             from: startDate,
@@ -125,9 +125,11 @@ final class DefaultHealthService: HealthService {
         )
        
         return samples.map { sample in
-            (sample.startDate,
-             sample.endDate,
-             sample.quantity.doubleValue(for: unit))
+            HKData(
+                startDate: sample.startDate,
+                endDate: sample.endDate,
+                value: sample.quantity.doubleValue(for: unit)
+            )
         }
     }
     
@@ -253,7 +255,7 @@ final class DefaultHealthService: HealthService {
         to endDate: Date,
         options: HKStatisticsOptions,
         unit: HKUnit
-    ) async throws -> HKResult {
+    ) async throws -> HKData {
         let stat: HKStatistics = try await fetchStatistics(
             for: identifier,
             from: startDate,
@@ -263,7 +265,7 @@ final class DefaultHealthService: HealthService {
         
         guard let value = options.quantity(for: stat, unit: unit)
         else { throw HKError(.errorHealthDataUnavailable) }
-        return (stat.startDate, stat.endDate, value)
+        return HKData(startDate: stat.startDate, endDate: stat.endDate, value: value)
     }
 
     /// 지정한 양적 데이터(identifier)에 대해 통계 정보를 비동기적으로 가져옵니다.
@@ -387,7 +389,7 @@ final class DefaultHealthService: HealthService {
         options: HKStatisticsOptions,
         interval intervalComponents: DateComponents,
         unit: HKUnit
-    ) async throws -> [HKResult] {
+    ) async throws -> [HKData] {
         let stats: [HKStatistics] = try await fetchStatisticsCollection(
             for: identifier,
             from: startDate,
@@ -400,7 +402,7 @@ final class DefaultHealthService: HealthService {
             guard let value = options.quantity(for: stat, unit: unit) else {
                 return nil
             }
-            return (stat.startDate, stat.endDate, value)
+            return HKData(startDate: stat.startDate, endDate: stat.endDate, value: value)
         }
     }
     

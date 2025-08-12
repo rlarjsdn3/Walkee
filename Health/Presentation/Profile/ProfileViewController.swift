@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import TSAlertController
 
 struct ProfileCellModel {
     let title: String
@@ -90,11 +91,17 @@ extension ProfileViewController: UITableViewDataSource {
         let model = sectionItems[indexPath.section][indexPath.row]
         
         var content = cell.defaultContentConfiguration()
-        content.text  = model.title
         content.image = UIImage(systemName: model.iconName)
+        content.text = model.title
         content.imageProperties.tintColor = .systemGray
+        
         cell.contentConfiguration = content
         cell.backgroundColor = UIColor.buttonText.withAlphaComponent(0.1)
+        
+        let bgView = UIView()
+        bgView.backgroundColor = UIColor.systemGray.withAlphaComponent(0.2)
+        cell.selectedBackgroundView = bgView
+        cell.selectionStyle = .default
         
         if model.isSwitch {
             let toggle = UISwitch(frame: .zero)
@@ -104,16 +111,20 @@ extension ProfileViewController: UITableViewDataSource {
             toggle.addTarget(self, action: #selector(switchChanged(_:)), for: .valueChanged)
             cell.accessoryView = toggle
             cell.selectionStyle = .none
+        } else {
+            cell.accessoryView = nil
+            cell.accessoryType = .disclosureIndicator
+            cell.selectionStyle = .default
         }
         
         return cell
     }
     
 }
+
 extension ProfileViewController: UITableViewDelegate {
     
-    func tableView(_ tableView: UITableView,
-                   didSelectRowAt indexPath: IndexPath) {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
         let model = sectionItems[indexPath.section][indexPath.row]
@@ -122,7 +133,11 @@ extension ProfileViewController: UITableViewDelegate {
         case "신체 정보":
             performSegue(withIdentifier: "bodyInfo", sender: nil)
         case "목표 걸음 설정":
-            break
+            presentSheet(on: self,
+                         buildView: { EditStepGoalView() }) { [weak self] view in
+                guard let self, let v = view as? EditStepGoalView else { return }
+                print(v.value)
+            }
         case "일반 설정":
             break
         default:

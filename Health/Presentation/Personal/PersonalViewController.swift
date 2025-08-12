@@ -51,7 +51,6 @@ class PersonalViewController: CoreGradientViewController {
 
     private func weekSummaryCellRegistration() -> UICollectionView.CellRegistration<WeekSummaryCell, Void> {
         UICollectionView.CellRegistration<WeekSummaryCell, Void>(cellNib: WeekSummaryCell.nib) { cell, indexPath, _ in
-            // WeekSummaryCell 셀 설정
         }
     }
 
@@ -105,7 +104,7 @@ class PersonalViewController: CoreGradientViewController {
                 return collectionView.dequeueConfiguredReusableCell(using: monthSummaryRegistration, for: indexPath, item: ())
             case .aiSummaryItem:
                 return collectionView.dequeueConfiguredReusableCell(using: aiSummaryCellRegistration, for: indexPath, item: ())
-            case .recommendPlaceItem(let course): 
+            case .recommendPlaceItem(let course):
                 return collectionView.dequeueConfiguredReusableCell(using: recommendPlaceRegistration, for: indexPath, item: course)
             }
         }
@@ -154,10 +153,10 @@ class PersonalViewController: CoreGradientViewController {
                 await MainActor.run {
                     self.courses = response.response.body.items.item
                     self.applyDataSnapshot()
-                    print("✅ 로드된 코스 수: \(self.courses.count)")
+                    print("로드된 코스 수: \(self.courses.count)")
                 }
             } catch {
-                print("❌ 코스 로드 실패: \(error)")
+                print("코스 로드 실패: \(error)")
             }
         }
     }

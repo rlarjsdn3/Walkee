@@ -14,10 +14,17 @@ final class CalendarDateCell: CoreCollectionViewCell {
     private let borderLayer = CAShapeLayer()
 
     private var previousInset: CGFloat?
+    private var isBlankCell = false
+    private var isCompletedCell = false
 
     override func setupHierarchy() {
         super.setupHierarchy()
+
         circleView.addSubview(progressBar)
+
+        registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: CalendarDateCell, previousTraitCollection) in
+            self.updateBorderLayer()
+        }
     }
 
     override func setupConstraints() {
@@ -56,9 +63,14 @@ final class CalendarDateCell: CoreCollectionViewCell {
     }
 
     private func configureCircleViewUI() {
-        circleView.applyCornerStyle(.circular) // 가로/세로 전환시
+        circleView.applyCornerStyle(.circular)
+        updateBorderLayer()
+    }
 
-        if traitCollection.userInterfaceStyle == .light {
+    private func updateBorderLayer() {
+        let shouldShowBorder = traitCollection.userInterfaceStyle == .light && !isBlankCell && !isCompletedCell
+
+        if shouldShowBorder {
             let borderWidth = bounds.width * 0.08
             let radius = (min(circleView.bounds.width, circleView.bounds.height) - borderWidth) / 2
             let path = UIBezierPath(
@@ -73,40 +85,53 @@ final class CalendarDateCell: CoreCollectionViewCell {
             borderLayer.strokeColor = UIColor(named: "boxBgLightModeStrokeColor")?.cgColor
             borderLayer.fillColor = UIColor.clear.cgColor
             borderLayer.lineWidth = borderWidth
+            borderLayer.isHidden = false
 
-            // ProgressBar 아래에 border 추가
-            circleView.layer.insertSublayer(borderLayer, below: progressBar.layer)
+            if borderLayer.superlayer == nil {
+                circleView.layer.insertSublayer(borderLayer, below: progressBar.layer)
+            }
+        } else {
+            borderLayer.isHidden = true
         }
     }
 
-    func configure(date: Date, currentSteps: Int, goalSteps: Int) {
-        // 달력상 빈 날짜일 때
+    func configure(date: Date, currentSteps: Int?, goalSteps: Int?) {
+        // 빈 셀 처리
         if date == .distantPast {
+            isBlankCell = true
             configureForBlank()
             return
         }
 
-        circleView.applyCornerStyle(.circular) // 초기 진입시
+        isBlankCell = false
         dateLabel.text = "\(date.day)"
 
-        let isCompleted = currentSteps >= goalSteps
+        // 데이터 없음 처리
+        guard let current = currentSteps, let goal = goalSteps else {
+            isCompletedCell = false
+            circleView.backgroundColor = UIColor.boxBg
+            progressBar.isHidden = true
+            updateBorderLayer()
+            return
+        }
 
-        if isCompleted {
+        isCompletedCell = current >= goal
+
+        if isCompletedCell {
             circleView.backgroundColor = UIColor.accent
-            borderLayer.isHidden = true
             progressBar.isHidden = true
         } else {
             circleView.backgroundColor = UIColor.boxBg
-            borderLayer.isHidden = false
             progressBar.isHidden = false
-            progressBar.progress = CGFloat(currentSteps) / CGFloat(goalSteps)
+            progressBar.progress = CGFloat(current) / CGFloat(goal)
         }
+        updateBorderLayer()
     }
 
     private func configureForBlank() {
         circleView.backgroundColor = .clear
         dateLabel.text = ""
-        borderLayer.isHidden = true
         progressBar.isHidden = true
+        updateBorderLayer()
     }
 }

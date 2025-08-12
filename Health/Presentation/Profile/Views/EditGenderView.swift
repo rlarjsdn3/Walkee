@@ -1,0 +1,101 @@
+//
+//  EditGenderView.swift
+//  Health
+//
+//  Created by 하재준 on 8/9/25.
+//
+
+import UIKit
+
+final class EditGenderView: CoreView {
+    
+    enum Gender: String, CaseIterable {
+        case female = "여성"
+        case male = "남성"
+    }
+    
+    
+    private let buttonSize = min(UIScreen.main.bounds.width, UIScreen.main.bounds.height) * 0.25
+    
+    var selectedGender: Gender? {
+        didSet {
+            updateButtonConfig()
+        }
+    }
+    
+    private lazy var femaleButton = createGenderButton(for: .female)
+    private lazy var maleButton = createGenderButton(for: .male)
+    
+    private lazy var stackView: UIStackView = {
+        let stack = UIStackView(arrangedSubviews: [femaleButton, maleButton])
+        stack.axis = .horizontal
+        stack.alignment = .center
+        stack.spacing = 35
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
+    }()
+    
+    override func setupAttribute() {
+        super.setupAttribute()
+        backgroundColor = .clear
+    }
+    
+    override func setupHierarchy() {
+        addSubview(stackView)
+    }
+    
+    override func setupConstraints() {
+        NSLayoutConstraint.activate([
+            stackView.centerXAnchor.constraint(equalTo: centerXAnchor),
+            stackView.centerYAnchor.constraint(equalTo: centerYAnchor),
+            stackView.heightAnchor.constraint(equalToConstant: 300),
+            
+            femaleButton.widthAnchor.constraint(equalToConstant: buttonSize),
+            femaleButton.heightAnchor.constraint(equalToConstant: buttonSize),
+            
+            maleButton.widthAnchor.constraint(equalToConstant: buttonSize),
+            maleButton.heightAnchor.constraint(equalToConstant: buttonSize)
+        ])
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        
+        if traitCollection.preferredContentSizeCategory != previousTraitCollection?.preferredContentSizeCategory {
+            setNeedsLayout()
+        }
+    }
+    
+    private func createGenderButton(for gender: Gender) -> UIButton {
+        let button = UIButton(type: .system)
+        button.setTitle(gender.rawValue, for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.backgroundColor = .buttonBackground
+        button.titleLabel?.font = UIDevice.current.userInterfaceIdiom == .pad
+            ? .preferredFont(forTextStyle: .largeTitle)
+            : .preferredFont(forTextStyle: .body)
+        button.titleLabel?.adjustsFontForContentSizeCategory = true
+        button.clipsToBounds = true
+        button.layer.cornerRadius = buttonSize / 2
+        button.translatesAutoresizingMaskIntoConstraints = false
+        
+        button.addTarget(self, action: #selector(genderButtonTapped(_:)), for: .touchUpInside)
+        button.tag = Gender.allCases.firstIndex(of: gender) ?? 0
+        return button
+    }
+    
+    func setInitialGender(_ gender: Gender?) {
+        selectedGender = gender
+    }
+    
+    @objc private func genderButtonTapped(_ sender: UIButton) {
+        guard let gender = Gender.allCases[safe: sender.tag] else { return }
+        selectedGender = gender
+    }
+    
+    private func updateButtonConfig() {
+        femaleButton.backgroundColor = (selectedGender == .female) ? .accent : .buttonBackground
+        maleButton.backgroundColor = (selectedGender == .male) ? .accent : .buttonBackground
+    }
+    
+}

@@ -32,7 +32,7 @@ final class CircleProgressView: CoreView {
     }
 
     /// 현재 진행 중인 값을 나타냅니다. 진행률 계산 시 분자로 사용됩니다.
-    var currentValue: Double = 0 {
+    var currentValue: Double? = nil {
         didSet { self.setNeedsLayout() }
     }
 
@@ -100,17 +100,22 @@ final class CircleProgressView: CoreView {
     override func layoutSubviews() {
         drawStrokeCircle()
 
-        var percentageValue = currentValue / totalValue
-        if percentageValue > 1 { percentageValue = 1 }
-        percentageLabel.text = percentageValue
-            .formatted(.percent.precision(.fractionLength(1)))
+        if let currentValue = currentValue {
+            var percentageValue = currentValue / totalValue
+            if percentageValue > 1 { percentageValue = 1 }
+            percentageLabel.text = percentageValue
+                .formatted(.percent.precision(.fractionLength(1)))
 
-        let progressString = "\(currentValue.formatted()) / \(totalValue.formatted())"
-        if let slashIndex = progressString.firstIndex(of: "/") {
-            let index = progressString.index(after: slashIndex)
-            stepProgressLabel.attributedText = NSAttributedString(string: progressString)
-                .foregroundColor(.systemMint, to: progressString[index...])
+            let progressString = "\(currentValue.formatted()) / \(totalValue.formatted())"
+            if let slashIndex = progressString.firstIndex(of: "/") {
+                let index = progressString.index(after: slashIndex)
+                stepProgressLabel.attributedText = NSAttributedString(string: progressString)
+                    .foregroundColor(.systemMint, to: progressString[index...])
+            } else {
+                stepProgressLabel.text = "-"
+            }
         } else {
+            percentageLabel.text = "-"
             stepProgressLabel.text = "-"
         }
     }
@@ -186,7 +191,6 @@ final class CircleProgressView: CoreView {
 
     private func drawStrokeCircle() {
         let adjustedStartAngle = -90.radian
-        let calculatedEndAngle = ((currentValue / totalValue) * 360.0 - 90.0).radian
         
         drawStrokeCircle(
             in: &backgroundGradientLayer,
@@ -196,15 +200,18 @@ final class CircleProgressView: CoreView {
             darkStrokeColors: backgroundDarkColors,
             lineWidth: backgroundLineWidth
         )
-        
-        drawStrokeCircle(
-            in: &foregroundGradientLayer,
-            startAngle: adjustedStartAngle,
-            endAngle: calculatedEndAngle,
-            lightStrokeColors: foregroundLightColors,
-            darkStrokeColors: foregroundDarkColors,
-            lineWidth: foregroundLineWidth
-        )
+
+        if let currentValue = currentValue {
+            let calculatedEndAngle = ((currentValue / totalValue) * 360.0 - 90.0).radian
+            drawStrokeCircle(
+                in: &foregroundGradientLayer,
+                startAngle: adjustedStartAngle,
+                endAngle: calculatedEndAngle,
+                lightStrokeColors: foregroundLightColors,
+                darkStrokeColors: foregroundDarkColors,
+                lineWidth: foregroundLineWidth
+            )
+        }
     }
 }
 

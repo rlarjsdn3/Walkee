@@ -10,13 +10,20 @@ import UIKit
 final class DailyGoalRingCollectionViewCell: CoreCollectionViewCell {
 
     @IBOutlet weak var circleProgressView: CircleProgressView!
-
 }
 
 extension DailyGoalRingCollectionViewCell {
 
-    func configure(with viewModel: DailyGoalRingCellViewModel) {
-        circleProgressView.totalValue = viewModel.goalStepCount
-        circleProgressView.currentValue = viewModel.currentStepCount
+    func bind(with viewModel: DailyGoalRingCellViewModel) {
+        Task {
+            do {
+                circleProgressView.totalValue = viewModel.goalStepCount
+                circleProgressView.currentValue = try await viewModel.fetchStatisticsHKData().value
+            } catch {
+                circleProgressView.currentValue = nil
+
+                print("🔴 Failed to fetch statistics HKData: \(error) (DailyGoalRingCell)")
+            }
+        }
     }
 }

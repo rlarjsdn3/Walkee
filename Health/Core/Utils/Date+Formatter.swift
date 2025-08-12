@@ -14,7 +14,7 @@ extension Date {
         /// 요일 전체 (예: "월요일")
         case weekday = "EEEE"
         /// 요일 축약형 (예: "월")
-        case weekdayShortand = "EEE"
+        case weekdayShorthand = "EEE"
         /// 월일 형식 (예: "8월 1일")
         case md = "M월 d일"
         /// 월일 형식 (예: "8. 1")

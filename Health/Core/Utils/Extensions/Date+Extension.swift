@@ -160,6 +160,11 @@ extension Date {
     func addingDays(_ days: Int) -> Date? {
         calendar.date(byAdding: .day, value: days, to: self)
     }
+
+    ///
+    func addingMonths(_ months: Int) -> Date? {
+        calendar.date(byAdding: .month, value: months, to: self)
+    }
 }
 
 extension Date {

@@ -257,7 +257,7 @@ extension PersonalContent.Section {
 
         if isPad {
             if isLandscape {
-                columnsCount = 2     // iPad 가로: 2열
+                columnsCount = 3     // iPad 가로: 2열
                 horizontalSpacing = 16
 
             } else {
@@ -304,7 +304,7 @@ extension PersonalContent.Section {
         let section = NSCollectionLayoutSection(group: group)
         section.interGroupSpacing = 12  // 각 그룹(행) 사이의 간격
         section.contentInsets = NSDirectionalEdgeInsets(
-            top: 10,
+            top: 5,
             leading: UICollectionViewConstant.defaultInset,
             bottom: 15,
             trailing: UICollectionViewConstant.defaultInset

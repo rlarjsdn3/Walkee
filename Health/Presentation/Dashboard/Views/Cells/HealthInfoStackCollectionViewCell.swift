@@ -5,6 +5,7 @@
 //  Created by 김건우 on 8/5/25.
 //
 
+import Combine
 import HealthKit
 import UIKit
 import SwiftUI
@@ -17,7 +18,10 @@ final class HealthInfoStackCollectionViewCell: CoreCollectionViewCell {
     @IBOutlet weak var valueLabel: UILabel!
     @IBOutlet weak var chartsContainerView: UIView!
 
-    private var lineChartsHostingController: UIHostingController<LineChartsView>?
+    private var chartsHostingController: UIHostingController<LineChartsView>?
+
+    private var viewModel: HealthInfoStackCellViewModel!
+    private var cancellable: Set<AnyCancellable> = []
 
     override func layoutSubviews() {
 //       symbolContainerView.applyCornerStyle(.circular)
@@ -25,8 +29,9 @@ final class HealthInfoStackCollectionViewCell: CoreCollectionViewCell {
     }
 
     override func prepareForReuse() {
-        lineChartsHostingController = nil
+        chartsHostingController = nil
         chartsContainerView.subviews.forEach { $0.removeFromSuperview() }
+        cancellable.removeAll()
     }
 
     override func setupAttribute() {
@@ -65,39 +70,54 @@ final class HealthInfoStackCollectionViewCell: CoreCollectionViewCell {
 
 extension HealthInfoStackCollectionViewCell {
 
-    func configure(
+    func bind(
         with viewModel: HealthInfoStackCellViewModel,
         parent: UIViewController?
     ) {
-        titleLabel.text = viewModel.title
-        valueLabel.attributedText = NSAttributedString(string: "1,000보")
-            .font(.preferredFont(forTextStyle: .footnote), to: "보") // TODO: - 실제 값 할당하기
-        symbolImageView.image = UIImage(systemName: viewModel.systemName)
+        self.viewModel = viewModel
 
-        configureLineChartsHostingController(with: viewModel, parent: parent)
+        viewModel.statePublisher
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] state in self?.render(state, parent: parent) }
+            .store(in: &cancellable)
     }
 
-    private func configureLineChartsHostingController(
-        with viewModel: HealthInfoStackCellViewModel,
+    private func render(_ new: HKLoadState<HKData>, parent: UIViewController?) {
+        var attrString: NSAttributedString
+        let unitString = viewModel.itemID.kind.unitString
+        titleLabel.text = viewModel.itemID.kind.title
+        symbolImageView.image = UIImage(systemName: viewModel.itemID.kind.systemName)
+
+        switch new {
+        case .loading:
+            return // TODO: - 로딩 시 Skeleton Effect 출력하기
+
+        case let .success(data, collection):
+            attrString = NSAttributedString(string: String(format: "%.1f", data.value) + unitString)
+                .font(.preferredFont(forTextStyle: .footnote), to: unitString)
+                .foregroundColor(.secondaryLabel, to: unitString)
+
+            guard let collection = collection else { return }
+            addChartsHostingController(with: collection, parent: parent)
+
+        case .failure:
+            attrString = NSAttributedString(string: "- " + unitString)
+                .font(.preferredFont(forTextStyle: .footnote), to: unitString)
+                .foregroundColor(.secondaryLabel, to: unitString)
+
+            print("🔴 Failed to fetch HealthKit data: HealthInfoStackCell (\(viewModel.itemID.kind.quantityTypeIdentifier))")
+        }
+
+        valueLabel.attributedText = attrString
+    }
+
+    private func addChartsHostingController(
+        with chartsData: [HKData],
         parent: UIViewController?
     ) {
-        Task {
-            do {
-                let hkDatas = try await viewModel.fetchStatisticsCollectionHKData(
-                    from: .now.addingTimeInterval(-7 * 86_400).startOfDay(),
-                    to: .now.endOfDay(),
-                    options: .cumulativeSum
-                ).prefix(through: 7)
-
-                let chartsData = Array(hkDatas)
-                let hostingVC = LineChartsHostingController(chartsData: chartsData)
-
-                parent?.addChild(hostingVC, to: chartsContainerView)
-                self.lineChartsHostingController = hostingVC
-
-            } catch {
-                print("❌ Failed to fetch HealthKit data: \(error)")
-            }
-        }
+        let hostingVC = LineChartsHostingController(chartsData: chartsData)
+        parent?.addChild(hostingVC, to: chartsContainerView)
+        self.chartsHostingController = hostingVC
     }
 }
