@@ -9,6 +9,7 @@ import UIKit
 
 class AISummaryCell: CoreCollectionViewCell {
 
+    @IBOutlet weak var aiSummaryLabel: UILabel!
     @IBOutlet weak var summaryBackgroundView: UIView!
     @IBOutlet weak var backgroundHeight: NSLayoutConstraint!
 
