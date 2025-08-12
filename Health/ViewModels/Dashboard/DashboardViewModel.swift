@@ -17,6 +17,9 @@ final class DashboardViewModel {
 
     private(set) var anchorDate: Date
 
+    private(set) var goalRingIDs: [DailyGoalRingCellViewModel.ItemID] = []
+    private(set) var goalRingCells: [DailyGoalRingCellViewModel.ItemID: DailyGoalRingCellViewModel] = [:]
+
     private(set) var stackIDs: [HealthInfoStackCellViewModel.ItemID] = []
     private(set) var stackCells: [HealthInfoStackCellViewModel.ItemID: HealthInfoStackCellViewModel] = [:]
     
@@ -37,9 +40,22 @@ final class DashboardViewModel {
 
     ///
     func buildDashboardCells(for environment: DashboardEnvironment) {
+        buildGoalRingCells()
         buildStackCells()
         buildCardCells()
         buildBarChartsCells(for: environment)
+    }
+
+    private func buildGoalRingCells() {
+        let newIDs = [DailyGoalRingCellViewModel.ItemID()]
+
+        var newCells: [DailyGoalRingCellViewModel.ItemID: DailyGoalRingCellViewModel] = [:]
+        newIDs.forEach { id in
+            newCells.updateValue(DailyGoalRingCellViewModel(itemID: id), forKey: id)
+        }
+
+        goalRingIDs = newIDs
+        goalRingCells = newCells
     }
 
     private func buildStackCells() {
@@ -107,9 +123,38 @@ final class DashboardViewModel {
 extension DashboardViewModel {
 
     func loadHKData() {
+        loadHKDataForGoalRingCells()
         loadHKDataForStackCells()
         loadHKDataForCardCells()
         loadHKDataForBarChartsCells()
+    }
+
+    func loadHKDataForGoalRingCells() {
+        let (_, goalStepCount) = fetchCoreDataUserInfo()
+
+        Task {
+            for (id, vm) in self.goalRingCells {
+                vm.setState(.loading)
+
+                do {
+                    let hkData = try await fetchStatisticsHKData(
+                        for: .stepCount,
+                        from: anchorDate.startOfDay(),
+                        to: anchorDate.endOfDay(),
+                        options: .cumulativeSum,
+                        unit: .count()
+                    )
+
+                    let content = GoalRingContent(
+                        goalStepCount: goalStepCount,
+                        currentStepCount: Int(hkData.value)
+                    )
+                    vm.setState(.success(content))
+                } catch {
+                    vm.setState(.failure(HKError(.unknownError)))
+                }
+            }
+        }
     }
 
     func loadHKDataForStackCells() {
@@ -123,7 +168,7 @@ extension DashboardViewModel {
                 }
 
                 do {
-                    let data = try await fetchStatisticsHKData(
+                    let hkData = try await fetchStatisticsHKData(
                         for: id.kind.quantityTypeIdentifier,
                         from: anchorDate.startOfDay(),
                         to: anchorDate.endOfDay(),
@@ -138,8 +183,11 @@ extension DashboardViewModel {
                         options: .cumulativeSum,
                         unit: id.kind.unit
                     )
-                    
-                    vm.setState(.success(data: data, collection: collection))
+
+                    let charts = collection.map { InfoStackContent.Charts(date: $0.endDate, value: $0.value) }
+                    let content = InfoStackContent(value: hkData.value, charts: charts)
+                    print(content)
+                    vm.setState(.success(content))
                 } catch {
                     vm.setState(.failure(HKError(.unknownError)))
                 }
@@ -153,15 +201,16 @@ extension DashboardViewModel {
                 vm.setState(.loading)
                 
                 do {
-                    let data = try await fetchStatisticsHKData(
+                    let hkData = try await fetchStatisticsHKData(
                         for: id.kind.quantityTypeIdentifier,
                         from: anchorDate.startOfDay(),
                         to: anchorDate.endOfDay(),
                         options: .mostRecent,
                         unit: id.kind.unit
                     )
-                    
-                    vm.setState(.success(data: data))
+
+                    let content = InfoCardContent(value: hkData.value)
+                    vm.setState(.success(content))
                 } catch {
                     vm.setState(.failure(HKError(.unknownError)))
                 }
@@ -189,7 +238,8 @@ extension DashboardViewModel {
                         unit: .count()
                     )
 
-                    vm.setState(.success(collection: collection))
+                    let contents = collection.map { DashboardChartsContent(date: $0.endDate, value: $0.value) }
+                    vm.setState(.success(contents))
                 } catch {
                     vm.setState(.failure(HKError(.unknownError)))
                 }

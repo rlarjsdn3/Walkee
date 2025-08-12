@@ -129,7 +129,13 @@ final class DashboardViewController: CoreGradientViewController {
         snapshot.appendItems([.topBar], toSection: .top)
 
         // -------
-        var stackItems: [DashboardContent.Item] = [.goalRing(.init(goalStepCount: 10_000))]
+        var stackItems: [DashboardContent.Item] = []
+        viewModel.goalRingIDs.forEach { id in
+            stackItems.append(.goalRing(id))
+        }
+        // ------- 코드 리팩토링하기
+
+        // -------
         viewModel.stackIDs.forEach { id in
             stackItems.append(.stackInfo(id))
         }
@@ -170,9 +176,10 @@ fileprivate extension DashboardViewController {
         }
     }
 
-    func createDailyGoalRingCellRegistration() -> UICollectionView.CellRegistration<DailyGoalRingCollectionViewCell, DailyGoalRingCellViewModel> {
-        UICollectionView.CellRegistration<DailyGoalRingCollectionViewCell, DailyGoalRingCellViewModel>(cellNib: DailyGoalRingCollectionViewCell.nib) { cell, indexPath, viewModel in
-            cell.bind(with: viewModel)
+    func createDailyGoalRingCellRegistration() -> UICollectionView.CellRegistration<DailyGoalRingCollectionViewCell, DailyGoalRingCellViewModel.ItemID> {
+        UICollectionView.CellRegistration<DailyGoalRingCollectionViewCell, DailyGoalRingCellViewModel.ItemID>(cellNib: DailyGoalRingCollectionViewCell.nib) { [weak self] cell, indexPath, id in
+            guard let vm = self?.viewModel.goalRingCells[id] else { return }
+            cell.bind(with: vm)
         }
     }
 

@@ -83,7 +83,7 @@ extension HealthInfoStackCollectionViewCell {
             .store(in: &cancellable)
     }
 
-    private func render(_ new: LoadState<HKData>, parent: UIViewController?) {
+    private func render(_ new: LoadState<InfoStackContent>, parent: UIViewController?) {
         var attrString: NSAttributedString
         let unitString = viewModel.itemID.kind.unitString
         titleLabel.text = viewModel.itemID.kind.title
@@ -96,16 +96,14 @@ extension HealthInfoStackCollectionViewCell {
         case .loading:
             return // TODO: - 로딩 시 Skeleton Effect 출력하기
 
-        case let .success(data, collection):
-            guard let data = data,
-                  let collection = collection
-            else { return }
-            
-            attrString = NSAttributedString(string: String(format: "%.1f", data.value) + unitString)
+        case let .success(content):
+            attrString = NSAttributedString(string: String(format: "%0.f", content.value) + unitString)
                 .font(.preferredFont(forTextStyle: .footnote), to: unitString)
                 .foregroundColor(.secondaryLabel, to: unitString)
 
-            addChartsHostingController(with: collection, parent: parent)
+            if let charts = content.charts {
+                addChartsHostingController(with: charts, parent: parent)
+            }
 
         case .failure:
             attrString = NSAttributedString(string: "- " + unitString)
@@ -119,11 +117,13 @@ extension HealthInfoStackCollectionViewCell {
     }
 
     private func addChartsHostingController(
-        with chartsData: [HKData],
+        with charts: [InfoStackContent.Charts],
         parent: UIViewController?
     ) {
-        let hostingVC = LineChartsHostingController(chartsData: chartsData)
-        parent?.addChild(hostingVC, to: chartsContainerView)
-        self.chartsHostingController = hostingVC
+        // TOOD: - LineCharts가 범용 데이터를 받도록 코드 리팩토링하기
+        let hkd = charts.map { HKData(startDate: $0.date, endDate: $0.date, value: $0.value) }
+        let hVC = LineChartsHostingController(chartsData: hkd)
+        parent?.addChild(hVC, to: chartsContainerView)
+        self.chartsHostingController = hVC
     }
 }

@@ -8,6 +8,9 @@
 import Combine
 import HealthKit
 
+typealias DashboardChartsContent = DashboardBarChartsCellViewModel.Content
+typealias DashboardChartsContents = [DashboardChartsContent]
+
 final class DashboardBarChartsCellViewModel { // TODO: - Cell에서 처리하고 있는 HKData 페치 로직을 VC의 VM으로 빼보기
     
     ///
@@ -15,7 +18,13 @@ final class DashboardBarChartsCellViewModel { // TODO: - Cell에서 처리하고
         let id: UUID = UUID()
         let kind: BarChartsBackKind
     }
-    
+
+    ///
+    struct Content: Hashable {
+        let date: Date
+        let value: Double
+    }
+
     ///
     private(set) var itemID: ItemID
     
@@ -28,10 +37,10 @@ final class DashboardBarChartsCellViewModel { // TODO: - Cell에서 처리하고
     }
     
     ///
-    private let stateSubject = CurrentValueSubject<HKLoadState, Never>(.idle)
-    
+    private let stateSubject = CurrentValueSubject<LoadState<DashboardChartsContents>, Never>(.idle)
+
     ///
-    var statePublisher: AnyPublisher<HKLoadState, Never> {
+    var statePublisher: AnyPublisher<LoadState<DashboardChartsContents>, Never> {
         stateSubject.eraseToAnyPublisher()
     }
     
@@ -44,7 +53,7 @@ final class DashboardBarChartsCellViewModel { // TODO: - Cell에서 처리하고
     }
     
     ///
-    func setState(_ new: HKLoadState) {
+    func setState(_ new: LoadState<DashboardChartsContents>) {
         stateSubject.send(new)
         didChange?(itemID)
     }

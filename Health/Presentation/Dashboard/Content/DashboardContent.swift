@@ -28,7 +28,7 @@ enum DashboardContent {
         /// 상단 바 항목
         case topBar
         /// 목표 링 셀
-        case goalRing(DailyGoalRingCellViewModel)
+        case goalRing(DailyGoalRingCellViewModel.ItemID)
         /// 건강 정보 스택 셀
         case stackInfo(HealthInfoStackCellViewModel.ItemID)
         /// 막대 차트 셀
@@ -48,7 +48,7 @@ extension DashboardContent.Item {
     func dequeueReusableCollectionViewCell(
         collectionView: UICollectionView,
         topBarCellRegistration: UICollectionView.CellRegistration<DashboardTopBarCollectionViewCell, Void>,
-        dailyGoalRingCellRegistration: UICollectionView.CellRegistration<DailyGoalRingCollectionViewCell, DailyGoalRingCellViewModel>,
+        dailyGoalRingCellRegistration: UICollectionView.CellRegistration<DailyGoalRingCollectionViewCell, DailyGoalRingCellViewModel.ItemID>,
         healthInfoStackCellRegistration: UICollectionView.CellRegistration<HealthInfoStackCollectionViewCell, HealthInfoStackCellViewModel.ItemID>,
         barChartsCellRegistration: UICollectionView.CellRegistration<DashboardBarChartsCollectionViewCell, DashboardBarChartsCellViewModel.ItemID>,
         alanSummaryCellRegistration: UICollectionView.CellRegistration<AlanActivitySummaryCollectionViewCell, AlanActivitySummaryCellViewModel>,
@@ -63,11 +63,11 @@ extension DashboardContent.Item {
                 for: indexPath,
                 item: ()
             )
-        case let .goalRing(viewModel):
+        case let .goalRing(id):
             return collectionView.dequeueConfiguredReusableCell(
                 using: dailyGoalRingCellRegistration,
                 for: indexPath,
-                item: viewModel
+                item: id
             )
         case let .stackInfo(id):
             return collectionView.dequeueConfiguredReusableCell(

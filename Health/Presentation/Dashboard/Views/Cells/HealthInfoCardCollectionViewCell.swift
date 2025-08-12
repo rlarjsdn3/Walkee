@@ -70,7 +70,7 @@ extension HealthInfoCardCollectionViewCell {
             .store(in: &cancellable)
     }
     
-    private func render(for state: HKLoadState) {
+    private func render(for state: LoadState<InfoCardContent>) {
         var attrString: NSAttributedString
         let unitString = viewModel.itemID.kind.unitString
         
@@ -85,11 +85,9 @@ extension HealthInfoCardCollectionViewCell {
         case .loading:
             return // TODO: - 스켈레톤 UI 구성하기
             
-        case let .success(data, _):
-            guard let data = data else { return }
-            
-            let status = viewModel.evaluateGaitStatus(data.value)
-            statusProgressBarView.currentValue = data.value
+        case let .success(content):
+            let status = viewModel.evaluateGaitStatus(content.value)
+            statusProgressBarView.currentValue = content.value
             statusProgressBarView.numberFormatter = {
                 switch viewModel.itemID.kind {
                 case .walkingSpeed, .walkingStepLength:                            return nil
@@ -99,8 +97,8 @@ extension HealthInfoCardCollectionViewCell {
             
             let hkValue = {
                 switch viewModel.itemID.kind {
-                case .walkingSpeed, .walkingStepLength:                            return data.value
-                case .walkingAsymmetryPercentage, .walkingDoubleSupportPercentage: return data.value * 100.0
+                case .walkingSpeed, .walkingStepLength:                            return content.value
+                case .walkingAsymmetryPercentage, .walkingDoubleSupportPercentage: return content.value * 100.0
                 }
             }()
             

@@ -5,43 +5,58 @@
 //  Created by 김건우 on 8/5/25.
 //
 
+import Combine
 import Foundation
 
-final class DailyGoalRingCellViewModel: @unchecked Sendable {
+typealias GoalRingContent = DailyGoalRingCellViewModel.Content
 
-    let anchorDate: Date
-    let goalStepCount: Double
-
-    @Injected private var healthService: (any HealthService)
+final class DailyGoalRingCellViewModel {
 
     ///
-    init(
-        anchorDate: Date = .now,
-        goalStepCount: Int
-    ) {
-        self.anchorDate = anchorDate
-        self.goalStepCount = Double(goalStepCount)
+    struct ItemID: Hashable {
+        let id: UUID = UUID()
     }
 
     ///
-    func fetchStatisticsHKData() async throws -> HKData {
-        try await healthService.fetchStatistics(
-            for: .stepCount,
-            from: anchorDate.startOfDay(),
-            to: anchorDate.endOfDay(),
-            options: .cumulativeSum,
-            unit: .count()
-        )
+    struct Content: Equatable {
+        let goalStepCount: Int
+        let currentStepCount: Int
+    }
+
+    ///
+    private(set) var itemID: ItemID
+
+    ///
+    private let stateSubject = CurrentValueSubject<LoadState<GoalRingContent>, Never>(.idle)
+
+    ///
+    var statePublisher: AnyPublisher<LoadState<GoalRingContent>, Never> {
+        stateSubject.eraseToAnyPublisher()
+    }
+
+    ///
+    var didChange: ((ItemID) -> Void)?
+
+
+    ///
+    init(itemID: ItemID) {
+        self.itemID = itemID
+    }
+
+    ///
+    func setState(_ new: LoadState<GoalRingContent>) {
+        stateSubject.send(new)
+        didChange?(itemID)
     }
 }
 
 extension DailyGoalRingCellViewModel: Hashable {
 
     nonisolated func hash(into hasher: inout Hasher) {
-        hasher.combine(ObjectIdentifier(self))
+        hasher.combine(itemID)
     }
 
     nonisolated static func == (lhs: DailyGoalRingCellViewModel, rhs: DailyGoalRingCellViewModel) -> Bool {
-        return ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
+        return lhs.itemID == rhs.itemID
     }
 }

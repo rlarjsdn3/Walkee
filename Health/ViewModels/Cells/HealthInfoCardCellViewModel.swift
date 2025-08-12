@@ -8,6 +8,8 @@
 import Combine
 import HealthKit
 
+typealias InfoCardContent = HealthInfoCardCellViewModel.Content
+
 final class HealthInfoCardCellViewModel {
 
     ///
@@ -15,17 +17,22 @@ final class HealthInfoCardCellViewModel {
         let id: UUID = UUID()
         let kind: DashboardCardKind
     }
-    
+
+    ///
+    struct Content: Equatable {
+        let value: Double
+    }
+
     ///
     private(set) var anchorAge: Int
     ///
     private(set) var itemID: ItemID
     
     ///
-    private let stateSubject = CurrentValueSubject<HKLoadState, Never>(.idle)
-    
+    private let stateSubject = CurrentValueSubject<LoadState<InfoCardContent>, Never>(.idle)
+
     ///
-    var statePublisher: AnyPublisher<HKLoadState, Never> {
+    var statePublisher: AnyPublisher<LoadState<InfoCardContent>, Never> {
         stateSubject.eraseToAnyPublisher()
     }
     
@@ -39,7 +46,7 @@ final class HealthInfoCardCellViewModel {
     }
     
     ///
-    func setState(_ new: HKLoadState) {
+    func setState(_ new: LoadState<InfoCardContent>) {
         stateSubject.send(new)
         didChange?(itemID)
     }

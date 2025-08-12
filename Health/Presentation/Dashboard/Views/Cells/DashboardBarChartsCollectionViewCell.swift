@@ -46,7 +46,7 @@ extension DashboardBarChartsCollectionViewCell {
     
     }
     
-    private func render(for state: HKLoadState) {
+    private func render(for state: LoadState<DashboardChartsContents>) {
         headerLabelView.text = viewModel.headerTitle
         
         switch state {
@@ -56,13 +56,11 @@ extension DashboardBarChartsCollectionViewCell {
         case .loading:
             return // TODO: - 스켈레톤 UI 코드 구성하기
             
-        case let .success(_, collection):
-            guard let collection = collection else { return }
-            
-            let avgValue = collection.reduce(0, { $0 + Int($1.value) }) / collection.count
-            
+        case let .success(chartsDatas):
+            let avgValue = chartsDatas.reduce(0.0, { $0 + $1.value }) / Double(chartsDatas.count)
+
             barChartsView.chartData = prepareChartData(
-                collection,
+                chartsDatas,
                 type: viewModel.itemID.kind
             )
 
@@ -86,19 +84,19 @@ extension DashboardBarChartsCollectionViewCell {
     }
 
 
-    private func prepareChartData(_ hkDatas: [HKData], type: BarChartsBackKind) -> BarChartsView.ChartData {
-        let chartsElements = hkDatas.map {
+    private func prepareChartData(_ chartsDatas: DashboardChartsContents, type: BarChartsBackKind) -> BarChartsView.ChartData {
+        let chartsElements = chartsDatas.map {
             if case .daysBack = type {
                 return BarChartsView.ChartData.Element(
                     value: $0.value,
-                    xLabel: $0.startDate.formatted(using: .weekdayShorthand),
-                    date: $0.startDate
+                    xLabel: $0.date.formatted(using: .weekdayShorthand),
+                    date: $0.date
                 )
             } else {
                 return BarChartsView.ChartData.Element(
                     value: $0.value,
-                    xLabel: $0.startDate.formatted(.dateTime.month(.defaultDigits)) + "월",
-                    date: $0.startDate
+                    xLabel: $0.date.formatted(.dateTime.month(.defaultDigits)) + "월",
+                    date: $0.date
                 )
             }
         }
