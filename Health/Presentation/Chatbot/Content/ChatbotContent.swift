@@ -15,7 +15,7 @@ enum MessageType {
 }
 
 struct ChatMessage {
-	let text: String
+	var text: String
 	let type: MessageType
 	let timestamp: Date
 	
