@@ -63,7 +63,7 @@ final class CalendarDateCell: CoreCollectionViewCell {
     }
 
     private func configureCircleViewUI() {
-        circleView.applyCornerStyle(.circular) // 가로/세로 전환시
+        circleView.applyCornerStyle(.circular)
         updateBorderLayer()
     }
 
@@ -95,20 +95,27 @@ final class CalendarDateCell: CoreCollectionViewCell {
         }
     }
 
-    func configure(date: Date, currentSteps: Int, goalSteps: Int) {
-        // 달력상 빈 날짜일 때
+    func configure(date: Date, currentSteps: Int?, goalSteps: Int?) {
+        // 빈 셀 처리
         if date == .distantPast {
             isBlankCell = true
-            isCompletedCell = false
             configureForBlank()
             return
         }
 
         isBlankCell = false
-        circleView.applyCornerStyle(.circular) // 초기 진입시
         dateLabel.text = "\(date.day)"
 
-        isCompletedCell = currentSteps >= goalSteps
+        // 데이터 없음 처리
+        guard let current = currentSteps, let goal = goalSteps else {
+            isCompletedCell = false
+            circleView.backgroundColor = UIColor.boxBg
+            progressBar.isHidden = true
+            updateBorderLayer()
+            return
+        }
+
+        isCompletedCell = current >= goal
 
         if isCompletedCell {
             circleView.backgroundColor = UIColor.accent
@@ -116,7 +123,7 @@ final class CalendarDateCell: CoreCollectionViewCell {
         } else {
             circleView.backgroundColor = UIColor.boxBg
             progressBar.isHidden = false
-            progressBar.progress = CGFloat(currentSteps) / CGFloat(goalSteps)
+            progressBar.progress = CGFloat(current) / CGFloat(goal)
         }
         updateBorderLayer()
     }
