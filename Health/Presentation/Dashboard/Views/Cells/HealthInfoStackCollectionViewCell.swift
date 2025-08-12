@@ -85,7 +85,7 @@ extension HealthInfoStackCollectionViewCell {
             do {
                 let hkDatas = try await viewModel.fetchStatisticsCollectionHKData(options: .cumulativeSum)
 
-                let chartsData = Array(hkDatas.prefix(upTo: 7))
+                let chartsData = Array(hkDatas)
                 let hostingVC = LineChartsHostingController(chartsData: chartsData)
 
                 parent?.addChild(hostingVC, to: chartsContainerView)

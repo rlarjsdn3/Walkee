@@ -38,7 +38,7 @@ extension DashboardBarChartsCollectionViewCell {
         Task {
             do {
                 let hkDatas = try await viewModel.fetchStatisticsCollectionHKDatas(options: .cumulativeSum)
-                let avgData = try await viewModel.fetchStatisticsCollectionHKDatas(options: .discreteAverage)
+                let avgData = hkDatas.reduce(0, { $0 + Int($1.value) }) / hkDatas.count
 
                 // TODO: - 코드 리팩토링하기
                 barChartsView.chartData = prepareChartData(hkDatas, type: viewModel.backType)
@@ -54,7 +54,7 @@ extension DashboardBarChartsCollectionViewCell {
                 // TODO: - 평균값 포매팅 및 글자 폰트 다시 처리하기
 
                 headerLabelView.text = viewModel.headerTitle
-                averageValueLabel.text = (avgData.first?.value.formatted() ?? "0") + "보"
+                averageValueLabel.text = avgData.formatted() + "보"
             } catch {
                 // TODO: - 예외 UI 출력하기
                 print("🔴 Failed to fetch HealthKit Datas: \(error)")

@@ -29,6 +29,11 @@ final class DashboardViewController: CoreGradientViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        Task {
+            let healthService = DefaultHealthService()
+            try await healthService.requestAuthorization() // - 임시 코드!! 반드시 삭제!! ⚠️
+        }
+
         setupDataSource()
         applySnapshot()
     }
@@ -111,14 +116,22 @@ final class DashboardViewController: CoreGradientViewController {
         snapshot.appendItems([.topBar], toSection: .top)
         snapshot.appendItems([.goalRing(.init()), .stackInfo(.init()), .stackInfo(.init()), .stackInfo(.init())], toSection: .ring)
 
-        snapshot.appendItems(
+        snapshot.appendItems( // TODO: - 아이폰/아이패드에 맞게 분리하기
             [.barCharts(.init(back: .daysBack(7))!),
              .barCharts(.init(back: .monthsBack(12))!)],
             toSection: .charts
         )
 
         snapshot.appendItems([.alanSummary(.init())], toSection: .alan)
-        snapshot.appendItems([.cardInfo(.init()),  .cardInfo(.init()), .cardInfo(.init()), .cardInfo(.init())], toSection: .card)
+
+        snapshot.appendItems(
+            [.cardInfo(.init(cardType: .walkingSpeed, age: 27)),
+             .cardInfo(.init(cardType: .walkingStepLength, age: 27)),
+             .cardInfo(.init(cardType: .walkingAsymmetryPercentage, age: 27)),
+             .cardInfo(.init(cardType: .walkingDoubleSupportPercentage, age: 27))],
+            toSection: .card
+        )
+
         snapshot.appendItems([.text], toSection: .bottom)
         dataSource?.apply(snapshot)
     }

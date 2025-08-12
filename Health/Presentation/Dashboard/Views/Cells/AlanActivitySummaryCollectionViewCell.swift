@@ -49,9 +49,9 @@ extension AlanActivitySummaryCollectionViewCell {
     func bind(with viewModel: AlanActivitySummaryCellViewModel) {
         Task {
             do {
-                let message = try await viewModel.askAlanToSummarizeActivity()
-                self.summaryLabel.text = message
-                didReceiveAIMessage?(message)
+//                let message = try await viewModel.askAlanToSummarizeActivity()
+//                self.summaryLabel.text = message
+//                didReceiveAIMessage?(message)
             } catch {
                 // TODO: - 예외 UI 코드 작성하기
                 print("🔴 Failed to summarize activity: \(error)")
