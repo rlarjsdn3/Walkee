@@ -23,7 +23,6 @@ final class EditStepGoalView: CoreView {
     var minValue: Int = 0
     var maxValue: Int = 1_000_00
     
-    
     var onValueChanged: ((Int) -> Void)?
     
     private let buttonDiameter: CGFloat = 72
@@ -56,7 +55,6 @@ final class EditStepGoalView: CoreView {
         return l
     }()
     
-    
     private let valueStack = UIStackView()
     private let hStack = UIStackView()
     
@@ -75,6 +73,44 @@ final class EditStepGoalView: CoreView {
         super.setupAttribute()
         backgroundColor = .clear
         
+        setupConfigure()
+        setupButtons()
+        updateUI()
+        
+    }
+    
+    
+    override func setupConstraints() {
+        let horizontalPadding: CGFloat = UIDevice.current.userInterfaceIdiom == .pad ? 160 : 16
+        
+        NSLayoutConstraint.activate([
+            hStack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: horizontalPadding),
+            hStack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -horizontalPadding),
+            hStack.topAnchor.constraint(equalTo: topAnchor),
+            hStack.bottomAnchor.constraint(equalTo: bottomAnchor)
+        ])
+    }
+    
+    private func setupConfigure() {
+        valueStack.axis = .vertical
+        valueStack.alignment = .center
+        valueStack.spacing = 8
+        
+        valueLabel.font = .preferredFont(forTextStyle: .largeTitle)
+        valueLabel.adjustsFontForContentSizeCategory = true
+        
+        hStack.axis = .horizontal
+        hStack.alignment = .center
+        hStack.spacing = 24
+        hStack.translatesAutoresizingMaskIntoConstraints = false
+        
+        unitLabel.text = "걸음"
+    }
+    
+    private func setupButtons() {
+        minusButton.setImage(UIImage(systemName: "minus"), for: .normal)
+        plusButton.setImage(UIImage(systemName: "plus"), for: .normal)
+        
         [minusButton, plusButton].forEach { b in
             b.translatesAutoresizingMaskIntoConstraints = false
             b.tintColor = .white
@@ -84,43 +120,13 @@ final class EditStepGoalView: CoreView {
             b.widthAnchor.constraint(equalToConstant: buttonDiameter).isActive = true
             b.heightAnchor.constraint(equalToConstant: buttonDiameter).isActive = true
             
-            // 굵은 심볼
             let config = UIImage.SymbolConfiguration(pointSize: 28, weight: .bold, scale: .large)
             b.setPreferredSymbolConfiguration(config, forImageIn: .normal)
-            
-            minusButton.setImage(UIImage(systemName: "minus"), for: .normal)
-            plusButton.setImage(UIImage(systemName: "plus"), for: .normal)
-            
-            minusButton.addTarget(self, action: #selector(decrease), for: .touchUpInside)
-            plusButton.addTarget(self, action: #selector(increase), for: .touchUpInside)
-            
-            valueStack.axis = .vertical
-            valueStack.alignment = .center
-            valueStack.spacing = 8
-            
-            valueLabel.font = .preferredFont(forTextStyle: .largeTitle)
-            valueLabel.adjustsFontForContentSizeCategory = true
-            
-            hStack.axis = .horizontal
-            hStack.alignment = .center
-            hStack.spacing = 24
-            hStack.translatesAutoresizingMaskIntoConstraints = false
-            
-            unitLabel.text = "걸음"
-            
-            updateUI()
         }
+        
+        minusButton.addTarget(self, action: #selector(decrease), for: .touchUpInside)
+        plusButton.addTarget(self, action: #selector(increase), for: .touchUpInside)
     }
-    
-    override func setupConstraints() {
-        NSLayoutConstraint.activate([
-            hStack.leadingAnchor.constraint(equalTo: leadingAnchor),
-            hStack.trailingAnchor.constraint(equalTo: trailingAnchor),
-            hStack.topAnchor.constraint(equalTo: topAnchor),
-            hStack.bottomAnchor.constraint(equalTo: bottomAnchor)
-        ])
-    }
-    
     
     private func updateUI() {
         valueLabel.text = formatter.string(from: NSNumber(value: value))
@@ -140,7 +146,4 @@ final class EditStepGoalView: CoreView {
     override var intrinsicContentSize: CGSize {
         CGSize(width: 320, height: buttonDiameter + 40)
     }
-
-    
-    
 }

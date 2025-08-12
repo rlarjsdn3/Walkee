@@ -113,40 +113,75 @@ extension BodyInfoViewController: UITableViewDelegate {
         
         switch title {
         case "성별":
+            let currentGender: EditGenderView.Gender? = {
+                switch items[indexPath.row].detail {
+                case EditGenderView.Gender.female.rawValue:
+                    return .female
+                case EditGenderView.Gender.male.rawValue:
+                    return .male
+                default:
+                    return nil
+                }
+            }()
+            
             presentSheet(
                 on: self,
                 buildView: {
-                    EditGenderView()
+                    let v = EditGenderView()
+                    v.setInitialGender(currentGender)
+                    return v
                 }) { [weak self] view in
                 guard let self, let v = view as? EditGenderView else { return }
-                self.items[indexPath.row].detail = "\(v.selectedGender)"
+                    if let gender = v.selectedGender {
+                        self.items[indexPath.row].detail = "\(gender.rawValue)"
+                    }
                 self.tableView.reloadRows(at: [indexPath], with: .automatic)
             }
         case "태어난 해":
+            let birthYear = Int(items[indexPath.row].detail.filter(\.isNumber)) ?? Calendar.current.component(.year, from: Date())
+
             presentSheet(
                 on: self,
                 buildView: {
-                    EditBirthdayView()
+                    let v = EditBirthdayView()
+                    v.setInitialYear(birthYear)
+                    return v
                 }) { [weak self] view in
                 guard let self, let v = view as? EditBirthdayView else { return }
                 self.items[indexPath.row].detail = "\(v.getSelectedYear())"
                 self.tableView.reloadRows(at: [indexPath], with: .automatic)
             }
         case "무게":
+            let currentWeight: Int = {
+                let text = items[indexPath.row].detail
+                let numberString = text.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
+                return Int(numberString) ?? 70
+            }()
+            
             presentSheet(
                 on: self,
                 buildView: {
-                    EditWeightView()
+                    let v = EditWeightView()
+                    v.setInitialWeight(currentWeight)
+                    return v
                 }) { [weak self] view in
                 guard let self, let v = view as? EditWeightView else { return }
                 self.items[indexPath.row].detail = "\(v.selectedWeight)kg"
                 self.tableView.reloadRows(at: [indexPath], with: .automatic)
             }
         case "신체 사이즈":
+            let currentHeight: Int = {
+                let text = items[indexPath.row].detail
+                let numberString = text.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
+                return Int(numberString) ?? 170
+            }()
+
             presentSheet(
                 on: self,
                 buildView: {
-                    EditHeightView()
+                    let v = EditHeightView()
+                    v.setInitialHeight(currentHeight)
+                    return v
                 }) { [weak self] view in
                 guard let self, let v = view as? EditHeightView else { return }
                 self.items[indexPath.row].detail = "\(v.selectedHeight)cm"

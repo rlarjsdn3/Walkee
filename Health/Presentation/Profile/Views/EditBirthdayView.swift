@@ -12,7 +12,7 @@ class EditBirthdayView: CoreView {
     private let pickerView = UIPickerView()
     private var years: [Int] = []
     var selectedYear: Int = Calendar.current.component(.year, from: Date())
-    
+        
     override func setupHierarchy() {
         addSubview(pickerView)
     }
@@ -20,10 +20,13 @@ class EditBirthdayView: CoreView {
     override func setupAttribute() {
         super.setupAttribute()
         backgroundColor = .clear
-                
-        setInitialSelection()
-        setupPicker()
+        
+        self.selectedYear = Calendar.current.component(.year, from: Date())
+
         setupYears()
+        setupPicker()
+        
+        setInitialSelection()
     }
     
     override func setupConstraints() {
@@ -35,7 +38,11 @@ class EditBirthdayView: CoreView {
         ])
     }
     
-    
+    private func clampYear(_ y: Int) -> Int {
+            guard let first = years.first, let last = years.last else { return y }
+            return min(max(y, first), last)
+    }
+
     private func setupYears() {
         let currentYear = Calendar.current.component(.year, from: Date())
         years = Array(1900...currentYear)
@@ -51,6 +58,11 @@ class EditBirthdayView: CoreView {
         if let yearIndex = years.firstIndex(of: selectedYear) {
             pickerView.selectRow(yearIndex, inComponent: 0, animated: false)
         }
+    }
+    
+    func setInitialYear(_ year: Int) {
+        selectedYear = clampYear(year)
+        setInitialSelection()
     }
     
     func getSelectedYear() -> Int {

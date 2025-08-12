@@ -40,7 +40,7 @@
             </objects>
             <point key="canvasLocation" x="1064.885496183206" y="-2.1126760563380285"/>
         </scene>
-        <!--신체 치수-->
+        <!--신체 정보-->
         <scene sceneID="Qbm-KU-hla">
             <objects>
                 <viewController id="flv-Cu-eiO" customClass="BodyInfoViewController" customModule="Health" customModuleProvider="target" sceneMemberID="viewController">
@@ -61,7 +61,7 @@
                             <constraint firstAttribute="bottom" secondItem="GYD-Jy-4pd" secondAttribute="bottom" id="t3b-F8-wx5"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="신체 치수" id="JfR-BB-W1Y"/>
+                    <navigationItem key="navigationItem" title="신체 정보" id="JfR-BB-W1Y"/>
                     <connections>
                         <outlet property="tableView" destination="GYD-Jy-4pd" id="WDA-0i-HdQ"/>
                     </connections>

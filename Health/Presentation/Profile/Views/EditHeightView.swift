@@ -47,7 +47,9 @@ final class EditHeightView: CoreView {
         }
     }
 
-    func getSelectedHeight() -> Int { selectedHeight }
+    func getSelectedHeight() -> Int {
+        selectedHeight
+    }
 
     func setInitialHeight(_ height: Int) {
         selectedHeight = min(max(height, heights.first ?? 120), heights.last ?? 220)
