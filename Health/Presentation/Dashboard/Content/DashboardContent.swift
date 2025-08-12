@@ -36,7 +36,7 @@ enum DashboardContent {
         /// AI 요약 셀
         case alanSummary(AlanActivitySummaryCellViewModel)
         /// 건강 카드 셀
-        case cardInfo(HealthInfoCardCellViewModel)
+        case cardInfo(HealthInfoCardCellViewModel.ItemID)
         /// 경고 텍스트 셀
         case text
     }
@@ -52,7 +52,7 @@ extension DashboardContent.Item {
         healthInfoStackCellRegistration: UICollectionView.CellRegistration<HealthInfoStackCollectionViewCell, HealthInfoStackCellViewModel.ItemID>,
         barChartsCellRegistration: UICollectionView.CellRegistration<DashboardBarChartsCollectionViewCell, DashboardBarChartsCellViewModel>,
         alanSummaryCellRegistration: UICollectionView.CellRegistration<AlanActivitySummaryCollectionViewCell, AlanActivitySummaryCellViewModel>,
-        healthInfoCardCellRegistration: UICollectionView.CellRegistration<HealthInfoCardCollectionViewCell, HealthInfoCardCellViewModel>,
+        healthInfoCardCellRegistration: UICollectionView.CellRegistration<HealthInfoCardCollectionViewCell, HealthInfoCardCellViewModel.ItemID>,
         textCellRegistration: UICollectionView.CellRegistration<UICollectionViewListCell, Void>,
         indexPath: IndexPath
     ) -> UICollectionViewCell {
@@ -87,11 +87,11 @@ extension DashboardContent.Item {
                 for: indexPath,
                 item: viewModel
             )
-        case let .cardInfo(viewModel):
+        case let .cardInfo(id):
             return collectionView.dequeueConfiguredReusableCell(
                 using: healthInfoCardCellRegistration,
                 for: indexPath,
-                item: viewModel
+                item: id
             )
 
         case .text:

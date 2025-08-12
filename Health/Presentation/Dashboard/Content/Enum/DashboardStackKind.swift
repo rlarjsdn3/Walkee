@@ -71,3 +71,6 @@ extension DashboardStackKind {
         }
     }
 }
+
+extension DashboardStackKind: Hashable {
+}

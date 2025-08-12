@@ -1,5 +1,5 @@
 //
-//  HKLoadState.swift
+//  LoadState.swift
 //  Health
 //
 //  Created by 김건우 on 8/12/25.
@@ -7,18 +7,22 @@
 
 import Foundation
 
-enum HKLoadState<Value> where Value: Equatable {
+typealias HKLoadState = LoadState<HKData>
+
+enum LoadState<Value> where Value: Equatable {
+    ///
+    case idle
     ///
     case loading
     ///
     case success(data: Value, collection: [Value]? = nil)
     ///
-    case failure(Error?)
+    case failure(Error? = nil)
 }
 
-extension HKLoadState: Equatable {
+extension LoadState: Equatable {
 
-    static func == (lhs: HKLoadState<Value>, rhs: HKLoadState<Value>) -> Bool {
+    static func == (lhs: LoadState<Value>, rhs: LoadState<Value>) -> Bool {
         switch (lhs, rhs) {
         case (.loading, .loading):
             return true

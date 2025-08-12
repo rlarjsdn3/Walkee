@@ -125,21 +125,14 @@ final class DashboardViewController: CoreGradientViewController {
 
         snapshot.appendItems([.topBar], toSection: .top)
 
-
-        var items: [DashboardContent.Item] = [.goalRing(.init(goalStepCount: 10_000))]
+        // -------
+        var stackItems: [DashboardContent.Item] = [.goalRing(.init(goalStepCount: 10_000))]
         viewModel.stackIDs.forEach { id in
-            let vm = viewModel.stackCells[id]
-            vm?.didChange = { [weak self] id in
-                // Cannot use mutating member on immutable value: function call returns immutable value
-                guard var snapshot = self?.dataSource?.snapshot() else { return }
-                snapshot.reconfigureItems([.stackInfo(id)])
-                self?.dataSource?.apply(snapshot, animatingDifferences: false)
-            }
-            items.append(.stackInfo(id))
+            stackItems.append(.stackInfo(id))
         }
-
-        snapshot.appendItems(items, toSection: .ring)
-
+        snapshot.appendItems(stackItems, toSection: .ring)
+        // ------- 코드 리팩토링하기
+        
 
         snapshot.appendItems( // TODO: - 아이폰/아이패드에 맞게 분리하기
             [.barCharts(.init(back: .daysBack(7))!),
@@ -148,14 +141,14 @@ final class DashboardViewController: CoreGradientViewController {
         )
 
         snapshot.appendItems([.alanSummary(.init())], toSection: .alan)
-
-        snapshot.appendItems(
-            [.cardInfo(.init(cardType: .walkingSpeed, age: 27)), // MARK: - 실제 나이 데이터 주입하기
-             .cardInfo(.init(cardType: .walkingStepLength, age: 27)),
-             .cardInfo(.init(cardType: .walkingAsymmetryPercentage, age: 27)),
-             .cardInfo(.init(cardType: .walkingDoubleSupportPercentage, age: 27))],
-            toSection: .card
-        )
+        
+        // ------
+        var cardItems: [DashboardContent.Item] = []
+        viewModel.cardIDs.forEach { id in
+            cardItems.append(.cardInfo(id))
+        }
+        snapshot.appendItems(cardItems, toSection: .card)
+        // ------- 코드 리팩토링하기
 
         snapshot.appendItems([.text], toSection: .bottom)
         dataSource?.apply(snapshot)
@@ -198,10 +191,10 @@ fileprivate extension DashboardViewController {
         }
     }
 
-    func createHealthInfoCardCellRegistration() -> UICollectionView.CellRegistration<HealthInfoCardCollectionViewCell, HealthInfoCardCellViewModel> {
-        // TODO: - 셀 콘텐츠 구성하기
-        UICollectionView.CellRegistration<HealthInfoCardCollectionViewCell, HealthInfoCardCellViewModel>(cellNib: HealthInfoCardCollectionViewCell.nib) { cell, indexPath, viewModel in
-            cell.bind(with: viewModel) // TODO: - 실제 CoreData에서 가져오기
+    func createHealthInfoCardCellRegistration() -> UICollectionView.CellRegistration<HealthInfoCardCollectionViewCell, HealthInfoCardCellViewModel.ItemID> {
+        UICollectionView.CellRegistration<HealthInfoCardCollectionViewCell, HealthInfoCardCellViewModel.ItemID>(cellNib: HealthInfoCardCollectionViewCell.nib) { [weak self] cell, indexPath, id in
+            guard let vm = self?.viewModel.cardCells[id] else { return }
+            cell.bind(with: vm) // TODO: - 실제 CoreData에서 가져오기
         }
     }
 

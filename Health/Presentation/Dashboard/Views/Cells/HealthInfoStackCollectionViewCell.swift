@@ -83,13 +83,16 @@ extension HealthInfoStackCollectionViewCell {
             .store(in: &cancellable)
     }
 
-    private func render(_ new: HKLoadState<HKData>, parent: UIViewController?) {
+    private func render(_ new: LoadState<HKData>, parent: UIViewController?) {
         var attrString: NSAttributedString
         let unitString = viewModel.itemID.kind.unitString
         titleLabel.text = viewModel.itemID.kind.title
         symbolImageView.image = UIImage(systemName: viewModel.itemID.kind.systemName)
 
         switch new {
+        case .idle:
+            return // TODO: - 로딩 전 플레이스 홀더 UI 구성하기
+            
         case .loading:
             return // TODO: - 로딩 시 Skeleton Effect 출력하기
 
