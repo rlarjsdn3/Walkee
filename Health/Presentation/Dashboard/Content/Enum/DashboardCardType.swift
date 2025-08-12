@@ -177,7 +177,7 @@ extension DashboardCardType {
 extension DashboardCardType {
 
     ///
-    var higerIsBetter: Bool {
+    var higherIsBetter: Bool {
         switch self {
         case .walkingSpeed, .walkingStepLength:                            return true
         case .walkingAsymmetryPercentage, .walkingDoubleSupportPercentage: return false

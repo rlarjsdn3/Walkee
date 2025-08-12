@@ -52,25 +52,50 @@ extension HealthInfoCardCollectionViewCell {
 
         Task {
             do {
+                titleLabel.text = viewModel.cardType.title
+                statusProgressBarView.higherIsBetter = viewModel.cardType.higherIsBetter
+                statusProgressBarView.thresholdsValues = viewModel.cardType.thresholdValues(age: viewModel.age)
+
                 let hkData = try await viewModel.fetchStatisticsHealthKitData(options: .mostRecent)
                 let status = viewModel.evaluateGaitStatus(hkData.value)
 
-                titleLabel.text = viewModel.cardType.title
-                valueLabel.attributedText = NSAttributedString(string: "1,000보") // TODO: - 실제 데이터 가져오기
-                    .font(.preferredFont(forTextStyle: .footnote), to: "보")
-                    .foregroundColor(.secondaryLabel, to: "보")
+                let unitString = viewModel.cardType.unitString
+                let formattedValue = switch viewModel.cardType {
+                case .walkingAsymmetryPercentage, .walkingDoubleSupportPercentage: hkData.value * 100.0
+                case .walkingSpeed, .walkingStepLength: hkData.value
+                }
+
+                statusProgressBarView.currentValue = hkData.value
+                statusProgressBarView.numberFormatter = prepareNumberFormatter(type: viewModel.cardType)
+                valueLabel.attributedText = NSAttributedString(string: String(format: "%.1f", formattedValue) + unitString)
+                    .font(.preferredFont(forTextStyle: .footnote), to: unitString)
+                    .foregroundColor(.secondaryLabel, to: unitString)
 
                 gaitStatusLabel.text = status.rawValue
                 gaitStatusLabel.textColor = status.backgroundColor
                 statusContainerView.backgroundColor = status.secondaryBackgroundColor
 
-                statusProgressBarView.currentValue = hkData.value
-                statusProgressBarView.thresholdsValues = viewModel.cardType.thresholdValues(age: 27) // TODO: - 나이 데이터 가져오기
-                statusProgressBarView.higherIsBetter = viewModel.cardType.higerIsBetter
             } catch {
-                // TODO: - UI 예외 처리하기
+                let unitString = viewModel.cardType.unitString
+                valueLabel.attributedText = NSAttributedString(string: "- " + unitString)
+                    .font(.preferredFont(forTextStyle: .footnote), to: unitString)
+                    .foregroundColor(.secondaryLabel, to: unitString)
+                statusContainerView.isHidden = true
+                statusProgressBarView.currentValue = nil
+
                 print("🔴 Failed to fetch HealthKit data: \(error)")
             }
+        }
+    }
+
+    private func prepareNumberFormatter(type: DashboardCardType) -> NumberFormatter? {
+        switch type {
+        case .walkingDoubleSupportPercentage, .walkingAsymmetryPercentage:
+            let nf = NumberFormatter()
+            nf.numberStyle = .percent
+            return nf
+        case .walkingStepLength, .walkingSpeed:
+            return nil
         }
     }
 }

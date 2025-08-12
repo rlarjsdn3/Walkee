@@ -14,10 +14,7 @@ final class DailyGoalRingCellViewModel: @unchecked Sendable {
 
     @Injected private var healthService: (any HealthService)
 
-    convenience init() { // TODO: - 생성자 코드 삭제하기
-        self.init(goalStepCount: 1000)
-    }
-
+    ///
     init(
         anchorDate: Date = .now,
         goalStepCount: Int
@@ -26,11 +23,12 @@ final class DailyGoalRingCellViewModel: @unchecked Sendable {
         self.goalStepCount = Double(goalStepCount)
     }
 
+    ///
     func fetchStatisticsHKData() async throws -> HealthKitData {
         try await healthService.fetchStatistics(
             for: .stepCount,
             from: anchorDate.startOfDay(),
-            to: anchorDate.startOfDay().addingDays(1) ?? .now,
+            to: anchorDate.endOfDay(),
             options: .cumulativeSum,
             unit: .count()
         )
