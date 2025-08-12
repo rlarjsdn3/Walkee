@@ -220,7 +220,7 @@ extension CalendarViewController: UICollectionViewDelegate {
             }
         }
 
-        // 허단 근처 스크롤 시 미래 데이터 로드
+        // 하단 근처 스크롤 시 미래 데이터 로드
         if offsetY > contentHeight - visibleHeight - loadThreshold {
             Task {
                 await calendarVM.loadMoreBottom()
