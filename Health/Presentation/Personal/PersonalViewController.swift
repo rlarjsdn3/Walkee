@@ -51,9 +51,6 @@ class PersonalViewController: CoreGradientViewController {
 
     private func weekSummaryCellRegistration() -> UICollectionView.CellRegistration<WeekSummaryCell, Void> {
         UICollectionView.CellRegistration<WeekSummaryCell, Void>(cellNib: WeekSummaryCell.nib) { cell, indexPath, _ in
-            let sampleWeeklySteps = [8500, 12000, 6800, 9500, 11200, 15000, 10000]//샘플 데이터
-            cell.configureChart(weeklySteps: sampleWeeklySteps)
-
         }
     }
 

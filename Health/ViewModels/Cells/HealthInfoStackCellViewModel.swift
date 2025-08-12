@@ -21,14 +21,12 @@ final class HealthInfoStackCellViewModel {
     /// 이 뷰모델의 고유 식별자입니다.
     let itemID: ItemID
 
-    /// 현재 HealthKit 데이터의 로딩 상태입니다.
-    /// 기본값은 `.loading`이며, `setState(_:)` 호출 시 변경됩니다.
-    private(set) var state: HKLoadState<HKData> = .loading
+    /// 상태 변경을 관리하고 퍼블리시하는 주체입니다.
+    private let stateSubject = CurrentValueSubject<HKLoadState<HKData>, Never>(.loading)
 
     /// 현재 상태를 퍼블리시하는 읽기 전용 퍼블리셔입니다.
-    /// - Note: 구독 시점의 상태를 즉시 전달하며, 이후 상태 변경 시 새 값을 발행합니다.
     var statePublisher: AnyPublisher<HKLoadState<HKData>, Never> {
-        CurrentValueSubject(state).eraseToAnyPublisher()
+        stateSubject.eraseToAnyPublisher()
     }
 
     /// 상태가 변경될 때 호출되는 클로저입니다.
@@ -47,8 +45,8 @@ final class HealthInfoStackCellViewModel {
     /// - Parameter new: 변경할 새로운 상태입니다.
     /// - Note: 상태 변경 후 `didChange` 클로저가 호출되어 외부에 변경 사실을 알립니다.
     func setState(_ new: HKLoadState<HKData>) {
-        state = new
         didChange?(itemID)
+        stateSubject.send(new)
     }
 }
 

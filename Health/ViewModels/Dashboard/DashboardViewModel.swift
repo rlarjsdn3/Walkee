@@ -15,7 +15,7 @@ final class DashboardViewModel {
     private(set) var stackCells: [HealthInfoStackCellViewModel.ItemID: HealthInfoStackCellViewModel] = [:]
 
     // TODO: - 코어 데이터에서 사용자 정보 가져오는 서비스 객체 주입하기
-    @Injected var healthService: HealthService
+    @Injected private var healthService: HealthService
 
     ///
     init(anchorDate: Date = .now) {
