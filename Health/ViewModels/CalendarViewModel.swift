@@ -80,15 +80,13 @@ final class CalendarViewModel: ObservableObject {
 
         guard !newMonths.isEmpty else { return }
 
-        await MainActor.run {
-            months.insert(contentsOf: newMonths, at: 0)
+        months.insert(contentsOf: newMonths, at: 0)
 
-            let indexPaths = (0..<newMonths.count).map {
-                IndexPath(item: $0, section: 0)
-            }
-
-            onDataChanged?(.topInsert(indexPaths))
+        let indexPaths = (0..<newMonths.count).map {
+            IndexPath(item: $0, section: 0)
         }
+
+        onDataChanged?(.topInsert(indexPaths))
     }
 
     /// 하단에 미래 년도의 월 데이터를 추가로 로드 (무한 스크롤)
@@ -107,16 +105,15 @@ final class CalendarViewModel: ObservableObject {
 
         guard !newMonths.isEmpty else { return }
 
-        await MainActor.run {
-            let startIndex = months.count
-            months.append(contentsOf: newMonths)
 
-            let indexPaths = (startIndex..<months.count).map {
-                IndexPath(item: $0, section: 0)
-            }
+        let startIndex = months.count
+        months.append(contentsOf: newMonths)
 
-            onDataChanged?(.bottomInsert(indexPaths))
+        let indexPaths = (startIndex..<months.count).map {
+            IndexPath(item: $0, section: 0)
         }
+
+        onDataChanged?(.bottomInsert(indexPaths))
     }
 }
 
