@@ -44,8 +44,8 @@ final class DashboardViewController: CoreGradientViewController {
         )
         
         viewModel.buildDashboardCells(for: env)
-        viewModel.loadHKData()
-        applySnapshot()
+        viewModel.loadHKData() // TODO: - 적절한 다른 시점으로 메서드 옮겨보기 / 로드가 라이프-사이클 동안 한번만 실행되게 하기
+        applySnapshot() // TODO: - 적절한 다른 시점으로 메서드 옮겨보기
     }
 
     override func setupAttribute() {
@@ -150,8 +150,14 @@ final class DashboardViewController: CoreGradientViewController {
         snapshot.appendItems(chartsItem, toSection: .charts)
         // ------- 코드 리팩토링하기
 
-        snapshot.appendItems([.alanSummary(.init())], toSection: .alan)
-        
+        // ------
+        var summaryItem: [DashboardContent.Item] = []
+        viewModel.summaryIDs.forEach { id in
+            summaryItem.append(.alanSummary(id))
+        }
+        snapshot.appendItems(summaryItem, toSection: .alan)
+        // ------ 코드 리팩토링하기
+
         // ------
         var cardItems: [DashboardContent.Item] = []
         viewModel.cardIDs.forEach { id in
@@ -197,12 +203,11 @@ fileprivate extension DashboardViewController {
         }
     }
 
-    func createAlanSummaryCellRegistration() -> UICollectionView.CellRegistration<AlanActivitySummaryCollectionViewCell, AlanActivitySummaryCellViewModel> {
-        UICollectionView.CellRegistration<AlanActivitySummaryCollectionViewCell, AlanActivitySummaryCellViewModel>(cellNib: AlanActivitySummaryCollectionViewCell.nib) { cell, indexPath, viewModel in
-            cell.didReceiveAIMessage = { [weak self] _ in
-                self?.dashboardCollectionView.collectionViewLayout.invalidateLayout()
-            }
-            cell.bind(with: viewModel)
+    func createAlanSummaryCellRegistration() -> UICollectionView.CellRegistration<AlanActivitySummaryCollectionViewCell, AlanActivitySummaryCellViewModel.ItemID> {
+        UICollectionView.CellRegistration<AlanActivitySummaryCollectionViewCell, AlanActivitySummaryCellViewModel.ItemID>(cellNib: AlanActivitySummaryCollectionViewCell.nib) { [weak self] cell, indexPath, id in
+            guard let vm = self?.viewModel.summaryCells[id] else { return }
+            vm.didChange = { _ in self?.dashboardCollectionView.collectionViewLayout.invalidateLayout() }
+            cell.bind(with: vm)
         }
     }
 

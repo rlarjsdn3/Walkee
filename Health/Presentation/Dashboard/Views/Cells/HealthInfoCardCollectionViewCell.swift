@@ -90,15 +90,19 @@ extension HealthInfoCardCollectionViewCell {
             statusProgressBarView.currentValue = content.value
             statusProgressBarView.numberFormatter = {
                 switch viewModel.itemID.kind {
-                case .walkingSpeed, .walkingStepLength:                            return nil
-                case .walkingAsymmetryPercentage, .walkingDoubleSupportPercentage: return percentageFormatter
+                case .walkingSpeed, .walkingStepLength:
+                    return nil
+                case .walkingAsymmetryPercentage, .walkingDoubleSupportPercentage:
+                    return percentageFormatter
                 }
             }()
             
             let hkValue = {
                 switch viewModel.itemID.kind {
-                case .walkingSpeed, .walkingStepLength:                            return content.value
-                case .walkingAsymmetryPercentage, .walkingDoubleSupportPercentage: return content.value * 100.0
+                case .walkingSpeed, .walkingStepLength:
+                    return content.value
+                case .walkingAsymmetryPercentage, .walkingDoubleSupportPercentage:
+                    return content.value * 100.0
                 }
             }()
             

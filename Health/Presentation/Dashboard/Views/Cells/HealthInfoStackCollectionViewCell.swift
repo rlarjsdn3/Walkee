@@ -106,7 +106,7 @@ extension HealthInfoStackCollectionViewCell {
             }
 
         case .failure:
-            attrString = NSAttributedString(string: "- " + unitString)
+            attrString = NSAttributedString(string: "0" + unitString)
                 .font(.preferredFont(forTextStyle: .footnote), to: unitString)
                 .foregroundColor(.secondaryLabel, to: unitString)
 

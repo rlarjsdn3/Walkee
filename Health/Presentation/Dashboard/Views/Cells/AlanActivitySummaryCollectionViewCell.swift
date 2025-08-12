@@ -5,14 +5,16 @@
 //  Created by 김건우 on 8/5/25.
 //
 
+import Combine
 import UIKit
 
 final class AlanActivitySummaryCollectionViewCell: CoreCollectionViewCell {
 
     @IBOutlet weak var summaryLabel: UILabel!
 
-    ///
-    var didReceiveAIMessage: ((String) -> Void)?
+    private var cancellables: Set<AnyCancellable> = []
+
+    private var viewModel: AlanActivitySummaryCellViewModel!
 
     override func setupAttribute() {
 //       self.applyCornerStyle(.medium)
@@ -25,10 +27,6 @@ final class AlanActivitySummaryCollectionViewCell: CoreCollectionViewCell {
         self.layer.shadowOffset = CGSize(width: 2, height: 2)
         self.layer.shadowRadius = 5
         self.layer.borderWidth = (traitCollection.userInterfaceStyle == .dark) ? 0 : 1
-
-        summaryLabel.numberOfLines = 5
-        summaryLabel.minimumScaleFactor = 0.75
-        summaryLabel.adjustsFontSizeToFitWidth = true
 
         registerForTraitChanges()
     }
@@ -47,15 +45,29 @@ final class AlanActivitySummaryCollectionViewCell: CoreCollectionViewCell {
 extension AlanActivitySummaryCollectionViewCell {
 
     func bind(with viewModel: AlanActivitySummaryCellViewModel) {
-        Task {
-            do {
-//                let message = try await viewModel.askAlanToSummarizeActivity()
-//                self.summaryLabel.text = message
-//                didReceiveAIMessage?(message)
-            } catch {
-                // TODO: - 예외 UI 코드 작성하기
-                print("🔴 Failed to summarize activity: \(error)")
-            }
+        self.viewModel = viewModel
+
+        viewModel.statePublisher
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] state in self?.render(for: state) }
+            .store(in: &cancellables)
+    }
+
+    private func render(for state: LoadState<AlanContent>) {
+        switch state {
+        case .idle:
+            return // TODO: - 플레이스 홀더 UI 구성하기
+
+        case .loading:
+            return // TODO: - 로딩 인디케이터 UI 구성하기
+
+        case let .success(content):
+            summaryLabel.text = content.message
+
+        case .failure:
+            summaryLabel.text = nil // TODO: - 네트워크 통신 실패 UI 구성하기
+            print("🔴 Failed to fetch statistics HKData: AlanActivitySummaryCollectionViewCell")
         }
     }
 }

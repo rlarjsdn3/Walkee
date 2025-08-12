@@ -15,7 +15,7 @@ enum LoadState<Value> where Value: Equatable {
     ///
     case success(Value)
     ///
-    case failure(Error? = nil)
+    case failure(Error)
 }
 
 extension LoadState: Equatable {
