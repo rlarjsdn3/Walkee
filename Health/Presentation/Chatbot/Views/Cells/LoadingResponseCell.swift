@@ -19,8 +19,7 @@ final class LoadingResponseCell: CoreTableViewCell {
 	private let messageLabel: UILabel = {
 		let lb = UILabel()
 		lb.translatesAutoresizingMaskIntoConstraints = false
-		//lb.text = "응답을 생성 중입니다…"
-		lb.text = nil
+		lb.text = ""
 		lb.textColor = .secondaryLabel
 		lb.font = .preferredFont(forTextStyle: .callout)
 		lb.numberOfLines = 0
@@ -63,7 +62,7 @@ final class LoadingResponseCell: CoreTableViewCell {
 		setNeedsLayout()
 		contentView.setNeedsLayout()
 		contentView.layoutIfNeeded()
-		Log.ui.debug("LoadingResponseCell.configure text='\(self.messageLabel.text ?? "", privacy: .public)' animation=\(animating, privacy: .public)")
+//		Log.ui.debug("LoadingResponseCell.configure text='\(self.messageLabel.text ?? "", privacy: .public)' animation=\(animating, privacy: .public)")
 	}
 
 	// MARK: - CoreTableViewCell hooks
@@ -103,6 +102,7 @@ final class LoadingResponseCell: CoreTableViewCell {
 	override func setupAttribute() {
 		super.setupAttribute()
 		selectionStyle = .none
+		messageLabel.backgroundColor = UIColor.systemYellow.withAlphaComponent(0.1)
 		backgroundColor = .clear
 		contentView.backgroundColor = .clear
 		isAccessibilityElement = true
@@ -111,8 +111,11 @@ final class LoadingResponseCell: CoreTableViewCell {
 
 	override func prepareForReuse() {
 		super.prepareForReuse()
-		messageLabel.text = nil
+		messageLabel.text = ""
 		messageLabel.isHidden = true
-		indicator.startAnimating()
+		indicator.startAnimating()      
+		
+		accessibilityLabel = "로딩 중"
+		Log.ui.debug("LoadingResponseCell.prepareForReuse - reset complete")
 	}
 }

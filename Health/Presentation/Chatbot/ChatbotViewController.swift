@@ -144,7 +144,8 @@ final class ChatbotViewController: CoreGradientViewController {
 		viewModel.onActionText = { [weak self] text in
 			guard let self else { return }
 			Task { @MainActor in
-				self.updateWaitingCellText(text)   // <- 메시지 배열에 .loading 추가 금지!
+				Log.ui.info("received action text: '\(text, privacy: .public)'")
+				self.updateWaitingCellText(text)
 			}
 		}
 		
@@ -406,7 +407,6 @@ final class ChatbotViewController: CoreGradientViewController {
 	}
 	
 	// MARK: - Alan AI API - 응답값 관련 메서드
-	// TODO: 확실하게 필요없어지면 삭제 예정
 	/// **일반 질문 요청값** - `/api/v1/question` APIEndPoint로 사용자 메시지를 추가하고 서버로 전송
 	/// - 전송 후에는 무조건 최신 메시지로 스크롤
 	private func sendMessage() {
@@ -465,13 +465,16 @@ final class ChatbotViewController: CoreGradientViewController {
 		tableView.insertRows(at: [aiIndexPath], with: .bottom)
 		
 		Log.ui.info("insert AI(empty) row=\(aiRow, privacy: .public) idx=\(String(describing: self.streamingAIIndex), privacy: .public)")
+		
+		
+		showWaitingCell()
+		
 		// 응답 시작 부분이 보이도록 상단 고정
 		Task { @MainActor in
 			try? await Task.sleep(for: .milliseconds(60))
 			self.tableView.scrollToRow(at: aiIndexPath, at: .top, animated: true)
 		}
 		
-		showWaitingCell()
 		
 		inFootnote = false
 		pendingOpenBracket = false
@@ -680,30 +683,6 @@ final class ChatbotViewController: CoreGradientViewController {
 				tableView.reloadRows(at: [idx], with: .none)
 			}
 		}
-		//		currentWaitingText = text
-		//		guard isWaitingResponse else { return }
-		//
-		//		// 1) 기록된 인덱스 우선
-		//		if let idx = waitingIndexPath,
-		//		   let cell = tableView.cellForRow(at: idx) as? LoadingResponseCell {
-		//			cell.configure(text: text, animating: true)
-		//			return                                //성공 시 종료
-		//		}
-		//
-		//		// 2) 보이는 셀에서 찾기 (스크롤로 밀려난 경우 대비)
-		//		for case let loading as LoadingResponseCell in tableView.visibleCells {
-		//			loading.configure(text: text, animating: true)
-		//			return
-		//		}
-		//
-		//		// 3) 안 보이면 해당 행만 조용히 리로드 (다음 페인트에 노출)
-		//		if let idx = waitingIndexPath {
-		//			UIView.performWithoutAnimation {
-		//				tableView.reloadRows(at: [idx], with: .none)
-		//			}
-		//		}
-		// 3) 그래도 못 찾으면 무시 (다음 턴에 보이면 갱신됨)
-		//Log.ui.debug("updateWaitingCellText skipped (no loading cell visible)")
 	}
 	
 	@MainActor
@@ -780,67 +759,7 @@ final class ChatbotViewController: CoreGradientViewController {
 		
 		// 5) 상태 초기화
 		streamingAIIndex = nil
-		// 0) 스트리밍 중인 셀의 타자 효과 종료(잔여 큐 즉시 붙임)
-		//		if let aiIndex = streamingAIIndex {
-		//			let ip = indexPathForMessage(at: aiIndex)
-		//			if let cell = tableView.cellForRow(at: ip) as? AIResponseCell {
-		//				cell.setTypewriterEnabled(false)
-		//			}
-		//		}
-		//
-		//		// 0.5) 각주 제거 및 셀 갱신
-		//		if let aiIndex = streamingAIIndex {
-		//			let ip = indexPathForMessage(at: aiIndex)
-		//			let cleaned = stripAllFootnotes(in: messages[aiIndex].text)
-		//			if cleaned != messages[aiIndex].text {
-		//				messages[aiIndex].text = cleaned
-		//				if let cell = tableView.cellForRow(at: ip) as? AIResponseCell {
-		//					cell.configure(with: cleaned)
-		//				} else {
-		//					UIView.performWithoutAnimation {
-		//						tableView.reloadRows(at: [ip], with: .none)
-		//					}
-		//				}
-		//			}
-		//		}
-		//
-		//		// 1) 로딩 셀/버튼/UI 상태 복구
-		//		hideWaitingCell()
-		//		sendButton.isEnabled = true
-		//		sendButton.alpha = 1.0
-		//
-		//		// 2) SSE 연결 정리 및 상태 리셋
-		//		sseClient?.disconnect()
-		//		sseClient = nil
-		//		inFootnote = false
-		//		pendingOpenBracket = false
-		//
-		//		// 3) 버튼 표시
-		//		shouldShowEndChatButton = true
-		//
-		//		// 4) 메시지에 .spacer, .endChat 추가
-		//		messages.append(ChatMessage(text: "", type: .spacer(24)))
-		//		messages.append(ChatMessage(text: "", type: .endChat))
-		//
-		//		// 5) IndexPath 계산 (이 시점엔 아직 streamingAIIndex가 살아있음)
-		//		guard let aiIndex = streamingAIIndex else { return }
-		//		let aiIndexPath = indexPathForMessage(at: aiIndex)
-		//		let spacerIndexPath = indexPathForMessage(at: messages.count - 2)
-		//		let endChatIndexPath = indexPathForMessage(at: messages.count - 1)
-		//
-		//		// 6) tableView 업데이트
-		//		tableView.performBatchUpdates {
-		//			tableView.insertRows(at: [aiIndexPath, spacerIndexPath, endChatIndexPath], with: .bottom)
-		//		}
-		//
-		//		// 7) 스크롤 이동
-		//		scrollToBottomIfNeeded(force: true)
-		//
-		//		// 🔚 마지막에 상태 초기화
-		//		streamingAIIndex = nil
-		//		currentWaitingText = ""
-		//		isWaitingResponse = false
-		//		waitingIndexPath = nil
+
 	}
 	
 	private func computeMessageIndex(for indexPath: IndexPath) -> Int? {
@@ -886,7 +805,7 @@ final class ChatbotViewController: CoreGradientViewController {
 	}
 	
 	private func showWaitingCell() {
-		currentWaitingText = nil  // 새 질문 시작 시 진행 텍스트 초기화
+		currentWaitingText = currentWaitingText ?? "응답을 생성 중입니다. 조금만 더 기다려주세요.."
 		
 		guard !isWaitingResponse else { return }
 		isWaitingResponse = true
@@ -905,15 +824,15 @@ final class ChatbotViewController: CoreGradientViewController {
 		waitingHintTask?.cancel()
 		waitingHintTask = Task { @MainActor in
 			try? await Task.sleep(nanoseconds: 8_000_000_000)
-			//
-			//			guard currentWaitingText == nil else { return }
-			//
-			//			guard isWaitingResponse,
-			//				  let idx = waitingIndexPath,     //기록해둔 인덱스로 접근
-			//				  let cell = tableView.cellForRow(at: idx) as? LoadingResponseCell
-			//			else { return }
-			//
-			//			cell.configure(text: "응답을 생성하고 있어요. 조금만 더 기다려주세요…", animating: true)
+			
+						guard currentWaitingText == nil else { return }
+			
+						guard isWaitingResponse,
+							  let idx = waitingIndexPath,     //기록해둔 인덱스로 접근
+							  let cell = tableView.cellForRow(at: idx) as? LoadingResponseCell
+						else { return }
+			
+			cell.configure(text: currentWaitingText, animating: true)
 			return
 		}
 	}
@@ -969,15 +888,6 @@ extension ChatbotViewController: UITableViewDataSource {
 		return (hasFixedHeader ? 1 : 0)
 		+ messages.count
 		+ (isWaitingResponse ? 1 : 0)
-		//		var count = hasFixedHeader ? messages.count + 1 : messages.count
-		//		if isWaitingResponse {
-		//			count += 1
-		//		}
-		//		// 대화 종료 버튼과 스페이서 셀을 고려하여 행 수 추가
-		//		if shouldShowEndChatButton {
-		//			count += 2
-		//		}
-		//		return count
 	}
 	
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
