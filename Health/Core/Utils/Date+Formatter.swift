@@ -15,6 +15,8 @@ extension Date {
         case weekday = "EEEE"
         /// 요일 축약형 (예: "월")
         case weekdayShorthand = "EEE"
+        /// 일 형식 (예: 21일)
+        case d = "d일"
         /// 월일 형식 (예: "8월 1일")
         case md = "M월 d일"
         /// 월일 형식 (예: "8. 1")
@@ -23,6 +25,12 @@ extension Date {
         case hm = "h시 m분"
         /// 시분 형식 (예: 10:24)
         case h_m = "h:m"
+        /// 월 형식 (예: 3월)
+        case m = "M월"
+        /// 년월 형식 (예: 1998년 3월)
+        case yyyym = "yyyy년 M월"
+        /// 년월일 형식 (예: 1998년 3월 21일)
+        case yyyymd = "yyyy년 M월 d일"
     }
 
     /// 지정된 포맷 스타일을 사용해 현재 날짜를 문자열로 변환합니다.

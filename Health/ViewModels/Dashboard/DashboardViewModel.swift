@@ -91,7 +91,7 @@ final class DashboardViewModel {
             // 레이아웃 환경이 아이폰인 경우
             newIDs = [
                 DashboardBarChartsCellViewModel.ItemID(kind: .daysBack(7)),
-                DashboardBarChartsCellViewModel.ItemID(kind: .monthsBack(12))
+                DashboardBarChartsCellViewModel.ItemID(kind: .monthsBack(6))
             ]
         }
 
@@ -155,34 +155,39 @@ extension DashboardViewModel {
             for (_, vm) in self.goalRingCells {
                 vm.setState(.loading)
 
-                // 루프를 돌기 전에 먼저 접근 권한이 있는지 확인하고 없으면 예외 처리
-//                guard healthService.checkHasReadPermission() else {
-//                    throw HKError(.errorAuthorizationDenied)
-//                    continue
-//                }
+                do {
+                    // 루프 진입 직후, 해당 특정 데이터에 대한 읽기 권한이 있는지 먼저 확인
+                    guard await healthService.checkHasReadPermission(for: .stepCount) else {
+                        throw HKError(.errorAuthorizationDenied)
+                    }
 
-                // 여기서는 접근권한이 있으니 nil을 반환하면 그냥 해당 일자에 데이터가 없는 것으로 간주
-                let hkData = try? await fetchStatisticsHKData(
-                    for: .stepCount,
-                    from: anchorDate.startOfDay(),
-                    to: anchorDate.endOfDay(),
-                    options: .cumulativeSum,
-                    unit: .count()
-                )
+                    // 예외 발생 시, 해당 일자에 유효한 데이터가 기록되지 않은 것으로 간주
+                    let hkData = try? await fetchStatisticsHKData(
+                        for: .stepCount,
+                        from: anchorDate.startOfDay(),
+                        to: anchorDate.endOfDay(),
+                        options: .cumulativeSum,
+                        unit: .count()
+                    )
 
-                var content: GoalRingContent
-                if let hkData = hkData {
-                    content = GoalRingContent(
-                        goalStepCount: goalStepCount,
-                        currentStepCount: Int(hkData.value)
-                    )
-                } else { // 데이터가 그냥 없으면 0으로 표시
-                    content = GoalRingContent(
-                        goalStepCount: goalStepCount,
-                        currentStepCount: 0
-                    )
+                    var content: GoalRingContent
+                    if let hkData = hkData {
+                        content = GoalRingContent(
+                            goalStepCount: goalStepCount,
+                            currentStepCount: Int(hkData.value)
+                        )
+                    } else {
+                        // 유효한 데이터가 없다면 '0'으로 표시
+                        content = GoalRingContent(
+                            goalStepCount: goalStepCount,
+                            currentStepCount: 0
+                        )
+                    }
+                    vm.setState(.success(content))
+                } catch {
+                    // 해당 데이터에 대한 읽기 권한이 없다면 '-'로 표시
+                    vm.setState(.failure(error))
                 }
-                vm.setState(.success(content))
             }
         }
     }
@@ -191,14 +196,19 @@ extension DashboardViewModel {
         Task {
             for (id, vm) in self.stackCells {
                 vm.setState(.loading)
+
                 // 지난 7일 간 라인 차트를 그리기 위해 7일 전 시간 구하기
                 guard let startDate: Date = anchorDate.endOfDay().addingDays(-7) else {
-                    vm.setState(.failure(HKError(.unknownError)))
-                    continue
+                    throw HKError(.unknownError)
                 }
 
                 do {
-                    let hkData = try await fetchStatisticsHKData(
+                    // 루프 진입 직후, 해당 특정 데이터에 대한 읽기 권한이 있는지 먼저 확인
+                    guard await healthService.checkHasReadPermission(for: id.kind.quantityTypeIdentifier) else {
+                        throw HKError(.errorAuthorizationDenied)
+                    }
+
+                    async let hkData = try? fetchStatisticsHKData(
                         for: id.kind.quantityTypeIdentifier,
                         from: anchorDate.startOfDay(),
                         to: anchorDate.endOfDay(),
@@ -206,7 +216,7 @@ extension DashboardViewModel {
                         unit: id.kind.unit
                     )
 
-                    let collection = try await fetchStatisticsCollectionHKData(
+                    async let hkCollection = try? fetchStatisticsCollectionHKData(
                         for: id.kind.quantityTypeIdentifier,
                         from: startDate,
                         to: anchorDate.endOfDay(),
@@ -214,12 +224,28 @@ extension DashboardViewModel {
                         unit: id.kind.unit
                     )
 
-                    let charts = collection.map { InfoStackContent.Charts(date: $0.endDate, value: $0.value) }
-                    let content = InfoStackContent(value: hkData.value, charts: charts)
+                    let (data, collection) = await (hkData, hkCollection)
+
+                    var charts: [InfoStackContent.Charts] = []
+                    // 데이터 유효 유무와 관계없이 지난 차트를 항상 표시
+                    if let collection = collection {
+                        charts = collection.map { InfoStackContent.Charts(date: $0.endDate, value: $0.value) }
+                    } else {
+                        charts = []
+                    }
+
+                    var content: InfoStackContent
+                    if let data = data {
+                        content = InfoStackContent(value: data.value, charts: charts)
+                    } else {
+                        // 유효한 데이터가 없다면 '0'으로 표시
+                        content = InfoStackContent(value: 0, charts: charts)
+                    }
 
                     vm.setState(.success(content))
                 } catch {
-                    vm.setState(.failure(HKError(.unknownError)))
+                    // 해당 데이터에 대한 읽기 권한이 없다면 '-'로 표시
+                    vm.setState(.failure(error))
                 }
             }
         }
@@ -237,7 +263,12 @@ extension DashboardViewModel {
                 }
 
                 do {
-                    let collection = try await fetchStatisticsCollectionHKData(
+                    // 루프 진입 직후, 해당 특정 데이터에 대한 읽기 권한이 있는지 먼저 확인
+                    guard await healthService.checkHasReadPermission(for: .stepCount) else {
+                        throw HKError(.errorAuthorizationDenied)
+                    }
+
+                    let hkCollection = try? await fetchStatisticsCollectionHKData(
                         for: .stepCount,
                         from: startDate,
                         to: endDate,
@@ -246,10 +277,18 @@ extension DashboardViewModel {
                         unit: .count()
                     )
 
-                    let contents = collection.map { DashboardChartsContent(date: $0.endDate, value: $0.value) }
+                    var contents: DashboardChartsContents
+                    if let collection = hkCollection {
+                        contents = collection.map { DashboardChartsContent(date: $0.startDate, value: $0.value) }
+                    } else {
+                        // 유효한 데이터가 없다면 '빈 배열'로 표시
+                        contents = []
+                    }
+
                     vm.setState(.success(contents))
                 } catch {
-                    vm.setState(.failure(HKError(.unknownError)))
+                    // 해당 데이터에 대한 읽기 권한이 없다면 적절한 예외 UI 표시
+                    vm.setState(.failure(error))
                 }
             }
         }
@@ -262,11 +301,16 @@ extension DashboardViewModel {
             for (_, vm) in self.summaryCells {
                 vm.setState(.loading)
                 do {
+                    // 루프 진입 직후, 모든 건강 데이터에 대해 하나라도 읽기 권한이 있는지 먼저 확인
+                    guard await healthService.checkHasAnyReadPermission() else {
+                        throw HKError(.errorAuthorizationDenied)
+                    }
+
                     let message = try await requestAlanToSummarizeTodayActivity()
-                    let content = AlanContent(message: message)
-                    vm.setState(.success(content))
+                    vm.setState(.success(AlanContent(message: message)))
                 } catch {
-                    vm.setState(.failure(HKError(.unknownError)))
+                    // 해당 데이터에 대한 읽기 권한이 없다면 '⚠️읽기 권한이 없다'고 표시
+                    vm.setState(.failure(error))
                 }
             }
         }
@@ -278,19 +322,31 @@ extension DashboardViewModel {
                 vm.setState(.loading)
 
                 do {
-                    let hkData = try await fetchStatisticsHKData(
+                    //
+                    guard await healthService.checkHasReadPermission(for: id.kind.quantityTypeIdentifier) else {
+                        throw HKError(.errorAuthorizationDenied)
+                    }
+
+                    let hkData = try? await fetchStatisticsHKData(
                         for: id.kind.quantityTypeIdentifier,
                         from: anchorDate.startOfDay(),
                         to: anchorDate.endOfDay(),
                         options: .mostRecent,
                         unit: id.kind.unit
                     )
-                    print(hkData)
 
-                    let content = InfoCardContent(value: hkData.value)
+                    var content: InfoCardContent
+                    if let data = hkData {
+                        content = InfoCardContent(value: data.value)
+                    } else {
+                        // 유효한 데이터가 없다면 '⚠️데이터를 가져올 수 없다'고 표시
+                        throw HKError(.errorHealthDataUnavailable)
+                    }
+
                     vm.setState(.success(content))
                 } catch {
-                    vm.setState(.failure(HKError(.unknownError)))
+                    // 해당 데이터에 대한 읽기 권한이 없다면 '⚠️읽기 권한이 없다'고 표시
+                    vm.setState(.failure(error))
                 }
             }
         }
