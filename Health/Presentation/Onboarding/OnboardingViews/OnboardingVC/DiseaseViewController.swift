@@ -5,7 +5,6 @@
 //  Created by 권도현 on 8/8/25.
 //
 
-
 import UIKit
 import CoreData
 
@@ -25,11 +24,11 @@ class DiseaseViewController: CoreGradientViewController {
     }()
     
     private let progressIndicatorStackView = ProgressIndicatorStackView(totalPages: 4)
-  
+    
     private let defaultDiseases: [Disease] = Disease.allCases
- 
+    
     private var userDiseases: [Disease] = []
-
+    
     private var userInfo: UserInfoEntity?
     
     private let context = CoreDataStack.shared.persistentContainer.viewContext
@@ -63,7 +62,7 @@ class DiseaseViewController: CoreGradientViewController {
             userDiseases = []
         }
     }
-
+    
     private func selectUserDiseases() {
         guard !userDiseases.isEmpty else { return }
         
@@ -116,7 +115,7 @@ class DiseaseViewController: CoreGradientViewController {
     }
     
     @objc private func continueButtonTapped() {
-
+        
         let selectedIndexPaths = diseaseCollectionView.indexPathsForSelectedItems ?? []
         let selectedDiseases = selectedIndexPaths.map { defaultDiseases[$0.item] }
         
@@ -155,19 +154,61 @@ extension DiseaseViewController: UICollectionViewDataSource {
 }
 
 extension DiseaseViewController: UICollectionViewDelegateFlowLayout {
+    
+    private var noneDiseaseIndex: Int { return defaultDiseases.firstIndex(where: { $0 == .none }) ?? defaultDiseases.count - 1 }
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        guard let flowLayout = collectionViewLayout as? UICollectionViewFlowLayout else { return.init() }
+        guard let flowLayout = collectionViewLayout as? UICollectionViewFlowLayout else {
+            return CGSize(width: 0, height: 0)
+        }
         
-        let width = (collectionView.bounds.width - collectionView.contentInset.left - collectionView.contentInset.right - flowLayout.minimumInteritemSpacing) / 2
-        
+        let totalSpacing = flowLayout.minimumInteritemSpacing
+        let width = (collectionView.bounds.width - collectionView.contentInset.left - collectionView.contentInset.right - totalSpacing) / 2
         return CGSize(width: width, height: 80)
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
+        if indexPath.item == noneDiseaseIndex {
+            for i in 0..<defaultDiseases.count {
+                if i != noneDiseaseIndex {
+                    let ip = IndexPath(item: i, section: 0)
+                    collectionView.deselectItem(at: ip, animated: false)
+                    if let cell = collectionView.cellForItem(at: ip) as? DiseaseCollectionViewCell {
+                        cell.isUserInteractionEnabled = false
+                        cell.alpha = 0.5
+                    }
+                }
+            }
+        } else {
+            let noneIndexPath = IndexPath(item: noneDiseaseIndex, section: 0)
+            if collectionView.indexPathsForSelectedItems?.contains(noneIndexPath) == true {
+                collectionView.deselectItem(at: noneIndexPath, animated: false)
+            }
+            
+            for i in 0..<defaultDiseases.count {
+                let ip = IndexPath(item: i, section: 0)
+                if let cell = collectionView.cellForItem(at: ip) as? DiseaseCollectionViewCell {
+                    cell.isUserInteractionEnabled = true
+                    cell.alpha = 1.0
+                }
+            }
+        }
         updateContinueButtonState()
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        let selectedItems = collectionView.indexPathsForSelectedItems ?? []
+        if selectedItems.isEmpty {
+            for i in 0..<defaultDiseases.count {
+                let ip = IndexPath(item: i, section: 0)
+                if let cell = collectionView.cellForItem(at: ip) as? DiseaseCollectionViewCell {
+                    cell.isUserInteractionEnabled = true
+                    cell.alpha = 1.0
+                }
+            }
+        }
         updateContinueButtonState()
     }
 }
+
