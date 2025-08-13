@@ -18,7 +18,18 @@ enum CalendarDataChanges {
 final class CalendarViewModel: ObservableObject {
 
     /// 달력에 표시할 월 데이터 배열 (현재 로드된 모든 월)
-    private var months: [CalendarMonthData] = []
+    @Published private(set) var months: [CalendarMonthData] = []
+
+    /// 데이터 변경 이벤트를 위한 AsyncStream
+    private let dataChangesStream: AsyncStream<CalendarDataChanges>
+
+    /// AsyncStream을 제어하기 위한 Continuation
+    private let dataChangesContinuation: AsyncStream<CalendarDataChanges>.Continuation
+
+    /// 데이터 변경 이벤트를 구독할 수 있는 AsyncStream
+    var dataChanges: AsyncStream<CalendarDataChanges> {
+        dataChangesStream
+    }
 
     /// 상단 로딩중 여부를 나타내는 플래그 (중복 요청 방지)
     private var isLoadingTop = false
@@ -29,26 +40,27 @@ final class CalendarViewModel: ObservableObject {
     /// 월 데이터 생성을 담당하는 헬퍼 객체
     private let monthsGenerator = CalendarMonthsGenerator()
 
-    /// 데이터 변경시 뷰 컨트롤러에 알리기 위한 콜백 클로저
-    var onDataChanged: ((CalendarDataChanges) -> Void)?
-
     /// 현재 로드된 월의 총 개수를 반환
     var monthsCount: Int {
         months.count
     }
 
     init() {
+        // AsyncStream과 Continuation을 분리해서 생성
+        (self.dataChangesStream, self.dataChangesContinuation) = AsyncStream<CalendarDataChanges>.makeStream()
         setupInitialMonths()
     }
 
+    deinit {
+        // ViewModel이 해제될 때 AsyncStream을 정리
+        dataChangesContinuation.finish()
+    }
+
     /// 지정된 인덱스의 월 데이터를 안전하게 반환
-    /// - Parameter index: 배열 인덱스
-    /// - Returns: 해당 인덱스의 월 데이터, 인덱스가 유효하지 않으면 현재 월 반환
-    func month(at index: Int) -> CalendarMonthData {
-        guard index >= 0 && index < months.count else {
-            assertionFailure("Index out of bounds: \(index)")
-            return CalendarMonthData(year: Date().year, month: Date().month)
-        }
+    /// - Parameter index: 배열 인덱스 (0부터 시작)
+    /// - Returns: 해당 인덱스의 월 데이터. 인덱스가 유효하지 않으면 `nil` 반환
+    func month(at index: Int) -> CalendarMonthData? {
+        guard (0..<months.count).contains(index) else { return nil }
         return months[index]
     }
 
@@ -86,7 +98,7 @@ final class CalendarViewModel: ObservableObject {
             IndexPath(item: $0, section: 0)
         }
 
-        onDataChanged?(.topInsert(indexPaths))
+        dataChangesContinuation.yield(.topInsert(indexPaths))
     }
 
     /// 하단에 미래 년도의 월 데이터를 추가로 로드 (무한 스크롤)
@@ -113,7 +125,7 @@ final class CalendarViewModel: ObservableObject {
             IndexPath(item: $0, section: 0)
         }
 
-        onDataChanged?(.bottomInsert(indexPaths))
+        dataChangesContinuation.yield(.bottomInsert(indexPaths))
     }
 }
 

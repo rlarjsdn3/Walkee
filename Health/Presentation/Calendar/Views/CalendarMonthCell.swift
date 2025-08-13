@@ -5,14 +5,14 @@ final class CalendarMonthCell: CoreCollectionViewCell {
     @IBOutlet weak var yearMonthLabel: UILabel!
     @IBOutlet weak var dateCollectionView: UICollectionView!
     @IBOutlet weak var dateCollectionViewHeightConstraint: NSLayoutConstraint!
-    
+
     private var datesWithBlank: [Date] = []
 
     override func setupAttribute() {
         super.setupAttribute()
         dateCollectionView.dataSource = self
         dateCollectionView.delegate = self
-        dateCollectionView.collectionViewLayout = createLayout()
+        dateCollectionView.collectionViewLayout = CalendarLayoutManager.createDateLayout()
         dateCollectionView.register(
             CalendarDateCell.nib,
             forCellWithReuseIdentifier: CalendarDateCell.id
@@ -21,26 +21,6 @@ final class CalendarMonthCell: CoreCollectionViewCell {
 
     func configure(with monthData: CalendarMonthData) {
         setupMonthData(year: monthData.year, month: monthData.month)
-    }
-
-    private func createLayout() -> UICollectionViewLayout {
-        let itemSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0 / 7.0),
-            heightDimension: .fractionalWidth(1.0 / 7.0)
-        )
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-
-        let groupSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .fractionalWidth(1.0 / 7.0)
-        )
-        let group = NSCollectionLayoutGroup.horizontal(
-            layoutSize: groupSize,
-            subitems: Array(repeating: item, count: 7)
-        )
-
-        let section = NSCollectionLayoutSection(group: group)
-        return UICollectionViewCompositionalLayout(section: section)
     }
 
     private func setupMonthData(year: Int, month: Int) {
