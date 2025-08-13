@@ -33,19 +33,19 @@
                                         <rect key="frame" x="0.0" y="0.0" width="325" height="183.66666666666666"/>
                                     </view>
                                     <stackView opaque="NO" contentMode="scaleToFill" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="jL7-9F-mn0">
-                                        <rect key="frame" x="0.0" y="198.66666666666666" width="205.66666666666666" height="24"/>
+                                        <rect key="frame" x="0.0" y="198.66666666666666" width="232.66666666666666" height="24"/>
                                         <subviews>
                                             <stackView opaque="NO" contentMode="scaleToFill" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="YTV-ZG-b0y">
-                                                <rect key="frame" x="0.0" y="0.0" width="85" height="24"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="112" height="24"/>
                                                 <subviews>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="걸음수" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DZj-RX-9ze">
-                                                        <rect key="frame" x="0.0" y="0.0" width="52" height="24"/>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="총 걸음 수" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DZj-RX-9ze">
+                                                        <rect key="frame" x="0.0" y="0.0" width="79" height="24"/>
                                                         <fontDescription key="fontDescription" style="UICTFontTextStyleTitle3"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0보" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kqj-1C-6qe">
-                                                        <rect key="frame" x="60" y="0.0" width="25" height="24"/>
+                                                        <rect key="frame" x="87" y="0.0" width="25" height="24"/>
                                                         <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
@@ -53,7 +53,7 @@
                                                 </subviews>
                                             </stackView>
                                             <stackView opaque="NO" contentMode="scaleToFill" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="TSf-Ft-Fbb">
-                                                <rect key="frame" x="105" y="0.0" width="100.66666666666669" height="24"/>
+                                                <rect key="frame" x="132" y="0.0" width="100.66666666666669" height="24"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="총 거리" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="80J-sc-I6Q">
                                                         <rect key="frame" x="0.0" y="0.0" width="57" height="24"/>
