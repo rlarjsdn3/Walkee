@@ -16,6 +16,7 @@ final class HealthInfoStackCollectionViewCell: CoreCollectionViewCell {
     @IBOutlet weak var symbolImageView: UIImageView!
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var valueLabel: UILabel!
+    @IBOutlet weak var unitLabel: UILabel!
     @IBOutlet weak var chartsContainerView: UIView!
 
     private var chartsHostingController: UIHostingController<LineChartsView>?
@@ -84,10 +85,11 @@ extension HealthInfoStackCollectionViewCell {
     }
 
     private func render(_ new: LoadState<InfoStackContent>, parent: UIViewController?) {
-        var attrString: NSAttributedString
+        var lblString: String
         let unitString = viewModel.itemID.kind.unitString
         titleLabel.text = viewModel.itemID.kind.title
         symbolImageView.image = UIImage(systemName: viewModel.itemID.kind.systemName)
+        unitLabel.text = unitString
 
         switch new {
         case .idle:
@@ -97,24 +99,25 @@ extension HealthInfoStackCollectionViewCell {
             return // TODO: - 로딩 시 Skeleton Effect 출력하기
 
         case let .success(content):
-            attrString = NSAttributedString(string: String(format: "%0.f", content.value) + unitString)
+            lblString = String(format: "%0.f", content.value)
 
-            if let charts = content.charts {
-                addChartsHostingController(with: charts, parent: parent)
+            if let charts = content.charts, !charts.isEmpty {
+                if traitCollection.verticalSizeClass == .regular &&
+                    traitCollection.horizontalSizeClass == .regular {
+                    addChartsHostingController(with: charts, parent: parent)
+                }
             }
 
         case .failure:
-            attrString = NSAttributedString(string: "0" + unitString)
+            lblString = "0"
             print("🔴 건강 데이터를 불러오는 데 실패함: HealthInfoStackCell (\(viewModel.itemID.kind.quantityTypeIdentifier))")
 
         case .denied:
-            attrString = NSAttributedString(string: "-" + unitString)
-            print("🔵 건강 데이터에 접근할 수 있는 권한이 없음: HealthInfoStackCell")
+            lblString = "-" // TODO: - 접근 권한 없을 시, 예외 UI 구성하기
+            print("🔵 건강 데이터에 접근할 수 있는 권한이 없음: HealthInfoStackCell (\(viewModel.itemID.kind.quantityTypeIdentifier))")
         }
 
-        valueLabel.attributedText = attrString
-            .font(.preferredFont(forTextStyle: .footnote), to: unitString)
-            .foregroundColor(.secondaryLabel, to: unitString)
+        valueLabel.text = lblString
     }
 
     private func addChartsHostingController(
@@ -122,7 +125,8 @@ extension HealthInfoStackCollectionViewCell {
         parent: UIViewController?
     ) {
         // TOOD: - LineCharts가 범용 데이터를 받도록 코드 리팩토링하기
-        let hkd = charts.map { HKData(startDate: $0.date, endDate: $0.date, value: $0.value) }
+        let sliced = Array(charts.prefix(7))
+        let hkd = sliced.map { HKData(startDate: $0.date, endDate: $0.date, value: $0.value) }
         let hVC = LineChartsHostingController(chartsData: hkd)
         parent?.addChild(hVC, to: chartsContainerView)
         self.chartsHostingController = hVC

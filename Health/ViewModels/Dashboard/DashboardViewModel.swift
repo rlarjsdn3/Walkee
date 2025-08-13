@@ -201,8 +201,8 @@ extension DashboardViewModel {
                     continue
                 }
 
-                // 지난 7일 간 라인 차트를 그리기 위해 7일 전 시간 구하기
-                guard let startDate: Date = anchorDate.endOfDay().addingDays(-7) else {
+                // 지난 7일 간 라인 차트를 그리기 위해 30일 전 시간 구하기
+                guard let startDate: Date = anchorDate.endOfDay().addingDays(-365) else {
                     vm.setState(.failure(nil))
                     continue
                 }

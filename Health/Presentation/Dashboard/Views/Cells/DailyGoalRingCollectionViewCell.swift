@@ -50,7 +50,7 @@ extension DailyGoalRingCollectionViewCell {
             print("🔴 건강 데이터를 불러오는 데 실패함: DailyGoalRingCell")
 
         case .denied:
-            // TODO: - 예외 UI 로직 구현하기
+            circleProgressView.currentValue = nil
             print("🔵 건강 데이터에 접근할 수 있는 권한이 없음: DailyGoalRingCell")
         }
     }
