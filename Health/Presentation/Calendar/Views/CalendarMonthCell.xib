@@ -9,7 +9,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" misplaced="YES" id="gTV-IL-0wX" customClass="CalendarMonthCell" customModule="Health" customModuleProvider="target">
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="gTV-IL-0wX" customClass="CalendarMonthCell" customModule="Health" customModuleProvider="target">
             <rect key="frame" x="0.0" y="0.0" width="332" height="192"/>
             <autoresizingMask key="autoresizingMask"/>
             <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
@@ -76,10 +76,10 @@
                         </constraints>
                     </stackView>
                     <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="Ejp-Gl-eHb">
-                        <rect key="frame" x="0.0" y="80" width="332" height="120.66666666666669"/>
+                        <rect key="frame" x="0.0" y="80" width="332" height="112"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstAttribute="height" constant="120.66666666666669" id="HUG-mc-1jW"/>
+                            <constraint firstAttribute="height" priority="999" constant="120" id="HUG-mc-1jW"/>
                         </constraints>
                         <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="cGp-tr-K6c">
                             <size key="itemSize" width="128" height="128"/>
