@@ -49,6 +49,16 @@ protocol HealthService {
     /// - Returns: 읽기 권한이 하나라도 존재하면 `true`, 아니면 `false`.
     func checkHasAnyReadPermission() async -> Bool
 
+    /// 지정한 `HKQuantityTypeIdentifier`에 대한 읽기 권한이 허용되었는지 확인합니다.
+    ///
+    /// 이 메서드는 지정된 HealthKit 수치 타입의 데이터를
+    /// 1년 전(365일 전)부터 현재 시각까지 조회하여,
+    /// 하나라도 데이터를 가져올 수 있다면 읽기 권한이 허용된 것으로 간주합니다.
+    ///
+    /// - Parameter identifier: 읽기 권한을 확인할 HealthKit 수치 타입 식별자.
+    /// - Returns: 읽기 권한이 허용되었는지 여부를 나타내는 불리언 값.
+    ///            해당 타입의 샘플이 하나라도 존재하면 `true`, 없으면 `false`를 반환합니다.
+    func checkHasReadPermission(for identifier: HKQuantityTypeIdentifier) async -> Bool
 
     /// 지정한 양적 데이터(identifier)를 기준으로 HealthKit에서 샘플 데이터를 비동기적으로 가져오고,
     /// 각 샘플의 시작 시각, 종료 시각, 수치를 지정된 단위로 변환하여 반환합니다.

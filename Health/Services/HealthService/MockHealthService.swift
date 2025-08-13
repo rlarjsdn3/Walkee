@@ -43,9 +43,16 @@ final class MockHealthService: HealthService {
     }
 
     ///
-    /// - Important: `DEBUG` 모드에서는 `.sharingAutorized` 값만 반환합니다.
+    /// - Important: `DEBUG` 모드에서는 `true` 값만 반환합니다.
     /// 반드시 `RELEASE` 스킴으로 전환 후, 호출하세요.
     func checkHasAnyReadPermission() async -> Bool {
+        return true
+    }
+
+    ///
+    /// - Important: `DEBUG` 모드에서는 `true` 값만 반환합니다.
+    /// 반드시 `RELEASE` 스킴으로 전환 후, 호출하세요.
+    func checkHasReadPermission(for identifier: HKQuantityTypeIdentifier) async -> Bool {
         return true
     }
 
