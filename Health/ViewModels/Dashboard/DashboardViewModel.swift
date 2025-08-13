@@ -91,7 +91,7 @@ final class DashboardViewModel {
             // 레이아웃 환경이 아이폰인 경우
             newIDs = [
                 DashboardBarChartsCellViewModel.ItemID(kind: .daysBack(7)),
-                DashboardBarChartsCellViewModel.ItemID(kind: .monthsBack(12))
+                DashboardBarChartsCellViewModel.ItemID(kind: .monthsBack(6))
             ]
         }
 
@@ -246,7 +246,7 @@ extension DashboardViewModel {
                         unit: .count()
                     )
 
-                    let contents = collection.map { DashboardChartsContent(date: $0.endDate, value: $0.value) }
+                    let contents = collection.map { DashboardChartsContent(date: $0.startDate, value: $0.value) }
                     vm.setState(.success(contents))
                 } catch {
                     vm.setState(.failure(HKError(.unknownError)))
@@ -285,7 +285,6 @@ extension DashboardViewModel {
                         options: .mostRecent,
                         unit: id.kind.unit
                     )
-                    print(hkData)
 
                     let content = InfoCardContent(value: hkData.value)
                     vm.setState(.success(content))

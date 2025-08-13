@@ -242,7 +242,7 @@ extension DashboardContent.Section {
         )
         let itemSize = NSCollectionLayoutSize(
             widthDimension: itemWidthDimension,
-            heightDimension: .absolute(300)
+            heightDimension: .absolute(325)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
@@ -253,7 +253,7 @@ extension DashboardContent.Section {
         )
         let groupSize = NSCollectionLayoutSize(
             widthDimension: groupWidthDimension,
-            heightDimension: .absolute(300)
+            heightDimension: .absolute(325)
         )
         let group = NSCollectionLayoutGroup.horizontal(
             layoutSize: groupSize,
