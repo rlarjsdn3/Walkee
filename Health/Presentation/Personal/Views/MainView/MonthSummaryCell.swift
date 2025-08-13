@@ -120,7 +120,6 @@ class MonthSummaryCell: CoreCollectionViewCell {
     // 셀 재사용 준비
     override func prepareForReuse() {
         super.prepareForReuse()
-        // 라벨 초기화
         loadMonthlyData()
     }
 }
