@@ -102,7 +102,7 @@ final class LoadingResponseCell: CoreTableViewCell {
 	override func setupAttribute() {
 		super.setupAttribute()
 		selectionStyle = .none
-		messageLabel.backgroundColor = UIColor.systemYellow.withAlphaComponent(0.1)
+		//messageLabel.backgroundColor = UIColor.systemYellow.withAlphaComponent(0.1)
 		backgroundColor = .clear
 		contentView.backgroundColor = .clear
 		isAccessibilityElement = true
@@ -116,6 +116,6 @@ final class LoadingResponseCell: CoreTableViewCell {
 		indicator.startAnimating()      
 		
 		accessibilityLabel = "로딩 중"
-		Log.ui.debug("LoadingResponseCell.prepareForReuse - reset complete")
+		//Log.ui.debug("LoadingResponseCell.prepareForReuse - reset complete")
 	}
 }
