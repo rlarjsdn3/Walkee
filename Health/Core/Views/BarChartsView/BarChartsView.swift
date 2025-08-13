@@ -209,7 +209,7 @@ final class BarChartsView: UIView {
         barParentView.layoutIfNeeded()
         barParentView.setNeedsLayout()
 
-        barView.backgroundColor = .systemTeal
+        barView.backgroundColor = .accent
         barView.layer.cornerRadius = configuration.barWidth / 3
         barView.translatesAutoresizingMaskIntoConstraints = false
 

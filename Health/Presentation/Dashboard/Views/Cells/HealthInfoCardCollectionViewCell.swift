@@ -5,6 +5,7 @@
 //  Created by 김건우 on 8/5/25.
 //
 
+import Combine
 import UIKit
 
 final class HealthInfoCardCollectionViewCell: CoreCollectionViewCell {
@@ -14,10 +15,21 @@ final class HealthInfoCardCollectionViewCell: CoreCollectionViewCell {
     @IBOutlet weak var statusContainerView: UIView!
     @IBOutlet weak var gaitStatusLabel: UILabel!
     @IBOutlet weak var statusProgressBarView: StatusProgressBarView!
+    
+    private var viewModel: HealthInfoCardCellViewModel!
 
-    override func layoutSubviews() {
+    private var cancellable: Set<AnyCancellable> = []
+    
+    private var percentageFormatter: NumberFormatter = {
+        let nf = NumberFormatter()
+        nf.numberStyle = .percent
+        return nf
+    }()
+
+    override func prepareForReuse() {
+        cancellable.removeAll()
     }
-
+    
     override func setupAttribute() {
 //       self.applyCornerStyle(.medium)
         self.backgroundColor = .boxBg
@@ -47,30 +59,73 @@ final class HealthInfoCardCollectionViewCell: CoreCollectionViewCell {
 }
 
 extension HealthInfoCardCollectionViewCell {
-
+    
     func bind(with viewModel: HealthInfoCardCellViewModel) {
+        self.viewModel = viewModel
+        
+        viewModel.statePublisher
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] state in  self?.render(for: state) }
+            .store(in: &cancellable)
+    }
+    
+    private func render(for state: LoadState<InfoCardContent>) {
+        var attrString: NSAttributedString
+        let unitString = viewModel.itemID.kind.unitString
+        
+        titleLabel.text = viewModel.itemID.kind.title
+        statusProgressBarView.higherIsBetter = viewModel.itemID.kind.higherIsBetter
+        statusProgressBarView.thresholdsValues = viewModel.itemID.kind.thresholdValues(age: viewModel.anchorAge)
+        
+        switch state {
+        case .idle:
+            return // TODO: - 플레이스 홀더 UI 구성하기
+            
+        case .loading:
+            return // TODO: - 스켈레톤 UI 구성하기
+            
+        case let .success(content):
+            let status = viewModel.evaluateGaitStatus(content.value)
+            statusProgressBarView.currentValue = content.value
+            statusProgressBarView.numberFormatter = {
+                switch viewModel.itemID.kind {
+                case .walkingSpeed, .walkingStepLength:
+                    return nil
+                case .walkingAsymmetryPercentage, .walkingDoubleSupportPercentage:
+                    return percentageFormatter
+                }
+            }()
+            
+            let hkValue = {
+                switch viewModel.itemID.kind {
+                case .walkingSpeed, .walkingStepLength:
+                    return content.value
+                case .walkingAsymmetryPercentage, .walkingDoubleSupportPercentage:
+                    return content.value * 100.0
+                }
+            }()
+            
+            attrString = NSAttributedString(string: String(format: "%.1f", hkValue) + unitString)
+            gaitStatusLabel.text = status.rawValue
+            gaitStatusLabel.textColor = status.backgroundColor
+            statusContainerView.backgroundColor = status.secondaryBackgroundColor
+            
+        case .failure:
+            attrString = NSAttributedString(string: "- " + unitString)
+            statusContainerView.isHidden = true
+            statusProgressBarView.currentValue = nil
+            print("🔴 건강 데이터를 불러오는 데 실패함: HealthInfoCardCollectionViewCell (\(viewModel.itemID.kind.quantityTypeIdentifier))")
 
-        Task {
-            do {
-                let hkData = try await viewModel.fetchStatisticsHealthKitData(options: .mostRecent)
-                let status = viewModel.evaluateGaitStatus(hkData.value)
-
-                titleLabel.text = viewModel.cardType.title
-                valueLabel.attributedText = NSAttributedString(string: "1,000보") // TODO: - 실제 데이터 가져오기
-                    .font(.preferredFont(forTextStyle: .footnote), to: "보")
-                    .foregroundColor(.secondaryLabel, to: "보")
-
-                gaitStatusLabel.text = status.rawValue
-                gaitStatusLabel.textColor = status.backgroundColor
-                statusContainerView.backgroundColor = status.secondaryBackgroundColor
-
-                statusProgressBarView.currentValue = hkData.value
-                statusProgressBarView.thresholdsValues = viewModel.cardType.thresholdValues(age: 27) // TODO: - 나이 데이터 가져오기
-                statusProgressBarView.higherIsBetter = viewModel.cardType.higerIsBetter
-            } catch {
-                // TODO: - UI 예외 처리하기
-                print("🔴 Failed to fetch HealthKit data: \(error)")
-            }
+        case .denied:
+            attrString = NSAttributedString(string: "- " + unitString)
+            statusContainerView.isHidden = true
+            statusProgressBarView.currentValue = nil
+            print("🔵 건강 데이터에 접근할 수 있는 권한이 없음: HealthInfoCardCell (\(viewModel.itemID.kind.quantityTypeIdentifier))")
         }
+        
+        valueLabel.attributedText = attrString
+            .font(.preferredFont(forTextStyle: .footnote), to: unitString)
+            .foregroundColor(.secondaryLabel, to: unitString)
     }
 }

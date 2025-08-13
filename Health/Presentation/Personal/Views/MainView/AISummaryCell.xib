@@ -65,6 +65,7 @@
             </constraints>
             <size key="customSize" width="401" height="171"/>
             <connections>
+                <outlet property="aiSummaryLabel" destination="Uqy-ul-Qcd" id="YMv-WF-ags"/>
                 <outlet property="backgroundHeight" destination="67C-XM-jym" id="61Y-EM-wxX"/>
                 <outlet property="summaryBackgroundView" destination="NQc-Tl-1Xd" id="iYr-dy-LqN"/>
             </connections>
@@ -74,7 +75,7 @@
     <resources>
         <image name="chatBot" width="46" height="46"/>
         <namedColor name="boxBgColor">
-            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.95294117647058818" green="0.95294117647058818" blue="0.95294117647058818" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
     </resources>
 </document>

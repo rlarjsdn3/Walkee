@@ -5,41 +5,25 @@ final class CalendarMonthCell: CoreCollectionViewCell {
     @IBOutlet weak var yearMonthLabel: UILabel!
     @IBOutlet weak var dateCollectionView: UICollectionView!
     @IBOutlet weak var dateCollectionViewHeightConstraint: NSLayoutConstraint!
-    
+
     private var datesWithBlank: [Date] = []
 
     override func setupAttribute() {
         super.setupAttribute()
         dateCollectionView.dataSource = self
         dateCollectionView.delegate = self
-        dateCollectionView.collectionViewLayout = createLayout()
+        dateCollectionView.collectionViewLayout = CalendarLayoutManager.createDateLayout()
         dateCollectionView.register(
             CalendarDateCell.nib,
             forCellWithReuseIdentifier: CalendarDateCell.id
         )
     }
 
-    private func createLayout() -> UICollectionViewLayout {
-        let itemSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0 / 7.0),
-            heightDimension: .fractionalWidth(1.0 / 7.0)
-        )
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-
-        let groupSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .fractionalWidth(1.0 / 7.0)
-        )
-        let group = NSCollectionLayoutGroup.horizontal(
-            layoutSize: groupSize,
-            subitems: Array(repeating: item, count: 7)
-        )
-
-        let section = NSCollectionLayoutSection(group: group)
-        return UICollectionViewCompositionalLayout(section: section)
+    func configure(with monthData: CalendarMonthData) {
+        setupMonthData(year: monthData.year, month: monthData.month)
     }
 
-    func configure(year: Int, month: Int) {
+    private func setupMonthData(year: Int, month: Int) {
         let calendar = Calendar.gregorian
         guard let firstDay = DateComponents(calendar: calendar, year: year, month: month).date else {
             return
@@ -55,8 +39,7 @@ final class CalendarMonthCell: CoreCollectionViewCell {
         dateCollectionView.layoutIfNeeded() // 현재 셀 폭 반영
 
         // 셀 크기 동적 조정을 위한 dateCollectionView 높이 계산
-        let totalItems = datesWithBlank.count
-        let numberOfRows = Int(ceil(Double(totalItems) / 7.0))
+        let numberOfRows = 6
         let itemWidth = dateCollectionView.bounds.width / 7
         dateCollectionViewHeightConstraint.constant = CGFloat(numberOfRows) * itemWidth
 
@@ -79,11 +62,14 @@ extension CalendarMonthCell: UICollectionViewDataSource, UICollectionViewDelegat
 
         let date = datesWithBlank[indexPath.item]
 
-        // TODO: 실제 걸음 데이터로 수정
-        let current = Int.random(in: 0 ... 15000)
-        let goal = 10000
-
-        cell.configure(date: date, currentSteps: current, goalSteps: goal)
+        if date == .distantPast || date > Date() {
+            cell.configure(date: date, currentSteps: nil, goalSteps: nil)
+        } else {
+            // TODO: 실제 걸음 데이터로 수정
+            let current = Int.random(in: 0 ... 15000)
+            let goal = 10000
+            cell.configure(date: date, currentSteps: current, goalSteps: goal)
+        }
 
         return cell
     }

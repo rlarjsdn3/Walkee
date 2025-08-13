@@ -5,88 +5,77 @@
 //  Created by 김건우 on 8/5/25.
 //
 
-import Foundation
+import Combine
 import HealthKit
 
-typealias HealthKitData = (startDate: Date, endDate: Date, value: Double)
+typealias InfoStackContent = HealthInfoStackCellViewModel.Content
 
 final class HealthInfoStackCellViewModel {
 
-    let anchorDate: Date
-    let stackType: DashboardStackType
-
-    ///
-    var title: String? {
-        stackType.title
+    /// 셀을 식별하기 위한 고유 식별자입니다.
+    /// `id`는 뷰모델 생성 시마다 새로운 UUID로 초기화되며,
+    /// `kind`는 해당 셀이 나타낼 데이터 종류를 나타냅니다.
+    struct ItemID: Hashable {
+        let id: UUID = UUID()
+        let kind: DashboardStackKind
     }
 
     ///
-    var systemName: String {
-        stackType.systemName
+    struct Content: Hashable {
+        let value: Double
+        let charts: [Charts]?
+
+        struct Charts: Hashable {
+            let date: Date
+            let value: Double
+        }
+
+        init(value: Double, charts: [Charts]? = nil) {
+            self.value = value
+            self.charts = charts
+        }
     }
 
+    /// 이 뷰모델의 고유 식별자입니다.
+    let itemID: ItemID
+
+    /// 상태 변경을 관리하고 퍼블리시하는 주체입니다.
+    private let stateSubject = CurrentValueSubject<LoadState<InfoStackContent>, Never>(.idle)
+
+    /// 현재 상태를 퍼블리시하는 읽기 전용 퍼블리셔입니다.
+    var statePublisher: AnyPublisher<LoadState<InfoStackContent>, Never> {
+        stateSubject.eraseToAnyPublisher()
+    }
+
+    /// 상태가 변경될 때 호출되는 클로저입니다.
+    /// 변경된 셀의 `ItemID`를 전달하여 외부에서 UI 업데이트를 트리거할 수 있습니다.
+    var didChange: ((HealthInfoStackCellViewModel.ItemID) -> Void)?
+
+    /// 지정한 식별자를 사용하여 뷰모델을 초기화합니다.
     ///
-    var unitString: String? {
-        stackType.unit.unitString
+    /// - Parameter itemID: 셀의 고유 식별자입니다.
+    init(itemID: ItemID) {
+        self.itemID = itemID
     }
 
-    @Injected var healthService: (any HealthService)
-
-    convenience init() { // 임시 코드
-        self.init(stackType: .activeEnergyBurned)
-    }
-
+    /// HealthKit 데이터의 로딩 상태를 변경합니다.
     ///
-    init(
-        anchorDate: Date = .now,
-        stackType: DashboardStackType
-    ) {
-        self.anchorDate = anchorDate
-        self.stackType = stackType
-    }
-    
-    /// <#Description#>
-    /// - Parameters:
-    ///   - startDate: <#startDate description#>
-    ///   - endDate: <#endDate description#>
-    /// - Returns: <#description#>
-    func fetchStatisticsHKData(options: HKStatisticsOptions) async throws -> HealthKitData {
-        try await healthService.fetchStatistics(
-            for: stackType.quantityTypeIdentifier,
-            from: anchorDate.startOfDay(),
-            to: anchorDate.endOfDay(),
-            options: options,
-            unit: stackType.unit
-        )
-    }
-    
-    /// <#Description#>
-    /// - Parameters:
-    ///   - startDate: <#startDate description#>
-    ///   - endDate: <#endDate description#>
-    /// - Returns: <#description#>
-    func fetchStatisticsCollectionHKData(
-        options: HKStatisticsOptions,
-        interval intervalComponents: DateComponents = .init(day: 1)
-    ) async throws -> [HealthKitData] {
-        try await healthService.fetchStatisticsCollection(
-            for: stackType.quantityTypeIdentifier,
-            from: anchorDate.startOfDay(),
-            to: anchorDate.endOfDay(),
-            options: options,
-            interval: intervalComponents,
-            unit: stackType.unit
-        )
+    /// - Parameter new: 변경할 새로운 상태입니다.
+    /// - Note: 상태 변경 후 `didChange` 클로저가 호출되어 외부에 변경 사실을 알립니다.
+    func setState(_ new: LoadState<InfoStackContent>) {
+        stateSubject.send(new)
+        didChange?(itemID)
     }
 }
 
 extension HealthInfoStackCellViewModel: Hashable {
 
     nonisolated func hash(into hasher: inout Hasher) {
-        hasher.combine(ObjectIdentifier(self))
+        hasher.combine(itemID)
     }
 
     nonisolated static func == (lhs: HealthInfoStackCellViewModel, rhs: HealthInfoStackCellViewModel) -> Bool {
-        return ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
+        return lhs.itemID.id == rhs.itemID.id
+                && lhs.itemID.kind == rhs.itemID.kind
     }
 }

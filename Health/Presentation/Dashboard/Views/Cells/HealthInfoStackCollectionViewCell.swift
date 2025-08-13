@@ -5,6 +5,7 @@
 //  Created by 김건우 on 8/5/25.
 //
 
+import Combine
 import HealthKit
 import UIKit
 import SwiftUI
@@ -15,9 +16,13 @@ final class HealthInfoStackCollectionViewCell: CoreCollectionViewCell {
     @IBOutlet weak var symbolImageView: UIImageView!
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var valueLabel: UILabel!
+    @IBOutlet weak var unitLabel: UILabel!
     @IBOutlet weak var chartsContainerView: UIView!
 
-    private var lineChartsHostingController: UIHostingController<LineChartsView>?
+    private var chartsHostingController: UIHostingController<LineChartsView>?
+
+    private var viewModel: HealthInfoStackCellViewModel!
+    private var cancellable: Set<AnyCancellable> = []
 
     override func layoutSubviews() {
 //       symbolContainerView.applyCornerStyle(.circular)
@@ -25,8 +30,9 @@ final class HealthInfoStackCollectionViewCell: CoreCollectionViewCell {
     }
 
     override func prepareForReuse() {
-        lineChartsHostingController = nil
+        chartsHostingController = nil
         chartsContainerView.subviews.forEach { $0.removeFromSuperview() }
+        cancellable.removeAll()
     }
 
     override func setupAttribute() {
@@ -41,7 +47,7 @@ final class HealthInfoStackCollectionViewCell: CoreCollectionViewCell {
         self.layer.shadowRadius = 5
         self.layer.borderWidth = (traitCollection.userInterfaceStyle == .dark) ? 0 : 1
 
-        symbolContainerView.backgroundColor = .systemGray6
+        symbolContainerView.backgroundColor = .systemGray5
 
         valueLabel.minimumScaleFactor = 0.5
         valueLabel.adjustsFontSizeToFitWidth = true
@@ -69,31 +75,60 @@ extension HealthInfoStackCollectionViewCell {
         with viewModel: HealthInfoStackCellViewModel,
         parent: UIViewController?
     ) {
-        titleLabel.text = viewModel.title
-        valueLabel.attributedText = NSAttributedString(string: "1,000보")
-            .font(.preferredFont(forTextStyle: .footnote), to: "보") // TODO: - 실제 값 할당하기
-        symbolImageView.image = UIImage(systemName: viewModel.systemName)
+        self.viewModel = viewModel
 
-        addLineChartsHostingController(with: viewModel, parent: parent)
+        viewModel.statePublisher
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] state in self?.render(state, parent: parent) }
+            .store(in: &cancellable)
     }
 
-    private func addLineChartsHostingController(
-        with viewModel: HealthInfoStackCellViewModel,
+    private func render(_ new: LoadState<InfoStackContent>, parent: UIViewController?) {
+        var lblString: String
+        let unitString = viewModel.itemID.kind.unitString
+        titleLabel.text = viewModel.itemID.kind.title
+        symbolImageView.image = UIImage(systemName: viewModel.itemID.kind.systemName)
+        unitLabel.text = unitString
+
+        switch new {
+        case .idle:
+            return // TODO: - 로딩 전 플레이스 홀더 UI 구성하기
+            
+        case .loading:
+            return // TODO: - 로딩 시 Skeleton Effect 출력하기
+
+        case let .success(content):
+            lblString = String(format: "%0.f", content.value)
+
+            if let charts = content.charts, !charts.isEmpty {
+                if traitCollection.verticalSizeClass == .regular &&
+                    traitCollection.horizontalSizeClass == .regular {
+                    addChartsHostingController(with: charts, parent: parent)
+                }
+            }
+
+        case .failure:
+            lblString = "0"
+            print("🔴 건강 데이터를 불러오는 데 실패함: HealthInfoStackCell (\(viewModel.itemID.kind.quantityTypeIdentifier))")
+
+        case .denied:
+            lblString = "-"
+            print("🔵 건강 데이터에 접근할 수 있는 권한이 없음: HealthInfoStackCell (\(viewModel.itemID.kind.quantityTypeIdentifier))")
+        }
+
+        valueLabel.text = lblString
+    }
+
+    private func addChartsHostingController(
+        with charts: [InfoStackContent.Charts],
         parent: UIViewController?
     ) {
-        Task {
-            do {
-                let hkDatas = try await viewModel.fetchStatisticsCollectionHKData(options: .cumulativeSum)
-
-                let chartsData = Array(hkDatas.prefix(upTo: 7))
-                let hostingVC = LineChartsHostingController(chartsData: chartsData)
-
-                parent?.addChild(hostingVC, to: chartsContainerView)
-                self.lineChartsHostingController = hostingVC
-            } catch {
-                // TODO: - 예외 처리 UI 코드 작성하기
-                print("🔴 Failed to fetch HealthKit data: \(error)")
-            }
-        }
+        // TOOD: - LineCharts가 범용 데이터를 받도록 코드 리팩토링하기
+        let sliced = Array(charts.prefix(7))
+        let hkd = sliced.map { HKData(startDate: $0.date, endDate: $0.date, value: $0.value) }
+        let hVC = LineChartsHostingController(chartsData: hkd)
+        parent?.addChild(hVC, to: chartsContainerView)
+        self.chartsHostingController = hVC
     }
 }

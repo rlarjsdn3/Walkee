@@ -130,6 +130,7 @@ final class StatusProgressBarView: UIView {
         xAxisLabelStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
         xAxisLabelStackView.subviews.forEach { $0.removeFromSuperview() }
         dotParentView.subviews.forEach { $0.removeFromSuperview() }
+        indicatorDotView.removeFromSuperview()
 
         addGradientLayer(to: progressBarView)
         progressBarView.layer.cornerRadius = progressBarView.bounds.height / 2.0

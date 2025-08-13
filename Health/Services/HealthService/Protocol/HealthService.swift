@@ -5,10 +5,14 @@
 //  Created by 김건우 on 8/4/25.
 //
 
-// 추가로 해야할 일: 주석 작성, 목 데이터 작성, DEBUG 스킴에서 목 데이터 반환하도록 코드 수정
-
-import Foundation
 import HealthKit
+
+///
+struct HKData: Equatable {
+    let startDate: Date
+    let endDate: Date
+    let value: Double
+} 
 
 /// HealthKit 관련 기능을 정의한 프로토콜입니다.
 ///
@@ -16,13 +20,6 @@ import HealthKit
 /// 모든 메서드는 메인 액터에서 실행되어야 하며, HealthKit 데이터를 안전하게 다루기 위해 비동기 처리 및 에러 처리를 포함합니다.
 @MainActor
 protocol HealthService {
-
-    /// HealthKit 통계 결과를 표현하는 튜플 타입입니다.
-    /// - Parameters:
-    ///   - startDate: 통계 시작 날짜
-    ///   - endDate: 통계 종료 날짜
-    ///   - value: 해당 기간 동안의 측정값
-    typealias HKResult = (startDate: Date, endDate: Date, value: Double)
 
     /// HealthKit 샘플 데이터를 반환하는 클로저 타입입니다.
     /// - Parameter Result: 성공 시 `HKSample` 배열을 반환하며, 실패 시 에러를 반환합니다.
@@ -52,6 +49,16 @@ protocol HealthService {
     /// - Returns: 읽기 권한이 하나라도 존재하면 `true`, 아니면 `false`.
     func checkHasAnyReadPermission() async -> Bool
 
+    /// 지정한 `HKQuantityTypeIdentifier`에 대한 읽기 권한이 허용되었는지 확인합니다.
+    ///
+    /// 이 메서드는 지정된 HealthKit 수치 타입의 데이터를
+    /// 1년 전(365일 전)부터 현재 시각까지 조회하여,
+    /// 하나라도 데이터를 가져올 수 있다면 읽기 권한이 허용된 것으로 간주합니다.
+    ///
+    /// - Parameter identifier: 읽기 권한을 확인할 HealthKit 수치 타입 식별자.
+    /// - Returns: 읽기 권한이 허용되었는지 여부를 나타내는 불리언 값.
+    ///            해당 타입의 샘플이 하나라도 존재하면 `true`, 없으면 `false`를 반환합니다.
+    func checkHasReadPermission(for identifier: HKQuantityTypeIdentifier) async -> Bool
 
     /// 지정한 양적 데이터(identifier)를 기준으로 HealthKit에서 샘플 데이터를 비동기적으로 가져오고,
     /// 각 샘플의 시작 시각, 종료 시각, 수치를 지정된 단위로 변환하여 반환합니다.
@@ -76,8 +83,8 @@ protocol HealthService {
         limit: Int,
         sortDescriptors: [NSSortDescriptor]?,
         unit: HKUnit
-    ) async throws -> [HKResult]
-    
+    ) async throws -> [HKData]
+
     /// 지정한 HealthKit 양적 데이터(identifier)에 해당하는 샘플 데이터를 비동기적으로 가져옵니다.
     ///
     /// - Parameters:
@@ -127,8 +134,8 @@ protocol HealthService {
         to endDate: Date,
         options: HKStatisticsOptions,
         unit: HKUnit
-    ) async throws -> HKResult
-    
+    ) async throws -> HKData
+
     /// 지정한 양적 데이터(identifier)에 대해 통계 정보를 비동기적으로 가져옵니다.
     ///
     /// - Parameters:
@@ -181,7 +188,7 @@ protocol HealthService {
         options: HKStatisticsOptions,
         interval intervalComponents: DateComponents,
         unit: HKUnit
-    ) async throws -> [HKResult]
+    ) async throws -> [HKData]
     
     /// 지정한 양적 데이터(identifier)에 대해 일정 구간(interval) 단위로 통계 정보를 비동기적으로 가져옵니다.
     ///

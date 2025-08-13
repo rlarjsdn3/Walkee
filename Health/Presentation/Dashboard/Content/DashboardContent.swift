@@ -28,15 +28,15 @@ enum DashboardContent {
         /// 상단 바 항목
         case topBar
         /// 목표 링 셀
-        case goalRing(DailyGoalRingCellViewModel)
+        case goalRing(DailyGoalRingCellViewModel.ItemID)
         /// 건강 정보 스택 셀
-        case stackInfo(HealthInfoStackCellViewModel)
+        case stackInfo(HealthInfoStackCellViewModel.ItemID)
         /// 막대 차트 셀
-        case barCharts(DashboardBarChartsCellViewModel)
+        case barCharts(DashboardBarChartsCellViewModel.ItemID)
         /// AI 요약 셀
-        case alanSummary(AlanActivitySummaryCellViewModel)
+        case alanSummary(AlanActivitySummaryCellViewModel.ItemID)
         /// 건강 카드 셀
-        case cardInfo(HealthInfoCardCellViewModel)
+        case cardInfo(HealthInfoCardCellViewModel.ItemID)
         /// 경고 텍스트 셀
         case text
     }
@@ -48,11 +48,11 @@ extension DashboardContent.Item {
     func dequeueReusableCollectionViewCell(
         collectionView: UICollectionView,
         topBarCellRegistration: UICollectionView.CellRegistration<DashboardTopBarCollectionViewCell, Void>,
-        dailyGoalRingCellRegistration: UICollectionView.CellRegistration<DailyGoalRingCollectionViewCell, DailyGoalRingCellViewModel>,
-        healthInfoStackCellRegistration: UICollectionView.CellRegistration<HealthInfoStackCollectionViewCell, HealthInfoStackCellViewModel>,
-        barChartsCellRegistration: UICollectionView.CellRegistration<DashboardBarChartsCollectionViewCell, DashboardBarChartsCellViewModel>,
-        alanSummaryCellRegistration: UICollectionView.CellRegistration<AlanActivitySummaryCollectionViewCell, AlanActivitySummaryCellViewModel>,
-        healthInfoCardCellRegistration: UICollectionView.CellRegistration<HealthInfoCardCollectionViewCell, HealthInfoCardCellViewModel>,
+        dailyGoalRingCellRegistration: UICollectionView.CellRegistration<DailyGoalRingCollectionViewCell, DailyGoalRingCellViewModel.ItemID>,
+        healthInfoStackCellRegistration: UICollectionView.CellRegistration<HealthInfoStackCollectionViewCell, HealthInfoStackCellViewModel.ItemID>,
+        barChartsCellRegistration: UICollectionView.CellRegistration<DashboardBarChartsCollectionViewCell, DashboardBarChartsCellViewModel.ItemID>,
+        alanSummaryCellRegistration: UICollectionView.CellRegistration<AlanActivitySummaryCollectionViewCell, AlanActivitySummaryCellViewModel.ItemID>,
+        healthInfoCardCellRegistration: UICollectionView.CellRegistration<HealthInfoCardCollectionViewCell, HealthInfoCardCellViewModel.ItemID>,
         textCellRegistration: UICollectionView.CellRegistration<UICollectionViewListCell, Void>,
         indexPath: IndexPath
     ) -> UICollectionViewCell {
@@ -63,35 +63,35 @@ extension DashboardContent.Item {
                 for: indexPath,
                 item: ()
             )
-        case let .goalRing(viewModel):
+        case let .goalRing(id):
             return collectionView.dequeueConfiguredReusableCell(
                 using: dailyGoalRingCellRegistration,
                 for: indexPath,
-                item: viewModel
+                item: id
             )
-        case let .stackInfo(viewModel):
+        case let .stackInfo(id):
             return collectionView.dequeueConfiguredReusableCell(
                 using: healthInfoStackCellRegistration,
                 for: indexPath,
-                item: viewModel
+                item: id
             )
-        case let .barCharts(viewModel):
+        case let .barCharts(id):
             return collectionView.dequeueConfiguredReusableCell(
                 using: barChartsCellRegistration,
                 for: indexPath,
-                item: viewModel
+                item: id
             )
-        case let .alanSummary(viewModel):
+        case let .alanSummary(id):
             return collectionView.dequeueConfiguredReusableCell(
                 using: alanSummaryCellRegistration,
                 for: indexPath,
-                item: viewModel
+                item: id
             )
-        case let .cardInfo(viewModel):
+        case let .cardInfo(id):
             return collectionView.dequeueConfiguredReusableCell(
                 using: healthInfoCardCellRegistration,
                 for: indexPath,
-                item: viewModel
+                item: id
             )
 
         case .text:
@@ -242,7 +242,7 @@ extension DashboardContent.Section {
         )
         let itemSize = NSCollectionLayoutSize(
             widthDimension: itemWidthDimension,
-            heightDimension: .absolute(300)
+            heightDimension: .absolute(325)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
@@ -253,7 +253,7 @@ extension DashboardContent.Section {
         )
         let groupSize = NSCollectionLayoutSize(
             widthDimension: groupWidthDimension,
-            heightDimension: .absolute(300)
+            heightDimension: .absolute(325)
         )
         let group = NSCollectionLayoutGroup.horizontal(
             layoutSize: groupSize,

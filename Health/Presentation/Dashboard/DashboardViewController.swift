@@ -5,6 +5,7 @@
 //  Created by 김건우 on 7/28/25.
 //
 
+import HealthKit
 import UIKit
 
 import TSAlertController
@@ -29,8 +30,24 @@ final class DashboardViewController: CoreGradientViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        Task { try await viewModel.requestHKAutorizationIfNeeded() } // ⚠️ 테스트가 끝나면 반드시 해당 코드 삭제하기
+
         setupDataSource()
-        applySnapshot()
+    }
+
+    override func viewIsAppearing(_ animated: Bool) {
+        super.viewIsAppearing(animated)
+
+        let vSizeClass = traitCollection.verticalSizeClass
+        let hSizeClass = traitCollection.horizontalSizeClass
+        let env = DashboardViewModel.DashboardEnvironment(
+            vericalClassIsRegular: vSizeClass == .regular,
+            horizontalClassIsRegular: hSizeClass == .regular
+        )
+        
+        viewModel.buildDashboardCells(for: env)
+        viewModel.loadHKData() // TODO: - 적절한 다른 시점으로 메서드 옮겨보기 / 로드가 라이프-사이클 동안 한번만 실행되게 하기
+        applySnapshot() // TODO: - 적절한 다른 시점으로 메서드 옮겨보기
     }
 
     override func setupAttribute() {
@@ -51,6 +68,7 @@ final class DashboardViewController: CoreGradientViewController {
 
         applyBackgroundGradient(.midnightBlack)
     }
+
 
     private func createCollectionViewLayout() -> UICollectionViewLayout {
         let sectionProvider: UICollectionViewCompositionalLayoutSectionProvider = { [weak self] sectionIndex, environment in
@@ -108,18 +126,52 @@ final class DashboardViewController: CoreGradientViewController {
 
         var snapshot = NSDiffableDataSourceSnapshot<DashboardContent.Section, DashboardContent.Item>()
         snapshot.appendSections([.top, .ring, .charts, .alan, .card, .bottom])
+
+
         snapshot.appendItems([.topBar], toSection: .top)
-        snapshot.appendItems([.goalRing(.init()), .stackInfo(.init()), .stackInfo(.init()), .stackInfo(.init())], toSection: .ring)
 
-        snapshot.appendItems(
-            [.barCharts(.init(back: .daysBack(7))!),
-             .barCharts(.init(back: .monthsBack(12))!)],
-            toSection: .charts
-        )
+        // -------
+        var stackItems: [DashboardContent.Item] = []
+        viewModel.goalRingIDs.forEach { id in
+            stackItems.append(.goalRing(id))
+        }
+        // ------- 코드 리팩토링하기
 
-        snapshot.appendItems([.alanSummary(.init())], toSection: .alan)
-        snapshot.appendItems([.cardInfo(.init()),  .cardInfo(.init()), .cardInfo(.init()), .cardInfo(.init())], toSection: .card)
+        // -------
+        viewModel.stackIDs.forEach { id in
+            stackItems.append(.stackInfo(id))
+        }
+        snapshot.appendItems(stackItems, toSection: .ring)
+        // ------- 코드 리팩토링하기
+        
+        // -------
+        var chartsItem: [DashboardContent.Item] = []
+        viewModel.chartsIDs.forEach { id in
+            chartsItem.append(.barCharts(id))
+        }
+        snapshot.appendItems(chartsItem, toSection: .charts)
+        // ------- 코드 리팩토링하기
+
+        // ------
+        var summaryItem: [DashboardContent.Item] = []
+        viewModel.summaryIDs.forEach { id in
+            summaryItem.append(.alanSummary(id))
+        }
+        snapshot.appendItems(summaryItem, toSection: .alan)
+        // ------ 코드 리팩토링하기
+
+        // ------
+        var cardItems: [DashboardContent.Item] = []
+        viewModel.cardIDs.forEach { id in
+            cardItems.append(.cardInfo(id))
+        }
+        snapshot.appendItems(cardItems, toSection: .card)
+        // ------- 코드 리팩토링하기
+
+        // -------
         snapshot.appendItems([.text], toSection: .bottom)
+        // ------- 코드 리팩토링하기
+        
         dataSource?.apply(snapshot)
     }
 }
@@ -132,37 +184,39 @@ fileprivate extension DashboardViewController {
         }
     }
 
-    func createDailyGoalRingCellRegistration() -> UICollectionView.CellRegistration<DailyGoalRingCollectionViewCell, DailyGoalRingCellViewModel> {
-        UICollectionView.CellRegistration<DailyGoalRingCollectionViewCell, DailyGoalRingCellViewModel>(cellNib: DailyGoalRingCollectionViewCell.nib) { cell, indexPath, viewModel in
-            cell.bind(with: viewModel)
+    func createDailyGoalRingCellRegistration() -> UICollectionView.CellRegistration<DailyGoalRingCollectionViewCell, DailyGoalRingCellViewModel.ItemID> {
+        UICollectionView.CellRegistration<DailyGoalRingCollectionViewCell, DailyGoalRingCellViewModel.ItemID>(cellNib: DailyGoalRingCollectionViewCell.nib) { [weak self] cell, indexPath, id in
+            guard let vm = self?.viewModel.goalRingCells[id] else { return }
+            cell.bind(with: vm)
         }
     }
 
-    func createHealthInfoStackCellRegistration() -> UICollectionView.CellRegistration<HealthInfoStackCollectionViewCell, HealthInfoStackCellViewModel> {
-        UICollectionView.CellRegistration<HealthInfoStackCollectionViewCell, HealthInfoStackCellViewModel>(cellNib: HealthInfoStackCollectionViewCell.nib) { cell, indexPath, viewModel in
-            cell.bind(with: viewModel, parent: self)
+    func createHealthInfoStackCellRegistration() -> UICollectionView.CellRegistration<HealthInfoStackCollectionViewCell, HealthInfoStackCellViewModel.ItemID> {
+        UICollectionView.CellRegistration<HealthInfoStackCollectionViewCell, HealthInfoStackCellViewModel.ItemID>(cellNib: HealthInfoStackCollectionViewCell.nib) { [weak self] cell, indexPath, id in
+            guard let vm = self?.viewModel.stackCells[id] else { return }
+            cell.bind(with: vm, parent: self)
         }
     }
 
-    func createBarChartsCellRegistration() -> UICollectionView.CellRegistration<DashboardBarChartsCollectionViewCell, DashboardBarChartsCellViewModel> {
-        UICollectionView.CellRegistration<DashboardBarChartsCollectionViewCell, DashboardBarChartsCellViewModel>(cellNib: DashboardBarChartsCollectionViewCell.nib) { cell, indexPath, viewModel in
-            cell.bind(with: viewModel)
+    func createBarChartsCellRegistration() -> UICollectionView.CellRegistration<DashboardBarChartsCollectionViewCell, DashboardBarChartsCellViewModel.ItemID> {
+        UICollectionView.CellRegistration<DashboardBarChartsCollectionViewCell, DashboardBarChartsCellViewModel.ItemID>(cellNib: DashboardBarChartsCollectionViewCell.nib) { [weak self] cell, indexPath, id in
+            guard let vm = self?.viewModel.chartsCells[id] else { return }
+            cell.bind(with: vm)
         }
     }
 
-    func createAlanSummaryCellRegistration() -> UICollectionView.CellRegistration<AlanActivitySummaryCollectionViewCell, AlanActivitySummaryCellViewModel> {
-        UICollectionView.CellRegistration<AlanActivitySummaryCollectionViewCell, AlanActivitySummaryCellViewModel>(cellNib: AlanActivitySummaryCollectionViewCell.nib) { cell, indexPath, viewModel in
-            cell.didReceiveAIMessage = { [weak self] _ in
-                self?.dashboardCollectionView.collectionViewLayout.invalidateLayout()
-            }
-            cell.bind(with: viewModel)
+    func createAlanSummaryCellRegistration() -> UICollectionView.CellRegistration<AlanActivitySummaryCollectionViewCell, AlanActivitySummaryCellViewModel.ItemID> {
+        UICollectionView.CellRegistration<AlanActivitySummaryCollectionViewCell, AlanActivitySummaryCellViewModel.ItemID>(cellNib: AlanActivitySummaryCollectionViewCell.nib) { [weak self] cell, indexPath, id in
+            guard let vm = self?.viewModel.summaryCells[id] else { return }
+            vm.didChange = { _ in self?.dashboardCollectionView.collectionViewLayout.invalidateLayout() }
+            cell.bind(with: vm)
         }
     }
 
-    func createHealthInfoCardCellRegistration() -> UICollectionView.CellRegistration<HealthInfoCardCollectionViewCell, HealthInfoCardCellViewModel> {
-        // TODO: - 셀 콘텐츠 구성하기
-        UICollectionView.CellRegistration<HealthInfoCardCollectionViewCell, HealthInfoCardCellViewModel>(cellNib: HealthInfoCardCollectionViewCell.nib) { cell, indexPath, viewModel in
-            cell.bind(with: viewModel) // TODO: - 실제 CoreData에서 가져오기
+    func createHealthInfoCardCellRegistration() -> UICollectionView.CellRegistration<HealthInfoCardCollectionViewCell, HealthInfoCardCellViewModel.ItemID> {
+        UICollectionView.CellRegistration<HealthInfoCardCollectionViewCell, HealthInfoCardCellViewModel.ItemID>(cellNib: HealthInfoCardCollectionViewCell.nib) { [weak self] cell, indexPath, id in
+            guard let vm = self?.viewModel.cardCells[id] else { return }
+            cell.bind(with: vm) // TODO: - 실제 CoreData에서 가져오기
         }
     }
 

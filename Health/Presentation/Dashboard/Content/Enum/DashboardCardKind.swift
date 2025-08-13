@@ -1,5 +1,5 @@
 //
-//  DashboardCardType.swift
+//  DashboardCardKind.swift
 //  Health
 //
 //  Created by 김건우 on 8/7/25.
@@ -9,7 +9,7 @@ import HealthKit
 import UIKit
 
 ///
-enum DashboardCardType: CaseIterable {
+enum DashboardCardKind: CaseIterable {
 
     ///
     case walkingStepLength
@@ -21,7 +21,7 @@ enum DashboardCardType: CaseIterable {
     case walkingDoubleSupportPercentage
 }
 
-extension DashboardCardType {
+extension DashboardCardKind {
 
     ///
     var title: String? {
@@ -64,10 +64,10 @@ extension DashboardCardType {
     }
 }
 
-extension DashboardCardType {
+extension DashboardCardKind {
 
     ///
-    func status(_ value: Double, age: Int) -> DashboardCardType.GaitStatus {
+    func status(_ value: Double, age: Int) -> DashboardCardKind.GaitStatus {
         switch self {
         case .walkingStepLength:                return status(forStepLength: value, age: age)
         case .walkingAsymmetryPercentage:       return status(forAsymmetryPercentage: value, age: age)
@@ -77,7 +77,7 @@ extension DashboardCardType {
     }
 
     ///
-    func status(forStepLength centi: Double, age: Int) -> DashboardCardType.GaitStatus {
+    func status(forStepLength centi: Double, age: Int) -> DashboardCardKind.GaitStatus {
         let thresholds: [Double] = stepLengthThresholdValues(age: age)
         let normal = thresholds[2]  // 주어진 연령대에 해당하는 주의(Caution) 범위의 첫 번째 값 (lowerBound)
         let caution = thresholds[1] // 주어진 연령대에 해당하는 주의(Caution) 범위의  마지막 값 (upperBound)
@@ -87,7 +87,7 @@ extension DashboardCardType {
     }
 
     ///
-    func status(forWalkingSpeed mps: Double, age: Int) -> DashboardCardType.GaitStatus {
+    func status(forWalkingSpeed mps: Double, age: Int) -> DashboardCardKind.GaitStatus {
         let thresholds: [Double] = walkingSpeedThresholdValue(age: age)
         let normal = thresholds[2]  // 주어진 연령대에 해당하는 주의(Caution) 범위의 첫 번째 값 (lowerBound)
         let caution = thresholds[1] // 주어진 연령대에 해당하는 주의(Caution) 범위의  마지막 값 (upperBound)
@@ -97,7 +97,7 @@ extension DashboardCardType {
     }
 
     ///
-    func status(forAsymmetryPercentage percentage: Double, age: Int) -> DashboardCardType.GaitStatus {
+    func status(forAsymmetryPercentage percentage: Double, age: Int) -> DashboardCardKind.GaitStatus {
         let thresholds: [Double] = asymmetryPercentageThresholdValue(age: age)
         let normal = thresholds[1]  // 주어진 연령대에 해당하는 주의(Caution) 범위의 첫 번째 값 (lowerBound)
         let caution = thresholds[2] // 주어진 연령대에 해당하는 주의(Caution) 범위의  마지막 값 (upperBound)
@@ -107,7 +107,7 @@ extension DashboardCardType {
     }
 
     ///
-    func status(forDoubleSupportPercentage percentage: Double, age: Int) -> DashboardCardType.GaitStatus {
+    func status(forDoubleSupportPercentage percentage: Double, age: Int) -> DashboardCardKind.GaitStatus {
         let thresholds: [Double] = doubleSupportPercentageThresholdValue(age: age)
         let normal = thresholds[1]  // 주어진 연령대에 해당하는 주의(Caution) 범위의 첫 번째 값 (lowerBound)
         let caution = thresholds[2] // 주어진 연령대에 해당하는 주의(Caution) 범위의  마지막 값 (upperBound)
@@ -117,7 +117,7 @@ extension DashboardCardType {
     }
 }
 
-extension DashboardCardType {
+extension DashboardCardKind {
 
     ///
     func thresholdValues(age: Int) -> [Double] {
@@ -174,10 +174,10 @@ extension DashboardCardType {
     }
 }
 
-extension DashboardCardType {
+extension DashboardCardKind {
 
     ///
-    var higerIsBetter: Bool {
+    var higherIsBetter: Bool {
         switch self {
         case .walkingSpeed, .walkingStepLength:                            return true
         case .walkingAsymmetryPercentage, .walkingDoubleSupportPercentage: return false
@@ -186,7 +186,7 @@ extension DashboardCardType {
 }
 
 
-extension DashboardCardType {
+extension DashboardCardKind {
 
     enum GaitStatus: String {
         ///
@@ -221,13 +221,16 @@ extension DashboardCardType {
     }
 }
 
-fileprivate extension DashboardCardType {
+extension DashboardCardKind: Hashable {
+}
+
+fileprivate extension DashboardCardKind {
 
     func evaluateStatusGreaterThan(
         _ value: Double,
         normal: Double,
         caution: Double
-    ) -> DashboardCardType.GaitStatus {
+    ) -> DashboardCardKind.GaitStatus {
         if value >= normal { return .normal }
         else if value >= caution { return .caution }
         else { return .warning }
@@ -237,9 +240,10 @@ fileprivate extension DashboardCardType {
         _ value: Double,
         normal: Double,
         caution: Double
-    ) -> DashboardCardType.GaitStatus {
+    ) -> DashboardCardKind.GaitStatus {
         if value <= normal { return .normal }
         else if value <= caution { return .caution }
         else { return .warning }
     }
 }
+
