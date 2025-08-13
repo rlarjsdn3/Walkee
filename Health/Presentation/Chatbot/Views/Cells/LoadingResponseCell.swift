@@ -11,7 +11,7 @@ final class LoadingResponseCell: CoreTableViewCell {
 	private let indicator: CustomActivityIndicatorView = {
 		let v = CustomActivityIndicatorView()
 		v.translatesAutoresizingMaskIntoConstraints = false
-		v.dotDiameter = 30
+		v.dotDiameter = 22
 		v.color = .accent
 		return v
 	}()
@@ -19,7 +19,8 @@ final class LoadingResponseCell: CoreTableViewCell {
 	private let messageLabel: UILabel = {
 		let lb = UILabel()
 		lb.translatesAutoresizingMaskIntoConstraints = false
-		lb.text = "응답을 생성 중입니다…"
+		//lb.text = "응답을 생성 중입니다…"
+		lb.text = nil
 		lb.textColor = .secondaryLabel
 		lb.font = .preferredFont(forTextStyle: .callout)
 		lb.numberOfLines = 0
@@ -47,9 +48,22 @@ final class LoadingResponseCell: CoreTableViewCell {
 
 	// 문구/애니메이션 제어 메서드
 	func configure(text: String? = nil, animating: Bool = true) {
-		if let t = text { messageLabel.text = t }
+		let willShow = (text?.isEmpty == false)
+		if willShow {
+			messageLabel.isHidden = false
+			messageLabel.text = text
+		} else {
+			messageLabel.isHidden = true
+			messageLabel.text = nil
+		}
 		animating ? indicator.startAnimating() : indicator.stopAnimating()
-		accessibilityLabel = messageLabel.text
+		accessibilityLabel = messageLabel.isHidden ? "로딩 중" : messageLabel.text
+		
+		// hidden 토글 직후 스택뷰 레이아웃을 강제로 갱신
+		setNeedsLayout()
+		contentView.setNeedsLayout()
+		contentView.layoutIfNeeded()
+		Log.ui.debug("LoadingResponseCell.configure text='\(self.messageLabel.text ?? "", privacy: .public)' animation=\(animating, privacy: .public)")
 	}
 
 	// MARK: - CoreTableViewCell hooks
@@ -97,7 +111,8 @@ final class LoadingResponseCell: CoreTableViewCell {
 
 	override func prepareForReuse() {
 		super.prepareForReuse()
-		messageLabel.text = "응답을 생성 중입니다…"
+		messageLabel.text = nil
+		messageLabel.isHidden = true
 		indicator.startAnimating()
 	}
 }

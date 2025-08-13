@@ -39,6 +39,19 @@ import Foundation
 import os
 
 private enum SSEParseError: Error { case emptyData, badJSON }
+
+enum AlanSSEClientError: Error, LocalizedError {
+	case badHTTPStatus(Int)
+	case badContentType(String)
+	
+	var errorDescription: String? {
+		switch self {
+		case .badHTTPStatus(let code):   return "SSE HTTP 상태코드 오류: \(code)"
+		case .badContentType(let ct):    return "SSE Content-Type이 올바르지 않음: \(ct)"
+		}
+	}
+}
+
 private let log = Logger(subsystem: "Health", category: "SSE")
 
 final class AlanSSEClient: NSObject {
@@ -48,7 +61,10 @@ final class AlanSSEClient: NSObject {
 	typealias Stream = AsyncThrowingStream<AlanStreamingResponse, Error>
 	private var continuation: Stream.Continuation?
 
-	private var buffer = ""
+	private var byteBuffer = Data()
+	private let newline2 = Data("\n\n".utf8)
+	
+	private lazy var decoder = JSONDecoder() // 재사용
 
 	func connect(url: URL) -> Stream {
 		let stream = Stream { continuation in
@@ -58,12 +74,23 @@ final class AlanSSEClient: NSObject {
 		let cfg = URLSessionConfiguration.default
 		cfg.httpAdditionalHeaders = [
 			"Accept": "text/event-stream",
+			"Cache-Control": "no-cache",
+			// 보수적으로 "identity"를 강제하면 전송 최적화가 막힐 수 있어 주석하고 테스트 시도
 			"Accept-Encoding": "identity"
 		]
+		
+		cfg.timeoutIntervalForRequest = 600            // 10분
+		cfg.timeoutIntervalForResource = 0             // 무제한
+		cfg.waitsForConnectivity = true                // 네트워크 복구 시 자동 재시도
+		cfg.allowsConstrainedNetworkAccess = true
+		cfg.allowsExpensiveNetworkAccess = true
+		
 		session = URLSession(configuration: cfg, delegate: self, delegateQueue: nil)
 
 		var req = URLRequest(url: url)
 		req.httpMethod = "GET"
+		req.timeoutInterval = 0
+		req.setValue("text/event-stream", forHTTPHeaderField: "Accept")
 
 		Log.net.info("SSE connect -> \(url.absoluteString, privacy: .public)")
 		if let headers = cfg.httpAdditionalHeaders {
@@ -82,26 +109,28 @@ final class AlanSSEClient: NSObject {
 		task?.cancel()
 		session?.invalidateAndCancel()
 		session = nil
-		buffer.removeAll(keepingCapacity: false)
+		byteBuffer.removeAll(keepingCapacity: false)
 	}
 	
-	private func decodeEvent(from jsonString: String) throws -> AlanStreamingResponse {
-		guard jsonString.isEmpty == false else {
-			throw NSError(domain: "SSE", code: -1) // 빈 블록
+	private func decodeEvent(_ json: String) throws -> AlanStreamingResponse {
+		if let data = json.data(using: .utf8) {
+			if let dto = try? decoder.decode(AlanStreamingResponse.self, from: data) { return dto }
 		}
-		
-		// 1) 엄격 JSON 먼저
-		if let d = jsonString.data(using: .utf8) {
-			do { return try JSONDecoder().decode(AlanStreamingResponse.self, from: d) }
-			catch { /* fallthrough to fixed */ }
+		// '{'type':'...'..}' 패턴이면 한 번만 보정
+		if json.contains("'}") || json.contains("':") {
+			let fixed = json
+				.replacingOccurrences(of: #"'([A-Za-z0-9_]+)'\s*:"#,
+									  with: #""$1":"#,
+									  options: .regularExpression)
+				.replacingOccurrences(of: #":\s*'([^']*)'"#,
+									  with: #": "$1""#,
+									  options: .regularExpression)
+			if let data = fixed.data(using: .utf8),
+			   let dto  = try? decoder.decode(AlanStreamingResponse.self, from: data) {
+				return dto
+			}
 		}
-		
-		// 2) 싱글쿼트 -> 유효 JSON으로 보정
-		let fixed = coerceSingleQuotedJSON(jsonString)
-		guard let data = fixed.data(using: .utf8) else {
-			throw NSError(domain: "SSE", code: -2) // 인코딩 실패
-		}
-		return try JSONDecoder().decode(AlanStreamingResponse.self, from: data)
+		throw NSError(domain: "SSE", code: -10, userInfo: [NSLocalizedDescriptionKey:"decode fail"])
 	}
 	/// 서버가 싱글쿼트로 보내는 payload에서 type/speak/content만 안전 추출
 	private func fallbackParsePseudoJSON(_ s: String) -> AlanStreamingResponse? {
@@ -190,17 +219,25 @@ extension AlanSSEClient: URLSessionDataDelegate {
 	func urlSession(_ session: URLSession, dataTask: URLSessionDataTask,
 					didReceive response: URLResponse,
 					completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
-
+		
 		if let http = response as? HTTPURLResponse {
-			Log.net.info("HTTP status = \(http.statusCode, privacy: .public)")
+			let status = http.statusCode
 			let contentType = (http.allHeaderFields["Content-Type"] as? String) ?? ""
+			
+			Log.net.info("HTTP status = \(http.statusCode, privacy: .public)")
 			Log.net.info("Content-Type = \(contentType, privacy: .public)")
-
-			if http.statusCode != 200 {
-				Log.net.error("Non-200 status, SSE may fail")
+			
+			if status != 200 {
+				continuation?.finish(throwing: AlanSSEClientError.badHTTPStatus(http.statusCode))
+				task?.cancel()
+				completionHandler(.cancel)
+				return
 			}
 			if contentType.contains("text/event-stream") == false {
-				Log.net.error("Content-Type is NOT text/event-stream")
+				continuation?.finish(throwing: AlanSSEClientError.badContentType(contentType))
+				task?.cancel()
+				completionHandler(.cancel)
+				return
 			}
 		}
 		completionHandler(.allow)
@@ -208,59 +245,89 @@ extension AlanSSEClient: URLSessionDataDelegate {
 
 	//청크 수신 -> 버퍼 누적 -> 완성 블록 파싱
 	func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
-		guard let chunk = String(data: data, encoding: .utf8) else {
-			Log.sse.error("chunk decode failed (bytes=\(data.count, privacy: .public))")
-			return
-		}
-		//Log.sse.debug("chunk bytes=\(data.count, privacy: .public) preview=\(String(chunk.prefix(120)), privacy: .public)")
-
-		buffer += chunk.replacingOccurrences(of: "\r\n", with: "\n")
-
-		while let range = buffer.range(of: "\n\n") {
-			let rawBlock = String(buffer[..<range.lowerBound])
-			buffer = String(buffer[range.upperBound...])
-
-			//Log.sse.debug("---- block ----\n\(rawBlock, privacy: .public)")
-
-			// 여러 줄 data: 라인만 모아 합침
-			let lines = rawBlock.split(separator: "\n", omittingEmptySubsequences: false)
-			let dataLines = lines.compactMap { line -> String? in
-				if let r = line.range(of: "data:") {
-					return String(line[r.upperBound...]).trimmingCharacters(in: .whitespaces)
-				} else { return nil }
+		byteBuffer.append(data)
+		
+		// 2) 이벤트 경계 찾기: LF×2, CRLF×2 모두 지원 (가장 앞 경계부터 처리)
+		while true {
+			// \n\n
+			let lf2   = Data([0x0A, 0x0A])
+			// \r\n\r\n 맨앞줄로 리턴되게 \r 단순 개행 \n
+			let crlf2 = Data([0x0D, 0x0A, 0x0D, 0x0A])
+			
+			let r1 = byteBuffer.range(of: lf2)
+			let r2 = byteBuffer.range(of: crlf2)
+			
+			// 두 후보 중 더 앞에 있는 경계를 채택
+			let cutRange: Range<Data.Index>?
+			if let a = r1, let b = r2 { cutRange = (a.lowerBound < b.lowerBound) ? a : b }
+			else { cutRange = r1 ?? r2 }
+			
+			guard let sep = cutRange else { break } // 경계 더 없음 → 다음 수신까지 대기
+			
+			// 3) 경계 앞까지를 한 블록으로 파싱
+			let blockData = byteBuffer.subdata(in: 0..<sep.lowerBound)
+			byteBuffer.removeSubrange(0..<sep.upperBound) // 경계 포함 제거
+			
+			guard let block = String(data: blockData, encoding: .utf8)
+					?? String(data: blockData, encoding: .ascii) else { continue }
+			
+#if DEBUG
+			print("SSE block raw:\n\(block)")
+#endif
+			// 4) SSE 필드 파싱 (comment/heartbeat 무시)
+			// 여러 줄 중 "data:" 라인만 모음 (여러 줄 data 지원)
+			let lines = block.split(separator: "\n", omittingEmptySubsequences: false)
+			var datas: [String] = []
+			for line in lines {
+				if line.first == ":" { continue }                 // : ping - ... (heartbeat)
+				if line.hasPrefix("event:") { /* 필요하면 사용 */ }
+				if let p = line.range(of: "data:") {
+					let v = line[p.upperBound...].trimmingCharacters(in: .whitespaces)
+					datas.append(String(v))
+				}
 			}
-			guard dataLines.isEmpty == false else {
-				//Log.sse.debug("block has no data: (heartbeat/comment)")
-				continue
-			}
-
-			let jsonString = dataLines.joined(separator: "\n")
-			//Log.sse.debug("jsonString.len=\(jsonString.count, privacy: .public)")
-
-			guard let jsonData = jsonString.data(using: .utf8) else {
-				//Log.sse.error("jsonString to Data failed")
-				continue
-			}
-
+			guard datas.isEmpty == false else { continue }
+			
+			let json = datas.joined(separator: "\n")
 			do {
-				let dto = try decodeEvent(from: jsonString)
-					continuation?.yield(dto)
-					if dto.type == .complete { continuation?.finish() }
-
+				let dto = try decodeEvent(json)
+				continuation?.yield(dto)
+				if dto.type == .complete { continuation?.finish() }
 			} catch {
-				print(error)
-				//Log.sse.error("decode error: \(String(describing: error), privacy: .public)")
+				// 필요시 샘플링 로그
+				Log.net.error("decodeEvent error: \(error)")
 			}
 		}
 	}
 
 	func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
-		if let error {
-			Log.net.error("didCompleteWithError: \(String(describing: error), privacy: .public)")
-			continuation?.finish(throwing: error)
-		} else {
-			Log.net.info("server closed without error")
+		//		if let error {
+		//			Log.net.error("didCompleteWithError: \(String(describing: error), privacy: .public)")
+		//			continuation?.finish(throwing: error)
+		//		} else {
+		//			Log.net.info("server closed without error")
+		//		}
+		//		disconnect()
+		if error == nil, byteBuffer.isEmpty == false {
+			if let tail = String(data: byteBuffer, encoding: .utf8)
+				?? String(data: byteBuffer, encoding: .ascii) {
+				let lines = tail.split(separator: "\n", omittingEmptySubsequences: false)
+				let datas = lines.compactMap { line -> String? in
+					guard let p = line.range(of: "data:") else { return nil }
+					return String(line[p.upperBound...]).trimmingCharacters(in: .whitespaces)
+				}
+				if datas.isEmpty == false {
+					let json = datas.joined(separator: "\n")
+					if let dto = try? decodeEvent(json) {
+						continuation?.yield(dto)
+					}
+				}
+			}
 		}
-		disconnect()
+		
+		if let error { continuation?.finish(throwing: error) }
+		else { continuation?.finish() }
+		
+		//disconnect()
 	}
 }

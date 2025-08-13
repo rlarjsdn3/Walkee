@@ -2,39 +2,163 @@ import Foundation
 
 @MainActor
 final class AlanViewModel {
+	
+	@Injected private var networkService: NetworkService
+	
+	private(set) var errorMessage: String?
+	
+	private var clientID: String {
+		AppConfiguration.clientID
+	}
+	
+	var didReceiveResponseText: ((String) -> Void)?
+	//  MARK: 스트리밍용 콜백 (조각, 완료, 에러)
+	var onStreamChunk: ((String) -> Void)?
+	var onStreamCompleted: (() -> Void)?
+	var onActionText: ((String) -> Void)?
+	private var sseClient: AlanSSEClient?
+	
+	// MARK: - 일반 질문 형식 APIEndpoint
+	func sendQuestion(_ content: String) async {
+		let endpoint = APIEndpoint.ask(content: content, clientID: clientID)
+		
+		do {
+			let response = try await networkService.request(endpoint: endpoint, as: AlanQuestionResponse.self)
+			didReceiveResponseText?(response.content)
+			errorMessage = nil
+		} catch {
+			errorMessage = error.localizedDescription
+		}
+	}
+	
+	// MARK: SSE Streaming 형식의 응답을 받는 질문 요청
+	func startStreamingQuestion(_ content: String) {
+		do {
+			let url = try buildStreamingURL(content: content, clientID: clientID)
 
-    @Injected private var networkService: NetworkService
+			let client = AlanSSEClient()
+			self.sseClient = client
 
-    private(set) var errorMessage: String?
+			let stream = client.connect(url: url)
+			Task { @MainActor [weak self]  in
+				guard let self else { return }
+				defer {
+					self.sseClient?.disconnect()
+					self.sseClient = nil
+					self.onStreamCompleted?()
+				}
 
-    private var clientID: String {
-        AppConfiguration.clientID
-    }
+				do {
+					streamLoop: for try await event in stream {
+						switch event.type {
+						case .action:
+							// 서버 진행 멘트(speak 우선, 없으면 content)
+							if let speak = event.data.speak ?? event.data.content, !speak.isEmpty {
+								self.onActionText?(speak)
+							}
 
-    var didReceiveResponseText: ((String) -> Void)?
+						case .continue:
+							if let piece = event.data.content, !piece.isEmpty {
+								self.onStreamChunk?(piece)
+							}
 
-    func sendQuestion(_ content: String) async {
-        let endpoint = APIEndpoint.ask(content: content, clientID: clientID)
+						case .complete:
+							break streamLoop
+						}
+					}
+				} catch {
+					self.errorMessage = error.localizedDescription
+				}
+			}
+		} catch {
+			self.errorMessage = error.localizedDescription
+			self.onStreamCompleted?()
+		}
+	}
+	
+	func resetAgentState() async {
+		let endpoint = APIEndpoint.resetState(clientID: clientID)
+		
+		do {
+			_ = try await networkService.request(endpoint: endpoint, as: AlanResetStateResponse.self)
+			errorMessage = nil
+		} catch {
+			errorMessage = error.localizedDescription
+		}
+	}
+	
+	// MARK: - SSE 요청 중 Server Error 500 이 뜰 때 reset State
+	func startStreamingQuestionWithAutoReset(_ content: String) {
+		Task { @MainActor [weak self] in
+			guard let self else { return }
+			await self._startStreaming(content: content, canRetry: true)
+		}
+	}
 
-        do {
-            let response = try await networkService.request(endpoint: endpoint, as: AlanQuestionResponse.self)
-            didReceiveResponseText?(response.content)
-            errorMessage = nil
-        } catch {
-            errorMessage = error.localizedDescription
-        }
-    }
+	private func _startStreaming(content: String, canRetry: Bool) async {
+		var shouldCallCompleted = true
+		do {
+			let url = try buildStreamingURL(content: content, clientID: clientID)
+			let client = AlanSSEClient()
+			self.sseClient = client
+			
+			let stream = client.connect(url: url)
+			defer {
+				self.sseClient?.disconnect()
+				self.sseClient = nil
+				if shouldCallCompleted {
+					self.onStreamCompleted?()
+				}
+			}
+			
+			streamLoop: for try await event in stream {
+				switch event.type {
+				case .action:
+					if let speak = event.data.speak ?? event.data.content, !speak.isEmpty {
+						self.onActionText?(speak)
+					}
+				case .continue:
+					if let piece = event.data.content, !piece.isEmpty {
+						self.onStreamChunk?(piece)
+					}
+				case .complete:
+					break streamLoop
+				}
+			}
+		} catch {
+			// 복구 가능한 경우: reset 후 1회 재시도
+			let recoverable: Bool = {
+				if let e = error as? AlanSSEClientError {
+					switch e {
+					case .badHTTPStatus(let code): return code == 500
+					case .badContentType: return true
+					}
+				}
+				return false
+			}()
+			
+			if recoverable, canRetry {
+				// 진행 멘트(옵션)
+				shouldCallCompleted = false
+				self.onActionText?("세션을 초기화하고 다시 시도 중…")
+				await self.resetAgentState() // DELETE /api/v1/reset-state (문서 확인)
+				try? await Task.sleep(nanoseconds: 300_000_000)
+				await self._startStreaming(content: content, canRetry: false)
+				return
+			}
+			
+			self.errorMessage = error.localizedDescription
+			//self.onStreamCompleted?()
+		}
+	}
+}
 
-    // TODO: SSE Streaming 추가
-
-    func resetAgentState() async {
-        let endpoint = APIEndpoint.resetState(clientID: clientID)
-
-        do {
-            _ = try await networkService.request(endpoint: endpoint, as: AlanResetStateResponse.self)
-            errorMessage = nil
-        } catch {
-            errorMessage = error.localizedDescription
-        }
-    }
+extension AlanViewModel {
+	func buildStreamingURL(content: String, clientID: String) throws -> URL {
+		let endpoint = APIEndpoint.askStreaming(content: content, clientID: clientID)
+		var comps = URLComponents(url: endpoint.baseURL.appendingPathComponent(endpoint.path), resolvingAgainstBaseURL: false)
+		comps?.queryItems = endpoint.queryItems
+		guard let url = comps?.url else { throw NetworkError.badURL }
+		return url
+	}
 }
