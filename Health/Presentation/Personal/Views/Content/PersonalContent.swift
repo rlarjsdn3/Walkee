@@ -162,7 +162,7 @@ extension PersonalContent.Section {
         section.contentInsets = NSDirectionalEdgeInsets(
             top: 10,
             leading: horizontalInset,
-            bottom: 20,
+            bottom: 30,
             trailing: horizontalInset
         )
 
@@ -195,7 +195,7 @@ extension PersonalContent.Section {
         section.contentInsets = NSDirectionalEdgeInsets(
             top: 0,
             leading: UICollectionViewConstant.defaultInset,
-            bottom: 5,
+            bottom: 0,
             trailing: 0
         )
         return section
@@ -205,26 +205,22 @@ extension PersonalContent.Section {
     private func buildFilterLayout(_ environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
 
         let containerWidth = environment.container.effectiveContentSize.width
-        let isPad = environment.traitCollection.userInterfaceIdiom == .pad
-        let isLandscape = containerWidth > environment.container.effectiveContentSize.height
-
-        // 버튼의 고정 높이 설정
+        let buttonWidth: CGFloat = 100
         let buttonHeight: CGFloat = 30
 
-        // 각 아이템(버튼)의 크기 설정
+        // 버튼 아이템 설정
         let itemSize = NSCollectionLayoutSize(
-            widthDimension: .estimated(80),
-            heightDimension: .absolute(buttonHeight) // 높이는 고정
+            widthDimension: .estimated(buttonWidth),
+            heightDimension: .absolute(buttonHeight)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
-        // 그룹사이즈 설정
+        // 그룹 설정
         let groupSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
+            widthDimension: .fractionalWidth(1.0),  // 전체 너비 사용
             heightDimension: .absolute(buttonHeight)
         )
 
-        // 가로 방향으로 여러 버튼 배치
         let group = NSCollectionLayoutGroup.horizontal(
             layoutSize: groupSize,
             subitems: [item]
@@ -232,12 +228,12 @@ extension PersonalContent.Section {
 
         let section = NSCollectionLayoutSection(group: group)
 
-        // 섹션의 여백을 설정합니다
+        // 오른쪽 정렬: leading을 크게 설정해서 버튼을 오른쪽으로 밀기
         section.contentInsets = NSDirectionalEdgeInsets(
             top: 0,
-            leading: UICollectionViewConstant.defaultInset,
+            leading: containerWidth - buttonWidth - 16,
             bottom: 0,
-            trailing: UICollectionViewConstant.defaultInset
+            trailing: 16  // 오른쪽 여백
         )
 
         return section
@@ -253,7 +249,6 @@ extension PersonalContent.Section {
         // 아이패드 대응: 열 개수 설정
         let columnsCount: Int
         let horizontalSpacing: CGFloat
-
 
         if isPad {
             if isLandscape {

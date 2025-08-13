@@ -45,7 +45,7 @@ class PersonalViewController: CoreGradientViewController {
         }
 
         let config = UICollectionViewCompositionalLayoutConfiguration()
-        config.interSectionSpacing = 15
+        config.interSectionSpacing = 5
         return UICollectionViewCompositionalLayout(sectionProvider: sectionProvider, configuration: config)
     }
 
@@ -139,25 +139,22 @@ class PersonalViewController: CoreGradientViewController {
         dataSource?.apply(snapshot, animatingDifferences: true)
     }
 
+    @MainActor
     private func loadWalkingCourses() {
-        // networkService를 Task 외부에서 캡처
-        let service = networkService
-
         Task {
-            do {
-                let response = try await service.request(
-                    endpoint: .walkingCourses(pageNo: 1, numOfRows: 10),
-                    as: WalkingCourseResponse.self
-                )
 
-                await MainActor.run {
-                    self.courses = response.response.body.items.item
-                    self.applyDataSnapshot()
-                    print("로드된 코스 수: \(self.courses.count)")
-                }
-            } catch {
-                print("코스 로드 실패: \(error)")
+            let allCourses = WalkingCourseService.shared.loadWalkingCourses()
+
+            // 랜덤하게 5개 선택
+            if allCourses.count > 5 {
+                courses = Array(allCourses.shuffled().prefix(5))
+            } else {
+                courses = allCourses
             }
+
+            // UI 업데이트
+            applyDataSnapshot()
+            print("랜덤으로 선택된 코스 수: \(courses.count)")
         }
     }
 }

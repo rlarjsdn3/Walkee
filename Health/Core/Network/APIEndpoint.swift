@@ -85,7 +85,8 @@ enum APIEndpoint {
                 URLQueryItem(name: "numOfRows", value: "\(numOfRows)"),
                 URLQueryItem(name: "MobileOS", value: "IOS"),
                 URLQueryItem(name: "MobileApp", value: "HealthWalkingApp"),
-                URLQueryItem(name: "_type", value: "json")
+                URLQueryItem(name: "_type", value: "json"),
+                URLQueryItem(name: "brdDiv", value: "DNWW")
             ]
 
             if let crsLevel = crsLevel {

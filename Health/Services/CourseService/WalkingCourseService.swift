@@ -13,8 +13,46 @@ class WalkingCourseService {
 
     // 썸네일 캐시
     private var thumbnailCache = NSCache<NSString, UIImage>()
+	//코스 데이터 캐시(한 번 로드하면 계속 사용)
+    private var coursesCache: [WalkingCourse]?
 
     private init() {}
+
+    // 로컬 JSON에서 코스 데이터를 불러오는 함수
+    func loadWalkingCourses() -> [WalkingCourse] {
+        // 이미 로드했으면 캐시된 데이터 반환
+        if let cachedCourses = coursesCache {
+            return cachedCourses
+        }
+
+        // 1. Bundle에서 JSON 파일 경로 찾기
+        guard let path = Bundle.main.path(forResource: "walkingCourse", ofType: "json") else {
+            print(" JSON 파일을 찾을 수 없습니다")
+            return []
+        }
+
+        // 2. 파일 경로를 URL로 변환
+        let url = URL(fileURLWithPath: path)
+
+        do {
+            // 3. JSON 파일 읽기
+            let data = try Data(contentsOf: url)
+
+            // 4. JSON 데이터를 구조체로 변환
+            let decoder = JSONDecoder()
+            let localCourses = try decoder.decode(LocalWalkingCourse.self, from: data)
+
+            // 5. 캐시에 저장하고 반환
+            coursesCache = localCourses.courses
+            print("\(localCourses.courses.count)개의 코스를 성공적으로 불러왔습니다")
+            return localCourses.courses
+
+        } catch {
+            print("JSON 파일 읽기 실패: \(error.localizedDescription)")
+            return []
+        }
+    }
+
 
     // GPX URL에서 썸네일 생성 (캐시 적용)
     func generateThumbnailAsync(from gpxURL: String) async -> UIImage? {
