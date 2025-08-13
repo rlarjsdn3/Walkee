@@ -57,6 +57,11 @@ final class ChatbotViewController: CoreGradientViewController {
 	private let relayoutMinInterval: CFTimeInterval = 0.05
 	
 	private var inFootnote = false
+	private var pendingOpenBracket = false
+	
+	private var coalesceBuffer = String()
+	private var coalesceTask: Task<Void, Never>?
+	private let coalesceInterval: UInt64 = 25_000_000 // 25ms
 	
 	// MARK: - Lifecycle
 	override func viewDidLoad() {
@@ -104,67 +109,7 @@ final class ChatbotViewController: CoreGradientViewController {
 		super.initVM()
 		bindViewModel()
 	}
-
-	/// ViewModel의 이벤트를 바인딩
-	/// - AI 응답이 도착하면 메시지를 추가하고 필요 시 스크롤
-	private func bindViewModel() {
-		// TODO: 일반 응답값 - 나중에 `일반 모드`, `빠른 응답모드` UIMenu로 만든다면 같이 사용 가능할 듯(임시 주석)
-		/*
-		viewModel.didReceiveResponseText = { [weak self] text in
-			guard let self else { return }
-			Task { @MainActor in
-				self.appendAIResponseAndScroll(text)
-			}
-		}
-		*/
-		viewModel.onActionText = { [weak self] text in
-			   self?.updateWaitingCellText(text)   // ← 로딩 셀 실시간 갱신
-		   }
-
-		   // (참고) 이미 있는 스트림 콜백들 예시
-		viewModel.onStreamChunk = { [weak self] raw in
-			guard let self else { return }
-			let piece = self.sanitizeStreamingPiece(raw)
-			if !piece.isEmpty { self.appendStreamPieceToAIResponseCell(piece) }
-		}
-		   viewModel.onStreamCompleted = { [weak self] in
-			   self?.finishStreamingUI()
-		   }
-		
-	}
 	
-	/// SSE로 들어온 텍스트 조각을 현재 스트리밍 중인 AI 응답 셀에 반영
-	private func appendStreamPieceToAIResponseCell(_ piece: String) {
-		guard let aiIndex = self.streamingAIIndex, piece.isEmpty == false else { return }
-		let targetIndexPath = IndexPath(row: aiIndex, section: 0)
-
-		if let cell = self.tableView.cellForRow(at: targetIndexPath) as? AIResponseCell {
-			// 보이는 셀: 직접 붙여 깜빡임 최소화
-			cell.appendText(piece)
-			self.messages[aiIndex].text += piece
-			relayoutRowIfNeeded(targetIndexPath)
-//			Log.ui.debug("append visible +\(piece.count, privacy: .public) total=\(self.messages[aiIndex].text.count, privacy: .public)")
-		} else {
-			// 화면 밖: 모델만 누적 + 스로틀 리로드
-			self.messages[aiIndex].text += piece
-			let now = CFAbsoluteTimeGetCurrent()
-			if (now - self.lastUIUpdate) >= self.minUIInterval {
-				self.lastUIUpdate = now
-				UIView.performWithoutAnimation {
-					self.tableView.reloadRows(at: [targetIndexPath], with: .none)
-				}
-//				Log.ui.debug("reloadRows(throttled) total=\(self.messages[aiIndex].text.count, privacy: .public)")
-			}
-		}
-
-		// 자동 스크롤 (필요 시)
-		let before = tableView.contentOffset.y
-		self.scrollToBottomIfNeeded()
-		let after = tableView.contentOffset.y
-		//if before != after { Log.ui.debug("auto-scrolled to bottom") }
-	}
-
-
 	// MARK: - UI Setup
 	override func setupAttribute() {
 		applyBackgroundGradient(.midnightBlack)
@@ -174,6 +119,77 @@ final class ChatbotViewController: CoreGradientViewController {
 		automaticallyAdjustsScrollViewInsets = false
 	}
 
+
+	/// ViewModel의 이벤트를 바인딩
+	/// - AI 응답이 도착하면 메시지를 추가하고 필요 시 스크롤
+	private func bindViewModel() {
+		// TODO: 일반 응답값 - 나중에 `일반 모드`, `빠른 응답모드` UIMenu로 만든다면 같이 사용 가능할 듯(임시 주석)
+		/*
+		 viewModel.didReceiveResponseText = { [weak self] text in
+		 guard let self else { return }
+		 Task { @MainActor in
+		 self.appendAIResponseAndScroll(text)
+		 }
+		 }
+		 */
+		viewModel.onActionText = { [weak self] text in
+			print("onActionText:", text)
+			self?.updateWaitingCellText(text)   // < 로딩 셀 실시간 갱신
+		}
+		
+		// (참고) 이미 있는 스트림 콜백들 예시
+		viewModel.onStreamChunk = { [weak self] raw in
+			guard let self else { return }
+			//print("onStreamChunk:", raw)
+			let piece = self.sanitizeStreamingPiece(raw)
+			if !piece.isEmpty {
+				self.appendStreamPieceToAIResponseCell(piece)
+				//self.feedStreamingPiece(piece)
+			}
+		}
+		
+		viewModel.onStreamCompleted = { [weak self] in
+			self?.finishStreamingUI()
+		}
+		
+	}
+	
+	/// SSE로 들어온 텍스트 조각을 현재 스트리밍 중인 AI 응답 셀에 반영
+	private func appendStreamPieceToAIResponseCell(_ piece: String) {
+		guard let aiIndex = self.streamingAIIndex, piece.isEmpty == false else { return }
+		let targetIndexPath = indexPathForMessage(at: aiIndex)
+
+		if let cell = self.tableView.cellForRow(at: targetIndexPath) as? AIResponseCell {
+			// 보이는 셀: 직접 붙여 깜빡임 최소화
+			cell.appendText(piece)
+			self.messages[aiIndex].text += piece
+			self.relayoutRowIfNeeded(targetIndexPath)
+			//Log.ui.debug("append visible +\(piece.count, privacy: .public) total=\(self.messages[aiIndex].text.count, privacy: .public)")
+		} else {
+			// 화면 밖: 모델만 누적 + 스로틀 리로드
+			self.messages[aiIndex].text += piece
+			let now = CFAbsoluteTimeGetCurrent()
+			if (now - self.lastUIUpdate) >= self.minUIInterval {
+				self.lastUIUpdate = now
+				UIView.performWithoutAnimation {
+					self.tableView.reloadRows(at: [targetIndexPath], with: .none)
+				}
+				//Log.ui.debug("reloadRows(throttled) total=\(self.messages[aiIndex].text.count, privacy: .public)")
+			}
+		}
+
+		// 자동 스크롤 (필요 시)
+		//let before = tableView.contentOffset.y
+		self.scrollToBottomIfNeeded()
+		//let after = tableView.contentOffset.y
+		//if before != after { Log.ui.debug("auto-scrolled to bottom") }
+	}
+	
+	private func indexPathForMessage(at messageIndex: Int) -> IndexPath {
+		return IndexPath(row: hasFixedHeader ? messageIndex + 1 : messageIndex, section: 0)
+	}
+
+	
 	private func setupStackViewStyles() {
 		chattingContainerStackView.layer.cornerRadius = 12
 		chattingContainerStackView.layer.masksToBounds = true
@@ -241,7 +257,6 @@ final class ChatbotViewController: CoreGradientViewController {
 		}
 	}
 	
-	//@MainActor
 	private func applyKeyboardChange(_ payload: KeyboardChangePayload) {
 		let endFrame = CGRect(x: payload.endX, y: payload.endY, width: payload.endW, height: payload.endH)
 		let height = view.convert(endFrame, from: nil).intersection(view.bounds).height
@@ -271,7 +286,6 @@ final class ChatbotViewController: CoreGradientViewController {
 		}
 	}
 	
-	//@MainActor
 	private func onKeyboardFrameChanged(_ noti: Notification) {
 		guard let info = noti.userInfo,
 			  let duration = info[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double,
@@ -366,8 +380,9 @@ final class ChatbotViewController: CoreGradientViewController {
 		sendMessageStreaming()
 	}
 	
+	// MARK: - Alan AI API - 응답값 관련 메서드
 	// TODO: 확실하게 필요없어지면 삭제 예정
-	/// 일반 질문 요청값 - `/api/v1/question` APIEndPoint로 사용자 메시지를 추가하고 서버로 전송
+	/// **일반 질문 요청값** - `/api/v1/question` APIEndPoint로 사용자 메시지를 추가하고 서버로 전송
 	/// - 전송 후에는 무조건 최신 메시지로 스크롤
 	private func sendMessage() {
 		guard let text = chattingTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -421,12 +436,10 @@ final class ChatbotViewController: CoreGradientViewController {
 		messages.append(ChatMessage(text: "", type: .ai))
 		streamingAIIndex = messages.count - 1
 		let aiRow = hasFixedHeader ? messages.count : messages.count - 1
-		let aiIndexPath = IndexPath(row: aiRow, section: 0)
+		let aiIndexPath = indexPathForMessage(at: streamingAIIndex!)
 		tableView.insertRows(at: [aiIndexPath], with: .bottom)
 		
-		//waitingIndexPath = loadingIndexPath()
-		
-//		Log.ui.info("insert AI(empty) row=\(aiRow, privacy: .public) idx=\(String(describing: self.streamingAIIndex), privacy: .public)")
+		Log.ui.info("insert AI(empty) row=\(aiRow, privacy: .public) idx=\(String(describing: self.streamingAIIndex), privacy: .public)")
 		// 응답 시작 부분이 보이도록 상단 고정
 		Task { @MainActor in
 			try? await Task.sleep(for: .milliseconds(60))
@@ -435,26 +448,75 @@ final class ChatbotViewController: CoreGradientViewController {
 		
 		showWaitingCell()
 		
+		inFootnote = false
+		pendingOpenBracket = false
+		
 		// SSE 시작
-		startSSEStreaming(for: text, targetIndexPath: aiIndexPath)
+		viewModel.startStreamingQuestionWithAutoReset(text)
 	}
 	
+	// MARK: 각주 [^ number ^] 는 제거하는 메서드
 	private func sanitizeStreamingPiece(_ s: String) -> String {
-		// 아주 단순한 상태머신: [^  ...  ] 블록 전체를 숨김
-		if s.hasPrefix("[^") { inFootnote = true }
+		guard s.isEmpty == false else { return s }
+		var out = String()
+		var i = s.startIndex
 		
-		if inFootnote {
-			// ']'를 만날 때까지는 전부 버림
-			if let close = s.firstIndex(of: "]") {
-				inFootnote = false
-				// '].\n\n' 같은 토큰을 만나면 ']' 뒤의 꼬리만 살려서 반환
-				let tailStart = s.index(after: close)
-				return String(s[tailStart...])
+		// 이전 조각이 '[' 로 끝났고, 이번 조각이 '^' 로 시작하면 각주 진입
+		if pendingOpenBracket {
+			if s.first == "^" {
+				inFootnote = true
+				pendingOpenBracket = false
+				i = s.index(after: i) // '^' 소비
 			} else {
-				return "" // 아직 각주 영역: 통째로 무시
+				// 각주 아님: 보류했던 '[' 출력
+				out.append("[")
+				pendingOpenBracket = false
 			}
 		}
-		return s
+		
+		while i < s.endIndex {
+			let ch = s[i]
+			
+			if inFootnote {
+				// 각주 모드: ']' 나올 때까지 모두 버림
+				if ch == "]" { inFootnote = false }
+				i = s.index(after: i)
+				continue
+			}
+			
+			if ch == "[" {
+				let next = s.index(after: i)
+				if next < s.endIndex {
+					if s[next] == "^" {
+						// '[^' 발견 → 각주 모드 진입, 둘 다 소비
+						inFootnote = true
+						i = s.index(after: next)
+						continue
+					} else {
+						// 일반 '['
+						out.append("[")
+						i = next
+						continue
+					}
+				} else {
+					// 조각 끝이 '[' 로 끝남 → 다음 조각에서 판단
+					pendingOpenBracket = true
+					break
+				}
+			}
+			
+			out.append(ch)
+			i = s.index(after: i)
+		}
+		
+		return out
+	}
+	
+	private func stripAllFootnotes(in text: String) -> String {
+		let pattern = #"\[\^[^\]]*\]"#
+		let regex = try? NSRegularExpression(pattern: pattern)
+		let range = NSRange(location: 0, length: (text as NSString).length)
+		return regex?.stringByReplacingMatches(in: text, range: range, withTemplate: "") ?? text
 	}
 	
 	private func startSSEStreaming(for prompt: String, targetIndexPath: IndexPath) {
@@ -463,7 +525,7 @@ final class ChatbotViewController: CoreGradientViewController {
 			url = try buildStreamingURL(content: prompt, clientID: AppConfiguration.clientID)
 			//Log.net.info("built streaming URL ok")
 		} catch {
-//			Log.net.error("buildStreamingURL error: \(String(describing: error), privacy: .public)")
+			//Log.net.error("buildStreamingURL error: \(String(describing: error), privacy: .public)")
 			finishStreamingUI()
 			return
 		}
@@ -471,7 +533,7 @@ final class ChatbotViewController: CoreGradientViewController {
 		let client = AlanSSEClient()
 		sseClient = client
 		let stream = client.connect(url: url)
-//		Log.net.info("SSE connect started")
+		//Log.net.info("SSE connect started")
 
 		Task { @MainActor in
 			do {
@@ -483,13 +545,13 @@ final class ChatbotViewController: CoreGradientViewController {
 						// 로딩 셀 문구 갱신 (speak가 우선, 없으면 content)
 						if let speak = event.data.speak ?? event.data.content, !speak.isEmpty {
 							self.updateWaitingCellText(speak)
-//							Log.ui.debug("waiting text -> '\(speak, privacy: .public)'")
+							//Log.ui.debug("waiting text -> '\(speak, privacy: .public)'")
 						}
 
 					case .continue:
 						// 토큰 붙이기
 						guard let aiIndex = self.streamingAIIndex else {
-//							Log.ui.error("streamingAIIndex nil in .continue")
+							// Log.ui.error("streamingAIIndex nil in .continue")
 							continue
 						}
 						let raw = event.data.content ?? ""
@@ -503,7 +565,7 @@ final class ChatbotViewController: CoreGradientViewController {
 							
 							self.relayoutRowIfNeeded(targetIndexPath)
 							
-//							Log.ui.debug("append visible +\(piece.count, privacy: .public) total=\(self.messages[aiIndex].text.count, privacy: .public)")
+							// Log.ui.debug("append visible +\(piece.count, privacy: .public) total=\(self.messages[aiIndex].text.count, privacy: .public)")
 						} else {
 							// 화면 밖: 모델 누적 + 스로틀 리로드
 							self.messages[aiIndex].text += piece
@@ -513,28 +575,45 @@ final class ChatbotViewController: CoreGradientViewController {
 								UIView.performWithoutAnimation {
 									self.tableView.reloadRows(at: [targetIndexPath], with: .none)
 								}
-//								Log.ui.debug("reloadRows(throttled) total=\(self.messages[aiIndex].text.count, privacy: .public)")
+							// Log.ui.debug("reloadRows(throttled) total=\(self.messages[aiIndex].text.count, privacy: .public)")
 							}
 						}
 
 						// 필요시 자동 스크롤
-						let before = tableView.contentOffset.y
+						//let before = tableView.contentOffset.y
 						self.scrollToBottomIfNeeded()
-						let after = tableView.contentOffset.y
+						//let after = tableView.contentOffset.y
 						//if before != after { Log.ui.debug("auto-scrolled to bottom") }
 
 					case .complete:
 						// 대부분의 서버가 전문을 재전송하므로 여기선 content를 무시하고 종료
-//						Log.sse.info("received .complete -> break stream loop")
+						// Log.sse.info("received .complete -> break stream loop")
 						break streamLoop
 					}
 				}
 			} catch {
 				print(error)
-//				Log.net.error("stream loop error: \(String(describing: error), privacy: .public)")
+				// Log.net.error("stream loop error: \(String(describing: error), privacy: .public)")
 			}
 			self.finishStreamingUI()
-//			Log.ui.info("finishStreamingUI() done")
+			// Log.ui.info("finishStreamingUI() done")
+		}
+	}
+	
+	private func feedStreamingPiece(_ raw: String) {
+		coalesceBuffer += raw
+		if coalesceTask == nil {
+			coalesceTask = Task { [weak self] in
+				while let self, Task.isCancelled == false {
+					try? await Task.sleep(nanoseconds: self.coalesceInterval)
+					guard self.coalesceBuffer.isEmpty == false else {
+						self.coalesceTask = nil; break
+					}
+					let chunk = self.coalesceBuffer
+					self.coalesceBuffer.removeAll(keepingCapacity: true)
+					self.appendStreamPieceToAIResponseCell(chunk)
+				}
+			}
 		}
 	}
 	
@@ -562,22 +641,36 @@ final class ChatbotViewController: CoreGradientViewController {
 			}
 		}
 		// 3) 그래도 못 찾으면 무시 (다음 턴에 보이면 갱신됨)
-//		Log.ui.debug("updateWaitingCellText skipped (no loading cell visible)")
+		//Log.ui.debug("updateWaitingCellText skipped (no loading cell visible)")
 	}
 
 	private func finishStreamingUI() {
 		// 0) 스트리밍 중인 셀의 타자 효과 종료(잔여 큐 즉시 붙임)
 		if let aiIndex = streamingAIIndex {
-			let row = hasFixedHeader ? aiIndex + 1 : aiIndex
-			let ip = IndexPath(row: row, section: 0)
+			let ip = indexPathForMessage(at: aiIndex)
 			if let cell = tableView.cellForRow(at: ip) as? AIResponseCell {
 				cell.setTypewriterEnabled(false) // 남아있던 큐는 지연 없이 마저 붙임
 			}
 		}
 		
+		if let aiIndex = streamingAIIndex {
+			let ip = indexPathForMessage(at: aiIndex)
+			let cleaned = stripAllFootnotes(in: messages[aiIndex].text)
+			if cleaned != messages[aiIndex].text {
+				messages[aiIndex].text = cleaned
+				if let cell = tableView.cellForRow(at: ip) as? AIResponseCell {
+					cell.configure(with: cleaned)
+				} else {
+					UIView.performWithoutAnimation {
+						tableView.reloadRows(at: [ip], with: .none)
+					}
+				}
+			}
+		}
+		
 		// 1) 로딩셀/버튼/UI 상태 복구
 		hideWaitingCell()
-//		Log.ui.debug("hideWaitingCell()")
+		//Log.ui.debug("hideWaitingCell()")
 		sendButton.isEnabled = true
 		sendButton.alpha = 1.0
 		
@@ -587,27 +680,11 @@ final class ChatbotViewController: CoreGradientViewController {
 		// 3) SSE 연결 정리
 		sseClient?.disconnect()
 		sseClient = nil
+		// 각주 상태 리셋
+		inFootnote = false
+		pendingOpenBracket = false
 	}
 	
-	// DEBUG 전용 목업 스트리밍(선택)
-//    #if DEBUG
-//	private func simulateDebugStreaming(into indexPath: IndexPath, text: String) {
-//		let chunks = AlanStreamingResponse.debugChunks(for: text, chunkSize: 3)
-//		Task { @MainActor in
-//			for ev in chunks {
-//				guard let aiIndex = self.streamingAIIndex else { break }
-//				self.messages[aiIndex].text += ev.data.content
-//				UIView.performWithoutAnimation {
-//					self.tableView.reloadRows(at: [indexPath], with: .none)
-//				}
-//				self.scrollToBottomIfNeeded()
-//				try? await Task.sleep(for: .milliseconds(30))
-//				if ev.type == .complete { break }
-//			}
-//		}
-//	}
-//    #endif
-
 	/// AI 응답을 추가될 때 '응답 시작 시점'
 	private func appendAIResponseAndScroll(_ text: String) {
 		messages.append(ChatMessage(text: text, type: .ai))
@@ -649,8 +726,11 @@ final class ChatbotViewController: CoreGradientViewController {
 		waitingIndexPath = index
 		tableView.insertRows(at: [index], with: .fade)
 		
-		if shouldAutoScroll() {
-			tableView.scrollToRow(at: index, at: .top, animated: true)
+		if let aiIndex = streamingAIIndex {
+			let aiIP = indexPathForMessage(at: aiIndex)
+			if shouldAutoScroll() {
+				tableView.scrollToRow(at: aiIP, at: .bottom, animated: true)
+			}
 		}
 
 		waitingHintTask?.cancel()
@@ -663,17 +743,7 @@ final class ChatbotViewController: CoreGradientViewController {
 			cell.configure(text: "응답을 생성하고 있어요. 조금만 더 기다려주세요…", animating: true)
 		}
 	}
-	
-//	private func relayoutRowIfNeeded(_ indexPath: IndexPath) {
-//		let now = CACurrentMediaTime()
-//		if (now - lastUIUpdate) >= minUIInterval {    // minUIInterval = 0.02~0.03 권장
-//			lastUIUpdate = now
-//			UIView.performWithoutAnimation {
-//				tableView.beginUpdates()   // 높이 재계산
-//				tableView.endUpdates()
-//			}
-//		}
-//	}
+
 	private func relayoutRowIfNeeded(_ indexPath: IndexPath) {
 		let now = CFAbsoluteTimeGetCurrent()
 		guard now - lastRelayout >= relayoutMinInterval else { return }
@@ -770,7 +840,7 @@ extension ChatbotViewController: UITableViewDataSource {
 			let isStreamingRow = (messageIndex == streamingAIIndex)
 			
 			cell.setTypewriterEnabled(isStreamingRow)     //스트리밍 셀만 타자기
-			cell.charDelayNanos = 50_000_000              //속도 조절(원하면)
+			cell.charDelayNanos = 38_000_000              //속도 조절(원하면)
 			cell.onContentGrew = { [weak self] in
 				guard let self else { return }
 				self.relayoutRowIfNeeded(indexPath)     // begin/endUpdates만
@@ -822,7 +892,6 @@ extension ChatbotViewController: UITextFieldDelegate {
 		let newText = (textField.text as NSString?)?.replacingCharacters(in: range, with: string) ?? ""
 		let hasText = !newText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
 		
-		// Swift Concurrency로 UI 업데이트
 		Task { @MainActor in
 			self.sendButton.alpha = hasText ? 1.0 : 0.6
 			self.sendButton.isEnabled = hasText
