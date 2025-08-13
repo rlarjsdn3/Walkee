@@ -42,17 +42,28 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="oNf-dL-Qdx">
                                 <rect key="frame" x="0.0" y="36" width="380" height="319"/>
                                 <subviews>
-                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" translatesAutoresizingMaskIntoConstraints="NO" id="Dfg-8a-HVz">
-                                        <rect key="frame" x="16" y="23.999999999999996" width="69.333333333333329" height="39.666666666666657"/>
+                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="Dfg-8a-HVz">
+                                        <rect key="frame" x="16" y="23.999999999999996" width="348" height="39.666666666666657"/>
                                         <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="평균" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ak2-UC-OoT">
-                                                <rect key="frame" x="0.0" y="0.0" width="22.666666666666668" height="15.666666666666666"/>
-                                                <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
-                                                <color key="textColor" systemColor="secondaryLabelColor"/>
-                                                <nil key="highlightedColor"/>
-                                            </label>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="1,000보" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HDS-Bg-WII">
-                                                <rect key="frame" x="0.0" y="15.666666666666671" width="69.333333333333329" height="24"/>
+                                            <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fsg-d2-zlQ">
+                                                <rect key="frame" x="0.0" y="0.0" width="348" height="15.666666666666666"/>
+                                                <subviews>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="평균" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ak2-UC-OoT">
+                                                        <rect key="frame" x="0.0" y="0.0" width="250.66666666666666" height="15.666666666666666"/>
+                                                        <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
+                                                        <color key="textColor" systemColor="secondaryLabelColor"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="251" text="7월 6일~7월 13일" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="guh-S2-Af9">
+                                                        <rect key="frame" x="250.66666666666671" y="0.0" width="97.333333333333343" height="15.666666666666666"/>
+                                                        <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
+                                                        <color key="textColor" systemColor="secondaryLabelColor"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                </subviews>
+                                            </stackView>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0보" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HDS-Bg-WII">
+                                                <rect key="frame" x="0.0" y="15.666666666666671" width="348" height="24"/>
                                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="20"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
@@ -62,12 +73,6 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="kqw-NQ-e4v" customClass="BarChartsView" customModule="Health" customModuleProvider="target">
                                         <rect key="frame" x="24" y="79.666666666666671" width="332" height="215.33333333333331"/>
                                     </view>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="7월 6일~7월 13일" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="guh-S2-Af9">
-                                        <rect key="frame" x="266.66666666666669" y="24" width="97.333333333333314" height="15.666666666666664"/>
-                                        <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
-                                        <color key="textColor" systemColor="secondaryLabelColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
                                 </subviews>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
@@ -76,9 +81,8 @@
                                     <constraint firstItem="Dfg-8a-HVz" firstAttribute="leading" secondItem="oNf-dL-Qdx" secondAttribute="leading" constant="16" id="ELu-mp-hNJ"/>
                                     <constraint firstItem="kqw-NQ-e4v" firstAttribute="leading" secondItem="oNf-dL-Qdx" secondAttribute="leading" constant="24" id="EsO-ew-A2j"/>
                                     <constraint firstItem="Dfg-8a-HVz" firstAttribute="top" secondItem="oNf-dL-Qdx" secondAttribute="top" constant="24" id="Fg6-bW-RZs"/>
-                                    <constraint firstAttribute="trailing" secondItem="guh-S2-Af9" secondAttribute="trailing" constant="16" id="NJy-vh-BNM"/>
                                     <constraint firstAttribute="bottom" secondItem="kqw-NQ-e4v" secondAttribute="bottom" constant="24" id="QiE-YK-A0s"/>
-                                    <constraint firstItem="guh-S2-Af9" firstAttribute="top" secondItem="oNf-dL-Qdx" secondAttribute="top" constant="24" id="c9D-xr-w7X"/>
+                                    <constraint firstAttribute="trailing" secondItem="Dfg-8a-HVz" secondAttribute="trailing" constant="16" id="pue-Dr-XjZ"/>
                                 </constraints>
                             </view>
                         </subviews>

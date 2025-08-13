@@ -118,7 +118,7 @@ extension HealthInfoCardCollectionViewCell {
             print("🔴 건강 데이터를 불러오는 데 실패함: HealthInfoCardCollectionViewCell (\(viewModel.itemID.kind.quantityTypeIdentifier))")
 
         case .denied:
-            attrString = NSAttributedString(string: "- " + unitString) // TODO: - 접근 권한 없을 시, 예외 UI 구성하기
+            attrString = NSAttributedString(string: "- " + unitString)
             statusContainerView.isHidden = true
             statusProgressBarView.currentValue = nil
             print("🔵 건강 데이터에 접근할 수 있는 권한이 없음: HealthInfoCardCell (\(viewModel.itemID.kind.quantityTypeIdentifier))")

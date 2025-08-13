@@ -37,6 +37,18 @@ final class DashboardBarChartsCollectionViewCell: CoreCollectionViewCell {
         rangeOfDateLabel.font = .systemFont(ofSize: 13, weight: .semibold)
 
         barChartsView.configuration.displayOptions.showValueLabel = true
+
+        registerForTraitChanges()
+    }
+
+    private func registerForTraitChanges() {
+        registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: Self, previousTraitCollection: UITraitCollection) in
+            if self.traitCollection.userInterfaceStyle == .dark {
+                self.chartsContainerView.layer.borderWidth = 0
+            } else {
+                self.chartsContainerView.layer.borderWidth = 1
+            }
+        }
     }
 }
 
@@ -53,6 +65,7 @@ extension DashboardBarChartsCollectionViewCell {
     }
     
     private func render(for state: LoadState<DashboardChartsContents>) {
+        var attrString: NSAttributedString
         headerLabel.text = viewModel.headerTitle
 
         switch state {
@@ -66,9 +79,7 @@ extension DashboardBarChartsCollectionViewCell {
             let count = Double(chartsDatas.count)
             let avgValue = chartsDatas.reduce(0.0, { $0 + $1.value }) / count
             let avgString = avgValue.formatted(.number.precision(.fractionLength(0))) + " 걸음"
-            averageValueLabel.attributedText = NSAttributedString(string: avgString)
-                .font(.preferredFont(forTextStyle: .footnote), to: "걸음")
-                .foregroundColor(.secondaryLabel, to: "걸음")
+            attrString = NSAttributedString(string: avgString)
 
             barChartsView.chartData = prepareChartData(
                 chartsDatas,
@@ -88,13 +99,19 @@ extension DashboardBarChartsCollectionViewCell {
 
 
         case .failure:
-            // TODO: - 예외 UI 로직 구현하기
+            // TODO: - 차트 중앙에 '데이터를 불러올 수 없다'고 표시
+            attrString = NSAttributedString(string: "-")
             print("🔴 건강 데이터를 불러오는 데 실패함: DashboardBarChartsCell (\(viewModel.itemID.kind))")
 
         case .denied:
-            // TODO: - 접근 권한 없을 시, 예외 UI 구성하기
-            print("🔵 건강 데이터에 접근할 수 있는 권한이 없음: DashboardBarChartsCell")
+            // TODO: - 차트 중앙에 '접근 권한이 없다'고 표시
+            attrString = NSAttributedString(string: "-")
+            print("🔵 건강 데이터에 접근할 수 있는 권한이 없음: DashboardBarChartsCell (\(viewModel.itemID.kind))")
         }
+
+        averageValueLabel.attributedText = attrString
+            .font(.preferredFont(forTextStyle: .footnote), to: "걸음")
+            .foregroundColor(.secondaryLabel, to: "걸음")
     }
 
 

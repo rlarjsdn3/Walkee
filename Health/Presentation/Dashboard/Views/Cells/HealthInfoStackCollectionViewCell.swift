@@ -47,7 +47,7 @@ final class HealthInfoStackCollectionViewCell: CoreCollectionViewCell {
         self.layer.shadowRadius = 5
         self.layer.borderWidth = (traitCollection.userInterfaceStyle == .dark) ? 0 : 1
 
-        symbolContainerView.backgroundColor = .systemGray6
+        symbolContainerView.backgroundColor = .systemGray5
 
         valueLabel.minimumScaleFactor = 0.5
         valueLabel.adjustsFontSizeToFitWidth = true
@@ -113,7 +113,7 @@ extension HealthInfoStackCollectionViewCell {
             print("🔴 건강 데이터를 불러오는 데 실패함: HealthInfoStackCell (\(viewModel.itemID.kind.quantityTypeIdentifier))")
 
         case .denied:
-            lblString = "-" // TODO: - 접근 권한 없을 시, 예외 UI 구성하기
+            lblString = "-"
             print("🔵 건강 데이터에 접근할 수 있는 권한이 없음: HealthInfoStackCell (\(viewModel.itemID.kind.quantityTypeIdentifier))")
         }
 
