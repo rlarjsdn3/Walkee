@@ -21,13 +21,13 @@ struct WeeklyHealthData {
 struct MonthlyHealthData {
     let monthlyTotalSteps: Int         // 한 달 총 걸음 수
     let monthlyTotalDistance: Double   // 한 달 총 거리 (km)
-    let monthlyTotalCalories: Int      // 한 달 총 소모 칼로리
+    let monthlyTotalCalories: Double      // 한 달 총 소모 칼로리
     let monthStartDate: Date           // 월의 시작일
     let monthEndDate: Date             // 월의 종료일
 
     let previousMonthSteps: Int        // 지난달 총 걸음 수
     let previousMonthDistance: Double  // 지난달 총 거리
-    let previousMonthCalories: Int     // 지난달 총 칼로리
+    let previousMonthCalories: Double     // 지난달 총 칼로리
 
     // 비교 계산 프로퍼티
     var stepsDifference: Int {
@@ -38,7 +38,7 @@ struct MonthlyHealthData {
         return monthlyTotalDistance - previousMonthDistance
     }
 
-    var caloriesDifference: Int {
+    var caloriesDifference: Double {
         return monthlyTotalCalories - previousMonthCalories
     }
 
@@ -79,7 +79,7 @@ enum ChangeType {
         switch self {
         case .increase: return .systemRed
         case .decrease: return .systemBlue
-        case .same: return .systemRed
+        case .same: return .systemGray
         }
     }
 }

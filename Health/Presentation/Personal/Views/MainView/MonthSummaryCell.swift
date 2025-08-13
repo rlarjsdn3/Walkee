@@ -79,7 +79,7 @@ class MonthSummaryCell: CoreCollectionViewCell {
         // 메인 라벨 (총계)
         walkingLabel.text = "\(data.monthlyTotalSteps.formatted())보"
         distanceLabel.text = "\(String(format: "%.1f", data.monthlyTotalDistance))km"
-        calorieLabel.text = "\(data.monthlyTotalCalories.formatted())kcal"
+        calorieLabel.text = "\(String(format: "%.1f", data.monthlyTotalCalories))kcal"
 
         // 서브 라벨 (지난달 비교)
         walkingSubLabel.text = formatChange(
@@ -121,12 +121,7 @@ class MonthSummaryCell: CoreCollectionViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         // 라벨 초기화
-        walkingLabel.text = "-"
-        distanceLabel.text = "-"
-        calorieLabel.text = "-"
-        walkingSubLabel.text = "-"
-        distanceSubLabel.text = "-"
-        calorieSubLabel.text = "-"
+        loadMonthlyData()
     }
 }
 
