@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="gTV-IL-0wX" customClass="AISummaryCell" customModule="Health" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="401" height="171"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                <rect key="frame" x="0.0" y="0.0" width="401" height="171"/>
+                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NQc-Tl-1Xd">
+                        <rect key="frame" x="0.0" y="44" width="401" height="127"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="이번주 +520보 달성! 학교 운동장 2바퀴 반 추가예요. 8월 총합으로 제주 올레길 완주급! 285kcal 소모는 라면 1개 태우기 성공! " textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Uqy-ul-Qcd">
+                                <rect key="frame" x="16" y="16" width="369" height="95"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" name="boxBgColor"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="127" id="67C-XM-jym"/>
+                            <constraint firstItem="Uqy-ul-Qcd" firstAttribute="leading" secondItem="NQc-Tl-1Xd" secondAttribute="leading" constant="16" id="Y2R-Hu-0Fy"/>
+                            <constraint firstItem="Uqy-ul-Qcd" firstAttribute="top" secondItem="NQc-Tl-1Xd" secondAttribute="top" constant="16" id="aeB-f1-iO3"/>
+                            <constraint firstAttribute="bottom" secondItem="Uqy-ul-Qcd" secondAttribute="bottom" constant="16" id="ajt-Yk-CBA"/>
+                            <constraint firstAttribute="trailing" secondItem="Uqy-ul-Qcd" secondAttribute="trailing" constant="16" id="d2O-vB-I5G"/>
+                        </constraints>
+                    </view>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="AI요약" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hEX-sL-gd6">
+                        <rect key="frame" x="40" y="0.0" width="57.333333333333343" height="39"/>
+                        <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="chatBot" translatesAutoresizingMaskIntoConstraints="NO" id="OCw-SX-zvV">
+                        <rect key="frame" x="5" y="16" width="30" height="23"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="30" id="WOP-7z-w06"/>
+                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="23" id="dJo-UB-2g5"/>
+                            <constraint firstAttribute="height" constant="23" id="ieU-dE-Rgq"/>
+                        </constraints>
+                    </imageView>
+                </subviews>
+            </view>
+            <viewLayoutGuide key="safeArea" id="ZTg-uK-7eu"/>
+            <constraints>
+                <constraint firstItem="NQc-Tl-1Xd" firstAttribute="top" secondItem="hEX-sL-gd6" secondAttribute="bottom" constant="5" id="13Q-aq-xbf"/>
+                <constraint firstAttribute="trailing" secondItem="NQc-Tl-1Xd" secondAttribute="trailing" id="IPq-3f-fZr"/>
+                <constraint firstItem="NQc-Tl-1Xd" firstAttribute="top" secondItem="OCw-SX-zvV" secondAttribute="bottom" constant="5" id="M5O-y4-EIF"/>
+                <constraint firstItem="hEX-sL-gd6" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="N8t-ll-udr"/>
+                <constraint firstItem="OCw-SX-zvV" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="5" id="Vjf-6c-M9D"/>
+                <constraint firstItem="NQc-Tl-1Xd" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="h5l-wv-hL3"/>
+                <constraint firstItem="hEX-sL-gd6" firstAttribute="leading" secondItem="OCw-SX-zvV" secondAttribute="trailing" constant="5" id="opz-aG-bfE"/>
+                <constraint firstAttribute="bottom" secondItem="NQc-Tl-1Xd" secondAttribute="bottom" id="qNI-bl-xrn"/>
+            </constraints>
+            <size key="customSize" width="401" height="171"/>
+            <connections>
+                <outlet property="aiSummaryLabel" destination="Uqy-ul-Qcd" id="YMv-WF-ags"/>
+                <outlet property="backgroundHeight" destination="67C-XM-jym" id="61Y-EM-wxX"/>
+                <outlet property="summaryBackgroundView" destination="NQc-Tl-1Xd" id="iYr-dy-LqN"/>
+            </connections>
+            <point key="canvasLocation" x="370.2290076335878" y="3.1690140845070425"/>
+        </collectionViewCell>
+    </objects>
+    <resources>
+        <image name="chatBot" width="46" height="46"/>
+        <namedColor name="boxBgColor">
+            <color red="0.95294117647058818" green="0.95294117647058818" blue="0.95294117647058818" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+    </resources>
+</document>

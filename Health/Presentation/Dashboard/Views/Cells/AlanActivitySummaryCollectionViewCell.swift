@@ -12,9 +12,9 @@ final class AlanActivitySummaryCollectionViewCell: CoreCollectionViewCell {
     @IBOutlet weak var summaryLabel: UILabel!
 
     ///
-    var didReceiveSummaryMessage: ((String) -> Void)?
+    var didReceiveAIMessage: ((String) -> Void)?
 
-    override func setupAttribute() { // TODO: - 대시보드 공통 Core 셀 구현하기
+    override func setupAttribute() {
 //       self.applyCornerStyle(.medium)
         self.backgroundColor = .boxBg
         self.layer.cornerRadius = 12 // medium
@@ -46,14 +46,16 @@ final class AlanActivitySummaryCollectionViewCell: CoreCollectionViewCell {
 
 extension AlanActivitySummaryCollectionViewCell {
 
-    // Note: - 본래 ViewModel에서 모든 데이터를 전달하는 게 맞으나,
-    //
-    func configure(with viewModel: AlanActivitySummaryCellViewModel) {
+    func bind(with viewModel: AlanActivitySummaryCellViewModel) {
         Task {
-            // TOOD: - HealthKit으로부터 사용자 건강 데이터 가져오기
-            let message = await viewModel.askAlanToSummarizeActivity()
-            self.summaryLabel.text = message
-            didReceiveSummaryMessage?(message)
+            do {
+//                let message = try await viewModel.askAlanToSummarizeActivity()
+//                self.summaryLabel.text = message
+//                didReceiveAIMessage?(message)
+            } catch {
+                // TODO: - 예외 UI 코드 작성하기
+                print("🔴 Failed to summarize activity: \(error)")
+            }
         }
     }
 }

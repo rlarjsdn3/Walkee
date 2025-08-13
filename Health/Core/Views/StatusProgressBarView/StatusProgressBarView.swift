@@ -55,13 +55,14 @@ final class StatusProgressBarView: UIView {
     }
 
     /// 인디케이터 Dot의 가로/세로 크기를 나타냅니다.
-    let dotSize: CGFloat = 10
+    let dotSize: CGFloat = 8
     /// 프로그래스 바의 높이를 나타냅니다.
-    let barHeight: CGFloat = 20
+    let barHeight: CGFloat = 15
 
     private let indicatorDotView = UIView()
     private let progressBarView = UIView()
     private let xAxisLabelStackView = UIStackView()
+    private let dotParentView = UIView()
     private var graphInConstruction = false
     
     override init(frame: CGRect) {
@@ -128,7 +129,9 @@ final class StatusProgressBarView: UIView {
         progressBarView.layer.sublayers?.forEach { $0.removeFromSuperlayer() }
         xAxisLabelStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
         xAxisLabelStackView.subviews.forEach { $0.removeFromSuperview() }
-        
+        dotParentView.subviews.forEach { $0.removeFromSuperview() }
+        indicatorDotView.removeFromSuperview()
+
         addGradientLayer(to: progressBarView)
         progressBarView.layer.cornerRadius = progressBarView.bounds.height / 2.0
 
@@ -150,7 +153,6 @@ final class StatusProgressBarView: UIView {
                 }
             }
             
-            let indicatorDotView = UIView()
             add(
                 indicator: indicatorDotView,
                 parentView: dotParentView,
@@ -240,8 +242,8 @@ final class StatusProgressBarView: UIView {
         // 처음과 마지막 색상을 제외한 중간 색상이 차지하는 너비 비율
         let segmentFraction = 1.0 / Double(thresholdsColors.count)
         // 각 색상 사이에 자연스러운 그라디언트 효과를 주기 위해 겹침 비율
-        let overlapFraction = segmentFraction * 0.15
-        
+        let overlapFraction = segmentFraction * 0.075
+
         // 각 색상이 차지하는 영역을 계산합니다.
         let locations: [NSNumber] = thresholdsColors.enumerated()
             .flatMap { offset, _ in

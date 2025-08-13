@@ -9,14 +9,13 @@ import UIKit
 
 final class HealthInfoCardCollectionViewCell: CoreCollectionViewCell {
 
-    @IBOutlet weak var symbolImage: UIImageView!
-    @IBOutlet weak var symbolContainerView: UIView!
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var valueLabel: UILabel!
-    
+    @IBOutlet weak var statusContainerView: UIView!
+    @IBOutlet weak var gaitStatusLabel: UILabel!
+    @IBOutlet weak var statusProgressBarView: StatusProgressBarView!
+
     override func layoutSubviews() {
-//        symbolContainerView.applyCornerStyle(.circular)
-        symbolContainerView.layer.cornerRadius = symbolContainerView.bounds.height / 2
     }
 
     override func setupAttribute() {
@@ -31,10 +30,7 @@ final class HealthInfoCardCollectionViewCell: CoreCollectionViewCell {
         self.layer.shadowRadius = 5
         self.layer.borderWidth = (traitCollection.userInterfaceStyle == .dark) ? 0 : 1
 
-        symbolContainerView.backgroundColor = .systemGray6
-
-        valueLabel.minimumScaleFactor = 0.5
-        valueLabel.adjustsFontSizeToFitWidth = true
+        statusContainerView.applyCornerStyle(.small)
 
         registerForTraitChanges()
     }
@@ -52,26 +48,54 @@ final class HealthInfoCardCollectionViewCell: CoreCollectionViewCell {
 
 extension HealthInfoCardCollectionViewCell {
 
-    func configure(with viewModel: HealthInfoCardCellViewModel) {
+    func bind(with viewModel: HealthInfoCardCellViewModel) {
 
         Task {
             do {
-                let hkData = try await viewModel.fetchStatisticsHealthKitData(options: .mostRecent)
-                let status = viewModel.evaluateStatus(hkData.value)
-
-                let systemImage = UIImage(systemName: status.systemName)?
-                    .applyingSymbolConfiguration(UIImage.SymbolConfiguration(paletteColors: [.white]))?
-                    .applyingSymbolConfiguration(UIImage.SymbolConfiguration(weight: .semibold))
-                symbolImage.image = systemImage
-                symbolContainerView.backgroundColor = status.backgroundColor
                 titleLabel.text = viewModel.cardType.title
-                valueLabel.attributedText = NSAttributedString(string: "1,000보")
-                    .font(.preferredFont(forTextStyle: .footnote), to: "보")
+                statusProgressBarView.higherIsBetter = viewModel.cardType.higherIsBetter
+                statusProgressBarView.thresholdsValues = viewModel.cardType.thresholdValues(age: viewModel.age)
+
+                let hkData = try await viewModel.fetchStatisticsHealthKitData(options: .mostRecent)
+                let status = viewModel.evaluateGaitStatus(hkData.value)
+
+                let unitString = viewModel.cardType.unitString
+                let formattedValue = switch viewModel.cardType {
+                case .walkingAsymmetryPercentage, .walkingDoubleSupportPercentage: hkData.value * 100.0
+                case .walkingSpeed, .walkingStepLength: hkData.value
+                }
+
+                statusProgressBarView.currentValue = hkData.value
+                statusProgressBarView.numberFormatter = prepareNumberFormatter(type: viewModel.cardType)
+                valueLabel.attributedText = NSAttributedString(string: String(format: "%.1f", formattedValue) + unitString)
+                    .font(.preferredFont(forTextStyle: .footnote), to: unitString)
+                    .foregroundColor(.secondaryLabel, to: unitString)
+
+                gaitStatusLabel.text = status.rawValue
+                gaitStatusLabel.textColor = status.backgroundColor
+                statusContainerView.backgroundColor = status.secondaryBackgroundColor
+
             } catch {
-                // TODO: - UI 예외 처리하기
-                print("Failed to fetch HealthKit data: \(error)")
-                return
+                let unitString = viewModel.cardType.unitString
+                valueLabel.attributedText = NSAttributedString(string: "- " + unitString)
+                    .font(.preferredFont(forTextStyle: .footnote), to: unitString)
+                    .foregroundColor(.secondaryLabel, to: unitString)
+                statusContainerView.isHidden = true
+                statusProgressBarView.currentValue = nil
+
+                print("🔴 Failed to fetch HealthKit data: \(error)")
             }
+        }
+    }
+
+    private func prepareNumberFormatter(type: DashboardCardType) -> NumberFormatter? {
+        switch type {
+        case .walkingDoubleSupportPercentage, .walkingAsymmetryPercentage:
+            let nf = NumberFormatter()
+            nf.numberStyle = .percent
+            return nf
+        case .walkingStepLength, .walkingSpeed:
+            return nil
         }
     }
 }

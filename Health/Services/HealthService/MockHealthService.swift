@@ -59,11 +59,11 @@ final class MockHealthService: HealthService {
         limit: Int = HKObjectQueryNoLimit,
         sortDescriptors: [NSSortDescriptor]? = nil,
         unit: HKUnit
-    ) async throws -> [HKResult] {
-        let samples: [HKResult] = (0..<10).map { index in
+    ) async throws -> [HKData] {
+        let samples: [HKData] = (0..<10).map { index in
             let date = Date.now.addingTimeInterval(TimeInterval(-index * 86_400))
             let (startDay, endDay) = date.rangeOfDay()
-            return (startDay, endDay, Double.random(in: 0..<10))
+            return HKData(startDate: startDay, endDate: endDay, value: Double.random(in: 0..<10))
         }
 
         return Array(samples.prefix(through: limit))
@@ -89,10 +89,10 @@ final class MockHealthService: HealthService {
         to endDate: Date,
         options: HKStatisticsOptions,
         unit: HKUnit
-    ) async throws -> HKResult {
+    ) async throws -> HKData {
         let date = Date.now
         let (startDay, endDay) = date.rangeOfDay()
-        return (startDay, endDay, 123.45)
+        return HKData(startDate: startDay, endDate: endDay, value: 123.45)
     }
 
     func fetchStatistics(
@@ -114,11 +114,11 @@ final class MockHealthService: HealthService {
         options: HKStatisticsOptions,
         interval intervalComponents: DateComponents,
         unit: HKUnit
-    ) async throws -> [HKResult] {
-        let samples: [HKResult] = (0..<30).map { index in
+    ) async throws -> [HKData] {
+        let samples: [HKData] = (0..<7).map { index in
             let date = Date.now.addingTimeInterval(TimeInterval(-index * 86_400))
             let (startDay, endDay) = date.rangeOfDay()
-            return (startDay, endDay, Double.random(in: 0..<1000))
+            return HKData(startDate: startDay, endDate: endDay, value: Double.random(in: 1..<1000))
         }
 
         return samples
