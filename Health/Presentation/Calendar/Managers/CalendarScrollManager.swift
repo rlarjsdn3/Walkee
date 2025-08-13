@@ -13,6 +13,9 @@ final class CalendarScrollManager {
     /// 초기 스크롤이 완전히 완료되었는지 여부 (무한 스크롤 허용 조건)
     private(set) var didFinishInitialScroll = false
 
+    /// 마지막으로 상단 로드를 요청한 시간
+    private var lastTopLoadTime: Date?
+
     init(calendarVM: CalendarViewModel, collectionView: UICollectionView) {
         self.calendarVM = calendarVM
         self.collectionView = collectionView
@@ -26,7 +29,12 @@ final class CalendarScrollManager {
         if !didScrollToCurrent {
             scrollToCurrentMonth()
             didScrollToCurrent = true
-            didFinishInitialScroll = true
+
+            // 초기에 현재 월로 스크롤 완료 후 짧은 지연을 두고 무한 스크롤 활성화
+            Task { [weak self] in
+                try? await Task.sleep(nanoseconds: 100_000_000) // 0.1s
+                await MainActor.run { self?.didFinishInitialScroll = true }
+            }
         }
     }
 
@@ -66,7 +74,7 @@ final class CalendarScrollManager {
     /// 초기 스크롤이 완료되기 전에는 무한 스크롤이 비활성화됩니다.
     ///
     /// - Parameter scrollView: 스크롤 이벤트가 발생한 스크롤뷰
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    func handleScrollForInfiniteLoading(_ scrollView: UIScrollView) {
         // 초기 스크롤이 완료되기 전에는 무한 스크롤 비활성화
         guard didFinishInitialScroll else { return }
 
@@ -77,6 +85,11 @@ final class CalendarScrollManager {
 
         // 상단 근처 스크롤 시 과거 데이터 로드
         if offsetY < loadThreshold {
+            // 1초 이내 중복 요청 방지
+            let now = Date()
+            if let lastTime = lastTopLoadTime, now.timeIntervalSince(lastTime) < 1.0 { return }
+            lastTopLoadTime = now
+
             Task {
                 await calendarVM?.loadMoreTop()
             }

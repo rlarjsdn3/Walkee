@@ -157,6 +157,6 @@ extension CalendarViewController: UICollectionViewDelegate {
 
     /// 스크롤 시 무한 스크롤 처리 (상단/하단 임계점 도달 시 추가 데이터 로드)
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        scrollManager.scrollViewDidScroll(scrollView)
+        scrollManager.handleScrollForInfiniteLoading(scrollView)
     }
 }
