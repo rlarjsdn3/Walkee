@@ -67,7 +67,10 @@ extension AlanActivitySummaryCollectionViewCell {
 
         case .failure:
             summaryLabel.text = nil // TODO: - 네트워크 통신 실패 UI 구성하기
-            print("🔴 Failed to fetch statistics HKData: AlanActivitySummaryCollectionViewCell")
+            print("🔴 건강 데이터를 불러오는 데 실패함: AlanActivitySummaryCollectionViewCell")
+
+        case .denied:
+            print("🔵 건강 데이터에 접근할 수 있는 권한이 없음: AlanActivitySummaryCollectionViewCell")
         }
     }
 }

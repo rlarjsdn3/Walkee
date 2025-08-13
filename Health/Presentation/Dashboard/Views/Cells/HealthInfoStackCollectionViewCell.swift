@@ -98,8 +98,6 @@ extension HealthInfoStackCollectionViewCell {
 
         case let .success(content):
             attrString = NSAttributedString(string: String(format: "%0.f", content.value) + unitString)
-                .font(.preferredFont(forTextStyle: .footnote), to: unitString)
-                .foregroundColor(.secondaryLabel, to: unitString)
 
             if let charts = content.charts {
                 addChartsHostingController(with: charts, parent: parent)
@@ -107,13 +105,16 @@ extension HealthInfoStackCollectionViewCell {
 
         case .failure:
             attrString = NSAttributedString(string: "0" + unitString)
-                .font(.preferredFont(forTextStyle: .footnote), to: unitString)
-                .foregroundColor(.secondaryLabel, to: unitString)
+            print("🔴 건강 데이터를 불러오는 데 실패함: HealthInfoStackCell (\(viewModel.itemID.kind.quantityTypeIdentifier))")
 
-            print("🔴 Failed to fetch HealthKit data: HealthInfoStackCell (\(viewModel.itemID.kind.quantityTypeIdentifier))")
+        case .denied:
+            attrString = NSAttributedString(string: "-" + unitString)
+            print("🔵 건강 데이터에 접근할 수 있는 권한이 없음: HealthInfoStackCell")
         }
 
         valueLabel.attributedText = attrString
+            .font(.preferredFont(forTextStyle: .footnote), to: unitString)
+            .foregroundColor(.secondaryLabel, to: unitString)
     }
 
     private func addChartsHostingController(
