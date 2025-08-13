@@ -27,22 +27,25 @@ final class DashboardViewController: CoreGradientViewController {
         // TODO: - CalendarVC에서 날짜를 넘겨주기 위한 생성자 구성하기
     }
 
-
-    override func initVM() {
-        viewModel.buildDashboardCells()
-    }
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
         setupDataSource()
-        applySnapshot()
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+    override func viewIsAppearing(_ animated: Bool) {
+        super.viewIsAppearing(animated)
 
-        viewModel.loadHKData()
+        let vSizeClass = traitCollection.verticalSizeClass
+        let hSizeClass = traitCollection.horizontalSizeClass
+        let env = DashboardViewModel.DashboardEnvironment(
+            vericalClassIsRegular: vSizeClass == .regular,
+            horizontalClassIsRegular: hSizeClass == .regular
+        )
+        
+        viewModel.buildDashboardCells(for: env)
+        viewModel.loadHKData() // TODO: - 적절한 다른 시점으로 메서드 옮겨보기 / 로드가 라이프-사이클 동안 한번만 실행되게 하기
+        applySnapshot() // TODO: - 적절한 다른 시점으로 메서드 옮겨보기
     }
 
     override func setupAttribute() {
@@ -125,39 +128,48 @@ final class DashboardViewController: CoreGradientViewController {
 
         snapshot.appendItems([.topBar], toSection: .top)
 
-
-        var items: [DashboardContent.Item] = [.goalRing(.init(goalStepCount: 10_000))]
-        viewModel.stackIDs.forEach { id in
-            let vm = viewModel.stackCells[id]
-            vm?.didChange = { [weak self] id in
-                // Cannot use mutating member on immutable value: function call returns immutable value
-                guard var snapshot = self?.dataSource?.snapshot() else { return }
-                snapshot.reconfigureItems([.stackInfo(id)])
-                self?.dataSource?.apply(snapshot, animatingDifferences: false)
-            }
-            items.append(.stackInfo(id))
+        // -------
+        var stackItems: [DashboardContent.Item] = []
+        viewModel.goalRingIDs.forEach { id in
+            stackItems.append(.goalRing(id))
         }
+        // ------- 코드 리팩토링하기
 
-        snapshot.appendItems(items, toSection: .ring)
+        // -------
+        viewModel.stackIDs.forEach { id in
+            stackItems.append(.stackInfo(id))
+        }
+        snapshot.appendItems(stackItems, toSection: .ring)
+        // ------- 코드 리팩토링하기
+        
+        // -------
+        var chartsItem: [DashboardContent.Item] = []
+        viewModel.chartsIDs.forEach { id in
+            chartsItem.append(.barCharts(id))
+        }
+        snapshot.appendItems(chartsItem, toSection: .charts)
+        // ------- 코드 리팩토링하기
 
+        // ------
+        var summaryItem: [DashboardContent.Item] = []
+        viewModel.summaryIDs.forEach { id in
+            summaryItem.append(.alanSummary(id))
+        }
+        snapshot.appendItems(summaryItem, toSection: .alan)
+        // ------ 코드 리팩토링하기
 
-        snapshot.appendItems( // TODO: - 아이폰/아이패드에 맞게 분리하기
-            [.barCharts(.init(back: .daysBack(7))!),
-             .barCharts(.init(back: .monthsBack(12))!)],
-            toSection: .charts
-        )
+        // ------
+        var cardItems: [DashboardContent.Item] = []
+        viewModel.cardIDs.forEach { id in
+            cardItems.append(.cardInfo(id))
+        }
+        snapshot.appendItems(cardItems, toSection: .card)
+        // ------- 코드 리팩토링하기
 
-        snapshot.appendItems([.alanSummary(.init())], toSection: .alan)
-
-        snapshot.appendItems(
-            [.cardInfo(.init(cardType: .walkingSpeed, age: 27)), // MARK: - 실제 나이 데이터 주입하기
-             .cardInfo(.init(cardType: .walkingStepLength, age: 27)),
-             .cardInfo(.init(cardType: .walkingAsymmetryPercentage, age: 27)),
-             .cardInfo(.init(cardType: .walkingDoubleSupportPercentage, age: 27))],
-            toSection: .card
-        )
-
+        // -------
         snapshot.appendItems([.text], toSection: .bottom)
+        // ------- 코드 리팩토링하기
+        
         dataSource?.apply(snapshot)
     }
 }
@@ -170,9 +182,10 @@ fileprivate extension DashboardViewController {
         }
     }
 
-    func createDailyGoalRingCellRegistration() -> UICollectionView.CellRegistration<DailyGoalRingCollectionViewCell, DailyGoalRingCellViewModel> {
-        UICollectionView.CellRegistration<DailyGoalRingCollectionViewCell, DailyGoalRingCellViewModel>(cellNib: DailyGoalRingCollectionViewCell.nib) { cell, indexPath, viewModel in
-            cell.bind(with: viewModel)
+    func createDailyGoalRingCellRegistration() -> UICollectionView.CellRegistration<DailyGoalRingCollectionViewCell, DailyGoalRingCellViewModel.ItemID> {
+        UICollectionView.CellRegistration<DailyGoalRingCollectionViewCell, DailyGoalRingCellViewModel.ItemID>(cellNib: DailyGoalRingCollectionViewCell.nib) { [weak self] cell, indexPath, id in
+            guard let vm = self?.viewModel.goalRingCells[id] else { return }
+            cell.bind(with: vm)
         }
     }
 
@@ -183,25 +196,25 @@ fileprivate extension DashboardViewController {
         }
     }
 
-    func createBarChartsCellRegistration() -> UICollectionView.CellRegistration<DashboardBarChartsCollectionViewCell, DashboardBarChartsCellViewModel> {
-        UICollectionView.CellRegistration<DashboardBarChartsCollectionViewCell, DashboardBarChartsCellViewModel>(cellNib: DashboardBarChartsCollectionViewCell.nib) { cell, indexPath, viewModel in
-            cell.bind(with: viewModel)
+    func createBarChartsCellRegistration() -> UICollectionView.CellRegistration<DashboardBarChartsCollectionViewCell, DashboardBarChartsCellViewModel.ItemID> {
+        UICollectionView.CellRegistration<DashboardBarChartsCollectionViewCell, DashboardBarChartsCellViewModel.ItemID>(cellNib: DashboardBarChartsCollectionViewCell.nib) { [weak self] cell, indexPath, id in
+            guard let vm = self?.viewModel.chartsCells[id] else { return }
+            cell.bind(with: vm)
         }
     }
 
-    func createAlanSummaryCellRegistration() -> UICollectionView.CellRegistration<AlanActivitySummaryCollectionViewCell, AlanActivitySummaryCellViewModel> {
-        UICollectionView.CellRegistration<AlanActivitySummaryCollectionViewCell, AlanActivitySummaryCellViewModel>(cellNib: AlanActivitySummaryCollectionViewCell.nib) { cell, indexPath, viewModel in
-            cell.didReceiveAIMessage = { [weak self] _ in
-                self?.dashboardCollectionView.collectionViewLayout.invalidateLayout()
-            }
-            cell.bind(with: viewModel)
+    func createAlanSummaryCellRegistration() -> UICollectionView.CellRegistration<AlanActivitySummaryCollectionViewCell, AlanActivitySummaryCellViewModel.ItemID> {
+        UICollectionView.CellRegistration<AlanActivitySummaryCollectionViewCell, AlanActivitySummaryCellViewModel.ItemID>(cellNib: AlanActivitySummaryCollectionViewCell.nib) { [weak self] cell, indexPath, id in
+            guard let vm = self?.viewModel.summaryCells[id] else { return }
+            vm.didChange = { _ in self?.dashboardCollectionView.collectionViewLayout.invalidateLayout() }
+            cell.bind(with: vm)
         }
     }
 
-    func createHealthInfoCardCellRegistration() -> UICollectionView.CellRegistration<HealthInfoCardCollectionViewCell, HealthInfoCardCellViewModel> {
-        // TODO: - 셀 콘텐츠 구성하기
-        UICollectionView.CellRegistration<HealthInfoCardCollectionViewCell, HealthInfoCardCellViewModel>(cellNib: HealthInfoCardCollectionViewCell.nib) { cell, indexPath, viewModel in
-            cell.bind(with: viewModel) // TODO: - 실제 CoreData에서 가져오기
+    func createHealthInfoCardCellRegistration() -> UICollectionView.CellRegistration<HealthInfoCardCollectionViewCell, HealthInfoCardCellViewModel.ItemID> {
+        UICollectionView.CellRegistration<HealthInfoCardCollectionViewCell, HealthInfoCardCellViewModel.ItemID>(cellNib: HealthInfoCardCollectionViewCell.nib) { [weak self] cell, indexPath, id in
+            guard let vm = self?.viewModel.cardCells[id] else { return }
+            cell.bind(with: vm) // TODO: - 실제 CoreData에서 가져오기
         }
     }
 

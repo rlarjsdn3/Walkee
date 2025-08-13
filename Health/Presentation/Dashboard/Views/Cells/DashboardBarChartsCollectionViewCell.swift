@@ -5,6 +5,7 @@
 //  Created by 김건우 on 8/5/25.
 //
 
+import Combine
 import UIKit
 
 final class DashboardBarChartsCollectionViewCell: CoreCollectionViewCell {
@@ -15,6 +16,8 @@ final class DashboardBarChartsCollectionViewCell: CoreCollectionViewCell {
     @IBOutlet weak var barChartsView: BarChartsView!
 
     private var viewModel: DashboardBarChartsCellViewModel!
+    
+    private var cancellable: Set<AnyCancellable> = []
 
     override func setupAttribute() {
 //       self.applyCornerStyle(.medium)
@@ -35,50 +38,69 @@ extension DashboardBarChartsCollectionViewCell {
     func bind(with viewModel: DashboardBarChartsCellViewModel) {
         self.viewModel = viewModel
 
-        Task {
-            do {
-                let hkDatas = try await viewModel.fetchStatisticsCollectionHKDatas(options: .cumulativeSum)
-                let avgData = hkDatas.reduce(0, { $0 + Int($1.value) }) / max(hkDatas.count, 1)
+        viewModel.statePublisher
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] state in self?.render(for: state) }
+            .store(in: &cancellable)
+    
+    }
+    
+    private func render(for state: LoadState<DashboardChartsContents>) {
+        headerLabelView.text = viewModel.headerTitle
+        
+        switch state {
+        case .idle:
+            return // TODO: - 플레이스 홀더 UI 구성하기
+            
+        case .loading:
+            return // TODO: - 스켈레톤 UI 코드 구성하기
+            
+        case let .success(chartsDatas):
+            let avgValue = chartsDatas.reduce(0.0, { $0 + $1.value }) / Double(chartsDatas.count)
 
-                // TODO: - 코드 리팩토링하기
-                barChartsView.chartData = prepareChartData(hkDatas, type: viewModel.backType)
-                if case .daysBack = viewModel.backType {
-                    
-                } else {
-                    if traitCollection.horizontalSizeClass == .compact &&
-                        traitCollection.verticalSizeClass == .regular {
-                        barChartsView.configuration.barWidth = 12
-                    }
+            barChartsView.chartData = prepareChartData(
+                chartsDatas,
+                type: viewModel.itemID.kind
+            )
+
+            if case .monthsBack = viewModel.itemID.kind {
+                if traitCollection.horizontalSizeClass == .compact &&
+                    traitCollection.verticalSizeClass == .regular {
+                    barChartsView.configuration.barWidth = 12
                 }
-
-                // TODO: - 평균값 포매팅 및 글자 폰트 다시 처리하기
-
-                headerLabelView.text = viewModel.headerTitle
-                averageValueLabel.text = avgData.formatted() + "보"
-            } catch {
-                // TODO: - 예외 UI 출력하기
-                print("🔴 Failed to fetch HealthKit Datas: \(error)")
             }
+            
+            averageValueLabel.text = avgValue.formatted() + "걸음"
+            
+            
+            return //
+            
+        case .failure:
+            // TODO: - 예외 UI 로직 구현하기
+            
+            print("🔴 Failed to fetch HealthKit Datas: DashboardBarChartsCell (\(viewModel.itemID.kind))")
         }
     }
 
-    private func prepareChartData(_ hkDatas: [HKData], type: BarChartsBackType) -> BarChartsView.ChartData {
-        let chartsElements = hkDatas.map {
+
+    private func prepareChartData(_ chartsDatas: DashboardChartsContents, type: BarChartsBackKind) -> BarChartsView.ChartData {
+        let chartsElements = chartsDatas.map {
             if case .daysBack = type {
                 return BarChartsView.ChartData.Element(
                     value: $0.value,
-                    xLabel: $0.startDate.formatted(using: .weekdayShorthand),
-                    date: $0.startDate
+                    xLabel: $0.date.formatted(using: .weekdayShorthand),
+                    date: $0.date
                 )
             } else {
                 return BarChartsView.ChartData.Element(
                     value: $0.value,
-                    xLabel: $0.startDate.formatted(.dateTime.month(.defaultDigits)) + "월",
-                    date: $0.startDate
+                    xLabel: $0.date.formatted(.dateTime.month(.defaultDigits)) + "월",
+                    date: $0.date
                 )
             }
         }
         let reversedChartsElements = Array(chartsElements.reversed())
-        return BarChartsView.ChartData(elements: reversedChartsElements) // TODO: - 목표 걸음수 Limit 값 넣기
+        return BarChartsView.ChartData(elements: reversedChartsElements)
     }
 }

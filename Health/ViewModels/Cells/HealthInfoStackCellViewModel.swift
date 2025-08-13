@@ -8,6 +8,8 @@
 import Combine
 import HealthKit
 
+typealias InfoStackContent = HealthInfoStackCellViewModel.Content
+
 final class HealthInfoStackCellViewModel {
 
     /// 셀을 식별하기 위한 고유 식별자입니다.
@@ -18,14 +20,29 @@ final class HealthInfoStackCellViewModel {
         let kind: DashboardStackKind
     }
 
+    ///
+    struct Content: Hashable {
+        let value: Double
+        let charts: [Charts]? = nil
+
+        struct Charts: Hashable {
+            let date: Date
+            let value: Double
+        }
+
+        init(value: Double, charts: [Charts]? = nil) {
+            self.value = value
+        }
+    }
+
     /// 이 뷰모델의 고유 식별자입니다.
     let itemID: ItemID
 
     /// 상태 변경을 관리하고 퍼블리시하는 주체입니다.
-    private let stateSubject = CurrentValueSubject<HKLoadState<HKData>, Never>(.loading)
+    private let stateSubject = CurrentValueSubject<LoadState<InfoStackContent>, Never>(.idle)
 
     /// 현재 상태를 퍼블리시하는 읽기 전용 퍼블리셔입니다.
-    var statePublisher: AnyPublisher<HKLoadState<HKData>, Never> {
+    var statePublisher: AnyPublisher<LoadState<InfoStackContent>, Never> {
         stateSubject.eraseToAnyPublisher()
     }
 
@@ -44,9 +61,9 @@ final class HealthInfoStackCellViewModel {
     ///
     /// - Parameter new: 변경할 새로운 상태입니다.
     /// - Note: 상태 변경 후 `didChange` 클로저가 호출되어 외부에 변경 사실을 알립니다.
-    func setState(_ new: HKLoadState<HKData>) {
-        didChange?(itemID)
+    func setState(_ new: LoadState<InfoStackContent>) {
         stateSubject.send(new)
+        didChange?(itemID)
     }
 }
 

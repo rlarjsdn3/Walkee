@@ -83,26 +83,30 @@ extension HealthInfoStackCollectionViewCell {
             .store(in: &cancellable)
     }
 
-    private func render(_ new: HKLoadState<HKData>, parent: UIViewController?) {
+    private func render(_ new: LoadState<InfoStackContent>, parent: UIViewController?) {
         var attrString: NSAttributedString
         let unitString = viewModel.itemID.kind.unitString
         titleLabel.text = viewModel.itemID.kind.title
         symbolImageView.image = UIImage(systemName: viewModel.itemID.kind.systemName)
 
         switch new {
+        case .idle:
+            return // TODO: - 로딩 전 플레이스 홀더 UI 구성하기
+            
         case .loading:
             return // TODO: - 로딩 시 Skeleton Effect 출력하기
 
-        case let .success(data, collection):
-            attrString = NSAttributedString(string: String(format: "%.1f", data.value) + unitString)
+        case let .success(content):
+            attrString = NSAttributedString(string: String(format: "%0.f", content.value) + unitString)
                 .font(.preferredFont(forTextStyle: .footnote), to: unitString)
                 .foregroundColor(.secondaryLabel, to: unitString)
 
-            guard let collection = collection else { return }
-            addChartsHostingController(with: collection, parent: parent)
+            if let charts = content.charts {
+                addChartsHostingController(with: charts, parent: parent)
+            }
 
         case .failure:
-            attrString = NSAttributedString(string: "- " + unitString)
+            attrString = NSAttributedString(string: "0" + unitString)
                 .font(.preferredFont(forTextStyle: .footnote), to: unitString)
                 .foregroundColor(.secondaryLabel, to: unitString)
 
@@ -113,11 +117,13 @@ extension HealthInfoStackCollectionViewCell {
     }
 
     private func addChartsHostingController(
-        with chartsData: [HKData],
+        with charts: [InfoStackContent.Charts],
         parent: UIViewController?
     ) {
-        let hostingVC = LineChartsHostingController(chartsData: chartsData)
-        parent?.addChild(hostingVC, to: chartsContainerView)
-        self.chartsHostingController = hostingVC
+        // TOOD: - LineCharts가 범용 데이터를 받도록 코드 리팩토링하기
+        let hkd = charts.map { HKData(startDate: $0.date, endDate: $0.date, value: $0.value) }
+        let hVC = LineChartsHostingController(chartsData: hkd)
+        parent?.addChild(hVC, to: chartsContainerView)
+        self.chartsHostingController = hVC
     }
 }
