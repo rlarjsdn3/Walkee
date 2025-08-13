@@ -6,16 +6,16 @@ final class CalendarLayoutManager {
     
     /// 메인 달력 컬렉션뷰의 레이아웃을 생성합니다.
     ///
-    /// 화면 크기와 기기 특성에 따라 1열 또는 2열 레이아웃으로 구성됩니다.
+    /// 화면 크기와 기기 특성에 따라 1열, 2열, 또는 3열 레이아웃으로 구성됩니다.
+    /// - iPhone: 1열
+    /// - iPad 세로: 2열
+    /// - iPad 가로: 3열
     /// 각 월 셀의 높이는 헤더, 요일, 날짜 영역을 모두 포함하여 계산됩니다.
     ///
     /// - Returns: 메인 달력용 `UICollectionViewLayout` 인스턴스
     static func createMainLayout() -> UICollectionViewLayout {
         return UICollectionViewCompositionalLayout { _, env in
-            // 아이패드 등 큰 화면에서는 2열, 그 외에는 1열로 표시
-            let isTwoColumn = env.traitCollection.horizontalSizeClass == .regular
-            && env.container.effectiveContentSize.width >= 700
-            let columns: CGFloat = isTwoColumn ? 2 : 1
+            let columns = determineColumnCount(for: env)
 
             // 섹션 및 아이템 간격 설정
             let sectionInset = UICollectionViewConstant.defaultInset
@@ -23,7 +23,8 @@ final class CalendarLayoutManager {
 
             // 각 열의 가용 너비 계산
             let totalWidth = env.container.effectiveContentSize.width
-            let availableWidth = totalWidth - (sectionInset * 2) - (isTwoColumn ? itemInset : 0)
+            let totalItemInset = itemInset * (columns - 1)
+            let availableWidth = totalWidth - (sectionInset * 2) - totalItemInset
             let columnWidth = availableWidth / columns
 
             // 월 셀의 높이 계산 (헤더 + 요일 + 날짜 영역)
@@ -89,5 +90,24 @@ final class CalendarLayoutManager {
 
         let section = NSCollectionLayoutSection(group: group)
         return UICollectionViewCompositionalLayout(section: section)
+    }
+}
+
+private extension CalendarLayoutManager {
+
+    /// 환경에 따라 컬럼 수를 결정합니다.
+    /// - Parameter env: 컬렉션뷰 레이아웃 환경
+    /// - Returns: 표시할 컬럼 수 (1, 2, 또는 3)
+    static func determineColumnCount(for env: NSCollectionLayoutEnvironment) -> CGFloat {
+        let containerWidth = env.container.effectiveContentSize.width
+        let containerHeight = env.container.effectiveContentSize.height
+        let idiom = UIDevice.current.userInterfaceIdiom
+
+        guard idiom == .pad else {
+            return 1
+        }
+
+        let isLandscape = containerWidth > containerHeight
+        return isLandscape ? 3 : 2
     }
 }

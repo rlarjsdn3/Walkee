@@ -36,11 +36,7 @@ final class CalendarViewController: CoreGradientViewController {
 
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
-
-        coordinator.animate(alongsideTransition: { _ in
-            self.collectionView.collectionViewLayout = CalendarLayoutManager.createMainLayout()
-            self.collectionView.reloadData() // clipping 방지
-        })
+        scrollManager.handleDeviceRotation(coordinator: coordinator)
     }
 }
 
