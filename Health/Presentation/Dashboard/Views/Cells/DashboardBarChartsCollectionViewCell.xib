@@ -23,13 +23,13 @@
                                 <rect key="frame" x="0.0" y="0.0" width="380" height="24"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="qDB-N4-dlI">
-                                        <rect key="frame" x="0.0" y="0.0" width="8" height="24"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="6" height="24"/>
                                         <constraints>
-                                            <constraint firstAttribute="width" constant="8" id="U43-55-yvK"/>
+                                            <constraint firstAttribute="width" constant="6" id="U43-55-yvK"/>
                                         </constraints>
                                     </view>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="지난 7일 간 걸음 수 분석" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gF7-hX-V0L">
-                                        <rect key="frame" x="8" y="0.0" width="372" height="24"/>
+                                        <rect key="frame" x="6" y="0.0" width="374" height="24"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                         <color key="textColor" systemColor="secondaryLabelColor"/>
                                         <nil key="highlightedColor"/>

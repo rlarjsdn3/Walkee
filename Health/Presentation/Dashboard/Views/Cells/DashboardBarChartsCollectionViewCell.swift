@@ -64,7 +64,7 @@ extension DashboardBarChartsCollectionViewCell {
             
         case let .success(chartsDatas):
             let avgValue = chartsDatas.reduce(0.0, { $0 + $1.value }) / Double(chartsDatas.count)
-            let avgString = avgValue.formatted(.number.precision(.fractionLength(0))) + "걸음"
+            let avgString = avgValue.formatted(.number.precision(.fractionLength(0))) + " 걸음"
             averageValueLabel.attributedText = NSAttributedString(string: avgString)
                 .font(.preferredFont(forTextStyle: .footnote), to: "걸음")
                 .foregroundColor(.secondaryLabel, to: "걸음")
