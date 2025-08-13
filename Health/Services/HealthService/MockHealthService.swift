@@ -99,7 +99,7 @@ final class MockHealthService: HealthService {
     ) async throws -> HKData {
         let date = Date.now
         let (startDay, endDay) = date.rangeOfDay()
-        return HKData(startDate: startDay, endDate: endDay, value: 123.45)
+        return HKData(startDate: startDay, endDate: endDay, value: 1.4)
     }
 
     func fetchStatistics(

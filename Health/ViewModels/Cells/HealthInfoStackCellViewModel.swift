@@ -23,7 +23,7 @@ final class HealthInfoStackCellViewModel {
     ///
     struct Content: Hashable {
         let value: Double
-        let charts: [Charts]? = nil
+        let charts: [Charts]?
 
         struct Charts: Hashable {
             let date: Date
@@ -32,6 +32,7 @@ final class HealthInfoStackCellViewModel {
 
         init(value: Double, charts: [Charts]? = nil) {
             self.value = value
+            self.charts = charts
         }
     }
 

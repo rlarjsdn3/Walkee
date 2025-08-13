@@ -107,23 +107,25 @@ extension HealthInfoCardCollectionViewCell {
             }()
             
             attrString = NSAttributedString(string: String(format: "%.1f", hkValue) + unitString)
-                .font(.preferredFont(forTextStyle: .footnote), to: unitString)
-                .foregroundColor(.secondaryLabel, to: unitString)
-            
             gaitStatusLabel.text = status.rawValue
             gaitStatusLabel.textColor = status.backgroundColor
             statusContainerView.backgroundColor = status.secondaryBackgroundColor
             
         case .failure:
             attrString = NSAttributedString(string: "- " + unitString)
-                .font(.preferredFont(forTextStyle: .footnote), to: unitString)
-                .foregroundColor(.secondaryLabel, to: unitString)
             statusContainerView.isHidden = true
             statusProgressBarView.currentValue = nil
-            
-            print("🔴 Failed to fetch HealthKit data: HealthInfoCardCollectionViewCell (\(viewModel.itemID.kind.quantityTypeIdentifier))")
+            print("🔴 건강 데이터를 불러오는 데 실패함: HealthInfoCardCollectionViewCell (\(viewModel.itemID.kind.quantityTypeIdentifier))")
+
+        case .denied:
+            attrString = NSAttributedString(string: "- " + unitString)
+            statusContainerView.isHidden = true
+            statusProgressBarView.currentValue = nil
+            print("🔵 건강 데이터에 접근할 수 있는 권한이 없음: HealthInfoCardCell (\(viewModel.itemID.kind.quantityTypeIdentifier))")
         }
         
         valueLabel.attributedText = attrString
+            .font(.preferredFont(forTextStyle: .footnote), to: unitString)
+            .foregroundColor(.secondaryLabel, to: unitString)
     }
 }

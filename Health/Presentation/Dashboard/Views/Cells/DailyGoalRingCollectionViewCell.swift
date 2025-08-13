@@ -46,8 +46,12 @@ extension DailyGoalRingCollectionViewCell {
             circleProgressView.currentValue = Double(content.currentStepCount)
 
         case .failure:
+            circleProgressView.currentValue = 0
+            print("🔴 건강 데이터를 불러오는 데 실패함: DailyGoalRingCell")
+
+        case .denied:
             circleProgressView.currentValue = nil
-            print("🔴 Failed to fetch statistics HKData: DailyGoalRingCell")
+            print("🔵 건강 데이터에 접근할 수 있는 권한이 없음: DailyGoalRingCell")
         }
     }
 }

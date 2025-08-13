@@ -15,7 +15,9 @@ enum LoadState<Value> where Value: Equatable {
     ///
     case success(Value)
     ///
-    case failure(Error)
+    case failure(Error?)
+    ///
+    case denied
 }
 
 extension LoadState: Equatable {
@@ -27,6 +29,8 @@ extension LoadState: Equatable {
         case (let .success(value1), let .success(value2)):
             return value1 == value2
         case (.failure, .failure):
+            return true
+        case (.denied, .denied):
             return true
         default:
             return false
