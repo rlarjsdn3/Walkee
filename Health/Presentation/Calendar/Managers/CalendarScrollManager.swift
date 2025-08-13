@@ -93,6 +93,18 @@ final class CalendarScrollManager {
 
 private extension CalendarScrollManager {
 
+    /// 화면에 실제로 보이는 셀의 정보를 담는 구조체
+    struct VisibleCell {
+        let indexPath: IndexPath
+        let frame: CGRect
+        let monthData: CalendarMonthData
+
+        /// 화면 상단으로부터의 거리를 계산합니다.
+        func distanceFromScreenTop(_ screenArea: CGRect) -> CGFloat {
+            return abs(frame.minY - screenArea.minY)
+        }
+    }
+
     /// 현재 월로 스크롤합니다.
     func scrollToCurrentMonth() {
         guard let collectionView = collectionView,
@@ -125,7 +137,7 @@ private extension CalendarScrollManager {
         let potentiallyVisibleIndexPaths = collectionView.indexPathsForVisibleItems
 
         // 실제로 화면에 보이는 유효한 셀들만 걸러내기
-        let actuallyVisibleCells = potentiallyVisibleIndexPaths.compactMap { indexPath -> (IndexPath, CGRect, CalendarMonthData)? in
+        let actuallyVisibleCells = potentiallyVisibleIndexPaths.compactMap { indexPath -> VisibleCell? in
 
             // 기본 유효성 검사
             guard indexPath.item >= 0 && indexPath.item < calendarVM.monthsCount else {
@@ -150,23 +162,26 @@ private extension CalendarScrollManager {
                 return nil
             }
 
-            // 유효한 셀이므로 포함
-            return (indexPath, cellFrame, monthData)
+            return VisibleCell(
+                indexPath: indexPath,
+                frame: cellFrame,
+                monthData: monthData
+            )
         }
 
         // 유효한 셀들 중에서 화면 최상단에 가장 가까운 셀 찾기
         let topMostVisibleCell = actuallyVisibleCells.min { cell1, cell2 in
             // 각 셀이 화면 상단에서 얼마나 떨어져 있는지 계산
-            let distanceFromScreenTop1 = abs(cell1.1.minY - currentScreenArea.minY)
-            let distanceFromScreenTop2 = abs(cell2.1.minY - currentScreenArea.minY)
+            let distance1 = cell1.distanceFromScreenTop(currentScreenArea)
+            let distance2 = cell2.distanceFromScreenTop(currentScreenArea)
 
             // 거리가 더 짧은(화면 상단에 더 가까운) 셀을 선택
-            return distanceFromScreenTop1 < distanceFromScreenTop2
+            return distance1 < distance2
         }
 
         // 찾은 셀의 IndexPath 반환
         if let topCell = topMostVisibleCell {
-            return topCell.0
+            return topCell.indexPath
         }
 
         // Fallback - 위 방법이 실패하면 화면 상단 중앙 지점에서 직접 찾기
