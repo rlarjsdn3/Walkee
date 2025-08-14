@@ -8,8 +8,7 @@
 import UIKit
 import CoreData
 
-@MainActor
-class WeightViewController: CoreGradientViewController, OnboardingStepValidatable {
+class WeightViewController: CoreGradientViewController {
     
     @IBOutlet weak var weightInputField: UITextField!
     @IBOutlet weak var errorLabel: UILabel!
@@ -63,14 +62,7 @@ class WeightViewController: CoreGradientViewController, OnboardingStepValidatabl
             validateInput()
         }
     }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        if let parentVC = self.navigationController?.parent as? ProgressContainerViewController {
-            parentVC.setBackButtonEnabled(isStepInputValid())
-        }
-    }
-    
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         if weightInputField.text?.isEmpty ?? true {
@@ -140,10 +132,6 @@ class WeightViewController: CoreGradientViewController, OnboardingStepValidatabl
         } else {
             hideError()
             disableContinueButton()
-        }
-        
-        if let parentVC = self.navigationController?.parent as? ProgressContainerViewController {
-            parentVC.setBackButtonEnabled(isStepInputValid())
         }
     }
     
@@ -233,13 +221,6 @@ class WeightViewController: CoreGradientViewController, OnboardingStepValidatabl
     
     deinit {
         NotificationCenter.default.removeObserver(self)
-    }
-    
-    func isStepInputValid() -> Bool {
-        guard let text = weightInputField.text, let weight = Int(text) else {
-            return false
-        }
-        return weight >= 35 && weight <= 200
     }
 }
 

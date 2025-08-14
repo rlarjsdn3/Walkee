@@ -8,8 +8,7 @@
 import UIKit
 import CoreData
 
-@MainActor
-class InputAgeViewController: CoreGradientViewController, OnboardingStepValidatable {
+class InputAgeViewController: CoreGradientViewController {
     
     @IBOutlet weak var ageInputField: UITextField!
     @IBOutlet weak var errorLabel: UILabel!
@@ -59,10 +58,6 @@ class InputAgeViewController: CoreGradientViewController, OnboardingStepValidata
         super.viewWillAppear(animated)
         fetchUserInfo()
         fetchAndDisplaySavedAge()
-        
-        if let parentVC = self.navigationController?.parent as? ProgressContainerViewController {
-            parentVC.setBackButtonEnabled(isStepInputValid())
-        }
     }
     
     override func setupHierarchy() {
@@ -101,9 +96,6 @@ class InputAgeViewController: CoreGradientViewController, OnboardingStepValidata
     
     @objc private func textFieldDidChange(_ textField: UITextField) {
         validateInput()
-        if let parentVC = self.navigationController?.parent as? ProgressContainerViewController {
-            parentVC.setBackButtonEnabled(isStepInputValid())
-        }
     }
     
     private func validateInput() {
@@ -204,16 +196,8 @@ class InputAgeViewController: CoreGradientViewController, OnboardingStepValidata
     @objc private func dismissKeyboard() {
         view.endEditing(true)
     }
-    
     deinit {
         NotificationCenter.default.removeObserver(self)
-    }
-    
-    func isStepInputValid() -> Bool {
-        guard let text = ageInputField.text, let year = Int(text) else {
-            return false
-        }
-        return year >= 1900 && year <= 2025
     }
 }
 

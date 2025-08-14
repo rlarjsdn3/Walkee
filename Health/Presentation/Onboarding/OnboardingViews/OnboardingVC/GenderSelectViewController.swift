@@ -8,8 +8,7 @@
 import UIKit
 import CoreData
 
-@MainActor
-class GenderSelectViewController: CoreGradientViewController, OnboardingStepValidatable {
+class GenderSelectViewController: CoreGradientViewController {
     
     @IBOutlet weak var femaleButton: UIButton!
     @IBOutlet weak var maleButton: UIButton!
@@ -25,10 +24,6 @@ class GenderSelectViewController: CoreGradientViewController, OnboardingStepVali
         didSet {
             updateGenderSelectionUI()
             updateContinueButtonState()
-            
-            if let parentVC = self.navigationController?.parent as? ProgressContainerViewController {
-                parentVC.setBackButtonEnabled(isStepInputValid())
-            }
         }
     }
     
@@ -53,10 +48,6 @@ class GenderSelectViewController: CoreGradientViewController, OnboardingStepVali
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         loadSavedGender()
-        
-        if let parentVC = self.navigationController?.parent as? ProgressContainerViewController {
-            parentVC.setBackButtonEnabled(isStepInputValid())
-        }
     }
     
     override func initVM() {}
@@ -163,9 +154,5 @@ class GenderSelectViewController: CoreGradientViewController, OnboardingStepVali
         let isSelected = (selectedGender != nil)
         continueButton.isEnabled = isSelected
         continueButton.backgroundColor = isSelected ? .accent : .buttonBackground
-    }
-    
-    func isStepInputValid() -> Bool {
-        return selectedGender != nil
     }
 }

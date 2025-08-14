@@ -8,8 +8,7 @@
 import UIKit
 import CoreData
 
-@MainActor
-class DiseaseViewController: CoreGradientViewController, OnboardingStepValidatable {
+class DiseaseViewController: CoreGradientViewController {
     
     @IBOutlet weak var descriptionLabel: UILabel!
     @IBOutlet weak var diseaseCollectionView: UICollectionView!
@@ -45,10 +44,6 @@ class DiseaseViewController: CoreGradientViewController, OnboardingStepValidatab
         fetchUserInfo()
         selectUserDiseases()
         updateContinueButtonState()
-        
-        if let parentVC = self.navigationController?.parent as? ProgressContainerViewController {
-            parentVC.setBackButtonEnabled(isStepInputValid())
-        }
     }
     
     override func viewDidLayoutSubviews() {
@@ -129,14 +124,6 @@ class DiseaseViewController: CoreGradientViewController, OnboardingStepValidatab
         let enabled = selectedCount > 0
         continueButton.isEnabled = enabled
         continueButton.backgroundColor = enabled ? UIColor.accent : UIColor.buttonBackground
-        
-        if let parentVC = self.navigationController?.parent as? ProgressContainerViewController {
-            parentVC.setBackButtonEnabled(isStepInputValid())
-        }
-    }
-    
-    func isStepInputValid() -> Bool {
-        return !userDiseases.isEmpty
     }
 }
 

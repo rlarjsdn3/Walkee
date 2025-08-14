@@ -8,8 +8,7 @@
 import UIKit
 import CoreData
 
-@MainActor
-class HeightViewController: CoreGradientViewController, OnboardingStepValidatable {
+class HeightViewController: CoreGradientViewController {
     
     @IBOutlet weak var heightInputField: UITextField!
     @IBOutlet weak var errorLabel: UILabel!
@@ -53,9 +52,6 @@ class HeightViewController: CoreGradientViewController, OnboardingStepValidatabl
         
         registerForKeyboardNotifications()
         setupTapGestureToDismissKeyboard()
-        
-        let backBarButton = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
-        navigationItem.backBarButtonItem = backBarButton
         errorLabel.isHidden = true
         errorLabel.textColor = .red
     }
@@ -64,10 +60,6 @@ class HeightViewController: CoreGradientViewController, OnboardingStepValidatabl
         super.viewWillAppear(animated)
         fetchUserInfo()
         fetchAndDisplaySavedHeight()
-        
-        if let parentVC = self.navigationController?.parent as? ProgressContainerViewController {
-            parentVC.setBackButtonEnabled(isStepInputValid())
-        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -138,10 +130,6 @@ class HeightViewController: CoreGradientViewController, OnboardingStepValidatabl
             validateInput()
         } else {
             disableContinueButton()
-        }
-        
-        if let parentVC = self.navigationController?.parent as? ProgressContainerViewController {
-            parentVC.setBackButtonEnabled(isStepInputValid())
         }
     }
     
@@ -233,19 +221,11 @@ class HeightViewController: CoreGradientViewController, OnboardingStepValidatabl
             print("Failed to save height: \(error)")
         }
     }
-    
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
-    
-    func isStepInputValid() -> Bool {
-        if let userInfo = userInfo, userInfo.height > 0 {
-            let height = Int(userInfo.height)
-            return height >= 130 && height <= 210
-        }
-        return false
-    }
 }
+
 extension HeightViewController: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         let allowedCharacters = CharacterSet.decimalDigits

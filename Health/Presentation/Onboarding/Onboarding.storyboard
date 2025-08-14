@@ -163,7 +163,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="1VG-4Q-E88" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="138.1679389312977" y="18.30985915492958"/>
+            <point key="canvasLocation" x="221" y="18"/>
         </scene>
         <!--Input Age View Controller-->
         <scene sceneID="8FX-46-37V">

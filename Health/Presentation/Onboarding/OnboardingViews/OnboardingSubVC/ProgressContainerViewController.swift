@@ -9,11 +9,6 @@
 import UIKit
 import CoreData
 
-@MainActor
-protocol OnboardingStepValidatable: AnyObject {
-    func isStepInputValid() -> Bool
-}
-
 class ProgressContainerViewController: CoreGradientViewController {
 
     public func setBackButtonHidden(_ isHidden: Bool) {
@@ -105,20 +100,13 @@ extension ProgressContainerViewController: UINavigationControllerDelegate {
             currentStep = min(index + 1, totalSteps)
             updateProgressForCurrentStep()
             
-            // 첫 번째 뷰 컨트롤러는 뒤로가기 버튼을 숨김
+            // 첫 번째 뷰 컨트롤러는 뒤로가기 버튼을 숨깁니다.
             if index == 0 {
                 setBackButtonHidden(true)
-                setBackButtonEnabled(false)
             } else {
                 setBackButtonHidden(false)
-
-                if let validatableVC = viewController as? OnboardingStepValidatable {
-
-                    setBackButtonEnabled(validatableVC.isStepInputValid())
-                } else {
-                    // 프로토콜을 준수하지 않는 뷰 컨트롤러는 기본적으로 활성화
-                    setBackButtonEnabled(true)
-                }
+                // 첫 번째 단계를 제외한 모든 단계에서 뒤로가기 버튼을 항상 활성화합니다.
+                setBackButtonEnabled(true)
             }
         }
     }
