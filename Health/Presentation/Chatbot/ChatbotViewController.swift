@@ -18,7 +18,7 @@ import os
 @MainActor
 final class ChatbotViewController: CoreGradientViewController {
 	// MARK: - Outlets & Dependencies
-	private let viewModel = AlanViewModel()
+	@Injected(default: AlanViewModel()) private var viewModel: AlanViewModel
 	
 	@IBOutlet private weak var tableView: UITableView!
 	@IBOutlet private weak var containerViewBottomConstraint: NSLayoutConstraint!
