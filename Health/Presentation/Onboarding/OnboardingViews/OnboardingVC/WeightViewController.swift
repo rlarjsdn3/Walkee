@@ -8,7 +8,8 @@
 import UIKit
 import CoreData
 
-class WeightViewController: CoreGradientViewController {
+@MainActor
+class WeightViewController: CoreGradientViewController, OnboardingStepValidatable {
     
     @IBOutlet weak var weightInputField: UITextField!
     @IBOutlet weak var errorLabel: UILabel!
@@ -32,10 +33,11 @@ class WeightViewController: CoreGradientViewController {
         return button
     }()
     
-    private let progressIndicatorStackView = ProgressIndicatorStackView(totalPages: 4)
     private var continueButtonBottomConstraint: NSLayoutConstraint?
     private let context = CoreDataStack.shared.persistentContainer.viewContext
     private var userInfo: UserInfoEntity?
+    
+    var onContinue: (() -> Void)?
     
     override func initVM() { }
     
@@ -51,8 +53,6 @@ class WeightViewController: CoreGradientViewController {
         
         registerForKeyboardNotifications()
         setupTapGestureToDismissKeyboard()
-        let backBarButton = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
-        navigationItem.backBarButtonItem = backBarButton
         
         errorLabel.isHidden = true
         errorLabel.textColor = .red
@@ -64,6 +64,40 @@ class WeightViewController: CoreGradientViewController {
         }
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if let parentVC = self.navigationController?.parent as? ProgressContainerViewController {
+            parentVC.setBackButtonEnabled(isStepInputValid())
+        }
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if weightInputField.text?.isEmpty ?? true {
+            weightInputField.becomeFirstResponder()
+        }
+    }
+    
+    override func setupHierarchy() {
+        [continueButton, kgLabel].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview($0)
+        }
+    }
+    
+    override func setupConstraints() {
+        continueButtonBottomConstraint = continueButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
+        NSLayoutConstraint.activate([
+            continueButtonBottomConstraint!,
+            continueButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            continueButton.heightAnchor.constraint(equalToConstant: 48),
+            
+            kgLabel.leadingAnchor.constraint(equalTo: weightInputField.trailingAnchor, constant: 8),
+            kgLabel.centerYAnchor.constraint(equalTo: weightInputField.centerYAnchor)
+        ])
+    }
+    
     private func fetchUserInfo() {
         let request: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
         do {
@@ -71,7 +105,6 @@ class WeightViewController: CoreGradientViewController {
             if let firstUserInfo = results.first {
                 userInfo = firstUserInfo
             } else {
-                // 없으면 새로 생성
                 let newUserInfo = UserInfoEntity(context: context)
                 newUserInfo.id = UUID()
                 newUserInfo.createdAt = Date()
@@ -108,6 +141,10 @@ class WeightViewController: CoreGradientViewController {
             hideError()
             disableContinueButton()
         }
+        
+        if let parentVC = self.navigationController?.parent as? ProgressContainerViewController {
+            parentVC.setBackButtonEnabled(isStepInputValid())
+        }
     }
     
     private func validateInput() {
@@ -120,6 +157,7 @@ class WeightViewController: CoreGradientViewController {
         if weight > 200 {
             showError()
             disableContinueButton()
+            weightInputField.text = ""
             weightInputField.resignFirstResponder()
         } else if weight >= 35 {
             hideError()
@@ -170,7 +208,7 @@ class WeightViewController: CoreGradientViewController {
     
     @objc private func keyboardWillShow(_ notification: Notification) {
         guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
-        continueButtonBottomConstraint?.constant = -keyboardFrame.height - 10
+        continueButtonBottomConstraint?.constant = -keyboardFrame.height
         UIView.animate(withDuration: 0.3) {
             self.view.layoutIfNeeded()
         }
@@ -197,33 +235,11 @@ class WeightViewController: CoreGradientViewController {
         NotificationCenter.default.removeObserver(self)
     }
     
-    override func setupHierarchy() {
-        [continueButton, progressIndicatorStackView, kgLabel].forEach {
-            $0.translatesAutoresizingMaskIntoConstraints = false
-            view.addSubview($0)
+    func isStepInputValid() -> Bool {
+        guard let text = weightInputField.text, let weight = Int(text) else {
+            return false
         }
-    }
-    
-    override func setupAttribute() {
-        progressIndicatorStackView.updateProgress(to: 0.5)
-    }
-    
-    override func setupConstraints() {
-        continueButtonBottomConstraint = continueButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
-        NSLayoutConstraint.activate([
-            continueButtonBottomConstraint!,
-            continueButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            continueButton.heightAnchor.constraint(equalToConstant: 48),
-            
-            progressIndicatorStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -24),
-            progressIndicatorStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            progressIndicatorStackView.heightAnchor.constraint(equalToConstant: 4),
-            progressIndicatorStackView.widthAnchor.constraint(equalToConstant: 320),
-            
-            kgLabel.leadingAnchor.constraint(equalTo: weightInputField.trailingAnchor, constant: 8),
-            kgLabel.centerYAnchor.constraint(equalTo: weightInputField.centerYAnchor)
-        ])
+        return weight >= 35 && weight <= 200
     }
 }
 

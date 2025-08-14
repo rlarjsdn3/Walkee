@@ -10,16 +10,8 @@ import UIKit
 class OnboardingViewController: CoreGradientViewController {
     
     @IBOutlet weak var appImageView: UIImageView!
-
-    private let descriptionLabel: UILabel = {
-        let label = UILabel()
-        label.text = "사용자에게 더 정확한 운동측정과 맞춤 추천을 제공하기 위해 사용자 입력 정보가 필요합니다."
-        label.textColor = .label
-        label.font = UIFont.systemFont(ofSize: 14)
-        label.numberOfLines = 0
-        label.textAlignment = .center
-        return label
-    }()
+    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var descriptionLabel: UILabel!
     
     private let continueButton: UIButton = {
         let button = UIButton(type: .system)
@@ -31,57 +23,42 @@ class OnboardingViewController: CoreGradientViewController {
         return button
     }()
     
-    private let progressIndicatorStackView = ProgressIndicatorStackView(totalPages: 4)
-    
     override func initVM() {}
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         applyBackgroundGradient(.midnightBlack)
-        
         continueButton.addTarget(self, action: #selector(continueButtonTapped), for: .touchUpInside)
         
-        let backBarButton = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
-        navigationItem.backBarButtonItem = backBarButton
-    }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        progressIndicatorStackView.isHidden = false
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        progressIndicatorStackView.isHidden = true
+        appImageView.image = UIImage(named: "appIconAny")
+        appImageView.contentMode = .scaleAspectFit
+        appImageView.applyCornerStyle(.medium)
+        appImageView.clipsToBounds = true
+        
+        titleLabel.text = "환영합니다!"
+        descriptionLabel.text = "사용자에게 더 정확한 운동측정과 맞춤 추천을 제공하기 위해 사용자 입력 정보가 필요합니다."
+        descriptionLabel.numberOfLines = 0
+        descriptionLabel.alpha = 0.7
+        
+        if let parentVC = parent as? ProgressContainerViewController {
+            parentVC.customNavigationBar.backButton.isHidden = true
+        }
     }
     
     override func setupHierarchy() {
-        [descriptionLabel, continueButton, progressIndicatorStackView].forEach {
+        [continueButton].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview($0)
         }
     }
     
-    override func setupAttribute() {
-        progressIndicatorStackView.updateProgress(to: 0.125)
-    }
-    
     override func setupConstraints() {
         NSLayoutConstraint.activate([
-            descriptionLabel.topAnchor.constraint(equalTo: appImageView.bottomAnchor, constant: 24),
-            descriptionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            descriptionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
             continueButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
             continueButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            continueButton.heightAnchor.constraint(equalToConstant: 48),
-            
-            progressIndicatorStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -24),
-            progressIndicatorStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            progressIndicatorStackView.heightAnchor.constraint(equalToConstant: 4),
-            progressIndicatorStackView.widthAnchor.constraint(equalToConstant: 320)
+            continueButton.heightAnchor.constraint(equalToConstant: 48)
         ])
     }
     

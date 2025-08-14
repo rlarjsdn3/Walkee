@@ -24,17 +24,31 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         window?.rootViewController = setupRootViewController(hasCompletedOnboarding: hasCompletedOnboarding)
         window?.makeKeyAndVisible()
+        
     }
 
     private func setupRootViewController(hasCompletedOnboarding: Bool) -> UIViewController {
-        let storyboardName = hasCompletedOnboarding ? "Main" : "Onboarding"
-        let storyboard = UIStoryboard(name: storyboardName, bundle: nil)
-        
-        guard let viewController = storyboard.instantiateInitialViewController() else {
-            fatalError("\(storyboardName).storyboard 초기 뷰컨트롤러 없음")
+        if hasCompletedOnboarding {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            guard let vc = storyboard.instantiateInitialViewController() else {
+                fatalError("Main.storyboard 초기 뷰컨트롤러 없음")
+            }
+            return vc
+        } else {
+            let containerVC = ProgressContainerViewController()
+
+            let onboardingStoryboard = UIStoryboard(name: "Onboarding", bundle: nil)
+            guard let navController = onboardingStoryboard.instantiateInitialViewController() as? UINavigationController else {
+                fatalError("Onboarding.storyboard 초기 뷰컨트롤러가 UINavigationController가 아님")
+            }
+            guard navController.viewControllers.first is OnboardingViewController else {
+                fatalError("UINavigationController 루트가 OnboardingViewController가 아님")
+            }
+
+            containerVC.setChildViewController(navController)
+            
+            return containerVC
         }
-        
-        return viewController
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -58,4 +72,3 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func sceneDidEnterBackground(_ scene: UIScene) {
     }
 }
-

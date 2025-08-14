@@ -8,8 +8,9 @@
 import UIKit
 import CoreData
 
-class GenderSelectViewController: CoreGradientViewController {
-
+@MainActor
+class GenderSelectViewController: CoreGradientViewController, OnboardingStepValidatable {
+    
     @IBOutlet weak var femaleButton: UIButton!
     @IBOutlet weak var maleButton: UIButton!
     @IBOutlet weak var femaleGender: UILabel!
@@ -19,14 +20,18 @@ class GenderSelectViewController: CoreGradientViewController {
         case male
         case female
     }
-
+    
     private var selectedGender: Gender? {
         didSet {
             updateGenderSelectionUI()
             updateContinueButtonState()
+            
+            if let parentVC = self.navigationController?.parent as? ProgressContainerViewController {
+                parentVC.setBackButtonEnabled(isStepInputValid())
+            }
         }
     }
-
+    
     private let continueButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("다음", for: .normal)
@@ -36,77 +41,63 @@ class GenderSelectViewController: CoreGradientViewController {
         button.isEnabled = false
         return button
     }()
-
-    private let progressIndicatorStackView = ProgressIndicatorStackView(totalPages: 4)
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         applyBackgroundGradient(.midnightBlack)
         continueButton.addTarget(self, action: #selector(continueButtonTapped), for: .touchUpInside)
         updateGenderSelectionUI()
         updateContinueButtonState()
-        let backBarButton = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
-        navigationItem.backBarButtonItem = backBarButton
     }
-
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        progressIndicatorStackView.isHidden = false
         loadSavedGender()
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        progressIndicatorStackView.isHidden = true
-    }
-
-    override func initVM() {}
-
-    override func setupHierarchy() {
-        [continueButton, progressIndicatorStackView].forEach {
-            $0.translatesAutoresizingMaskIntoConstraints = false
-            view.addSubview($0)
+        
+        if let parentVC = self.navigationController?.parent as? ProgressContainerViewController {
+            parentVC.setBackButtonEnabled(isStepInputValid())
         }
     }
-
+    
+    override func initVM() {}
+    
+    override func setupHierarchy() {
+        continueButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(continueButton)
+    }
+    
     override func setupAttribute() {
-        progressIndicatorStackView.updateProgress(to: 0.25)
         femaleGender.text = "여성"
         maleGender.text = "남성"
     }
-
+    
     override func setupConstraints() {
         NSLayoutConstraint.activate([
             continueButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
             continueButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            continueButton.heightAnchor.constraint(equalToConstant: 48),
-
-            progressIndicatorStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -24),
-            progressIndicatorStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            progressIndicatorStackView.heightAnchor.constraint(equalToConstant: 4),
-            progressIndicatorStackView.widthAnchor.constraint(equalToConstant: 320)
+            continueButton.heightAnchor.constraint(equalToConstant: 48)
         ])
     }
-
+    
     @IBAction func selectedFM(_ sender: Any) {
         selectedGender = .female
     }
-
+    
     @IBAction func selectedM(_ sender: Any) {
         selectedGender = .male
     }
-
+    
     @objc private func continueButtonTapped() {
         guard let selectedGender = selectedGender else { return }
-
+        
         let context = CoreDataStack.shared.viewContext
         let fetchRequest: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
-
+        
         do {
             let results = try context.fetch(fetchRequest)
             let userInfo: UserInfoEntity
-
+            
             if let existing = results.first {
                 userInfo = existing
             } else {
@@ -114,21 +105,20 @@ class GenderSelectViewController: CoreGradientViewController {
                 userInfo.id = UUID()
                 userInfo.createdAt = Date()
             }
-
+            
             userInfo.gender = (selectedGender == .male) ? "male" : "female"
             CoreDataStack.shared.saveContext()
         } catch {
             print("CoreData 저장 오류: \(error.localizedDescription)")
             return
         }
-
         performSegue(withIdentifier: "goToAgeInfo", sender: self)
     }
-
+    
     private func loadSavedGender() {
         let context = CoreDataStack.shared.viewContext
         let fetchRequest: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
-
+        
         do {
             if let userInfo = try context.fetch(fetchRequest).first,
                let genderString = userInfo.gender {
@@ -148,7 +138,7 @@ class GenderSelectViewController: CoreGradientViewController {
             selectedGender = nil
         }
     }
-
+    
     private func updateGenderSelectionUI() {
         let defaultBG = UIColor.buttonBackground
         let selectedBG = UIColor.accent
@@ -156,8 +146,8 @@ class GenderSelectViewController: CoreGradientViewController {
         let defaultTextColor = UIColor.white
         let selectedTextColor = UIColor.black
         
-        let defaultFont = UIFont.systemFont(ofSize: 17, weight: .regular)
-        let selectedFont = UIFont.systemFont(ofSize: 17, weight: .bold)
+        let defaultFont = UIFont.systemFont(ofSize: 18, weight: .regular)
+        let selectedFont = UIFont.systemFont(ofSize: 18, weight: .bold)
         
         femaleButton.tintColor = (selectedGender == .female) ? selectedBG : defaultBG
         maleButton.tintColor = (selectedGender == .male) ? selectedBG : defaultBG
@@ -168,12 +158,14 @@ class GenderSelectViewController: CoreGradientViewController {
         maleGender.textColor = (selectedGender == .male) ? selectedTextColor : defaultTextColor
         maleGender.font = (selectedGender == .male) ? selectedFont : defaultFont
     }
-
-
-
+    
     private func updateContinueButtonState() {
         let isSelected = (selectedGender != nil)
         continueButton.isEnabled = isSelected
         continueButton.backgroundColor = isSelected ? .accent : .buttonBackground
+    }
+    
+    func isStepInputValid() -> Bool {
+        return selectedGender != nil
     }
 }

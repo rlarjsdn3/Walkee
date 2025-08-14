@@ -8,7 +8,8 @@
 import UIKit
 import CoreData
 
-class HeightViewController: CoreGradientViewController {
+@MainActor
+class HeightViewController: CoreGradientViewController, OnboardingStepValidatable {
     
     @IBOutlet weak var heightInputField: UITextField!
     @IBOutlet weak var errorLabel: UILabel!
@@ -32,12 +33,9 @@ class HeightViewController: CoreGradientViewController {
         return button
     }()
     
-    private let progressIndicatorStackView = ProgressIndicatorStackView(totalPages: 4)
-    
     private var continueButtonBottomConstraint: NSLayoutConstraint?
-    
-    // Core Data
     private let context = CoreDataStack.shared.persistentContainer.viewContext
+    
     private var userInfo: UserInfoEntity?
     
     override func initVM() {}
@@ -58,15 +56,24 @@ class HeightViewController: CoreGradientViewController {
         
         let backBarButton = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
         navigationItem.backBarButtonItem = backBarButton
-        
         errorLabel.isHidden = true
         errorLabel.textColor = .red
-        
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         fetchUserInfo()
+        fetchAndDisplaySavedHeight()
         
-        if let height = userInfo?.height, height > 0 {
-            heightInputField.text = String(Int(height))
-            validateInput()
+        if let parentVC = self.navigationController?.parent as? ProgressContainerViewController {
+            parentVC.setBackButtonEnabled(isStepInputValid())
+        }
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if heightInputField.text?.isEmpty ?? true {
+            heightInputField.becomeFirstResponder()
         }
     }
     
@@ -88,25 +95,25 @@ class HeightViewController: CoreGradientViewController {
         }
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        progressIndicatorStackView.isHidden = false
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        progressIndicatorStackView.isHidden = true
-    }
-    
-    override func setupHierarchy() {
-        [continueButton, progressIndicatorStackView, cmLabel].forEach {
-            $0.translatesAutoresizingMaskIntoConstraints = false
-            view.addSubview($0)
+    private func fetchAndDisplaySavedHeight() {
+        let request: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
+        do {
+            let results = try context.fetch(request)
+            if let userInfo = results.first, userInfo.height > 0 {
+                self.userInfo = userInfo
+                heightInputField.text = String(Int(userInfo.height))
+                validateInput()
+            }
+        } catch {
+            print("CoreData에서 height 불러오기 실패: \(error)")
         }
     }
     
-    override func setupAttribute() {
-        progressIndicatorStackView.updateProgress(to: 0.625)
+    override func setupHierarchy() {
+        [continueButton, cmLabel].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview($0)
+        }
     }
     
     override func setupConstraints() {
@@ -118,11 +125,6 @@ class HeightViewController: CoreGradientViewController {
             continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             continueButton.heightAnchor.constraint(equalToConstant: 48),
             
-            progressIndicatorStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -24),
-            progressIndicatorStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            progressIndicatorStackView.heightAnchor.constraint(equalToConstant: 4),
-            progressIndicatorStackView.widthAnchor.constraint(equalToConstant: 320),
-            
             cmLabel.leadingAnchor.constraint(equalTo: heightInputField.trailingAnchor, constant: 8),
             cmLabel.centerYAnchor.constraint(equalTo: heightInputField.centerYAnchor)
         ])
@@ -131,14 +133,15 @@ class HeightViewController: CoreGradientViewController {
     @objc private func textFieldDidChange(_ textField: UITextField) {
         guard let text = textField.text else { return }
         
-        if text.isEmpty {
-            hideError()
-            disableContinueButton()
-        } else if text.count <= 3 {
+        if let height = Double(text) {
+            userInfo?.height = height
             validateInput()
         } else {
-            textField.text = String(text.prefix(3))
-            validateInput()
+            disableContinueButton()
+        }
+        
+        if let parentVC = self.navigationController?.parent as? ProgressContainerViewController {
+            parentVC.setBackButtonEnabled(isStepInputValid())
         }
     }
     
@@ -151,6 +154,7 @@ class HeightViewController: CoreGradientViewController {
         
         if height > 210 {
             showError()
+            heightInputField.text = ""
             disableContinueButton()
             heightInputField.resignFirstResponder()
         } else if height >= 130 {
@@ -193,7 +197,7 @@ class HeightViewController: CoreGradientViewController {
     
     @objc private func keyboardWillShow(_ notification: Notification) {
         guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
-        continueButtonBottomConstraint?.constant = -keyboardFrame.height - 10
+        continueButtonBottomConstraint?.constant = -keyboardFrame.height
         UIView.animate(withDuration: 0.3) {
             self.view.layoutIfNeeded()
         }
@@ -233,8 +237,15 @@ class HeightViewController: CoreGradientViewController {
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
+    
+    func isStepInputValid() -> Bool {
+        if let userInfo = userInfo, userInfo.height > 0 {
+            let height = Int(userInfo.height)
+            return height >= 130 && height <= 210
+        }
+        return false
+    }
 }
-
 extension HeightViewController: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         let allowedCharacters = CharacterSet.decimalDigits
