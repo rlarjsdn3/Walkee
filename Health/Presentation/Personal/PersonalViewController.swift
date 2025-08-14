@@ -160,9 +160,21 @@ class PersonalViewController: CoreGradientViewController {
         easyLevelCourses.removeAll()
         mediumLevelCourses.removeAll()
         hardLevelCourses.removeAll()
+        // 중복 제거를 위한 Set 사용
+        var addedCourseNames: Set<String> = []
 
-        // 전체 코스를 순회하면서 난이도별로 분류
+        // 전체 코스를 순회하면서 난이도별로 분류 (중복 제거)
         for course in allCourses {
+
+            // 이미 추가된 코스인지 확인
+            if addedCourseNames.contains(course.crsKorNm) {
+                print("중복 코스 스킵: \(course.crsKorNm)")
+                continue
+            }
+
+            // 새로운 코스라면 Set에 추가
+            addedCourseNames.insert(course.crsKorNm)
+
             switch course.crsLevel {
             case "1":
                 easyLevelCourses.append(course)
