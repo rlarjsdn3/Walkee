@@ -10,7 +10,7 @@ import UIKit
 final class PermissionDeniedFullView: UIView {
 
     /// 'tapped' 알림 이름을 정의하여 탭 이벤트 발생 시 사용합니다.
-    static let tapped = Notification.Name("tapped")
+    static let shouldPresentAlert = Notification.Name("shouldPresentAlert")
 
     private let imageContainerView = UIView()
     private let imageView = UIImageView()
@@ -44,10 +44,10 @@ final class PermissionDeniedFullView: UIView {
         contentStackView.layoutIfNeeded()
 
         imageContainerView.layer.cornerCurve = .continuous
-        imageContainerView.layer.cornerRadius = imageContainerView.bounds.width / 2
+        imageContainerView.applyCornerStyle(.circular)
 
         titleContainerView.layer.cornerCurve = .continuous
-        titleContainerView.layer.cornerRadius = titleContainerView.bounds.height / 2
+        titleContainerView.applyCornerStyle(.circular)
     }
 
     private func commonInit() {
@@ -116,6 +116,11 @@ final class PermissionDeniedFullView: UIView {
 
     @objc func handleButtonTap() {
         touchHandler?()
-        NotificationCenter.default.post(name: Self.tapped, object: nil)
+        NotificationCenter.default.post(name: Self.shouldPresentAlert, object: nil)
     }
+}
+
+
+#Preview {
+    PermissionDeniedFullView()
 }

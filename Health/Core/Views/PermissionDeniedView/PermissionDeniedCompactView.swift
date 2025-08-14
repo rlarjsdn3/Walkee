@@ -10,7 +10,7 @@ import UIKit
 final class PermissionDeniedCompactView: UIView {
 
     /// 'tapped' 알림 이름을 정의하여 탭 이벤트 발생 시 사용합니다.
-    static let tapped = Notification.Name("tapped")
+    static let shouldPresentAlert = Notification.Name("shouldPresentAlert")
 
     private let imageView = UIImageView()
     private let titleLabel = UILabel()
@@ -39,7 +39,7 @@ final class PermissionDeniedCompactView: UIView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        containerView.layer.cornerRadius = containerView.bounds.height / 2
+        containerView.applyCornerStyle(.circular)
     }
 
     private func commonInit() {
@@ -85,6 +85,6 @@ final class PermissionDeniedCompactView: UIView {
 
     @objc func handleButtonTap() {
         touchHandler?()
-        NotificationCenter.default.post(name: Self.tapped, object: nil)
+        NotificationCenter.default.post(name: Self.shouldPresentAlert, object: nil)
     }
 }
