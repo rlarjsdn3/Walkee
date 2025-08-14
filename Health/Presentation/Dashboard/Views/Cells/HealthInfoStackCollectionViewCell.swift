@@ -42,7 +42,7 @@ final class HealthInfoStackCollectionViewCell: CoreCollectionViewCell {
         self.layer.masksToBounds = false
         self.layer.borderColor = UIColor.separator.cgColor
         self.layer.shadowColor = UIColor.black.cgColor
-        self.layer.shadowOpacity = 0.05
+        self.layer.shadowOpacity = 0.15
         self.layer.shadowOffset = CGSize(width: 2, height: 2)
         self.layer.shadowRadius = 5
         self.layer.borderWidth = (traitCollection.userInterfaceStyle == .dark) ? 0 : 1

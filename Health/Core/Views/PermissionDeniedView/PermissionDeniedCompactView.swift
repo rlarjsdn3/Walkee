@@ -9,7 +9,6 @@ import UIKit
 
 final class PermissionDeniedCompactView: UIView {
 
-    /// 'tapped' 알림 이름을 정의하여 탭 이벤트 발생 시 사용합니다.
     static let shouldPresentAlert = Notification.Name("shouldPresentAlert")
 
     private let imageView = UIImageView()

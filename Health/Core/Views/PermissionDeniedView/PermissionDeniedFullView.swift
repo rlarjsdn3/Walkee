@@ -9,7 +9,6 @@ import UIKit
 
 final class PermissionDeniedFullView: UIView {
 
-    /// 'tapped' 알림 이름을 정의하여 탭 이벤트 발생 시 사용합니다.
     static let shouldPresentAlert = Notification.Name("shouldPresentAlert")
 
     private let imageContainerView = UIView()
@@ -118,9 +117,4 @@ final class PermissionDeniedFullView: UIView {
         touchHandler?()
         NotificationCenter.default.post(name: Self.shouldPresentAlert, object: nil)
     }
-}
-
-
-#Preview {
-    PermissionDeniedFullView()
 }

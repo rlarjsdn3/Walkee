@@ -22,13 +22,12 @@ final class DashboardBarChartsCollectionViewCell: CoreCollectionViewCell {
     private var cancellable: Set<AnyCancellable> = []
 
     override func setupAttribute() {
-//       self.applyCornerStyle(.medium)
+        chartsContainerView.applyCornerStyle(.medium)
         chartsContainerView.backgroundColor = .boxBg
-        chartsContainerView.layer.cornerRadius = 12 // medium
         chartsContainerView.layer.masksToBounds = false
         chartsContainerView.layer.borderColor = UIColor.separator.cgColor
         chartsContainerView.layer.shadowColor = UIColor.black.cgColor
-        chartsContainerView.layer.shadowOpacity = 0.05
+        chartsContainerView.layer.shadowOpacity = 0.15
         chartsContainerView.layer.shadowOffset = CGSize(width: 2, height: 2)
         chartsContainerView.layer.shadowRadius = 5
         chartsContainerView.layer.borderWidth = (traitCollection.userInterfaceStyle == .dark) ? 0 : 1
