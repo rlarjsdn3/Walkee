@@ -345,7 +345,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="vQR-FY-lSz">
-                                <rect key="frame" x="20" y="252.33333333333334" width="353" height="511.66666666666663"/>
+                                <rect key="frame" x="20" y="262.33333333333337" width="353" height="511.66666666666663"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="fWp-Mw-FPK">
                                     <size key="itemSize" width="128" height="128"/>
@@ -389,8 +389,8 @@
                             <constraint firstItem="167-xC-vNX" firstAttribute="trailing" secondItem="arK-5t-fYt" secondAttribute="trailing" constant="20" id="E4a-K6-yb8"/>
                             <constraint firstItem="167-xC-vNX" firstAttribute="trailing" secondItem="vQR-FY-lSz" secondAttribute="trailing" constant="20" id="Z5f-Bo-1fK"/>
                             <constraint firstItem="arK-5t-fYt" firstAttribute="leading" secondItem="167-xC-vNX" secondAttribute="leading" constant="20" id="n9w-nv-CCq"/>
-                            <constraint firstItem="167-xC-vNX" firstAttribute="bottom" secondItem="vQR-FY-lSz" secondAttribute="bottom" constant="20" id="v8o-Ic-ExX"/>
-                            <constraint firstItem="vQR-FY-lSz" firstAttribute="top" secondItem="arK-5t-fYt" secondAttribute="bottom" constant="20" id="wdG-ox-tFs"/>
+                            <constraint firstItem="167-xC-vNX" firstAttribute="bottom" secondItem="vQR-FY-lSz" secondAttribute="bottom" constant="10" id="v8o-Ic-ExX"/>
+                            <constraint firstItem="vQR-FY-lSz" firstAttribute="top" secondItem="arK-5t-fYt" secondAttribute="bottom" constant="30.000000000000028" id="wdG-ox-tFs"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="RS3-OZ-rF0"/>
