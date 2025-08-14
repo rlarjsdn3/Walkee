@@ -7,6 +7,8 @@
 
 import UIKit
 
+// TODO: - 조금 더 범용적으로 사용하도록 코드 리팩토링하기
+
 final class PermissionDeniedCompactView: UIView {
 
     static let shouldPresentAlert = Notification.Name("shouldPresentAlert")
@@ -15,14 +17,11 @@ final class PermissionDeniedCompactView: UIView {
     private let containerView = UIView()
     private let button = UIButton()
 
-    var touchHandler: (() -> Void)?
+    var symbomPointSize: CGFloat = 12 {
+        didSet { self.setNeedsLayout() }
+    }
 
-    private var exclamationMarkImage: UIImage? = {
-        var image = UIImage(systemName: "exclamationmark.triangle.fill")
-        let config = UIImage.SymbolConfiguration(pointSize: 12, weight: .regular)
-            .applying(UIImage.SymbolConfiguration(paletteColors: [.systemYellow]))
-        return image?.applyingSymbolConfiguration(config)
-    }()
+    var touchHandler: (() -> Void)?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -37,12 +36,13 @@ final class PermissionDeniedCompactView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         containerView.applyCornerStyle(.circular)
+        imageView.image = exclamationMarkImage(symbomPointSize)
     }
 
     private func commonInit() {
         backgroundColor = .clear
 
-        imageView.image = exclamationMarkImage
+        imageView.image = exclamationMarkImage(12)
         imageView.translatesAutoresizingMaskIntoConstraints = false
         containerView.addSubview(imageView)
         NSLayoutConstraint.activate([
@@ -50,7 +50,8 @@ final class PermissionDeniedCompactView: UIView {
             imageView.centerYAnchor.constraint(equalTo: containerView.centerYAnchor)
         ])
 
-        containerView.backgroundColor = .systemYellow.withAlphaComponent(0.1)
+        containerView.backgroundColor = traitCollection.userInterfaceStyle == .dark
+        ? .systemYellow.withAlphaComponent(0.1) : .systemYellow.withAlphaComponent(0.3)
         containerView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(containerView)
         NSLayoutConstraint.activate([
@@ -67,10 +68,30 @@ final class PermissionDeniedCompactView: UIView {
             button.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: 0),
             button.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 0),
         ])
+
+        registerForTraitChanges()
     }
 
     @objc func handleButtonTap() {
         touchHandler?()
         NotificationCenter.default.post(name: Self.shouldPresentAlert, object: nil)
     }
+
+    private func registerForTraitChanges() {
+        registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: Self, previousTraitCollection: UITraitCollection) in
+            if self.traitCollection.userInterfaceStyle == .dark {
+                self.containerView.backgroundColor = .systemYellow.withAlphaComponent(0.1)
+            } else {
+                self.containerView.backgroundColor = .systemYellow.withAlphaComponent(0.3)
+            }
+        }
+    }
+
+    private func exclamationMarkImage(_ ptSize: CGFloat) -> UIImage? {
+        let image = UIImage(systemName: "exclamationmark.triangle.fill")
+        let config = UIImage.SymbolConfiguration(pointSize: ptSize, weight: .regular)
+            .applying(UIImage.SymbolConfiguration(paletteColors: [.systemYellow]))
+        return image?.applyingSymbolConfiguration(config)
+    }
+
 }

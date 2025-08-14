@@ -18,6 +18,7 @@ final class HealthInfoStackCollectionViewCell: CoreCollectionViewCell {
     @IBOutlet weak var valueLabel: UILabel!
     @IBOutlet weak var unitLabel: UILabel!
     @IBOutlet weak var chartsContainerView: UIView!
+    @IBOutlet weak var permissionDeniedView: PermissionDeniedCompactView!
 
     private var chartsHostingController: UIHostingController<LineChartsView>?
 
@@ -25,8 +26,7 @@ final class HealthInfoStackCollectionViewCell: CoreCollectionViewCell {
     private var cancellable: Set<AnyCancellable> = []
 
     override func layoutSubviews() {
-//       symbolContainerView.applyCornerStyle(.circular)
-        symbolContainerView.layer.cornerRadius = symbolContainerView.bounds.height / 2
+       symbolContainerView.applyCornerStyle(.circular)
     }
 
     override func prepareForReuse() {
@@ -53,6 +53,9 @@ final class HealthInfoStackCollectionViewCell: CoreCollectionViewCell {
 
         chartsContainerView.backgroundColor = .boxBg
         chartsContainerView.isHidden = (traitCollection.horizontalSizeClass == .compact)
+
+        permissionDeniedView.isHidden = true
+        permissionDeniedView.symbomPointSize = 8
 
         registerForTraitChanges()
     }
@@ -90,6 +93,7 @@ extension HealthInfoStackCollectionViewCell {
         titleLabel.text = viewModel.itemID.kind.title
         symbolImageView.image = UIImage(systemName: viewModel.itemID.kind.systemName)
         unitLabel.text = unitString
+        permissionDeniedView.isHidden = true
 
         switch new {
         case .idle:
@@ -114,6 +118,7 @@ extension HealthInfoStackCollectionViewCell {
 
         case .denied:
             lblString = "-"
+            permissionDeniedView.isHidden = false
             print("🔵 건강 데이터에 접근할 수 있는 권한이 없음: HealthInfoStackCell (\(viewModel.itemID.kind.quantityTypeIdentifier))")
         }
 
