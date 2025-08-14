@@ -68,4 +68,26 @@ extension InjectIdentifier {
     static var stepSyncViewModel: InjectIdentifier<StepSyncViewModel> {
         InjectIdentifier<StepSyncViewModel>(type: StepSyncViewModel.self)
     }
+
+    // 달력 걸음 수 데이터 제공자를 식별하는 정적 속성
+    ///
+    /// `CalendarStepProvider` 클래스를 의존성 주입 컨테이너에서
+    /// 등록하고 해결할 때 사용되는 타입 안전한 식별자입니다.
+    ///
+    /// - Returns: `CalendarStepProvider` 타입의 `InjectIdentifier` 인스턴스
+    /// - Note: 달력 화면에서 일별 걸음 수 데이터를 제공하는 역할을 담당합니다.
+    static var calendarStepProvider: InjectIdentifier<CalendarStepProvider> {
+        InjectIdentifier<CalendarStepProvider>(type: CalendarStepProvider.self)
+    }
+
+    /// 달력 화면 ViewModel을 식별하는 정적 속성
+    ///
+    /// `CalendarViewModel` 클래스를 의존성 주입 컨테이너에서
+    /// 등록하고 해결할 때 사용되는 타입 안전한 식별자입니다.
+    ///
+    /// - Returns: `CalendarViewModel` 타입의 `InjectIdentifier` 인스턴스
+    /// - Note: 달력 UI 상태 관리 및 사용자 상호작용을 담당합니다.
+    static var calendarViewModel: InjectIdentifier<CalendarViewModel> {
+        InjectIdentifier<CalendarViewModel>(type: CalendarViewModel.self)
+    }
 }

@@ -7,6 +7,7 @@ final class CalendarMonthCell: CoreCollectionViewCell {
     @IBOutlet weak var dateCollectionViewHeightConstraint: NSLayoutConstraint!
 
     private var datesWithBlank: [Date] = []
+    private var snapshots: [Date: DailyStepSnapshot] = [:]
 
     override func setupAttribute() {
         super.setupAttribute()
@@ -19,8 +20,10 @@ final class CalendarMonthCell: CoreCollectionViewCell {
         )
     }
 
-    func configure(with monthData: CalendarMonthData) {
+    func configure(with monthData: CalendarMonthData, snapshots: [Date: DailyStepSnapshot]) {
+        self.snapshots = snapshots
         setupMonthData(year: monthData.year, month: monthData.month)
+        dateCollectionView.reloadData()
     }
 
     private func setupMonthData(year: Int, month: Int) {
@@ -53,24 +56,17 @@ extension CalendarMonthCell: UICollectionViewDataSource, UICollectionViewDelegat
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(
-            withReuseIdentifier: CalendarDateCell.id,
-            for: indexPath
-        ) as? CalendarDateCell else {
-            return UICollectionViewCell()
-        }
-
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CalendarDateCell.id, for: indexPath) as! CalendarDateCell
         let date = datesWithBlank[indexPath.item]
 
+        // 빈칸(전월/익월 자리) 또는 미래는 nil로
         if date == .distantPast || date > Date() {
             cell.configure(date: date, currentSteps: nil, goalSteps: nil)
+        } else if let s = snapshots[date.startOfDay()] {
+            cell.configure(date: date, currentSteps: s.current, goalSteps: s.goal)
         } else {
-            // TODO: 실제 걸음 데이터로 수정
-            let current = Int.random(in: 0 ... 15000)
-            let goal = 10000
-            cell.configure(date: date, currentSteps: current, goalSteps: goal)
+            cell.configure(date: date, currentSteps: nil, goalSteps: nil)
         }
-
         return cell
     }
 }

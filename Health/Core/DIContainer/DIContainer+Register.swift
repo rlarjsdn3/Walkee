@@ -78,6 +78,44 @@ extension DIContainer {
         }
     }
 
+    /// 달력 걸음 수 데이터 제공자를 의존성 주입 컨테이너에 등록합니다.
+    ///
+    /// 현재는 개발 및 테스트를 위해 `MockCalendarStepProvider`를 등록합니다.
+    /// 향후 실제 Core Data 기반의 `DefaultCalendarStepProvider` 구현이 추가될 예정입니다.
+    ///
+    /// - Note: 달력 화면에서 일별 걸음 수 통계 데이터를 제공하는 역할을 담당합니다.
+    /// - TODO: 실제 Core Data Provider 구현 추가
+    func registerCalendarStepProvider() {
+        self.register(.calendarStepProvider) { _ in
+//#if DEBUG
+            MockCalendarStepProvider()
+//#else
+            // TODO: 실제 CoreData Provider 추가
+            // DefaultCalendarStatsProvider()
+//#endif
+        }
+    }
+
+    /// 달력 화면을 담당하는 ViewModel을 의존성 주입 컨테이너에 등록합니다.
+    ///
+    /// `CalendarViewModel`은 달력 UI의 상태 관리 및 사용자 상호작용을 처리하며,
+    /// `CalendarStepProvider`에 의존하여 걸음 수 데이터를 가져옵니다.
+    ///
+    /// - Parameter r: DIContainer의 resolver를 통해 `CalendarStepProvider` 의존성을 주입
+    /// - Important: `CalendarStepProvider`가 먼저 등록되어 있어야 합니다.
+    /// - Note: Provider 해결에 실패할 경우 `MockCalendarStepProvider`를 fallback으로 사용합니다.
+    func registerCalendarViewModel() {
+        self.register(.calendarViewModel) { r in
+            let provider: CalendarStepProvider
+            if let resolved = try? r.resolve(.calendarStepProvider) {
+                provider = resolved
+            } else {
+                provider = MockCalendarStepProvider()
+            }
+            return CalendarViewModel(stepProvider: provider)
+        }
+    }
+
     /// 모든 서비스와 ViewModel을 의존성 주입 컨테이너에 일괄 등록합니다.
     ///
     /// 이 메서드는 애플리케이션에서 사용하는 모든 의존성을 올바른 순서로 등록합니다.
@@ -90,11 +128,15 @@ extension DIContainer {
     /// 3. `DailyStepViewModel` - 일일 걸음 수 관리 (Core Data 의존)
     /// 4. `GoalStepCountViewModel` - 목표 걸음 수 관리 (Core Data 의존)
     /// 5. `StepSyncViewModel` - 걸음 수 동기화 (위 모든 서비스에 의존)
+    /// 6. `CalendarStepProvider` - 달력 걸음 수 데이터 제공자 (독립적)
+    /// 7. `CalendarViewModel` - 달력 화면 관리 (`CalendarStepProvider`에 의존)
     func registerAllServices() {
         registerNetworkService()
         registerHealthService()
         registerDailyStepViewModel()
         registerGoalStepCountViewModel()
         registerStepSyncViewModel()
+        registerCalendarStepProvider()
+        registerCalendarViewModel()
     }
 }

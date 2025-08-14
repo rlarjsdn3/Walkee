@@ -1,7 +1,7 @@
 import Foundation
 
 /// 달력의 월 데이터를 나타내는 구조체
-struct CalendarMonthData {
+struct CalendarMonthData: Hashable {
     let year: Int
     let month: Int
 }
@@ -40,12 +40,22 @@ final class CalendarViewModel: ObservableObject {
     /// 월 데이터 생성을 담당하는 헬퍼 객체
     private let monthsGenerator = CalendarMonthsGenerator()
 
+    /// 달력의 걸음수 데이터를 제공하는 프로바이더
+    private let stepProvider: CalendarStepProvider
+
+    /// 월별 걸음수 스냅샷 캐시
+    /// - Key: CalendarMonthData 구조체
+    /// - Value: 해당 월의 일별 걸음수 스냅샷 딕셔너리
+    private var monthSnapshotsCache: [CalendarMonthData: [Date: DailyStepSnapshot]] = [:]
+
     /// 현재 로드된 월의 총 개수를 반환
     var monthsCount: Int {
         months.count
     }
 
-    init() {
+    init(stepProvider: CalendarStepProvider) {
+        self.stepProvider = stepProvider
+
         // AsyncStream과 Continuation을 분리해서 생성
         (self.dataChangesStream, self.dataChangesContinuation) = AsyncStream<CalendarDataChanges>.makeStream()
         setupInitialMonths()
@@ -126,6 +136,23 @@ final class CalendarViewModel: ObservableObject {
         }
 
         dataChangesContinuation.yield(.bottomInsert(indexPaths))
+    }
+
+    /// 지정된 년/월의 걸음수 스냅샷 데이터를 로드
+    /// - Parameters:
+    ///   - year: 조회할 연도
+    ///   - month: 조회할 월 (1-12)
+    /// - Returns: 해당 월의 일별 걸음수 스냅샷 딕셔너리
+    /// - Note: 캐시된 데이터가 있으면 캐시에서 반환하고, 없으면 새로 로드하여 캐시에 저장합니다.
+    func loadMonthSnapshots(year: Int, month: Int) async -> [Date: DailyStepSnapshot] {
+        let key = CalendarMonthData(year: year, month: month)
+        if let cached = monthSnapshotsCache[key] {
+            return cached
+        }
+
+        let loaded = await stepProvider.fetchMonthSnapshots(year: year, month: month)
+        monthSnapshotsCache[key] = loaded
+        return loaded
     }
 }
 

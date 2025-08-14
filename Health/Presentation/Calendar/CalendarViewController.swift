@@ -1,10 +1,12 @@
+import CoreData
 import UIKit
 
 final class CalendarViewController: CoreGradientViewController {
 
     @IBOutlet weak var collectionView: UICollectionView!
 
-    private let calendarVM = CalendarViewModel()
+    @Injected(.calendarViewModel) private var calendarVM: CalendarViewModel
+
     private lazy var scrollManager = CalendarScrollManager(calendarVM: calendarVM, collectionView: collectionView)
 
     /// 데이터 변경 이벤트 구독을 위한 Task
@@ -138,15 +140,24 @@ extension CalendarViewController: UICollectionViewDataSource {
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(
-            withReuseIdentifier: CalendarMonthCell.id,
-            for: indexPath
-        ) as? CalendarMonthCell else {
-            fatalError("Failed to dequeue CalendarMonthCell")
-        }
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CalendarMonthCell.id, for: indexPath) as! CalendarMonthCell
 
-        if let monthData = calendarVM.month(at: indexPath.item) {
-            cell.configure(with: monthData)
+        guard let monthData = calendarVM.month(at: indexPath.item) else { return cell }
+
+        // 재사용 대비 토큰
+        let token = UUID()
+        cell.tag = token.hashValue
+
+        Task { [weak self, weak cell] in
+            guard let self else { return }
+            let snapshots = await self.calendarVM.loadMonthSnapshots(year: monthData.year, month: monthData.month)
+
+            // 여전히 같은 셀인가?
+            guard let cell, cell.tag == token.hashValue else { return }
+
+            await MainActor.run {
+                cell.configure(with: monthData, snapshots: snapshots)
+            }
         }
 
         return cell
