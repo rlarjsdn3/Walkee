@@ -39,7 +39,7 @@ final class ChatbotHeaderTitleCell: CoreTableViewCell {
 	private lazy var closeButton: UIButton = {
 		let button = UIButton()
 		button.contentHorizontalAlignment = .center
-		button.contentVerticalAlignment   = .center
+		button.contentVerticalAlignment = .center
 		button.tintColor = .accent
 		button.addTarget(self, action: #selector(handleCloseButtonTapped), for: .touchUpInside)
 		button.translatesAutoresizingMaskIntoConstraints = false
@@ -101,7 +101,7 @@ final class ChatbotHeaderTitleCell: CoreTableViewCell {
 			
 			closeIconView.centerXAnchor.constraint(equalTo: closeButton.centerXAnchor),
 			closeIconView.topAnchor.constraint(equalTo: chatbotImageView.topAnchor, constant: -2),
-			closeIconView.widthAnchor.constraint(equalToConstant: 32),
+			closeIconView.widthAnchor.constraint(equalToConstant: 28),
 			closeIconView.heightAnchor.constraint(equalTo: closeIconView.widthAnchor)
 		])
 	}

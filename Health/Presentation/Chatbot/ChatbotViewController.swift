@@ -27,6 +27,7 @@ final class ChatbotViewController: CoreGradientViewController {
 	@IBOutlet private weak var chattingTextField: UITextField!
 	@IBOutlet private weak var sendButton: UIButton!
 	
+	
 	// MARK: - Properties & States
 	/// 현재 대화에 표시되는 메시지 목록
 	private var messages: [ChatMessage] = []
@@ -43,6 +44,7 @@ final class ChatbotViewController: CoreGradientViewController {
 	/// 키보드와 입력창 사이에 둘 여유 버퍼
 	private let bottomBuffer: CGFloat = 8
 	/// 응답 관련 속성
+	private var focusLatestAIHead = false
 	private var isWaitingResponse = false
 	private var waitingHintTask: Task<Void, Never>?
 	/// SSE 속성
@@ -53,19 +55,17 @@ final class ChatbotViewController: CoreGradientViewController {
 	private var waitingIndexPath: IndexPath?
 	private var currentWaitingText: String?
 	
-	private var lastRelayout: CFAbsoluteTime = 0
-	private let relayoutMinInterval: CFTimeInterval = 0.05
-	
-	private var inFootnote = false
-	private var pendingOpenBracket = false
-	
 	private var coalesceBuffer = String()
 	private var coalesceTask: Task<Void, Never>?
 	private let coalesceInterval: UInt64 = 25_000_000 // 25ms
 	
-	/// 대화 종료 관련 속성
-	private var shouldShowEndChatButton = false
+	private var lastRelayout: CFAbsoluteTime = 0
+	private let relayoutMinInterval: CFTimeInterval = 0.05
 	
+	// 각주 관련 속성
+	private var inFootnote = false
+	private var pendingOpenBracket = false
+
 	// MARK: - Lifecycle
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -123,6 +123,11 @@ final class ChatbotViewController: CoreGradientViewController {
 		
 		applyBackgroundGradient(.midnightBlack)
 		chattingTextField.autocorrectionType = .no
+		chattingTextField.autocapitalizationType = .none
+		if #available(iOS 11.0, *) {
+			chattingTextField.smartQuotesType = .no
+			chattingTextField.smartDashesType = .no
+		}
 		chattingTextField.delegate = self
 		setupStackViewStyles()
 		automaticallyAdjustsScrollViewInsets = false
@@ -132,15 +137,6 @@ final class ChatbotViewController: CoreGradientViewController {
 	/// ViewModel의 이벤트를 바인딩
 	/// - AI 응답이 도착하면 메시지를 추가하고 필요 시 스크롤
 	private func bindViewModel() {
-		// TODO: 일반 응답값 - 나중에 `일반 모드`, `빠른 응답모드` UIMenu로 만든다면 같이 사용 가능할 듯(임시 주석)
-		/*
-		 viewModel.didReceiveResponseText = { [weak self] text in
-		 guard let self else { return }
-		 Task { @MainActor in
-		 self.appendAIResponseAndScroll(text)
-		 }
-		 }
-		 */
 		viewModel.onActionText = { [weak self] text in
 			guard let self else { return }
 			Task { @MainActor in
@@ -174,38 +170,7 @@ final class ChatbotViewController: CoreGradientViewController {
 		}
 		
 	}
-	
-	/// SSE로 들어온 텍스트 조각을 현재 스트리밍 중인 AI 응답 셀에 반영
-	private func appendStreamPieceToAIResponseCell(_ piece: String) {
-		guard let aiIndex = self.streamingAIIndex, piece.isEmpty == false else { return }
-		let targetIndexPath = indexPathForMessage(at: aiIndex)
-		
-		if let cell = self.tableView.cellForRow(at: targetIndexPath) as? AIResponseCell {
-			// 보이는 셀: 직접 붙여 깜빡임 최소화
-			cell.appendText(piece)
-			self.messages[aiIndex].text += piece
-			self.relayoutRowIfNeeded(targetIndexPath)
-			//Log.ui.debug("append visible +\(piece.count, privacy: .public) total=\(self.messages[aiIndex].text.count, privacy: .public)")
-		} else {
-			// 화면 밖: 모델만 누적 + 스로틀 리로드
-			self.messages[aiIndex].text += piece
-			let now = CFAbsoluteTimeGetCurrent()
-			if (now - self.lastUIUpdate) >= self.minUIInterval {
-				self.lastUIUpdate = now
-				UIView.performWithoutAnimation {
-					self.tableView.reloadRows(at: [targetIndexPath], with: .none)
-				}
-				//Log.ui.debug("reloadRows(throttled) total=\(self.messages[aiIndex].text.count, privacy: .public)")
-			}
-		}
-		
-		// 자동 스크롤 (필요 시)
-		//let before = tableView.contentOffset.y
-		self.scrollToBottomIfNeeded()
-		//let after = tableView.contentOffset.y
-		//if before != after { Log.ui.debug("auto-scrolled to bottom") }
-	}
-	
+
 	private func indexPathForMessage(at messageIndex: Int) -> IndexPath {
 		let row = (hasFixedHeader ? 1 : 0) + messageIndex
 			return IndexPath(row: row, section: 0)
@@ -216,7 +181,7 @@ final class ChatbotViewController: CoreGradientViewController {
 		chattingContainerStackView.layer.cornerRadius = 12
 		chattingContainerStackView.layer.masksToBounds = true
 		chattingContainerStackView.isLayoutMarginsRelativeArrangement = true
-		chattingContainerStackView.layoutMargins = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
+		chattingContainerStackView.layoutMargins = UIEdgeInsets(top: 0, left: 0, bottom: 16, right: 0)
 		
 		chattingInputStackView.backgroundColor = .boxBg
 		chattingInputStackView.layer.cornerRadius = 12
@@ -244,6 +209,7 @@ final class ChatbotViewController: CoreGradientViewController {
 			tableView.selfSizingInvalidation = .enabledIncludingConstraints
 		}
 		
+		tableView.showsVerticalScrollIndicator = false
 		tableView.contentInsetAdjustmentBehavior = .never
 		tableView.estimatedRowHeight = 60
 		tableView.rowHeight = UITableView.automaticDimension
@@ -252,8 +218,6 @@ final class ChatbotViewController: CoreGradientViewController {
 		tableView.register(BubbleViewCell.nib, forCellReuseIdentifier: BubbleViewCell.id)
 		tableView.register(AIResponseCell.nib, forCellReuseIdentifier: AIResponseCell.id)
 		tableView.register(LoadingResponseCell.self, forCellReuseIdentifier: LoadingResponseCell.id)
-		tableView.register(EndChatCell.self, forCellReuseIdentifier: EndChatCell.id)
-		
 		tableView.register(UITableViewCell.self, forCellReuseIdentifier: "SpacerCell")
 		
 		updateTableViewContentInset()
@@ -283,6 +247,32 @@ final class ChatbotViewController: CoreGradientViewController {
 		}
 	}
 	
+	/// 가장 최근 AI 응답 셀의 **첫 문장(=셀 상단)** 으로 스크롤
+	private func scrollToTopOfLatestAIResponse(animated: Bool) {
+		if let idx = streamingAIIndex {
+			let ip = indexPathForMessage(at: idx)
+			if tableView.numberOfRows(inSection: 0) > ip.row {
+				tableView.layoutIfNeeded()
+				tableView.scrollToRow(at: ip, at: .top, animated: animated)
+				return
+			}
+		}
+		if let lastAI = messages.lastIndex(where: { $0.type == .ai }) {
+			let ip = indexPathForMessage(at: lastAI)
+			if tableView.numberOfRows(inSection: 0) > ip.row {
+				tableView.layoutIfNeeded()
+				tableView.scrollToRow(at: ip, at: .top, animated: animated)
+			}
+		}
+	}
+	
+	/// 상단 포커스를 유지해야 하는 상황이면 유지(사용자 드래깅 중이면 미동작)
+	private func maintainAIFocusIfNeeded(animated: Bool = false) {
+		guard focusLatestAIHead, !tableView.isDragging, !tableView.isDecelerating else { return }
+		scrollToTopOfLatestAIResponse(animated: animated)
+	}
+
+	
 	private func applyKeyboardChange(_ payload: KeyboardChangePayload) {
 		let endFrame = CGRect(x: payload.endX, y: payload.endY, width: payload.endW, height: payload.endH)
 		let height = view.convert(endFrame, from: nil).intersection(view.bounds).height
@@ -296,51 +286,23 @@ final class ChatbotViewController: CoreGradientViewController {
 		
 		UIView.animate(withDuration: payload.duration,
 					   delay: 0,
-					   options: UIView.AnimationOptions(rawValue: payload.curveRaw << 16)) {
+					   options: UIView.AnimationOptions(rawValue: payload.curveRaw << 16))
+		{
 			self.updateInputContainerConstraint(forKeyboardHeight: height)
 			self.view.layoutIfNeeded()
 			self.updateTableInsets(forKeyboardHeight: height)
 		} completion: { _ in
 			Task { @MainActor in
 				try await Task.sleep(for: .milliseconds(40))
-				if isFirstPresent {
-					self.scrollToBottomIfNeeded(force: true)
+				if height > 0 {
+					self.scrollToTopOfLatestAIResponse(animated: true)
 				} else {
-					self.scrollToBottomIfNeeded()
-				}
-			}
-		}
-	}
-	
-	private func onKeyboardFrameChanged(_ noti: Notification) {
-		guard let info = noti.userInfo,
-			  let duration = info[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double,
-			  let curve = info[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt,
-			  let endFrame = (info[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
-		else { return }
-		
-		let height = view.convert(endFrame, from: nil).intersection(view.bounds).height
-		
-		let wasHidden = (currentKeyboardHeight == 0)
-		let willShow  = (height > 0)
-		let isFirstPresent = wasHidden && willShow
-		
-		previousKeyboardHeight = currentKeyboardHeight
-		currentKeyboardHeight  = height
-		
-		UIView.animate(withDuration: duration,
-					   delay: 0,
-					   options: UIView.AnimationOptions(rawValue: curve << 16)) {
-			self.updateInputContainerConstraint(forKeyboardHeight: height)
-			self.view.layoutIfNeeded()
-			self.updateTableInsets(forKeyboardHeight: height)
-		} completion: { _ in
-			Task { @MainActor in
-				try await Task.sleep(for: .milliseconds(40))
-				if isFirstPresent {
-					self.scrollToBottomIfNeeded(force: true)
-				} else {
-					self.scrollToBottomIfNeeded()
+					// 키보드 숨김 시에는 기존 정책 유지: 필요하면만 하단으로
+					if isFirstPresent {
+						self.scrollToBottomIfNeeded(force: true)
+					} else {
+						self.scrollToBottomIfNeeded()
+					}
 				}
 			}
 		}
@@ -372,6 +334,8 @@ final class ChatbotViewController: CoreGradientViewController {
 	// MARK: - Auto Scroll
 	/// 필요 시만 또는 강제로 스크롤을 하단으로 이동
 	private func scrollToBottomIfNeeded(force: Bool = false) {
+		// 키보드가 보이면 강제라도 하단 스크롤 금지 (필요 시 주석 해제해서 강제 허용 가능)
+		if currentKeyboardHeight > 0 { return }
 		guard force || shouldAutoScroll() else { return }
 		scrollToBottom()
 	}
@@ -381,6 +345,8 @@ final class ChatbotViewController: CoreGradientViewController {
 	/// - 하단 근처인지 threshold로 판단
 	private func shouldAutoScroll() -> Bool {
 		if tableView.isDragging || tableView.isDecelerating { return false }
+		// 키보드 보이면 자동 스크롤 하지 않음
+		if currentKeyboardHeight > 0 { return false }
 		return isNearBottom(threshold: 120)
 	}
 	
@@ -460,6 +426,7 @@ final class ChatbotViewController: CoreGradientViewController {
 		// 빈 AI 버블(스트림 대상)
 		messages.append(ChatMessage(text: "", type: .ai))
 		streamingAIIndex = messages.count - 1
+		focusLatestAIHead = true
 		let aiRow = hasFixedHeader ? messages.count : messages.count - 1
 		let aiIndexPath = indexPathForMessage(at: streamingAIIndex!)
 		tableView.insertRows(at: [aiIndexPath], with: .bottom)
@@ -608,10 +575,7 @@ final class ChatbotViewController: CoreGradientViewController {
 						}
 						
 						// 필요시 자동 스크롤
-						//let before = tableView.contentOffset.y
-						self.scrollToBottomIfNeeded()
-						//let after = tableView.contentOffset.y
-						//if before != after { Log.ui.debug("auto-scrolled to bottom") }
+						self.maintainAIFocusIfNeeded()
 						
 					case .complete:
 						// 대부분의 서버가 전문을 재전송하므로 여기선 content를 무시하고 종료
@@ -627,24 +591,7 @@ final class ChatbotViewController: CoreGradientViewController {
 			// Log.ui.info("finishStreamingUI() done")
 		}
 	}
-	
-	private func feedStreamingPiece(_ raw: String) {
-		coalesceBuffer += raw
-		if coalesceTask == nil {
-			coalesceTask = Task { [weak self] in
-				while let self, Task.isCancelled == false {
-					try? await Task.sleep(nanoseconds: self.coalesceInterval)
-					guard self.coalesceBuffer.isEmpty == false else {
-						self.coalesceTask = nil; break
-					}
-					let chunk = self.coalesceBuffer
-					self.coalesceBuffer.removeAll(keepingCapacity: true)
-					self.appendStreamPieceToAIResponseCell(chunk)
-				}
-			}
-		}
-	}
-	
+
 	// MARK: - 실시간 로딩 셀
 	func updateLoadingMessage(_ text: String) {
 		if let index = messages.firstIndex(where: { $0.type == .loading }) {
@@ -731,35 +678,27 @@ final class ChatbotViewController: CoreGradientViewController {
 		sseClient = nil
 		inFootnote = false
 		pendingOpenBracket = false
-		shouldShowEndChatButton = true   // 이제 표시 여부 판단용 플래그 — 행 수에는 더하지 않음
 		
-		// 2) 삽입할 메시지 준비
-		let startIndex = messages.count
-		messages.append(ChatMessage(text: "", type: .spacer(24)))
-		messages.append(ChatMessage(text: "", type: .endChat))
+		// 2) 대기 셀 삭제만 수행 (모델 변경 없이)
+		let willDeleteWaitingIP: IndexPath? = (isWaitingResponse ? waitingIndexPath : nil)
+		isWaitingResponse = false
+		waitingIndexPath = nil
+		currentWaitingText = nil
 		
-		let toInsert = [
-			indexPathForMessage(at: startIndex),
-			indexPathForMessage(at: startIndex + 1)
-		]
-		
-		// 3) 배치 업데이트: (대기행 삭제) + (스페이서/엔드챗 삽입)
 		tableView.performBatchUpdates {
-			if isWaitingResponse, let waitIdx = waitingIndexPath {
-				isWaitingResponse = false
-				tableView.deleteRows(at: [waitIdx], with: .fade)
-				waitingIndexPath = nil
-				currentWaitingText = nil
+			if let del = willDeleteWaitingIP,
+			   tableView.numberOfRows(inSection: 0) > del.row {
+				tableView.deleteRows(at: [del], with: .fade)
 			}
-			tableView.insertRows(at: toInsert, with: .bottom)
 		}
 		
-		// 4) 스크롤
-		scrollToBottomIfNeeded(force: true)
+		// 3) 스크롤: 항상 최신 AI 응답 '상단'으로
+		scrollToTopOfLatestAIResponse(animated: true)
+		// 더 이상 고정 유지 안 함(사용자 스크롤 허용)
+		focusLatestAIHead = false
 		
-		// 5) 상태 초기화
+		// 4) 상태 초기화
 		streamingAIIndex = nil
-
 	}
 	
 	private func computeMessageIndex(for indexPath: IndexPath) -> Int? {
@@ -816,7 +755,9 @@ final class ChatbotViewController: CoreGradientViewController {
 		
 		if let aiIndex = streamingAIIndex {
 			let aiIP = indexPathForMessage(at: aiIndex)
-			if shouldAutoScroll() {
+			if focusLatestAIHead {
+				tableView.scrollToRow(at: aiIP, at: .top, animated: true)
+			} else if shouldAutoScroll() {
 				tableView.scrollToRow(at: aiIP, at: .bottom, animated: true)
 			}
 		}
@@ -839,13 +780,16 @@ final class ChatbotViewController: CoreGradientViewController {
 	
 	private func relayoutRowIfNeeded(_ indexPath: IndexPath) {
 		let now = CFAbsoluteTimeGetCurrent()
-		guard now - lastRelayout >= relayoutMinInterval else { return }
-		lastRelayout = now
-		UIView.performWithoutAnimation {
-			tableView.beginUpdates()
-			tableView.endUpdates()
-		}
-		scrollToBottomIfNeeded()
+			guard now - lastRelayout >= relayoutMinInterval else { return }
+			lastRelayout = now
+
+			UIView.performWithoutAnimation {
+				tableView.beginUpdates()
+				tableView.endUpdates()
+			}
+
+			// 스트리밍 중 컨텐츠가 커질 때도 '첫 줄' 포커스 유지
+			maintainAIFocusIfNeeded()
 	}
 	
 	
@@ -898,6 +842,9 @@ extension ChatbotViewController: UITableViewDataSource {
 				for: indexPath
 			) as! ChatbotHeaderTitleCell
 			cell.configure(with: "걸음에 대해 궁금한 점을 물어보세요.")
+			cell.onCloseTapped = { [weak self] in
+				self?.dismiss(animated: true)
+			}
 			return cell
 		}
 		
@@ -944,26 +891,6 @@ extension ChatbotViewController: UITableViewDataSource {
 			
 			cell.configure(with: message.text)
 			return cell
-			
-		case .spacer:
-			let cell = tableView.dequeueReusableCell(
-				withIdentifier: "SpacerCell",
-				for: indexPath
-			)
-			cell.backgroundColor = .clear
-			cell.contentView.backgroundColor = .clear
-			cell.selectionStyle = .none
-			return cell
-			
-		case .endChat:
-			let cell = tableView.dequeueReusableCell(
-				withIdentifier: EndChatCell.id,
-				for: indexPath
-			) as! EndChatCell
-			cell.onEndChatTapped = { [weak self] in
-				self?.dismiss(animated: true, completion: nil)
-			}
-			return cell
 		case .loading:
 			let cell = tableView.dequeueReusableCell(
 				withIdentifier: LoadingResponseCell.id,
@@ -994,13 +921,7 @@ extension ChatbotViewController: UITableViewDelegate {
 		}
 		let message = messages[messageIndex]
 		
-		// 4. 메시지별 높이 결정
-		switch message.type {
-		case .spacer(let height):
-			return height
-		default:
-			return UITableView.automaticDimension
-		}
+		return UITableView.automaticDimension
 	}
 	
 	func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -1016,16 +937,15 @@ extension ChatbotViewController: UITableViewDelegate {
 				return 120
 			case .user:
 				return 60
-			case .spacer(let height):
-				return height
-			case .endChat:
-				return 60
 			case .loading:
 				return 80
 			}
 		}
-		
 		return 60
+	}
+	
+	func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+		focusLatestAIHead = false
 	}
 }
 
@@ -1040,11 +960,28 @@ extension ChatbotViewController: UITextFieldDelegate {
 		// 텍스트필드 편집 시작할 때 최신 메시지로 스크롤 해 줌.
 		Task { @MainActor in
 			try await Task.sleep(for: .milliseconds(300))
-			self.scrollToBottomIfNeeded(force: true)
+			self.scrollToTopOfLatestAIResponse(animated: true)
 		}
 	}
 	
 	func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+		if string == ". " {
+			if let current = textField.text,
+			   let swiftRange = Range(range, in: current) {
+				let prefix = current[..<swiftRange.lowerBound]
+				let suffix = current[swiftRange.upperBound...]
+				let replaced = String(prefix) + " " + String(suffix)
+				textField.text = replaced
+				
+				let newCursorOffset = prefix.count + 1
+				if let pos = textField.position(from: textField.beginningOfDocument, offset: newCursorOffset),
+				   let tp = textField.textRange(from: pos, to: pos) {
+					textField.selectedTextRange = tp
+				}
+			}
+			return false
+		}
+		
 		let newText = (textField.text as NSString?)?.replacingCharacters(in: range, with: string) ?? ""
 		let hasText = !newText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
 		
@@ -1055,3 +992,4 @@ extension ChatbotViewController: UITextFieldDelegate {
 		return true
 	}
 }
+
