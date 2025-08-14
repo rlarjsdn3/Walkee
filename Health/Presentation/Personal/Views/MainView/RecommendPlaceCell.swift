@@ -41,8 +41,8 @@ class RecommendPlaceCell: CoreCollectionViewCell {
         // 텍스트 설정
         courseNameLabel.text = course.crsKorNm
         locationLabel.text = course.sigun
-        distanceLabel.text = course.crsDstnc
-        durationLabel.text = course.crsTotlRqrmHour
+        distanceLabel.text = "\(course.crsDstnc)km"
+        durationLabel.text = course.crsTotlRqrmHour.toFormattedDuration()
 
         // 로딩 이미지
         courseImage.image = UIImage(systemName: "map")
@@ -67,6 +67,24 @@ class RecommendPlaceCell: CoreCollectionViewCell {
                 courseImage.image = UIImage(systemName: "location.slash")
                 courseImage.tintColor = .systemOrange
             }
+        }
+    }
+}
+
+extension String {
+
+    //소요시간 포맷팅
+    func toFormattedDuration() -> String {
+        let minutes = Int(self)!
+        let hours = minutes / 60
+        let mins = minutes % 60
+
+        if hours > 0 && mins > 0 {
+            return "\(hours)시간 \(mins)분"
+        } else if hours > 0 {
+            return "\(hours)시간"
+        } else {
+            return "\(mins)분"
         }
     }
 }

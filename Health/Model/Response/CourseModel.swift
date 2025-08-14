@@ -15,6 +15,9 @@ struct WalkingCourse: Codable, Hashable {
     let sigun: String         // 지역 (울산 남구)
     let gpxpath: String       // GPX 파일 경로
     let crsTotlRqrmHour: String //총 소요 시간
+    let crsContents: String 	//코스개요
+    let crsSummary: String 		//코스 설명
+    let crsTourInfo: String 	//관광포인트
 }
 
 // API 응답용 래퍼 (전체 구조는 유지하되 필요한 부분만 파싱)
@@ -41,4 +44,9 @@ struct WalkingCourseItems: Codable {
 
 struct WalkingCourseList: Codable {
     let item: [WalkingCourse]
+}
+
+// 로컬 JSON용 래퍼 구조체
+struct LocalWalkingCourse: Codable {
+    let courses: [WalkingCourse]
 }
