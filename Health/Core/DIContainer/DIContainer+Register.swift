@@ -36,6 +36,20 @@ extension DIContainer {
         }
     }
 
+    /// 사용자 정보 관리 서비스를 의존성 주입 컨테이너에 등록합니다.
+    ///
+    /// `DefaultCoreDataUserService`는 `CoreDataUserService` 프로토콜을 구현하며,
+    /// Core Data를 통해 사용자 정보의 CRUD 작업을 처리합니다.
+    /// 해당 서비스는 컨테이너에서 `.coreDataUserService` 식별자를 사용하여
+    /// 타입 안전하게 해결할 수 있습니다.
+    ///
+    /// - Note: `CoreDataStack.shared`가 초기화되어 있어야 정상적으로 동작합니다.
+    func registerCoreDataUserService() {
+        self.register(.coreDataUserService) { _ in
+            return DefaultCoreDataUserService()
+        }
+    }
+
     /// 일일 걸음 수 관리를 담당하는 ViewModel을 의존성 주입 컨테이너에 등록합니다.
     ///
     /// `DailyStepViewModel`은 Core Data를 통해 일일 걸음 수 데이터의 CRUD 작업을 처리합니다.
@@ -93,6 +107,7 @@ extension DIContainer {
     func registerAllServices() {
         registerNetworkService()
         registerHealthService()
+        registerCoreDataUserService()
         registerDailyStepViewModel()
         registerGoalStepCountViewModel()
         registerStepSyncViewModel()

@@ -61,7 +61,8 @@ extension CoreDataStack {
             dailyStep.goalStepCount = dummyGoal.goalStepCount
             dummyUser.addToDailyStep(dailyStep)
         }
-        
+
+
         // 4. 저장
         do {
             try context.save()
