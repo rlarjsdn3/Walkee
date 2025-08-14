@@ -33,6 +33,7 @@ extension DailyGoalRingCollectionViewCell {
             .store(in: &cancalleable)
     }
 
+    // TODO: - 상태 코드 별로 함수로 나누는 리팩토링하기
     private func render(for state: LoadState<GoalRingContent>) {
         switch state {
         case .idle:

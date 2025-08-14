@@ -36,9 +36,8 @@ final class HealthInfoStackCollectionViewCell: CoreCollectionViewCell {
     }
 
     override func setupAttribute() {
-//        self.applyCornerStyle(.medium)
         self.backgroundColor = .boxBg
-        self.layer.cornerRadius = 12 // medium
+        self.applyCornerStyle(.medium)
         self.layer.masksToBounds = false
         self.layer.borderColor = UIColor.separator.cgColor
         self.layer.shadowColor = UIColor.black.cgColor
@@ -84,6 +83,7 @@ extension HealthInfoStackCollectionViewCell {
             .store(in: &cancellable)
     }
 
+    // TODO: - 상태 코드 별로 함수로 나누는 리팩토링하기
     private func render(_ new: LoadState<InfoStackContent>, parent: UIViewController?) {
         var lblString: String
         let unitString = viewModel.itemID.kind.unitString

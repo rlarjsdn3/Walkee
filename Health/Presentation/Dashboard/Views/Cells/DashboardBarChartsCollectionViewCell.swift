@@ -16,6 +16,7 @@ final class DashboardBarChartsCollectionViewCell: CoreCollectionViewCell {
     @IBOutlet weak var chartsContainerView: UIView!
     @IBOutlet weak var rangeOfDateLabel: UILabel!
     @IBOutlet weak var barChartsView: BarChartsView!
+    @IBOutlet weak var permissionDeniedView: PermissionDeniedFullView!
 
     private var viewModel: DashboardBarChartsCellViewModel!
     
@@ -34,6 +35,9 @@ final class DashboardBarChartsCollectionViewCell: CoreCollectionViewCell {
 
         averageTitleLabel.font = .systemFont(ofSize: 13, weight: .semibold)
         rangeOfDateLabel.font = .systemFont(ofSize: 13, weight: .semibold)
+
+        permissionDeniedView.isHidden = true
+        permissionDeniedView.applyCornerStyle(.medium)
 
         barChartsView.configuration.displayOptions.showValueLabel = true
 
@@ -62,10 +66,12 @@ extension DashboardBarChartsCollectionViewCell {
             .sink { [weak self] state in self?.render(for: state) }
             .store(in: &cancellable)
     }
-    
+
+    // TODO: - 상태 코드 별로 함수로 나누는 리팩토링하기
     private func render(for state: LoadState<DashboardChartsContents>) {
         var attrString: NSAttributedString
         headerLabel.text = viewModel.headerTitle
+        permissionDeniedView.isHidden = true
 
         switch state {
         case .idle:
@@ -103,8 +109,12 @@ extension DashboardBarChartsCollectionViewCell {
             print("🔴 건강 데이터를 불러오는 데 실패함: DashboardBarChartsCell (\(viewModel.itemID.kind))")
 
         case .denied:
-            // TODO: - 차트 중앙에 '접근 권한이 없다'고 표시
-            attrString = NSAttributedString(string: "-")
+            attrString = NSAttributedString(string: "12345 걸음")
+            permissionDeniedView.isHidden = false
+            barChartsView.chartData = prepareChartData(
+                Self.chartsDataMock,
+                type: viewModel.itemID.kind
+            )
             print("🔵 건강 데이터에 접근할 수 있는 권한이 없음: DashboardBarChartsCell (\(viewModel.itemID.kind))")
         }
 
@@ -138,10 +148,6 @@ extension DashboardBarChartsCollectionViewCell {
         let isYearDiff = !startDate.isEqual([.year], with: endDate)
         let isMonthDiff = !startDate.isEqual([.month], with: endDate)
 
-        // 서로 년도가 다른 경우
-        // 년도는 동일 / 월만 다른 경우
-        // 월까지 모두 같은 경우
-
         if case .daysBack = viewModel.itemID.kind {
             var fStartDate: String
             var fEndDate: String
@@ -170,6 +176,18 @@ extension DashboardBarChartsCollectionViewCell {
             return "\(fStartDate)~\(fEndDate)"
         }
     }
+}
+
+fileprivate extension DashboardBarChartsCollectionViewCell {
+
+    static let chartsDataMock: [DashboardChartsContent] = [
+        .init(date: .now, value: Double.random(in: 100...300)),
+        .init(date: .now, value: Double.random(in: 100...300)),
+        .init(date: .now, value: Double.random(in: 100...300)),
+        .init(date: .now, value: Double.random(in: 100...300)),
+        .init(date: .now, value: Double.random(in: 100...300)),
+        .init(date: .now, value: Double.random(in: 100...300))
+    ]
 }
 
 fileprivate extension Double {
