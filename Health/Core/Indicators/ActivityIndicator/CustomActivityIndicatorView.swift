@@ -60,8 +60,7 @@ final class CustomActivityIndicatorView: UIView {
 	///  최소 24pt 이상
 	///  예: dotDiameter가 10pt이면, 10 x 22 = 22pt면  최소 24 pt로 반환
 	override var intrinsicContentSize: CGSize {
-		let side = max(dotDiameter * 2.2, 24)
-		return CGSize(width: side, height: side)
+		return CGSize(width: dotDiameter, height: dotDiameter)
 	}
 	
 	override func layoutSubviews() {
