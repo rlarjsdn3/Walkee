@@ -104,7 +104,7 @@ final class CircleProgressView: CoreView {
             var percentageValue = currentValue / totalValue
             if percentageValue > 1 { percentageValue = 1 }
             percentageLabel.text = percentageValue
-                .formatted(.percent.precision(.fractionLength(1)))
+                .formatted(.percent.precision(.fractionLength(0)))
 
             let progressString = "\(currentValue.formatted()) / \(totalValue.formatted())"
             if let slashIndex = progressString.firstIndex(of: "/") {
