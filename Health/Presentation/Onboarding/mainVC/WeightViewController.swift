@@ -1,5 +1,5 @@
 //
-//  HeightViewController.swift
+//  WeightViewController.swift
 //  Health
 //
 //  Created by 권도현 on 8/4/25.
@@ -8,14 +8,14 @@
 import UIKit
 import CoreData
 
-class HeightViewController: CoreGradientViewController {
+class WeightViewController: CoreGradientViewController {
     
-    @IBOutlet weak var heightInputField: UITextField!
+    @IBOutlet weak var weightInputField: UITextField!
     @IBOutlet weak var errorLabel: UILabel!
     
-    private let cmLabel: UILabel = {
+    private let kgLabel: UILabel = {
         let label = UILabel()
-        label.text = "cm"
+        label.text = "kg"
         label.textColor = .accent
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -26,7 +26,7 @@ class HeightViewController: CoreGradientViewController {
         let button = UIButton(type: .system)
         button.setTitle("다음", for: .normal)
         button.backgroundColor = UIColor.buttonBackground
-        button.setTitleColor(.white, for: .normal)
+        button.setTitleColor(.label, for: .normal)
         button.applyCornerStyle(.medium)
         button.isEnabled = false
         return button
@@ -34,75 +34,44 @@ class HeightViewController: CoreGradientViewController {
     
     private var continueButtonBottomConstraint: NSLayoutConstraint?
     private let context = CoreDataStack.shared.persistentContainer.viewContext
-    
     private var userInfo: UserInfoEntity?
     
-    override func initVM() {}
+    var onContinue: (() -> Void)?
+    
+    override func initVM() { }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         applyBackgroundGradient(.midnightBlack)
+        weightInputField.delegate = self
+        weightInputField.keyboardType = .numberPad
+        weightInputField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         
-        heightInputField.delegate = self
-        heightInputField.keyboardType = .numberPad
-        heightInputField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
-        
-        continueButton.addTarget(self, action: #selector(continueButtonTapped), for: .touchUpInside)
+        continueButton.addTarget(self, action: #selector(didTapContinue), for: .touchUpInside)
         
         registerForKeyboardNotifications()
         setupTapGestureToDismissKeyboard()
+        
         errorLabel.isHidden = true
         errorLabel.textColor = .red
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
         fetchUserInfo()
-        fetchAndDisplaySavedHeight()
+        
+        if let weight = userInfo?.weight, weight > 0 {
+            weightInputField.text = String(Int(weight))
+            validateInput()
+        }
     }
-    
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        if heightInputField.text?.isEmpty ?? true {
-            heightInputField.becomeFirstResponder()
-        }
-    }
-    
-    private func fetchUserInfo() {
-        let request: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
-        do {
-            let results = try context.fetch(request)
-            if let first = results.first {
-                self.userInfo = first
-            } else {
-                let newUser = UserInfoEntity(context: context)
-                newUser.id = UUID()
-                newUser.createdAt = Date()
-                self.userInfo = newUser
-                try context.save()
-            }
-        } catch {
-            print("Fetch error: \(error)")
-        }
-    }
-    
-    private func fetchAndDisplaySavedHeight() {
-        let request: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
-        do {
-            let results = try context.fetch(request)
-            if let userInfo = results.first, userInfo.height > 0 {
-                self.userInfo = userInfo
-                heightInputField.text = String(Int(userInfo.height))
-                validateInput()
-            }
-        } catch {
-            print("CoreData에서 height 불러오기 실패: \(error)")
+        if weightInputField.text?.isEmpty ?? true {
+            weightInputField.becomeFirstResponder()
         }
     }
     
     override func setupHierarchy() {
-        [continueButton, cmLabel].forEach {
+        [continueButton, kgLabel].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview($0)
         }
@@ -110,55 +79,87 @@ class HeightViewController: CoreGradientViewController {
     
     override func setupConstraints() {
         continueButtonBottomConstraint = continueButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
-        
         NSLayoutConstraint.activate([
             continueButtonBottomConstraint!,
             continueButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             continueButton.heightAnchor.constraint(equalToConstant: 48),
             
-            cmLabel.leadingAnchor.constraint(equalTo: heightInputField.trailingAnchor, constant: 8),
-            cmLabel.centerYAnchor.constraint(equalTo: heightInputField.centerYAnchor)
+            kgLabel.leadingAnchor.constraint(equalTo: weightInputField.trailingAnchor, constant: 8),
+            kgLabel.centerYAnchor.constraint(equalTo: weightInputField.centerYAnchor)
         ])
+    }
+    
+    private func fetchUserInfo() {
+        let request: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
+        do {
+            let results = try context.fetch(request)
+            if let firstUserInfo = results.first {
+                userInfo = firstUserInfo
+            } else {
+                let newUserInfo = UserInfoEntity(context: context)
+                newUserInfo.id = UUID()
+                newUserInfo.createdAt = Date()
+                userInfo = newUserInfo
+                try context.save()
+            }
+        } catch {
+            print("UserInfo fetch error: \(error)")
+        }
+    }
+    
+    @objc private func didTapContinue() {
+        guard continueButton.isEnabled else { return }
+        guard let text = weightInputField.text, let weightValue = Double(text) else { return }
+        
+        userInfo?.weight = weightValue
+        do {
+            try context.save()
+            performSegue(withIdentifier: "goToHeightInfo", sender: nil)
+        } catch {
+            print("Failed to save weight: \(error)")
+        }
     }
     
     @objc private func textFieldDidChange(_ textField: UITextField) {
         guard let text = textField.text else { return }
         
-        if let height = Double(text) {
-            userInfo?.height = height
+        if text.isEmpty {
+            hideError()
+            disableContinueButton()
+        } else if text.count <= 3 {
             validateInput()
         } else {
+            hideError()
             disableContinueButton()
         }
     }
     
     private func validateInput() {
-        guard let text = heightInputField.text, let height = Int(text) else {
+        guard let text = weightInputField.text, let weight = Int(text) else {
             disableContinueButton()
             hideError()
             return
         }
         
-        if height > 210 {
+        if weight > 200 {
             showError()
-            heightInputField.text = ""
             disableContinueButton()
-            heightInputField.resignFirstResponder()
-        } else if height >= 130 {
+            weightInputField.text = ""
+            weightInputField.resignFirstResponder()
+        } else if weight >= 35 {
             hideError()
             enableContinueButton()
-            heightInputField.resignFirstResponder()
+            weightInputField.resignFirstResponder()
         } else {
             hideError()
             disableContinueButton()
         }
     }
     
-    private func showError(text: String = "130 ~ 210 사이의 값을 입력해주세요.") {
+    private func showError(text: String = "35 ~ 200 사이의 값을 입력해주세요.") {
         errorLabel.isHidden = false
         errorLabel.text = text
-        errorLabel.textColor = .red
     }
     
     private func hideError() {
@@ -169,18 +170,29 @@ class HeightViewController: CoreGradientViewController {
     private func disableContinueButton() {
         continueButton.isEnabled = false
         continueButton.backgroundColor = .buttonBackground
-        heightInputField.textColor = .label
+        weightInputField.textColor = .label
     }
     
     private func enableContinueButton() {
         continueButton.isEnabled = true
         continueButton.backgroundColor = .accent
-        heightInputField.textColor = .accent
+        weightInputField.textColor = .accent
+        continueButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .bold)
     }
     
     private func registerForKeyboardNotifications() {
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillShow(_:)),
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillHide(_:)),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil
+        )
     }
     
     @objc private func keyboardWillShow(_ notification: Notification) {
@@ -208,25 +220,12 @@ class HeightViewController: CoreGradientViewController {
         view.endEditing(true)
     }
     
-    @objc private func continueButtonTapped() {
-        guard continueButton.isEnabled,
-              let text = heightInputField.text,
-              let heightValue = Double(text) else { return }
-        
-        userInfo?.height = heightValue
-        do {
-            try context.save()
-            performSegue(withIdentifier: "goToDiseaseTap", sender: self)
-        } catch {
-            print("Failed to save height: \(error)")
-        }
-    }
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
 }
 
-extension HeightViewController: UITextFieldDelegate {
+extension WeightViewController: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         let allowedCharacters = CharacterSet.decimalDigits
         if string.rangeOfCharacter(from: allowedCharacters.inverted) != nil {

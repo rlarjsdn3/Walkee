@@ -35,8 +35,10 @@ class HealthLinkViewController: CoreGradientViewController {
         let button = UIButton(type: .system)
         button.setTitle("다음", for: .normal)
         button.backgroundColor = UIColor.accent
-        button.setTitleColor(.white, for: .normal)
+        button.setTitleColor(.label, for: .normal)
         button.applyCornerStyle(.medium)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .bold)
+
         return button
     }()
     

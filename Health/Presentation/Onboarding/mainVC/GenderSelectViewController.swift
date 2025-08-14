@@ -31,7 +31,7 @@ class GenderSelectViewController: CoreGradientViewController {
         let button = UIButton(type: .system)
         button.setTitle("다음", for: .normal)
         button.backgroundColor = UIColor.buttonBackground
-        button.setTitleColor(.white, for: .normal)
+        button.setTitleColor(.label, for: .normal)
         button.applyCornerStyle(.medium)
         button.isEnabled = false
         return button
@@ -154,5 +154,11 @@ class GenderSelectViewController: CoreGradientViewController {
         let isSelected = (selectedGender != nil)
         continueButton.isEnabled = isSelected
         continueButton.backgroundColor = isSelected ? .accent : .buttonBackground
+
+        if isSelected {
+            continueButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .bold)
+        } else {
+            continueButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .regular)
+        }
     }
 }

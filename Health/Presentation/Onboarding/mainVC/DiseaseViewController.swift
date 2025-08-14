@@ -16,7 +16,7 @@ class DiseaseViewController: CoreGradientViewController {
     private let continueButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("다음", for: .normal)
-        button.setTitleColor(.white, for: .normal)
+        button.setTitleColor(.label, for: .normal)
         button.applyCornerStyle(.medium)
         button.isEnabled = false
         button.backgroundColor = UIColor.buttonBackground
@@ -122,8 +122,15 @@ class DiseaseViewController: CoreGradientViewController {
     private func updateContinueButtonState() {
         let selectedCount = diseaseCollectionView.indexPathsForSelectedItems?.count ?? 0
         let enabled = selectedCount > 0
+        
         continueButton.isEnabled = enabled
         continueButton.backgroundColor = enabled ? UIColor.accent : UIColor.buttonBackground
+   
+        if enabled {
+            continueButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .bold)
+        } else {
+            continueButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .regular)
+        }
     }
 }
 

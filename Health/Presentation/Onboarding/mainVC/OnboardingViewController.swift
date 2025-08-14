@@ -17,9 +17,10 @@ class OnboardingViewController: CoreGradientViewController {
         let button = UIButton(type: .system)
         button.setTitle("다음", for: .normal)
         button.backgroundColor = UIColor.accent
-        button.setTitleColor(.white, for: .normal)
+        button.setTitleColor(.label, for: .normal)
         button.applyCornerStyle(.medium)
         button.isEnabled = true
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .bold) // 이 줄 추가
         return button
     }()
     
