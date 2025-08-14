@@ -19,7 +19,7 @@ class ProfileViewController: CoreGradientViewController {
     
     @IBOutlet weak var tableView: UITableView!
     
-    private let healthService = DefaultHealthService()
+    @Injected private var healthService: HealthService
     
     private var grantRecheckObserver: NSObjectProtocol?
     
@@ -79,6 +79,10 @@ class ProfileViewController: CoreGradientViewController {
         super.viewWillDisappear(animated)
         stopForegroundGrantSync()
     }
+    
+    deinit {
+        stopForegroundGrantSync()
+    }
         
     /// 앱이 포어그라운드로 복귀할 때마다 HealthKit 권한을 재확인하도록 옵저버를 등록합니다.
     ///
@@ -101,7 +105,6 @@ class ProfileViewController: CoreGradientViewController {
     /// 포어그라운드 권한 확인하는 옵저버를 제거합니다.
     ///
     /// - Note: 옵저버가 중복 등록되지 않도록 옵저버를 등록하기 전에 호출합니다.
-    @MainActor
     private func stopForegroundGrantSync() {
         if let obs = grantRecheckObserver {
             NotificationCenter.default.removeObserver(obs)
@@ -174,7 +177,7 @@ class ProfileViewController: CoreGradientViewController {
             grantRecheckObserver = nil
         }
         
-        Task { [weak self] in
+        Task { @MainActor [weak self] in
             guard let self = self else { return }
             let hasAny = await self.healthService.checkHasAnyReadPermission()
             
@@ -220,7 +223,6 @@ class ProfileViewController: CoreGradientViewController {
         })
         
         present(alert, animated: true)
-        print(UserDefaultsWrapper.shared.healthkitLinked)
     }
     
     private func presentDenyAlert(for sender: UISwitch) {
@@ -254,7 +256,6 @@ class ProfileViewController: CoreGradientViewController {
         })
         
         present(alert, animated: true)
-        print(UserDefaultsWrapper.shared.healthkitLinked)
 
     }
     
