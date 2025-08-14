@@ -34,12 +34,15 @@ final class DashboardViewModel {
 
     // TODO: - Alan 서버에서 요약문을 가져오는 서비스 객체 주입하기
     // TODO: - 코어 데이터에서 사용자 정보 가져오는 서비스 객체 주입하기
-    @Injected private var healthService: HealthService
+    @Injected private var healthService: (any HealthService)
 
     ///
     init(anchorDate: Date = .now) {
         self.anchorDate = anchorDate
     }
+
+
+    // MARK: - Build Layout
 
     ///
     func buildDashboardCells(for environment: DashboardEnvironment) {
@@ -138,6 +141,9 @@ final class DashboardViewModel {
         cardCells = newCells
     }
 }
+
+
+// MARK: - Load HKData
 
 extension DashboardViewModel {
 
@@ -343,6 +349,9 @@ extension DashboardViewModel {
         }
     }
 }
+
+
+// MARK: - Fetch CoreData
 
 extension DashboardViewModel {
 

@@ -15,7 +15,8 @@ final class HealthInfoCardCollectionViewCell: CoreCollectionViewCell {
     @IBOutlet weak var statusContainerView: UIView!
     @IBOutlet weak var gaitStatusLabel: UILabel!
     @IBOutlet weak var statusProgressBarView: StatusProgressBarView!
-    
+    @IBOutlet weak var permissionDeniedView: PermissionDeniedFullView!
+
     private var viewModel: HealthInfoCardCellViewModel!
 
     private var cancellable: Set<AnyCancellable> = []
@@ -31,18 +32,20 @@ final class HealthInfoCardCollectionViewCell: CoreCollectionViewCell {
     }
     
     override func setupAttribute() {
-//       self.applyCornerStyle(.medium)
         self.backgroundColor = .boxBg
-        self.layer.cornerRadius = 12 // medium
+        self.applyCornerStyle(.medium)
         self.layer.masksToBounds = false
         self.layer.borderColor = UIColor.separator.cgColor
         self.layer.shadowColor = UIColor.black.cgColor
-        self.layer.shadowOpacity = 0.05
+        self.layer.shadowOpacity = 0.15
         self.layer.shadowOffset = CGSize(width: 2, height: 2)
         self.layer.shadowRadius = 5
         self.layer.borderWidth = (traitCollection.userInterfaceStyle == .dark) ? 0 : 1
 
         statusContainerView.applyCornerStyle(.small)
+
+        permissionDeniedView.isHidden = true
+        permissionDeniedView.applyCornerStyle(.medium)
 
         registerForTraitChanges()
     }
@@ -69,7 +72,8 @@ extension HealthInfoCardCollectionViewCell {
             .sink { [weak self] state in  self?.render(for: state) }
             .store(in: &cancellable)
     }
-    
+
+    // TODO: - 상태 코드 별로 함수로 나누는 리팩토링하기
     private func render(for state: LoadState<InfoCardContent>) {
         var attrString: NSAttributedString
         let unitString = viewModel.itemID.kind.unitString
@@ -77,7 +81,9 @@ extension HealthInfoCardCollectionViewCell {
         titleLabel.text = viewModel.itemID.kind.title
         statusProgressBarView.higherIsBetter = viewModel.itemID.kind.higherIsBetter
         statusProgressBarView.thresholdsValues = viewModel.itemID.kind.thresholdValues(age: viewModel.anchorAge)
-        
+        statusContainerView.isHidden = false
+        permissionDeniedView.isHidden = true
+
         switch state {
         case .idle:
             return // TODO: - 플레이스 홀더 UI 구성하기
@@ -121,6 +127,7 @@ extension HealthInfoCardCollectionViewCell {
             attrString = NSAttributedString(string: "- " + unitString)
             statusContainerView.isHidden = true
             statusProgressBarView.currentValue = nil
+            permissionDeniedView.isHidden = false
             print("🔵 건강 데이터에 접근할 수 있는 권한이 없음: HealthInfoCardCell (\(viewModel.itemID.kind.quantityTypeIdentifier))")
         }
         

@@ -73,6 +73,9 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="kqw-NQ-e4v" customClass="BarChartsView" customModule="Health" customModuleProvider="target">
                                         <rect key="frame" x="24" y="79.666666666666671" width="332" height="215.33333333333331"/>
                                     </view>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="32d-82-oql" customClass="PermissionDeniedFullView" customModule="Health" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="0.0" width="380" height="319"/>
+                                    </view>
                                 </subviews>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
@@ -81,8 +84,12 @@
                                     <constraint firstItem="Dfg-8a-HVz" firstAttribute="leading" secondItem="oNf-dL-Qdx" secondAttribute="leading" constant="16" id="ELu-mp-hNJ"/>
                                     <constraint firstItem="kqw-NQ-e4v" firstAttribute="leading" secondItem="oNf-dL-Qdx" secondAttribute="leading" constant="24" id="EsO-ew-A2j"/>
                                     <constraint firstItem="Dfg-8a-HVz" firstAttribute="top" secondItem="oNf-dL-Qdx" secondAttribute="top" constant="24" id="Fg6-bW-RZs"/>
+                                    <constraint firstItem="32d-82-oql" firstAttribute="leading" secondItem="oNf-dL-Qdx" secondAttribute="leading" id="Iai-Yv-4et"/>
+                                    <constraint firstAttribute="trailing" secondItem="32d-82-oql" secondAttribute="trailing" id="OKC-wB-FxZ"/>
                                     <constraint firstAttribute="bottom" secondItem="kqw-NQ-e4v" secondAttribute="bottom" constant="24" id="QiE-YK-A0s"/>
+                                    <constraint firstAttribute="bottom" secondItem="32d-82-oql" secondAttribute="bottom" id="c2e-Za-Txc"/>
                                     <constraint firstAttribute="trailing" secondItem="Dfg-8a-HVz" secondAttribute="trailing" constant="16" id="pue-Dr-XjZ"/>
+                                    <constraint firstItem="32d-82-oql" firstAttribute="top" secondItem="oNf-dL-Qdx" secondAttribute="top" id="t81-sV-esj"/>
                                 </constraints>
                             </view>
                         </subviews>
@@ -102,6 +109,7 @@
                 <outlet property="barChartsView" destination="kqw-NQ-e4v" id="YpG-jO-eYk"/>
                 <outlet property="chartsContainerView" destination="oNf-dL-Qdx" id="TM4-NV-Acz"/>
                 <outlet property="headerLabel" destination="gF7-hX-V0L" id="IXC-m7-PeZ"/>
+                <outlet property="permissionDeniedView" destination="32d-82-oql" id="DMB-zX-vOS"/>
                 <outlet property="rangeOfDateLabel" destination="guh-S2-Af9" id="U4u-VL-yUR"/>
             </connections>
             <point key="canvasLocation" x="390.83969465648852" y="104.5774647887324"/>
