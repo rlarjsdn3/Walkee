@@ -208,3 +208,11 @@ class WalkingCourseService {
         return finalImage
     }
 }
+
+extension WalkingCourse {
+    // 거리를 Double로 변환하는 계산 프로퍼티
+    var distanceInKm: Int {
+        // crsDstnc가 이미 숫자 문자열이므로 바로 변환
+        return Int(crsDstnc) ?? 0
+    }
+}

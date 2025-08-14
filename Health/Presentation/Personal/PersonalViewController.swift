@@ -13,7 +13,13 @@ class PersonalViewController: CoreGradientViewController {
     @IBOutlet weak var collectionView: UICollectionView!
 
     private var dataSource: PersonalDiffableDataSource?
-    private var courses: [WalkingCourse] = []
+    private var courses: [WalkingCourse] = [] //실제 표시되는 코스 데이터
+    private var allCourses: [WalkingCourse] = [] // 전체 코스 데이터
+    private var easyLevelCourses: [WalkingCourse] = []    // "1" 난이도 코스들
+    private var mediumLevelCourses: [WalkingCourse] = []  // "2" 난이도 코스들
+    private var hardLevelCourses: [WalkingCourse] = []    // "3" 난이도 코스들
+    private var llmRecommendedLevels: [String] = []  //	Alan에게 받아올 난이도(추후 작업 예정)
+    private var currentSortType: String = "가까운순" //기본 정렬
     private var networkService = DefaultNetworkService()
 
     override func initVM() { }
@@ -74,7 +80,16 @@ class PersonalViewController: CoreGradientViewController {
 
     private func createWalkingFilterRegistration() -> UICollectionView.CellRegistration<WalkingFilterCell, Void> {
         UICollectionView.CellRegistration<WalkingFilterCell, Void>(cellNib: WalkingFilterCell.nib) { cell, indexPath, _ in
-            // WalkingFilterCell 셀 설정
+            // 필터 선택 시 실행될 클로저 설정
+            cell.onFilterSelected = { [weak self] selectedFilter in
+
+                // 메인 스레드에서 정렬 실행
+                Task {
+                    await MainActor.run {
+                        self?.applySorting(sortType: selectedFilter)
+                    }
+                }
+            }
         }
     }
 
@@ -139,23 +154,89 @@ class PersonalViewController: CoreGradientViewController {
         dataSource?.apply(snapshot, animatingDifferences: true)
     }
 
+    // 전체 코스를 난이도별로 나누는 메서드
+    private func separateCoursesByDifficulty() {
+        // 배열들 초기화
+        easyLevelCourses.removeAll()
+        mediumLevelCourses.removeAll()
+        hardLevelCourses.removeAll()
+
+        // 전체 코스를 순회하면서 난이도별로 분류
+        for course in allCourses {
+            switch course.crsLevel {
+            case "1":
+                easyLevelCourses.append(course)
+            case "2":
+                mediumLevelCourses.append(course)
+            case "3":
+                hardLevelCourses.append(course)
+            default:
+                print("알 수 없는 난이도: \(course.crsLevel) - \(course.crsKorNm)")
+            }
+        }
+
+        // 각 배열을 랜덤하게 섞기
+        easyLevelCourses.shuffle()
+        mediumLevelCourses.shuffle()
+        hardLevelCourses.shuffle()
+
+        // 결과 출력
+        print("난이도별 분류 완료:")
+        print("- 하(1): \(easyLevelCourses.count)개")
+        print("- 중(2): \(mediumLevelCourses.count)개")
+        print("- 상(3): \(hardLevelCourses.count)개")
+        print("- 총 코스: \(easyLevelCourses.count + mediumLevelCourses.count + hardLevelCourses.count)개")
+    }
+
     @MainActor
     private func loadWalkingCourses() {
         Task {
-
-            let allCourses = WalkingCourseService.shared.loadWalkingCourses()
+            allCourses = WalkingCourseService.shared.loadWalkingCourses()
+            separateCoursesByDifficulty()
 
             // 랜덤하게 5개 선택
-            if allCourses.count > 5 {
-                courses = Array(allCourses.shuffled().prefix(5))
+            if easyLevelCourses.count > 5 {
+                courses = Array(easyLevelCourses.prefix(5)) // 하 난이도에서 5개만
             } else {
-                courses = allCourses
+                courses = easyLevelCourses // 하 난이도 전체 (5개 미만일 경우)
             }
 
             // UI 업데이트
             applyDataSnapshot()
-            print("랜덤으로 선택된 코스 수: \(courses.count)")
+            print("코스 수: \(courses.count)")
         }
+    }
+
+    @MainActor
+    private func applySorting(sortType: String) {
+        currentSortType = sortType
+
+        switch sortType {
+        case "가까운순":
+            // 가까운순: 일단 플레이스홀더 (나중에 위치 기반 정렬 구현)
+            print("가까운순으로 정렬 (미구현)")
+
+        case "코스길이순":
+            // 코스길이순: 짧은 거리부터 긴 거리 순으로 정렬
+            courses = courses.sorted { course1, course2 in
+                let distance1 = Int(course1.crsDstnc) ?? 0
+                let distance2 = Int(course2.crsDstnc) ?? 0
+                return distance1 < distance2
+            }
+            print("코스길이순으로 정렬 완료")
+
+            // 정렬 결과 확인 (디버깅용)
+            print("정렬된 코스들:")
+            for (index, course) in courses.enumerated() {
+                print("  \(index + 1). \(course.crsKorNm): \(course.crsDstnc)km")
+            }
+
+        default:
+            print("알 수 없는 정렬 타입: \(sortType)")
+        }
+
+        // UI 업데이트
+        applyDataSnapshot()
     }
 }
 
