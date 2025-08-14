@@ -25,7 +25,7 @@ final class AlanActivitySummaryCollectionViewCell: CoreCollectionViewCell {
         self.layer.shadowOpacity = 0.15
         self.layer.shadowOffset = CGSize(width: 2, height: 2)
         self.layer.shadowRadius = 5
-        self.layer.borderWidth = (traitCollection.userInterfaceStyle == .dark) ? 0 : 1
+        self.layer.borderWidth = (traitCollection.userInterfaceStyle == .dark) ? 0 : 0.5
 
         registerForTraitChanges()
     }
@@ -35,7 +35,7 @@ final class AlanActivitySummaryCollectionViewCell: CoreCollectionViewCell {
             if self.traitCollection.userInterfaceStyle == .dark {
                 self.layer.borderWidth = 0
             } else {
-                self.layer.borderWidth = 1
+                self.layer.borderWidth = 0.5
             }
         }
     }

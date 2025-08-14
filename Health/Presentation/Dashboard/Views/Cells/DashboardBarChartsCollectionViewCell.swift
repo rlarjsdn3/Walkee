@@ -23,6 +23,8 @@ final class DashboardBarChartsCollectionViewCell: CoreCollectionViewCell {
     private var cancellable: Set<AnyCancellable> = []
 
     override func setupAttribute() {
+        self.layer.masksToBounds = false
+        
         chartsContainerView.applyCornerStyle(.medium)
         chartsContainerView.backgroundColor = .boxBg
         chartsContainerView.layer.masksToBounds = false
@@ -31,7 +33,7 @@ final class DashboardBarChartsCollectionViewCell: CoreCollectionViewCell {
         chartsContainerView.layer.shadowOpacity = 0.15
         chartsContainerView.layer.shadowOffset = CGSize(width: 2, height: 2)
         chartsContainerView.layer.shadowRadius = 5
-        chartsContainerView.layer.borderWidth = (traitCollection.userInterfaceStyle == .dark) ? 0 : 1
+        chartsContainerView.layer.borderWidth = (traitCollection.userInterfaceStyle == .dark) ? 0 : 0.5
 
         averageTitleLabel.font = .systemFont(ofSize: 13, weight: .semibold)
         rangeOfDateLabel.font = .systemFont(ofSize: 13, weight: .semibold)
@@ -49,7 +51,7 @@ final class DashboardBarChartsCollectionViewCell: CoreCollectionViewCell {
             if self.traitCollection.userInterfaceStyle == .dark {
                 self.chartsContainerView.layer.borderWidth = 0
             } else {
-                self.chartsContainerView.layer.borderWidth = 1
+                self.chartsContainerView.layer.borderWidth = 0.5
             }
         }
     }
