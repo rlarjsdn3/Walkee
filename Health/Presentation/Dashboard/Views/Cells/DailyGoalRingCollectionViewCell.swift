@@ -11,6 +11,7 @@ import UIKit
 final class DailyGoalRingCollectionViewCell: CoreCollectionViewCell {
 
     @IBOutlet weak var circleProgressView: CircleProgressView!
+    @IBOutlet weak var permissionDeniedView: PermissionDeniedCompactView!
 
     private var cancalleable: Set<AnyCancellable> = []
 
@@ -18,6 +19,10 @@ final class DailyGoalRingCollectionViewCell: CoreCollectionViewCell {
 
     override func prepareForReuse() {
         cancalleable.removeAll()
+    }
+
+    override func setupAttribute() {
+        permissionDeniedView.isHidden = true
     }
 }
 
@@ -35,6 +40,8 @@ extension DailyGoalRingCollectionViewCell {
 
     // TODO: - 상태 코드 별로 함수로 나누는 리팩토링하기
     private func render(for state: LoadState<GoalRingContent>) {
+        permissionDeniedView.isHidden = true
+
         switch state {
         case .idle:
             return // TODO: - 플레이스 홀더 UI 구성하기
@@ -51,6 +58,7 @@ extension DailyGoalRingCollectionViewCell {
             print("🔴 건강 데이터를 불러오는 데 실패함: DailyGoalRingCell")
 
         case .denied:
+            permissionDeniedView.isHidden = false
             circleProgressView.currentValue = nil
             print("🔵 건강 데이터에 접근할 수 있는 권한이 없음: DailyGoalRingCell")
         }
