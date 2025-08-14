@@ -37,6 +37,9 @@ final class PermissionDeniedCompactView: UIView {
         super.layoutSubviews()
         containerView.applyCornerStyle(.circular)
         imageView.image = exclamationMarkImage(symbomPointSize)
+        
+        containerView.backgroundColor = traitCollection.userInterfaceStyle == .dark
+        ? .systemYellow.withAlphaComponent(0.15) : .systemYellow.withAlphaComponent(0.3)
     }
 
     private func commonInit() {
@@ -51,7 +54,7 @@ final class PermissionDeniedCompactView: UIView {
         ])
 
         containerView.backgroundColor = traitCollection.userInterfaceStyle == .dark
-        ? .systemYellow.withAlphaComponent(0.1) : .systemYellow.withAlphaComponent(0.3)
+        ? .systemYellow.withAlphaComponent(0.15) : .systemYellow.withAlphaComponent(0.3)
         containerView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(containerView)
         NSLayoutConstraint.activate([
@@ -80,7 +83,7 @@ final class PermissionDeniedCompactView: UIView {
     private func registerForTraitChanges() {
         registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: Self, previousTraitCollection: UITraitCollection) in
             if self.traitCollection.userInterfaceStyle == .dark {
-                self.containerView.backgroundColor = .systemYellow.withAlphaComponent(0.1)
+                self.containerView.backgroundColor = .systemYellow.withAlphaComponent(0.15)
             } else {
                 self.containerView.backgroundColor = .systemYellow.withAlphaComponent(0.3)
             }

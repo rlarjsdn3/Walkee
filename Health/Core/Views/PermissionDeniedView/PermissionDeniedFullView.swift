@@ -47,12 +47,16 @@ final class PermissionDeniedFullView: UIView {
 
         titleContainerView.layer.cornerCurve = .continuous
         titleContainerView.applyCornerStyle(.circular)
+
+        imageContainerView.backgroundColor = traitCollection.userInterfaceStyle == .dark
+        ? .systemYellow.withAlphaComponent(0.15) : .systemYellow.withAlphaComponent(0.3)
     }
 
     private func commonInit() {
         backgroundColor = .clear
 
-        imageContainerView.backgroundColor = .systemYellow.withAlphaComponent(0.15)
+        imageContainerView.backgroundColor = traitCollection.userInterfaceStyle == .dark
+        ? .systemYellow.withAlphaComponent(0.15) : .systemYellow.withAlphaComponent(0.3)
         imageContainerView.layer.cornerRadius = imageContainerView.frame.width / 2
         imageContainerView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
@@ -111,9 +115,21 @@ final class PermissionDeniedFullView: UIView {
         ])
 
         addBlurEffect(.systemChromeMaterial)
+
+        registerForTraitChanges()
     }
 
-    @objc func handleButtonTap() {
+    private func registerForTraitChanges() {
+        registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: Self, previousTraitCollection: UITraitCollection) in
+            if self.traitCollection.userInterfaceStyle == .dark {
+                self.imageContainerView.backgroundColor = .systemYellow.withAlphaComponent(0.15)
+            } else {
+                self.imageContainerView.backgroundColor = .systemYellow.withAlphaComponent(0.3)
+            }
+        }
+    }
+
+    @objc private func handleButtonTap() {
         touchHandler?()
         NotificationCenter.default.post(name: Self.shouldPresentAlert, object: nil)
     }
