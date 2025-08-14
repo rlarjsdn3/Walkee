@@ -21,6 +21,10 @@ final class HealthInfoCardCollectionViewCell: CoreCollectionViewCell {
 
     private var cancellable: Set<AnyCancellable> = []
     
+    private var borderWidth: CGFloat {
+        (traitCollection.userInterfaceStyle == .dark) ? 0 : 0.75
+    }
+    
     private var percentageFormatter: NumberFormatter = {
         let nf = NumberFormatter()
         nf.numberStyle = .percent
@@ -40,7 +44,7 @@ final class HealthInfoCardCollectionViewCell: CoreCollectionViewCell {
         self.layer.shadowOpacity = 0.15
         self.layer.shadowOffset = CGSize(width: 2, height: 2)
         self.layer.shadowRadius = 5
-        self.layer.borderWidth = (traitCollection.userInterfaceStyle == .dark) ? 0 : 0.5
+        self.layer.borderWidth = borderWidth
 
         statusContainerView.applyCornerStyle(.small)
 
@@ -52,11 +56,7 @@ final class HealthInfoCardCollectionViewCell: CoreCollectionViewCell {
 
     private func registerForTraitChanges() {
         registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: Self, previousTraitCollection: UITraitCollection) in
-            if self.traitCollection.userInterfaceStyle == .dark {
-                self.layer.borderWidth = 0
-            } else {
-                self.layer.borderWidth = 0.5
-            }
+            self.layer.borderWidth = self.borderWidth
         }
     }
 }
