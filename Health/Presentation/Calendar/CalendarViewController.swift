@@ -144,15 +144,18 @@ extension CalendarViewController: UICollectionViewDataSource {
 
         guard let monthData = calendarVM.month(at: indexPath.item) else { return cell }
 
+        // 먼저 빈 스냅샷으로 UI 초기화
+        cell.configure(with: monthData, snapshots: [:])
+
         // 재사용 대비 토큰
         let token = UUID()
         cell.tag = token.hashValue
 
+        // 비동기 로드 후 스냅샷 적용
         Task { [weak self, weak cell] in
             guard let self else { return }
             let snapshots = await self.calendarVM.loadMonthSnapshots(year: monthData.year, month: monthData.month)
 
-            // 여전히 같은 셀인가?
             guard let cell, cell.tag == token.hashValue else { return }
 
             await MainActor.run {
