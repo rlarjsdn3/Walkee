@@ -81,6 +81,7 @@ extension HealthInfoCardCollectionViewCell {
         titleLabel.text = viewModel.itemID.kind.title
         statusProgressBarView.higherIsBetter = viewModel.itemID.kind.higherIsBetter
         statusProgressBarView.thresholdsValues = viewModel.itemID.kind.thresholdValues(age: viewModel.anchorAge)
+        statusContainerView.isHidden = false
         permissionDeniedView.isHidden = true
 
         switch state {
