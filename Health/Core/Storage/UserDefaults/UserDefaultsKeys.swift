@@ -18,4 +18,11 @@ extension UserDefaultsKeys {
             defaultValue: false
         )
     }
+    
+    var healthkitLinked: UserDefaultsKey<Bool> {
+        UserDefaultsKey<Bool>(
+            "HealthKitLinked",
+            defaultValue: false
+        )
+    }
 }
