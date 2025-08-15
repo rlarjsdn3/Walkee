@@ -10,6 +10,16 @@ final class CalendarViewController: CoreGradientViewController {
     /// 데이터 변경 이벤트 구독을 위한 Task
     private var dataChangesTask: Task<Void, Never>?
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(reloadCalendar),
+            name: .stepDataDidSync,
+            object: nil
+        )
+    }
+
     override func setupAttribute() {
         super.setupAttribute()
 		configureBackground()
@@ -129,6 +139,10 @@ private extension CalendarViewController {
                 }
             }
         }
+    }
+
+    @objc private func reloadCalendar() {
+        collectionView.reloadData()
     }
 }
 

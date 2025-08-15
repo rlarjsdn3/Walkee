@@ -92,16 +92,15 @@ extension InjectIdentifier {
         InjectIdentifier<GoalStepCountViewModel>(type: GoalStepCountViewModel.self)
     }
 
-    /// 걸음 수 동기화 ViewModel을 식별하는 정적 속성
+    /// 걸음 수 동기화 서비스를 식별하는 정적 속성
     ///
-    /// `StepSyncViewModel` 클래스를 의존성 주입 컨테이너에서
+    /// `StepSyncService` 프로토콜을 구현하는 서비스들을 의존성 주입 컨테이너에서
     /// 등록하고 해결할 때 사용되는 타입 안전한 식별자입니다.
     ///
-    /// - Returns: `StepSyncViewModel` 타입의 `InjectIdentifier` 인스턴스
-    /// - Important: 이 ViewModel은 `@Injected` 프로퍼티를 통해 다른 서비스들에 의존하므로,
-    ///   해당 서비스들이 먼저 등록되어 있어야 합니다.
-    static var stepSyncViewModel: InjectIdentifier<StepSyncViewModel> {
-        InjectIdentifier<StepSyncViewModel>(type: StepSyncViewModel.self)
+    /// - Returns: `StepSyncService` 타입의 `InjectIdentifier` 인스턴스
+    /// - Note: HealthKit 데이터를 Core Data로 동기화하는 서비스 해결에 사용되며, 컴파일 타임에 타입 안전성을 보장합니다.
+    static var stepSyncService: InjectIdentifier<StepSyncService> {
+        InjectIdentifier<StepSyncService>(type: StepSyncService.self)
     }
     
     /// 사용자 정보 ViewModel을 식별하는 정적 속성
