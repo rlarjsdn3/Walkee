@@ -1,5 +1,5 @@
 //
-//  PromptTemplateRenderer.swift
+//  PromptRenderService.swift
 //  Health
 //
 //  Created by 김건우 on 8/1/25.
@@ -8,7 +8,7 @@
 import Foundation
 
 @MainActor
-protocol PromptTemplateRenderService {
+protocol PromptRenderService {
     
     /// 주어진 컨텍스트와 옵션을 기반으로 프롬프트 문자열을 생성합니다.
     /// - Parameters:

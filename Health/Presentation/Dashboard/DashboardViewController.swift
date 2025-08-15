@@ -30,11 +30,6 @@ final class DashboardViewController: CoreGradientViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        Task { try await viewModel.requestHKAutorizationIfNeeded() } // ⚠️ 테스트가 끝나면 반드시 해당 코드 삭제하기
-
-        Task {
-            print(try await DefaultPromptGenService().makePrompt(message: "사용자의 챗 메시지나 추가 지시사항은 여기에 작성하세요.", option: .dailySummary))
-        }
         setupDataSource()
     }
 

@@ -1,5 +1,5 @@
 //
-//  PromptGenService.swift
+//  PromptBuilderService.swift
 //  Health
 //
 //  Created by 김건우 on 8/15/25.
@@ -8,7 +8,7 @@
 import Foundation
 
 @MainActor
-protocol PromptGenService {
+protocol PromptBuilderService {
 
     /// 프롬프트 문자열을 생성합니다.
     /// - Parameters:

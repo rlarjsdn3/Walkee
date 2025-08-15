@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class DefaultPromptTemplateRenderService: PromptTemplateRenderService {
+final class DefaultPromptRenderService: PromptRenderService {
 
     /// 주어진 컨텍스트와 옵션을 기반으로 프롬프트 문자열을 생성합니다.
     /// - Parameters:

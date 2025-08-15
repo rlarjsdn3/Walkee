@@ -1,5 +1,5 @@
 //
-//  DefaultPromptGenService.swift
+//  DefaultPromptBuilderService.swift
 //  Health
 //
 //  Created by 김건우 on 8/15/25.
@@ -7,11 +7,11 @@
 
 import HealthKit
 
-final class DefaultPromptGenService: PromptGenService {
+final class DefaultPromptBuilderService: PromptBuilderService {
     
     @Injected private var userService: (any CoreDataUserService)
     @Injected private var healthService: (any HealthService)
-    @Injected private var promptTemplateRenderService: (any PromptTemplateRenderService)
+    @Injected private var promptTemplateRenderService: (any PromptRenderService)
 
     /// 프롬프트 문자열을 생성합니다.
     /// - Parameters:
@@ -35,6 +35,8 @@ final class DefaultPromptGenService: PromptGenService {
             let goalStepCount = latestGoalStepCount(from: userInfo) ?? 0
 
             // 사용자 건강 정보 가져오기
+            let startOfMonth = Date.now.startOfMonth() ?? .now
+            let endOfMonth = Date.now.endOfMonth() ?? .now
             async let stepCount = try fetchHKData(.stepCount)
             async let distanceWalkingRunning = try fetchHKData(.distanceWalkingRunning)
             async let activeEnergyBurned = try fetchHKData(.activeEnergyBurned)
@@ -43,14 +45,7 @@ final class DefaultPromptGenService: PromptGenService {
             async let stepLength = try fetchHKData(.walkingStepLength, options: .mostRecent, unit: .meterUnit(with: .centi))
             async let doubleSupportPercentage = try fetchHKData(.walkingDoubleSupportPercentage, options: .mostRecent, unit: .percent())
             async let asymmetryPercentage = try fetchHKData(.walkingAsymmetryPercentage, options: .mostRecent, unit: .percent())
-            async let thisMonthStepCounts = try healthService.fetchStatisticsCollection(
-                for: .stepCount,
-                from: Date.now.startOfMonth() ?? .now,
-                to: Date.now.endOfMonth() ?? .now,
-                options: .cumulativeSum,
-                interval: .init(day: 1),
-                unit: .count()
-            )
+            async let thisMonthStepCounts = try healthService.fetchStatisticsCollection(for: .stepCount, from: startOfMonth, to: endOfMonth, options: .cumulativeSum, interval: .init(day: 1), unit: .count())
             // TODO: - HealthService에서 가져오는 QuantityType과 HKUnit을 쉽게 일치시킬 방안 강구하기
 
             let descriptor = PromptDescriptor(
@@ -68,7 +63,7 @@ final class DefaultPromptGenService: PromptGenService {
                 stepSpeed: try await walkingSpeed,
                 walkingAsymmetryPercentage: try await asymmetryPercentage,
                 doubleSupportPercentage: try await doubleSupportPercentage,
-                this1MonthStepCounts: try await thisMonthStepCounts,
+                this1MonthStepCounts: try await thisMonthStepCounts
             )
 
             ctx = PromptContext(descriptor: descriptor)
@@ -80,7 +75,7 @@ final class DefaultPromptGenService: PromptGenService {
     }
 }
 
-fileprivate extension DefaultPromptGenService {
+fileprivate extension DefaultPromptBuilderService {
 
     func fetchHKData(
         _ type: HKQuantityTypeIdentifier,
