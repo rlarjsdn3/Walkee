@@ -6,6 +6,8 @@ final class CalendarMonthCell: CoreCollectionViewCell {
     @IBOutlet weak var dateCollectionView: UICollectionView!
     @IBOutlet weak var dateCollectionViewHeightConstraint: NSLayoutConstraint!
 
+    @Injected(.calendarStepService) private var stepService: CalendarStepService
+
     private var datesWithBlank: [Date] = []
 
     override func setupAttribute() {
@@ -53,21 +55,13 @@ extension CalendarMonthCell: UICollectionViewDataSource, UICollectionViewDelegat
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(
-            withReuseIdentifier: CalendarDateCell.id,
-            for: indexPath
-        ) as? CalendarDateCell else {
-            return UICollectionViewCell()
-        }
-
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CalendarDateCell.id, for: indexPath) as! CalendarDateCell
         let date = datesWithBlank[indexPath.item]
 
         if date == .distantPast || date > Date() {
             cell.configure(date: date, currentSteps: nil, goalSteps: nil)
         } else {
-            // TODO: 실제 걸음 데이터로 수정
-            let current = Int.random(in: 0 ... 15000)
-            let goal = 10000
+            let (current, goal) = stepService.steps(for: date)
             cell.configure(date: date, currentSteps: current, goalSteps: goal)
         }
 
