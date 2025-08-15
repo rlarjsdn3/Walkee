@@ -25,7 +25,7 @@
                         <constraints>
                             <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="100" id="l9W-Z6-kLd"/>
                         </constraints>
-                        <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                        <fontDescription key="fontDescription" style="UICTFontTextStyleCaption1"/>
                         <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                         <menu key="menu" id="Xqt-q9-rX4">
                             <children>
