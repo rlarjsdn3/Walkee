@@ -27,7 +27,6 @@ extension CoreDataStack {
         
         //UserInfoEntity 더미 생성
         
-        
         let dummyUser = UserInfoEntity(context: context)
         dummyUser.id = UUID()
         dummyUser.createdAt = Date()
