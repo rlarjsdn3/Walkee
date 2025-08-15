@@ -26,8 +26,12 @@ final class DefaultCalendarStepService: CalendarStepService {
         let dailyRequest: NSFetchRequest<DailyStepEntity> = DailyStepEntity.fetchRequest()
         dailyRequest.predicate = NSPredicate(format: "date >= %@ AND date < %@", startOfDay as NSDate, endOfDay as NSDate)
 
-        if let daily = try? context.fetch(dailyRequest).first {
-            return (Int(daily.stepCount), Int(daily.goalStepCount))
+        do {
+            if let daily = try context.fetch(dailyRequest).first {
+                return (Int(daily.stepCount), Int(daily.goalStepCount))
+            }
+        } catch {
+            print("CoreData fetch error (DailyStepEntity):", error)
         }
 
         // GoalStepCountEntity 조회 (해당 날짜에 걸음 수 기록이 없을 경우)
@@ -35,8 +39,12 @@ final class DefaultCalendarStepService: CalendarStepService {
         goalRequest.predicate = NSPredicate(format: "effectiveDate <= %@", startOfDay as NSDate)
         goalRequest.sortDescriptors = [NSSortDescriptor(key: "effectiveDate", ascending: false)]
 
-        if let goal = try? context.fetch(goalRequest).first {
-            return (nil, Int(goal.goalStepCount))
+        do {
+            if let goal = try context.fetch(goalRequest).first {
+                return (nil, Int(goal.goalStepCount))
+            }
+        } catch {
+            print("Failed to fetch GoalStepCountEntity: \(error)")
         }
 
         return (nil, nil)
