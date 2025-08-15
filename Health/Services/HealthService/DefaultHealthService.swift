@@ -16,11 +16,11 @@ import HealthKit
 ///
 /// - Note: HealthKit 접근을 위해 `HKHealthStore`를 내부적으로 사용합니다.
 ///         실제 기기에서만 작동하며, 사용 전 권한 요청이 선행되어야 합니다.
-final class DefaultHealthService: HealthService {
+final class DefaultHealthService: HealthService  {
 
     private let healthStore = HKHealthStore()
     
-    private(set) var typesForAuthorization: Set<HKQuantityType>
+    private let typesForAuthorization: Set<HKQuantityType>
     init() {
         typesForAuthorization = [
             HKQuantityType(.activeEnergyBurned),                // 활동 에너지
