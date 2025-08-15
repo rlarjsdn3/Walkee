@@ -85,30 +85,6 @@ protocol HealthService {
         unit: HKUnit
     ) async throws -> [HKData]
 
-    /// 지정한 HealthKit 양적 데이터(identifier)에 해당하는 샘플 데이터를 비동기적으로 가져옵니다.
-    ///
-    /// - Parameters:
-    ///   - identifier: 가져올 `HKQuantityTypeIdentifier`입니다. 예: `.stepCount`, `.walkingSpeed`.
-    ///   - startDate: 데이터를 조회할 시작 날짜입니다.
-    ///   - endDate: 데이터를 조회할 종료 날짜입니다.
-    ///   - limit: 가져올 데이터 개수의 최대값입니다. 기본값은 `HKObjectQueryNoLimit`입니다.
-    ///   - sortDescriptors: 정렬 방식입니다. 예: 종료일 기준 내림차순 등.
-    ///
-    /// - Returns: 조건에 해당하는 `[HKQuantitySample]` 배열을 반환합니다.
-    /// - Throws: HealthKit 권한이 없거나, 데이터 조회 중 문제가 발생하면 오류를 throw합니다.
-    ///
-    /// 사전에 `HKHealthStore.requestAuthorization`을 통해 권한이 승인되어 있어야 하며,
-    /// 권한이 없을 경우 런타임 중 오류가 발생할 수 있습니다.
-    func fetchSamples(
-        for identifier: HKQuantityTypeIdentifier,
-        from startDate: Date,
-        to endDate: Date,
-        limit: Int,
-        sortDescriptors: [NSSortDescriptor]?
-    ) async throws -> [HKQuantitySample]
-
-
-
     /// 지정한 양적 데이터(identifier)에 대해 통계 값을 비동기적으로 조회하고, 결과 값을 단위에 맞게 변환하여 반환합니다.
     ///
     /// - Parameters:
@@ -136,33 +112,6 @@ protocol HealthService {
         unit: HKUnit
     ) async throws -> HKData
 
-    /// 지정한 양적 데이터(identifier)에 대해 통계 정보를 비동기적으로 가져옵니다.
-    ///
-    /// - Parameters:
-    ///   - identifier: 조회할 `HKQuantityTypeIdentifier`입니다. 예: `.stepCount`, `.activeEnergyBurned`.
-    ///   - startDate: 통계를 계산할 시작 날짜입니다.
-    ///   - endDate: 통계를 계산할 종료 날짜입니다.
-    ///   - options: 통계를 계산할 방식입니다. 예: `.cumulativeSum`, `.discreteAverage`, `.mostRecent` 등.
-    ///
-    /// - Returns: 지정한 옵션에 따라 계산된 `HKStatistics` 객체를 반환합니다.
-    /// - Throws: HealthKit 권한이 없거나 데이터가 존재하지 않을 경우 오류를 throw합니다.
-    ///
-    /// 사전에 `HKHealthStore.requestAuthorization`을 통해 권한이 승인되어 있어야 하며,
-    /// 권한이 없을 경우 런타임 중 오류가 발생할 수 있습니다.
-    ///
-    /// - Important: `identifier`와 `options`의 조합에 따라 통계 계산이 불가능한 경우가 있을 수 있으므로, 매우 주의해서 전달해야 합니다.
-    /// 예를 들어, 보행 비대칭성(`walkingAsymmetryPercentage`)은 누적이 의미 없는 데이터이므로 `.cumulativeSum` 옵션과 함께 사용할 수 없습니다.
-    /// 이처럼 부적절한 조합으로 함수를 호출할 경우, 런타임 중 오류가 발생할 수 있습니다.
-    /// HealthKit 문서를 참고하여 각 데이터 타입에 적절한 `HKStatisticsOptions`를 선택하세요.
-    func fetchStatistics(
-        for identifier: HKQuantityTypeIdentifier,
-        from startDate: Date,
-        to endDate: Date,
-        options: HKStatisticsOptions
-    ) async throws -> HKStatistics
-
-
-
     /// 지정한 양적 데이터(identifier)에 대해 일정 구간(interval) 단위로 통계 정보를 비동기적으로 가져오고,
     /// 각 통계 구간의 시작/종료 시간 및 수치를 단위에 맞게 변환하여 반환합니다.
     ///
@@ -189,28 +138,4 @@ protocol HealthService {
         interval intervalComponents: DateComponents,
         unit: HKUnit
     ) async throws -> [HKData]
-    
-    /// 지정한 양적 데이터(identifier)에 대해 일정 구간(interval) 단위로 통계 정보를 비동기적으로 가져옵니다.
-    ///
-    /// - Parameters:
-    ///   - identifier: 조회할 `HKQuantityTypeIdentifier`입니다. 예: `.stepCount`, `.walkingSpeed`.
-    ///   - startDate: 통계를 계산할 시작 날짜입니다.
-    ///   - endDate: 통계를 계산할 종료 날짜입니다.
-    ///   - options: 통계를 계산할 방식입니다. 예: `.cumulativeSum`, `.discreteAverage` 등.
-    ///   - intervalComponents: 통계를 구간별로 나누기 위한 `DateComponents`입니다. 예: 하루 단위 → `DateComponents(day: 1)`
-    ///
-    /// - Returns: 각 구간에 해당하는 `HKStatistics` 객체의 배열을 반환합니다.
-    /// - Throws: HealthKit 권한이 없거나, 데이터 조회 중 문제가 발생할 경우 오류를 throw합니다.
-    ///
-    /// - Important: `identifier`와 `options`의 조합에 따라 통계 계산이 불가능한 경우가 있으므로, 매우 주의해서 전달해야 합니다.
-    ///              예를 들어, 보행 비대칭성(`walkingAsymmetryPercentage`)은 누적이 의미 없는 데이터이므로 `.cumulativeSum` 옵션과 함께 사용할 수 없습니다.
-    ///              이처럼 부적절한 조합으로 함수를 호출하면 런타임 중 오류가 발생할 수 있습니다.
-    ///              반드시 Apple의 HealthKit 공식 문서를 참고하여 적절한 옵션을 선택하세요.
-    func fetchStatisticsCollection(
-        for identifier: HKQuantityTypeIdentifier,
-        from startDate: Date,
-        to endDate: Date,
-        options: HKStatisticsOptions,
-        interval intervalComponents: DateComponents
-    ) async throws -> [HKStatistics]
 }

@@ -8,6 +8,22 @@
 import CoreData
 import Foundation
 
+/// Core Data 작업 중 발생할 수 있는 오류를 정의한 열거형입니다.
+enum CoreDataError: Error {
+
+    /// 엔티티 생성 작업에 실패한 경우
+    case createError
+
+    /// 엔티티 조회 작업에 실패하거나, 해당 데이터가 존재하지 않는 경우
+    case readError
+
+    /// 엔티티 수정 작업에 실패한 경우
+    case updateError
+
+    /// 엔티티 삭제 작업에 실패한 경우
+    case deleteError
+}
+
 /// `CoreDataStack`은 Core Data의 기본 구성을 담당하는 클래스입니다.
 ///
 /// 앱 전반에서 공유되는 `NSPersistentContainer`와 `NSManagedObjectContext`를 관리하며,
