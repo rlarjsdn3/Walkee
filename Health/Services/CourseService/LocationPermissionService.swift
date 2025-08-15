@@ -9,7 +9,9 @@ import CoreLocation
 import UIKit
 
 // 위치 권한을 관리하는 클래스
-class LocationPermissionManager: NSObject {
+class LocationPermissionService: NSObject {
+
+    @MainActor static let shared = LocationPermissionService()
 
     // 위치 매니저 (GPS 관련 작업을 담당)
     private let locationManager = CLLocationManager()
@@ -59,11 +61,15 @@ class LocationPermissionManager: NSObject {
         let status = locationManager.authorizationStatus
         return status == .authorizedWhenInUse || status == .authorizedAlways
     }
+
+    func isPermissionNotDetermined() -> Bool {
+        return locationManager.authorizationStatus == .notDetermined
+    }
 }
 
 // MARK: - CLLocationManagerDelegate
 // 위치 관련 이벤트를 처리하는 확장
-extension LocationPermissionManager: CLLocationManagerDelegate {
+extension LocationPermissionService: CLLocationManagerDelegate {
 
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         switch status {

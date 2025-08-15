@@ -5,8 +5,10 @@
 //  Created by Seohyun Kim on 8/1/25.
 //
 import UIKit
+import CoreLocation
+import TSAlertController
 
-class PersonalViewController: CoreGradientViewController {
+class PersonalViewController: CoreGradientViewController, Alertable {
 
     typealias PersonalDiffableDataSource = UICollectionViewDiffableDataSource<PersonalContent.Section, PersonalContent.Item>
 
@@ -19,8 +21,10 @@ class PersonalViewController: CoreGradientViewController {
     private var mediumLevelCourses: [WalkingCourse] = []  // "2" 난이도 코스들
     private var hardLevelCourses: [WalkingCourse] = []    // "3" 난이도 코스들
     private var llmRecommendedLevels: [String] = []  //	Alan에게 받아올 난이도(추후 작업 예정)
-    private var currentSortType: String = "가까운순" //기본 정렬
+    private var currentSortType: String = "코스길이순" //기본 정렬
     private var networkService = DefaultNetworkService()
+    private var didShowLocationPermissionAlert = false
+
 
     override func initVM() { }
 
@@ -29,6 +33,9 @@ class PersonalViewController: CoreGradientViewController {
         setupDataSource()
         applyInitialSnapshot()
         loadWalkingCourses()
+        Task {
+            await requestInitialLocationPermission()
+        }
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -82,11 +89,17 @@ class PersonalViewController: CoreGradientViewController {
         UICollectionView.CellRegistration<WalkingFilterCell, Void>(cellNib: WalkingFilterCell.nib) { cell, indexPath, _ in
             // 필터 선택 시 실행될 클로저 설정
             cell.onFilterSelected = { [weak self] selectedFilter in
+                guard let self = self else { return }
 
-                // 메인 스레드에서 정렬 실행
                 Task {
-                    await MainActor.run {
-                        self?.applySorting(sortType: selectedFilter)
+                    // 👇 "가까운순" 필터를 선택했을 경우, 권한 확인 로직이 포함된 함수를 호출합니다.
+                    if selectedFilter == "가까운순" {
+                        await self.sortCoursesByDistanceWithPermissionCheck()
+                    } else {
+                        // 👇 그 외 다른 필터는 이전과 같이 바로 정렬 함수를 호출합니다.
+                        await MainActor.run {
+                            self.applySorting(sortType: selectedFilter)
+                        }
                     }
                 }
             }
@@ -213,8 +226,8 @@ class PersonalViewController: CoreGradientViewController {
                 courses = easyLevelCourses // 하 난이도 전체 (5개 미만일 경우)
             }
 
-            // UI 업데이트
-            applyDataSnapshot()
+            // 기본적으로 코스 길이순으로 필터링 되어서 보여줌
+            applySorting(sortType: self.currentSortType)
             print("코스 수: \(courses.count)")
         }
     }
@@ -250,7 +263,74 @@ class PersonalViewController: CoreGradientViewController {
         // UI 업데이트
         applyDataSnapshot()
     }
+
+    // 권한이 거부되었을 때 설정 앱으로 안내하는 알림창 (한 번만)
+    /// 앱 초기 실행 시 위치 권한을 요청하는 함수
+    @MainActor
+    private func requestInitialLocationPermission() async {
+        let manager = LocationPermissionService.shared
+
+        // 아직 권한을 요청한 적이 없을 때(.notDetermined)만 실행합니다.
+        if manager.isPermissionNotDetermined() { // isPermissionNotDetermined()는 권한 상태가 .notDetermined인지 확인하는 가상 함수
+            print("최초 권한을 요청합니다.")
+
+            // 시스템 권한 팝업을 띄웁니다.
+            let granted = await manager.requestLocationPermission()
+
+            // 사용자가 권한을 허용하지 않았을 경우 경고창을 띄웁니다.
+            if !granted {
+                print("사용자가 권한을 거부했습니다. 경고창을 표시합니다.")
+                showPermissionDeniedAlert()
+            }
+        } else {
+            print("이미 권한이 설정되어 있습니다 (허용 또는 거부됨).")
+        }
+    }
+
+    /// 권한이 거부되었을 때 보여줄 경고창
+    private func showPermissionDeniedAlert() {
+        showAlert(
+            "위치 권한 필요",
+            message: "추천 코스 기능을 사용하려면 위치 권한이 필요합니다. 설정에서 위치 권한을 허용해 주세요.",
+            onPrimaryAction: { _ in
+                // "확인" 버튼 눌렀을 때 → 설정 앱으로 이동
+                if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(settingsURL)
+                }
+            },
+            onCancelAction: { _ in
+                print("위치 권한 설정 취소됨")
+            }
+        )
+    }
+
+    @MainActor
+    private func sortCoursesByDistanceWithPermissionCheck() async {
+        let manager = LocationPermissionService.shared
+
+        // 현재 권한 상태를 다시 확인
+        if manager.checkCurrentPermissionStatus() {
+            // 1. 권한이 이미 허용된 상태일 경우
+            print("위치 권한 있음. 가까운순 정렬을 실행합니다.")
+
+            // TODO: - 실제 사용자 위치를 가져오는 로직 구현 필요
+            // let userLocation = await LocationService.shared.getCurrentLocation()
+
+            // 위치 정보를 가져온 후, 정렬 적용
+            self.applySorting(sortType: "가까운순")
+
+        } else {
+            // 권한이 거부된 상태일 경우 (.denied)
+            guard !didShowLocationPermissionAlert else {
+                return
+            }
+            self.showPermissionDeniedAlert()
+            // 알림창을 보여준 후, 플래그를 true로 변경
+            self.didShowLocationPermissionAlert = true
+        }
+    }
 }
+
 
 extension PersonalViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didHighlightItemAt indexPath: IndexPath) { }
