@@ -92,11 +92,11 @@ class PersonalViewController: CoreGradientViewController, Alertable {
                 guard let self = self else { return }
 
                 Task {
-                    // 👇 "가까운순" 필터를 선택했을 경우, 권한 확인 로직이 포함된 함수를 호출합니다.
+                    // "가까운순" 필터를 선택했을 경우, 권한 확인 로직이 포함된 함수를 호출합니다.
                     if selectedFilter == "가까운순" {
                         await self.sortCoursesByDistanceWithPermissionCheck()
                     } else {
-                        // 👇 그 외 다른 필터는 이전과 같이 바로 정렬 함수를 호출합니다.
+                        // 그 외 다른 필터는 이전과 같이 바로 정렬 함수를 호출합니다.
                         await MainActor.run {
                             self.applySorting(sortType: selectedFilter)
                         }

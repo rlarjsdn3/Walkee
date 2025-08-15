@@ -71,6 +71,7 @@ class WalkingCourseService {
         return image
     }
 
+    //좌표값 다운로드해서 이미지 생성
     private func downloadAndProcessGPX(urlString: String) async -> UIImage? {
         guard let url = URL(string: urlString) else {
             return nil
@@ -93,7 +94,8 @@ class WalkingCourseService {
         }
     }
 
-    private func parseGPXCoordinates(from data: Data) -> [CLLocationCoordinate2D] {
+    //좌표 리스트만 반환
+    func parseGPXCoordinates(from data: Data) -> [CLLocationCoordinate2D] {
         var coordinates = [CLLocationCoordinate2D]()
 
         guard let xmlString = String(data: data, encoding: .utf8) else {
