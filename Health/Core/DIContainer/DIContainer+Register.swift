@@ -78,6 +78,15 @@ extension DIContainer {
         }
     }
 
+    /// 달력 기반 걸음 수 데이터 조회 서비스를 의존성 주입 컨테이너에 등록합니다.
+    ///
+    /// `CalendarStepService`는 특정 날짜 또는 기간별로 걸음 수 데이터를 조회하고 관리하는 기능을 제공합니다.
+    func registerCalendarStepService() {
+        self.register(.calendarStepService) { _ in
+            return DefaultCalendarStepService()
+        }
+    }
+
     /// 모든 서비스와 ViewModel을 의존성 주입 컨테이너에 일괄 등록합니다.
     ///
     /// 이 메서드는 애플리케이션에서 사용하는 모든 의존성을 올바른 순서로 등록합니다.
@@ -96,5 +105,6 @@ extension DIContainer {
         registerDailyStepViewModel()
         registerGoalStepCountViewModel()
         registerStepSyncViewModel()
+        registerCalendarStepService()
     }
 }

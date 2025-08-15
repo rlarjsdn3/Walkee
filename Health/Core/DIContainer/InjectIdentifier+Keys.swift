@@ -68,4 +68,15 @@ extension InjectIdentifier {
     static var stepSyncViewModel: InjectIdentifier<StepSyncViewModel> {
         InjectIdentifier<StepSyncViewModel>(type: StepSyncViewModel.self)
     }
+
+    /// 달력 기반 걸음 수 데이터 조회 서비스를 식별하는 정적 속성
+    ///
+    /// `CalendarStepService` 프로토콜을 구현하는 서비스들을 의존성 주입 컨테이너에서
+    /// 등록하고 해결할 때 사용되는 타입 안전한 식별자입니다.
+    ///
+    /// - **Returns**: `CalendarStepService` 타입의 `InjectIdentifier` 인스턴스
+    /// - **Note**: 특정 날짜 또는 기간별 걸음 수 데이터 조회에 사용되며, 컴파일 타임에 타입 안전성을 보장합니다.
+    static var calendarStepService: InjectIdentifier<CalendarStepService> {
+        InjectIdentifier<CalendarStepService>(type: CalendarStepService.self)
+    }
 }

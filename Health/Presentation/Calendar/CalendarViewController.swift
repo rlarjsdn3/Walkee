@@ -138,12 +138,7 @@ extension CalendarViewController: UICollectionViewDataSource {
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(
-            withReuseIdentifier: CalendarMonthCell.id,
-            for: indexPath
-        ) as? CalendarMonthCell else {
-            fatalError("Failed to dequeue CalendarMonthCell")
-        }
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CalendarMonthCell.id, for: indexPath) as! CalendarMonthCell
 
         if let monthData = calendarVM.month(at: indexPath.item) {
             cell.configure(with: monthData)
