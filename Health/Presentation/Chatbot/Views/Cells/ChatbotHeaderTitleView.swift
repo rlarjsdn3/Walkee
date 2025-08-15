@@ -1,5 +1,5 @@
 //
-//  ChatbotHeaderTitleCell.swift
+//  ChatbotHeaderTitleView.swift
 //  Health
 //
 //  Created by Seohyun Kim on 8/5/25.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class ChatbotHeaderTitleCell: CoreTableViewCell {
+final class ChatbotHeaderTitleView: CoreView {
 	var onCloseTapped: (() -> Void)?
 	
 	private let chatbotImageView: UIImageView = {
@@ -47,13 +47,11 @@ final class ChatbotHeaderTitleCell: CoreTableViewCell {
 	}()
 	
 	// MARK: - Initialization
-	override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-		super.init(style: style, reuseIdentifier: reuseIdentifier)
-		MainActor.assumeIsolated {
-			setupHierarchy()
-			setupConstraints()
-			setupAttribute()
-		}
+	override init(frame: CGRect) {
+		super.init(frame: frame)
+		setupHierarchy()
+		setupConstraints()
+		setupAttribute()
 	}
 	
 	required init?(coder: NSCoder) {
@@ -69,20 +67,20 @@ final class ChatbotHeaderTitleCell: CoreTableViewCell {
 	override func setupHierarchy() {
 		super.setupHierarchy()
 		
-		contentView.addSubview(chatbotImageView)
-		contentView.addSubview(welcomeLabel)
-		contentView.addSubview(closeButton)
+		addSubview(chatbotImageView)
+		addSubview(welcomeLabel)
+		addSubview(closeButton)
 		closeButton.addSubview(closeIconView)
 	}
 	
 	override func setupConstraints() {
 		super.setupConstraints()
 		
-		let guide = contentView.safeAreaLayoutGuide
+		let guide = safeAreaLayoutGuide
 		
 		NSLayoutConstraint.activate([
 			chatbotImageView.leadingAnchor.constraint(equalTo: guide.leadingAnchor, constant: 16),
-			chatbotImageView.topAnchor.constraint(equalTo: guide.topAnchor),
+			chatbotImageView.topAnchor.constraint(equalTo: guide.topAnchor, constant: 16),
 			chatbotImageView.widthAnchor.constraint(equalToConstant: 32),
 			chatbotImageView.heightAnchor.constraint(equalToConstant: 32),
 			
@@ -92,23 +90,26 @@ final class ChatbotHeaderTitleCell: CoreTableViewCell {
 			
 			closeButton.trailingAnchor.constraint(equalTo: guide.trailingAnchor, constant: -16),
 			closeButton.topAnchor.constraint(equalTo: chatbotImageView.topAnchor),
-			closeButton.widthAnchor.constraint(equalToConstant: 48),
-			closeButton.heightAnchor.constraint(equalToConstant: 48),
-			
-			contentView.bottomAnchor.constraint(greaterThanOrEqualTo: chatbotImageView.bottomAnchor, constant: 12),
-			contentView.bottomAnchor.constraint(greaterThanOrEqualTo: welcomeLabel.bottomAnchor, constant: 12),
-			contentView.bottomAnchor.constraint(greaterThanOrEqualTo: closeButton.bottomAnchor, constant: 12),
-			
+			closeButton.widthAnchor.constraint(equalToConstant: 32),
+			closeButton.heightAnchor.constraint(equalToConstant: 32),
+	
 			closeIconView.centerXAnchor.constraint(equalTo: closeButton.centerXAnchor),
-			closeIconView.topAnchor.constraint(equalTo: chatbotImageView.topAnchor, constant: -2),
+			closeIconView.centerYAnchor.constraint(equalTo: closeButton.centerYAnchor),
 			closeIconView.widthAnchor.constraint(equalToConstant: 28),
-			closeIconView.heightAnchor.constraint(equalTo: closeIconView.widthAnchor)
+			closeIconView.heightAnchor.constraint(equalTo: closeIconView.widthAnchor),
+			
+			bottomAnchor.constraint(greaterThanOrEqualTo: chatbotImageView.bottomAnchor, constant: 12)
 		])
 	}
 	
 	override func setupAttribute() {
 		super.setupAttribute()
-		selectionStyle = .none
+		chatbotImageView.layer.borderColor = UIColor.magenta.cgColor
+		chatbotImageView.layer.borderWidth = 1
+		
+		closeIconView.layer.borderColor = UIColor.magenta.cgColor
+		closeIconView.layer.borderWidth = 1
+		
 		backgroundColor = .clear
 	}
 	

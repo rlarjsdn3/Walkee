@@ -272,7 +272,7 @@ extension AlanSSEClient: URLSessionDataDelegate {
 					?? String(data: blockData, encoding: .ascii) else { continue }
 			
 #if DEBUG
-			print("SSE block raw:\n\(block)")
+//			print("SSE block raw:\n\(block)")
 #endif
 			// 4) SSE 필드 파싱 (comment/heartbeat 무시)
 			// 여러 줄 중 "data:" 라인만 모음 (여러 줄 data 지원)
