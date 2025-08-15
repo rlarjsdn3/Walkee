@@ -20,6 +20,9 @@ final class ChatbotViewController: CoreGradientViewController {
 	// MARK: - Outlets & Dependencies
 	@Injected(default: AlanViewModel()) private var viewModel: AlanViewModel
 	
+	private let headerView = ChatbotHeaderTitleView()
+	private var headerHeight: CGFloat = 64   // 필요시 64~80 조정
+	
 	@IBOutlet private weak var tableView: UITableView!
 	@IBOutlet private weak var containerViewBottomConstraint: NSLayoutConstraint!
 	@IBOutlet private weak var chattingInputStackView: UIStackView!
@@ -71,6 +74,7 @@ final class ChatbotViewController: CoreGradientViewController {
 		super.viewDidLoad()
 		setupAttribute()
 		setupConstraints()
+		setupHeaderOverlay()
 		setupTableView()
 		setupKeyboardObservers()
 		setupTapGesture()
@@ -104,8 +108,13 @@ final class ChatbotViewController: CoreGradientViewController {
 		super.viewDidLayoutSubviews()
 		// 키보드가 없을 때만 기본 inset 복원
 		if currentKeyboardHeight == 0 {
-			updateTableViewContentInset()
+			adjustTableInsets()
 		}
+	}
+	
+	override func viewSafeAreaInsetsDidChange() {
+		super.viewSafeAreaInsetsDidChange()
+		adjustTableInsets(keyboardHeight: currentKeyboardHeight)
 	}
 	
 	override func initVM() {
@@ -172,8 +181,7 @@ final class ChatbotViewController: CoreGradientViewController {
 	}
 
 	private func indexPathForMessage(at messageIndex: Int) -> IndexPath {
-		let row = (hasFixedHeader ? 1 : 0) + messageIndex
-			return IndexPath(row: row, section: 0)
+		return IndexPath(row: messageIndex, section: 0)
 	}
 	
 	
@@ -198,6 +206,42 @@ final class ChatbotViewController: CoreGradientViewController {
 		)
 	}
 	
+	private func setupHeaderOverlay() {
+		headerView.translatesAutoresizingMaskIntoConstraints = false
+		headerView.configure(with: "걸음에 대해 궁금한 점을 물어보세요.")
+		headerView.onCloseTapped = { [weak self] in
+			self?.dismiss(animated: true)
+		}
+		view.addSubview(headerView)
+
+		NSLayoutConstraint.activate([
+			headerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+			headerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+			headerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+			headerView.heightAnchor.constraint(equalToConstant: headerHeight)
+		])
+		
+		tableView.translatesAutoresizingMaskIntoConstraints = false
+		if tableView.superview == view {
+			// 스토리보드 상단 제약이 safeArea.top이라면 그 위에 추가 제약만 줘도 OK
+			// 중복 제약이 걱정되면 인터페이스빌더 상단 제약은 제거하고 아래 제약으로만 구성
+			NSLayoutConstraint.activate([
+				tableView.topAnchor.constraint(equalTo: headerView.bottomAnchor)
+			])
+		}
+	}
+	
+	private func adjustTableInsets(keyboardHeight: CGFloat = 0) {
+		let inputH = chattingContainerStackView.frame.height
+		let bottomPadding: CGFloat = 32
+		let bottomInset = (keyboardHeight > 0)
+			? (keyboardHeight + inputH + bottomPadding)
+			: (inputH + bottomPadding)
+		//let topInset = headerHeight + 8
+		tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bottomInset, right: 0)
+		tableView.scrollIndicatorInsets = tableView.contentInset
+	}
+	
 	private func setupTableView() {
 		tableView.delegate = self
 		tableView.dataSource = self
@@ -213,14 +257,14 @@ final class ChatbotViewController: CoreGradientViewController {
 		tableView.contentInsetAdjustmentBehavior = .never
 		tableView.estimatedRowHeight = 60
 		tableView.rowHeight = UITableView.automaticDimension
-		
-		tableView.register(ChatbotHeaderTitleCell.self, forCellReuseIdentifier: ChatbotHeaderTitleCell.id)
+
 		tableView.register(BubbleViewCell.nib, forCellReuseIdentifier: BubbleViewCell.id)
 		tableView.register(AIResponseCell.nib, forCellReuseIdentifier: AIResponseCell.id)
 		tableView.register(LoadingResponseCell.self, forCellReuseIdentifier: LoadingResponseCell.id)
 		tableView.register(UITableViewCell.self, forCellReuseIdentifier: "SpacerCell")
 		
-		updateTableViewContentInset()
+		adjustTableInsets()
+		//updateTableViewContentInset()
 	}
 	
 	/// 키보드가 없을 때 적용하는 기본 inset 값 계산
@@ -290,7 +334,8 @@ final class ChatbotViewController: CoreGradientViewController {
 		{
 			self.updateInputContainerConstraint(forKeyboardHeight: height)
 			self.view.layoutIfNeeded()
-			self.updateTableInsets(forKeyboardHeight: height)
+			self.adjustTableInsets(keyboardHeight: height)
+			//self.updateTableInsets(forKeyboardHeight: height)
 		} completion: { _ in
 			Task { @MainActor in
 				try await Task.sleep(for: .milliseconds(40))
@@ -361,7 +406,7 @@ final class ChatbotViewController: CoreGradientViewController {
 	
 	/// tableView를 가장 하단 메시지로 스크롤
 	private func scrollToBottom() {
-		let totalRows = hasFixedHeader ? messages.count + 1 : messages.count
+		let totalRows = messages.count + (isWaitingResponse ? 1 : 0)
 		guard totalRows > 0 else { return }
 		let lastIndexPath = IndexPath(row: totalRows - 1, section: 0)
 		tableView.scrollToRow(at: lastIndexPath, at: .bottom, animated: true)
@@ -415,8 +460,8 @@ final class ChatbotViewController: CoreGradientViewController {
 		// 사용자 버블
 		messages.append(ChatMessage(text: text, type: .user))
 		chattingTextField.text = ""
-		let userRow = hasFixedHeader ? messages.count : messages.count - 1
-		tableView.insertRows(at: [IndexPath(row: userRow, section: 0)], with: .bottom)
+		let userIP = IndexPath(row: messages.count - 1, section: 0)
+		tableView.insertRows(at: [userIP], with: .bottom)
 		scrollToBottomIfNeeded(force: true)
 		
 		// 로딩
@@ -427,12 +472,10 @@ final class ChatbotViewController: CoreGradientViewController {
 		messages.append(ChatMessage(text: "", type: .ai))
 		streamingAIIndex = messages.count - 1
 		focusLatestAIHead = true
-		let aiRow = hasFixedHeader ? messages.count : messages.count - 1
 		let aiIndexPath = indexPathForMessage(at: streamingAIIndex!)
 		tableView.insertRows(at: [aiIndexPath], with: .bottom)
 		
-		Log.ui.info("insert AI(empty) row=\(aiRow, privacy: .public) idx=\(String(describing: self.streamingAIIndex), privacy: .public)")
-		
+//		Log.ui.info("insert AI(empty) row=\(aiRow, privacy: .public) idx=\(String(describing: self.streamingAIIndex), privacy: .public)")
 		
 		showWaitingCell()
 		
@@ -703,11 +746,15 @@ final class ChatbotViewController: CoreGradientViewController {
 	
 	private func computeMessageIndex(for indexPath: IndexPath) -> Int? {
 		if isWaitingResponse, let wait = waitingIndexPath, indexPath == wait { return nil }
-		var idx = indexPath.row - (hasFixedHeader ? 1 : 0)
+		var idx = indexPath.row
 		// 로딩 행이 메시지들 뒤에 오므로 idx 조정 불필요(안전상 처리)
 		if isWaitingResponse, let wait = waitingIndexPath, indexPath.row > wait.row { idx -= 1 }
 		guard idx >= 0 && idx < messages.count else { return nil }
 		return idx
+	}
+	
+	private func loadingIndexPath() -> IndexPath {
+		return IndexPath(row: messages.count, section: 0)
 	}
 	
 	/// AI 응답을 추가될 때 '응답 시작 시점'
@@ -736,11 +783,6 @@ final class ChatbotViewController: CoreGradientViewController {
 	
 	@objc private func dismissKeyboard() {
 		view.endEditing(true)
-	}
-	
-	private func loadingIndexPath() -> IndexPath {
-		let row = (hasFixedHeader ? messages.count + 1 : messages.count)
-		return IndexPath(row: row, section: 0)
 	}
 	
 	private func showWaitingCell() {
@@ -829,26 +871,10 @@ final class ChatbotViewController: CoreGradientViewController {
 // MARK: - UITableViewDataSource
 extension ChatbotViewController: UITableViewDataSource {
 	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-		return (hasFixedHeader ? 1 : 0)
-		+ messages.count
-		+ (isWaitingResponse ? 1 : 0)
+		return messages.count + (isWaitingResponse ? 1 : 0)
 	}
 	
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-		// 1. 헤더 고정 셀 처리
-		if hasFixedHeader && indexPath.row == 0 {
-			let cell = tableView.dequeueReusableCell(
-				withIdentifier: ChatbotHeaderTitleCell.id,
-				for: indexPath
-			) as! ChatbotHeaderTitleCell
-			cell.configure(with: "걸음에 대해 궁금한 점을 물어보세요.")
-			cell.onCloseTapped = { [weak self] in
-				self?.dismiss(animated: true)
-			}
-			return cell
-		}
-		
-		// 2. 응답 대기 중 셀 처리
 		if isWaitingResponse, let waitIdx = waitingIndexPath, indexPath == waitIdx {
 			let cell = tableView.dequeueReusableCell(
 				withIdentifier: LoadingResponseCell.id,
@@ -858,13 +884,12 @@ extension ChatbotViewController: UITableViewDataSource {
 			return cell
 		}
 		
-		// 3. messageIndex 계산
 		guard let messageIndex = computeMessageIndex(for: indexPath) else {
 			return UITableViewCell()
 		}
 		let message = messages[messageIndex]
 		
-		// 4. 메시지 타입별 셀 처리
+		// 메시지 타입별 셀 처리
 		switch message.type {
 		case .user:
 			let cell = tableView.dequeueReusableCell(
@@ -905,17 +930,13 @@ extension ChatbotViewController: UITableViewDataSource {
 // MARK: - UITableViewDelegate
 extension ChatbotViewController: UITableViewDelegate {
 	func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-		// 1. 헤더 고정 셀 높이
-		if hasFixedHeader && indexPath.row == 0 {
-			return 80 // 또는 automaticDimension
-		}
 		
-		// 2. 응답 대기 셀
+		// 응답 대기 셀
 		if isWaitingResponse, let waitIdx = waitingIndexPath, indexPath == waitIdx {
 			return UITableView.automaticDimension
 		}
 		
-		// 3. messageIndex 계산
+		// messageIndex 계산
 		guard let messageIndex = computeMessageIndex(for: indexPath) else {
 			return UITableView.automaticDimension
 		}
@@ -925,20 +946,15 @@ extension ChatbotViewController: UITableViewDelegate {
 	}
 	
 	func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
-		if hasFixedHeader && indexPath.row == 0 {
+		if isWaitingResponse, let wait = waitingIndexPath, indexPath == wait {
 			return 80
 		}
-		
-		let messageIndex = hasFixedHeader ? indexPath.row - 1 : indexPath.row
-		if messageIndex < messages.count {
-			let message = messages[messageIndex]
-			switch message.type {
-			case .ai:
-				return 120
-			case .user:
-				return 60
-			case .loading:
-				return 80
+		let idx = min(indexPath.row, max(messages.count - 1, 0))
+		if idx >= 0 && idx < messages.count {
+			switch messages[idx].type {
+			case .ai: return 120
+			case .user: return 60
+			case .loading: return 80
 			}
 		}
 		return 60
