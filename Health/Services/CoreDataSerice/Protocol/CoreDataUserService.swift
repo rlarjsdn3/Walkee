@@ -20,7 +20,7 @@ protocol CoreDataUserService {
     ///   - diseases: 사용자가 가지고 있는 질병 목록(옵션).
     ///   - date: 생성 시각. 기본값은 현재 시간(`.now`)입니다.
     /// - Throws: Core Data 생성 작업 실패 시 오류를 던집니다.
-    func createOneUer(
+    func createUserInfo(
         id: UUID,
         age: Int,
         gender: String,
@@ -28,12 +28,12 @@ protocol CoreDataUserService {
         weight: Double,
         diseases: [Disease]?,
         createdAt date: Date
-    ) throws
+    ) async throws
 
     /// 저장된 사용자 정보를 하나 가져옵니다.
     /// - Returns: `UserInfoEntity` 객체.
     /// - Throws: 저장된 사용자가 없거나, 읽기 작업이 실패한 경우 오류를 던집니다.
-    func fetchOneUser() throws -> UserInfoEntity
+    func fetchUserInfo() throws -> UserInfoEntity
 
     /// 저장된 사용자 정보를 수정합니다.
     /// - Parameters:
@@ -43,15 +43,15 @@ protocol CoreDataUserService {
     ///   - weight: 변경할 몸무게(옵션).
     ///   - diseases: 변경할 질병 목록(옵션).
     /// - Throws: 업데이트 실패 시 오류를 던집니다.
-    func updateOneUser(
+    func updateUserInfo(
         age: Int?,
         gender: String?,
         height: Double?,
         weight: Double?,
         diseases: [Disease]?
-    ) throws
+    ) async throws
 
     /// 저장된 사용자 정보를 삭제합니다.
     /// - Throws: 삭제 작업 실패 시 오류를 던집니다.
-    func deleteOneUser() throws
+    func deleteUserInfo() async throws
 }

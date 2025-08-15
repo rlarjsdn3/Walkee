@@ -55,10 +55,7 @@ final class CustomActivityIndicatorView: UIView {
 	///
 	/// - 중요: 커스텀 뷰를 만들 때, 콘텐츠나 외부 제약과 무관하게
 	///   뷰 자체가 선호하는 크기가 있을 경우 이 프로퍼티를 재정의(override)
-	/// - 반환값: 뷰의 이상적인 너비와 높이를 나타내는 `CGSize`.
-	///  인디케이터 점(도형)의 지름 기준, 점이 커지고 겹치는 공간 포함해 약 2.2배 확장됨
-	///  최소 24pt 이상
-	///  예: dotDiameter가 10pt이면, 10 x 22 = 22pt면  최소 24 pt로 반환
+    /// - 반환값: 뷰의 지름(`dotDiameter`)을 너비와 높이로 하는 정사각형 크기
 	override var intrinsicContentSize: CGSize {
 		return CGSize(width: dotDiameter, height: dotDiameter)
 	}

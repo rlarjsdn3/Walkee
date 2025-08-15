@@ -16,7 +16,7 @@ final class AlanLoadingIndicatorView: CoreView {
         /// 작업이 실패한 상태
         case failed
         /// 작업이 성공적으로 완료된 상태
-        case sucess
+        case success
     }
 
     private let failedImageView = UIImageView()
@@ -90,27 +90,30 @@ extension AlanLoadingIndicatorView {
         switch new {
         case .loading: setLoadingState()
         case .failed:  setFailedState()
-        case .sucess:  setSuccessState()
+        case .success: setSuccessState()
         }
     }
 
     private func setLoadingState() {
-        titleLabel.text = doingSummaryText
+        state = .loading
         failedImageView.removeFromSuperview()
         indicatorStackView.insertArrangedSubview(loadingIndicatorView, at: 0)
         indicatorStackView.spacing = 6
+        titleLabel.text = doingSummaryText
         startTimer()
     }
 
     private func setFailedState() {
-        titleLabel.text = failedSummaryText
+        state = .failed
         loadingIndicatorView.removeFromSuperview()
         indicatorStackView.insertArrangedSubview(failedImageView, at: 0)
         indicatorStackView.spacing = 8
+        titleLabel.text = failedSummaryText
         stopTimer()
     }
 
     private func setSuccessState() {
+        state = .success
         isHidden = true
         stopTimer()
     }
@@ -135,10 +138,4 @@ fileprivate extension AlanLoadingIndicatorView {
         timer?.invalidate()
         timer = nil
     }
-}
-
-#Preview {
-    let v = AlanLoadingIndicatorView()
-    v.setState(.loading)
-    return v
 }

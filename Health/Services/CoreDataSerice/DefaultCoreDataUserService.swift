@@ -32,7 +32,7 @@ final class DefaultCoreDataUserService: CoreDataUserService {
     ///   - diseases: 사용자가 가지고 있는 질병 목록(옵션).
     ///   - date: 생성 시각. 기본값은 현재 시간(`.now`)입니다.
     /// - Throws: Core Data에 생성 작업 실패 시 `CoreDataError.createError`를 던집니다.
-    func createOneUer(
+    func createUserInfo(
         id: UUID = UUID(),
         age: Int,
         gender: String,
@@ -40,22 +40,23 @@ final class DefaultCoreDataUserService: CoreDataUserService {
         weight: Double,
         diseases: [Disease]?,
         createdAt date: Date = .now
-    ) throws {
-        let userEntity = UserInfoEntity(context: coreDataStack.viewContext)
-        userEntity.id = id
-        userEntity.age = Int16(age)
-        userEntity.gender = gender
-        userEntity.height = height
-        userEntity.weight = weight
-        userEntity.createdAt = date
-        userEntity.diseases = diseases
-        coreDataStack.saveContext()
+    ) async throws {
+        await coreDataStack.performBackgroundTask { context in
+            let userEntity = UserInfoEntity(context: context)
+            userEntity.id = id
+            userEntity.age = Int16(age)
+            userEntity.gender = gender
+            userEntity.height = height
+            userEntity.weight = weight
+            userEntity.createdAt = date
+            userEntity.diseases = diseases
+        }
     }
 
     /// 저장된 사용자 정보를 하나 가져옵니다.
     /// - Returns: `UserInfoEntity` 객체.
     /// - Throws: 저장된 사용자가 없거나, 읽기 작업이 실패한 경우 `CoreDataError.readError`를 던집니다.
-    func fetchOneUser() throws -> UserInfoEntity {
+    func fetchUserInfo() throws -> UserInfoEntity {
         do {
             let users: [UserInfoEntity] = try coreDataStack.fetch()
             guard let user = users.first else { throw CoreDataError.readError }
@@ -73,34 +74,35 @@ final class DefaultCoreDataUserService: CoreDataUserService {
     ///   - weight: 변경할 몸무게(옵션).
     ///   - diseases: 변경할 질병 목록(옵션).
     /// - Throws: 업데이트 실패 시 `CoreDataError.updateError`를 던집니다.
-    func updateOneUser(
+    func updateUserInfo(
         age: Int? = nil,
         gender: String? = nil,
         height: Double? = nil,
         weight: Double? = nil,
         diseases: [Disease]? = nil
-    ) throws {
-        do {
-            let userEntity: UserInfoEntity = try fetchOneUser()
+    ) async throws {
+        let objectID = try fetchUserInfo().objectID
+        
+        try await coreDataStack.performBackgroundTask { context in
+            let userEntity = try context.existingObject(with: objectID) as! UserInfoEntity
             if let age { userEntity.age = Int16(age) }
             if let gender { userEntity.gender = gender }
             if let height { userEntity.height = height }
             if let weight { userEntity.weight = weight }
             if let diseases { userEntity.diseases = diseases }
-            coreDataStack.saveContext()
-        } catch {
-            throw CoreDataError.updateError
+            if context.hasChanges { try context.save() }
         }
     }
 
     /// 저장된 사용자 정보를 삭제합니다.
     /// - Throws: 삭제 작업 실패 시 `CoreDataError.deleteError`를 던집니다.
-    func deleteOneUser() throws {
-        do {
-            let userEntity: UserInfoEntity = try fetchOneUser()
-            try coreDataStack.delete(userEntity)
-        } catch {
-            throw CoreDataError.deleteError
+    func deleteUserInfo() async throws {
+        let objectID = try fetchUserInfo().objectID
+        
+        try await coreDataStack.performBackgroundTask { context in
+            let userEntity = try context.existingObject(with: objectID) as! UserInfoEntity
+            context.delete(userEntity)
+            if context.hasChanges { try context.save() }
         }
     }
 
