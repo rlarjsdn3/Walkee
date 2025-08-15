@@ -154,8 +154,6 @@ class HealthLinkViewController: CoreGradientViewController {
         // 임시 목표 걸음 수 엔티티 생성
         let context = CoreDataStack.shared.viewContext
         let today = Date().startOfDay()
-        let request: NSFetchRequest<GoalStepCountEntity> = GoalStepCountEntity.fetchRequest()
-        request.fetchLimit = 1
         let goal = GoalStepCountEntity(context: context)
         goal.id = UUID()
         goal.effectiveDate = today
