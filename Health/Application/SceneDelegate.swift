@@ -20,15 +20,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
         
-        let hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
+        let hasSeenOnboarding = UserDefaultsWrapper.shared.hasSeenOnboarding
         
-        window?.rootViewController = setupRootViewController(hasCompletedOnboarding: hasCompletedOnboarding)
+        window?.rootViewController = setupRootViewController(hasSeenOnboarding: hasSeenOnboarding)
         window?.makeKeyAndVisible()
         
     }
 
-    private func setupRootViewController(hasCompletedOnboarding: Bool) -> UIViewController {
-        if hasCompletedOnboarding {
+    private func setupRootViewController(hasSeenOnboarding: Bool) -> UIViewController {
+        if hasSeenOnboarding {
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             guard let vc = storyboard.instantiateInitialViewController() else {
                 fatalError("Main.storyboard 초기 뷰컨트롤러 없음")
