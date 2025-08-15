@@ -50,6 +50,20 @@ extension DIContainer {
         }
     }
 
+    ///
+    func registerPromptGenService() {
+        self.register(.promptGenService) { _ in
+            return DefaultPromptGenService()
+        }
+    }
+
+    ///
+    func registerPromptTeamplateRenderService() {
+        self.register(.promptTamplateRenderService) { _ in
+            return DefaultPromptTemplateRenderService()
+        }
+    }
+
     /// 일일 걸음 수 관리를 담당하는 ViewModel을 의존성 주입 컨테이너에 등록합니다.
     ///
     /// `DailyStepViewModel`은 Core Data를 통해 일일 걸음 수 데이터의 CRUD 작업을 처리합니다.
@@ -108,6 +122,8 @@ extension DIContainer {
         registerNetworkService()
         registerHealthService()
         registerCoreDataUserService()
+        registerPromptGenService()
+        registerPromptTeamplateRenderService()
         registerDailyStepViewModel()
         registerGoalStepCountViewModel()
         registerStepSyncViewModel()

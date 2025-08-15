@@ -46,6 +46,16 @@ extension InjectIdentifier {
         InjectIdentifier<CoreDataUserService>(type: CoreDataUserService.self)
     }
 
+    ///
+    static var promptGenService: InjectIdentifier<PromptGenService> {
+        InjectIdentifier<PromptGenService>(type: PromptGenService.self)
+    }
+
+    ///
+    static var promptTamplateRenderService: InjectIdentifier<PromptTemplateRenderService> {
+        InjectIdentifier<PromptTemplateRenderService>(type: PromptTemplateRenderService.self)
+    }
+
     /// 일일 걸음 수 관리 ViewModel을 식별하는 정적 속성
     ///
     /// `DailyStepViewModel` 클래스를 의존성 주입 컨테이너에서
