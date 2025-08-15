@@ -55,12 +55,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     func sceneDidBecomeActive(_ scene: UIScene) {
-#if DEBUG
-        print("앱 활성화됨 → 걸음 데이터 동기화")
-#endif
-        Task {
-            await stepSyncViewModel.syncDailySteps()
-        }
+    	// TODO: 건강 앱 연동 후 HealthKit 걸음 데이터 동기화 작업시 주석 해제
+//        Task {
+//             await stepSyncViewModel.syncDailySteps()
+//        }
     }
 
     func sceneWillResignActive(_ scene: UIScene) {
