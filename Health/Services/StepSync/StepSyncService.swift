@@ -105,7 +105,7 @@ private extension DefaultStepSyncService {
     /// - Throws:
     ///   - Core Data 조회 또는 생성 중 발생한 오류
     ///   - 해당 날짜의 목표 걸음 수를 찾을 수 없는 경우
-    nonisolated func upsertDailyStep(date: Date, stepCount:Int, in context: NSManagedObjectContext) throws {
+    nonisolated func upsertDailyStep(date: Date, stepCount: Int, in context: NSManagedObjectContext) throws {
 		let startOfDay = date.startOfDay()
 
         let request: NSFetchRequest<DailyStepEntity> = DailyStepEntity.fetchRequest()
