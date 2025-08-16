@@ -104,12 +104,6 @@ final class ChatbotHeaderTitleView: CoreView {
 	
 	override func setupAttribute() {
 		super.setupAttribute()
-		chatbotImageView.layer.borderColor = UIColor.magenta.cgColor
-		chatbotImageView.layer.borderWidth = 1
-		
-		closeIconView.layer.borderColor = UIColor.magenta.cgColor
-		closeIconView.layer.borderWidth = 1
-		
 		backgroundColor = .clear
 	}
 	
