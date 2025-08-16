@@ -23,7 +23,6 @@ class CourseDistanceViewModel {
 
         // 내 위치 한 번만 가져오기
         guard let myLocation = await LocationPermissionService.shared.getCurrentLocation() else {
-            print("위치 확인 불가 - 모든 셀에 오류 표시")
             await MainActor.run {
                 // 모든 코스에 에러 상태를 캐시에 저장
                 let errorMessage = "위치 권한 없음"
@@ -61,8 +60,6 @@ class CourseDistanceViewModel {
 
         // 결과 저장 및 UI 업데이트
         updateCourseDistance(gpxURL: course.gpxpath, distanceText: distanceText)
-
-        print("거리 계산 완료: \(course.crsKorNm) - \(distanceText)")
     }
 
     // 특정 코스의 거리 업데이트

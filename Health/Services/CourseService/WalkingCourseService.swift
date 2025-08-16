@@ -44,7 +44,6 @@ class WalkingCourseService {
 
             // 5. 캐시에 저장하고 반환
             coursesCache = localCourses.courses
-            print("\(localCourses.courses.count)개의 코스를 성공적으로 불러왔습니다")
             return localCourses.courses
 
         } catch {
@@ -169,7 +168,6 @@ class WalkingCourseService {
             let snapshot = try await snapshotter.start()
             return drawRouteOnSnapshot(snapshot: snapshot, coordinates: coordinates)
         } catch {
-            print("스냅샷 생성 실패: \(error)")
             return nil
         }
     }

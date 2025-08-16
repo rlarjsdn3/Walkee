@@ -38,11 +38,17 @@ class PersonalViewController: CoreGradientViewController, Alertable {
         previousLocationPermission = LocationPermissionService.shared.checkCurrentPermissionStatus()
 
         Task { @MainActor in
+            await requestInitialLocationPermission()
+        }
+
+        Task { @MainActor in
             loadWalkingCourses()
         }
 
         Task {
+
             await retryDistanceCalculation()
+
         }
     }
 
@@ -229,7 +235,6 @@ class PersonalViewController: CoreGradientViewController, Alertable {
 
             // 이미 추가된 코스인지 확인
             if addedCourseNames.contains(course.crsKorNm) {
-                print("중복 코스 스킵: \(course.crsKorNm)")
                 continue
             }
 
@@ -332,13 +337,6 @@ class PersonalViewController: CoreGradientViewController, Alertable {
                 let distance2 = Int(course2.crsDstnc) ?? 0
                 return distance1 < distance2
             }
-            print("코스길이순으로 정렬 완료")
-
-            // 정렬 결과 확인 (디버깅용)
-            print("정렬된 코스들:")
-            for (index, course) in courses.enumerated() {
-                print("  \(index + 1). \(course.crsKorNm): \(course.crsDstnc)km")
-            }
 
         default:
             print("알 수 없는 정렬 타입: \(sortType)")
@@ -363,7 +361,6 @@ class PersonalViewController: CoreGradientViewController, Alertable {
 
             // 사용자가 권한을 허용하지 않았을 경우 경고창을 띄웁니다.
             if !granted {
-                print("사용자가 권한을 거부했습니다. 경고창을 표시합니다.")
                 showPermissionDeniedAlert()
             }
         } else {
@@ -383,7 +380,7 @@ class PersonalViewController: CoreGradientViewController, Alertable {
                 }
             },
             onCancelAction: { _ in
-                print("위치 권한 설정 취소됨")
+
             }
         )
     }

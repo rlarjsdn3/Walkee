@@ -54,8 +54,6 @@ class RecommendPlaceCell: CoreCollectionViewCell {
         currentGPXURL = course.gpxpath
         thumbnailTask?.cancel()
 
-        print("셀 기본 설정: \(course.crsKorNm)")
-
         // 썸네일만 별도 처리 (거리는 뷰컨트롤러에서 처리)
         thumbnailTask = Task { @MainActor in
             let image = await WalkingCourseService.shared.generateThumbnailAsync(from: course.gpxpath)
@@ -80,8 +78,6 @@ class RecommendPlaceCell: CoreCollectionViewCell {
         } else {
             userDistanceLabel.textColor = .systemOrange
         }
-
-        print("거리 업데이트: \(distanceText)")
     }
 }
 

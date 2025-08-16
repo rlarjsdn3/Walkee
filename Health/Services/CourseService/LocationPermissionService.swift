@@ -124,8 +124,6 @@ extension LocationPermissionService: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
 
-        print("새로운 위치 업데이트: \(location.coordinate.latitude), \(location.coordinate.longitude)")
-
         // 캐시에 저장
         cachedLocation = location
         lastLocationTime = Date()
