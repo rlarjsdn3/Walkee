@@ -37,6 +37,14 @@ class PersonalViewController: CoreGradientViewController, Alertable {
         setupDistanceViewModel()
         previousLocationPermission = LocationPermissionService.shared.checkCurrentPermissionStatus()
 
+        NotificationCenter.default.addObserver(
+               self,
+               selector: #selector(appDidBecomeActive),
+               name: UIApplication.didBecomeActiveNotification,
+               object: nil
+           )
+        
+
         Task { @MainActor in
             await requestInitialLocationPermission()
         }
@@ -308,6 +316,16 @@ class PersonalViewController: CoreGradientViewController, Alertable {
                 recommendCell.updateDistance(errorMessage)
             }
         }
+    }
+
+    // 앱이 포그라운드로 돌아올 때 실행
+    @objc private func appDidBecomeActive() {
+        checkLocationPermissionChange()
+    }
+
+    // 메모리 해제 시 옵저버 제거
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 
     // GPX URL로 IndexPath 찾기
