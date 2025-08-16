@@ -51,23 +51,23 @@ class LocationPermissionService: NSObject {
     // 내 현재 위치 가져오기 (메인 함수)
     func getCurrentLocation() async -> CLLocation? {
         guard checkCurrentPermissionStatus() else {
-            print("❌ 위치 권한이 없습니다.")
+            print("위치 권한이 없습니다.")
             return nil
         }
 
         // 캐시된 위치가 있으면 바로 반환 (빠름!)
         if let cachedLocation = getCachedLocationIfAvailable() {
-            print("📍 캐시된 위치 사용: \(cachedLocation.coordinate)")
+            print("캐시된 위치 사용: \(cachedLocation.coordinate)")
             return cachedLocation
         }
 
         // 이미 요청 중이면 이전 위치라도 반환
         if locationContinuation != nil {
-            print("⚠️ 이미 위치 요청 중 - 캐시된 위치 반환")
+            print("이미 위치 요청 중 - 캐시된 위치 반환")
             return cachedLocation
         }
 
-        print("🔄 새로운 위치 요청")
+        print("새로운 위치 요청")
         return await withCheckedContinuation { continuation in
             locationContinuation = continuation
             locationManager.requestLocation()
@@ -137,12 +137,12 @@ extension LocationPermissionService: CLLocationManagerDelegate {
 
     //위치요청실패 처리
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-            print("위치 요청 실패: \(error.localizedDescription)")
+        print("위치 요청 실패: \(error.localizedDescription)")
 
-            // 대기 중인 continuation에 nil 전달
-            locationContinuation?.resume(returning: nil)
-            locationContinuation = nil
-        }
+        // 대기 중인 continuation에 nil 전달
+        locationContinuation?.resume(returning: nil)
+        locationContinuation = nil
+    }
 
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         switch status {

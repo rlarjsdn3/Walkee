@@ -13,7 +13,7 @@ class WalkingCourseService {
 
     // 썸네일 캐시
     private var thumbnailCache = NSCache<NSString, UIImage>()
-	//코스 데이터 캐시(한 번 로드하면 계속 사용)
+    //코스 데이터 캐시(한 번 로드하면 계속 사용)
     private var coursesCache: [WalkingCourse]?
 
     private init() {}
@@ -89,7 +89,21 @@ class WalkingCourseService {
             return await createMapSnapshot(coordinates: coordinates)
 
         } catch {
-            print("❌ GPX 다운로드 실패: \(error)")
+            print("GPX 다운로드 실패: \(error)")
+            return nil
+        }
+    }
+
+    //첫번째 좌표값 가져오기
+    func getFirstCoordinate(from gpxURL: String) async -> CLLocationCoordinate2D? {
+        guard let url = URL(string: gpxURL) else { return nil }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let coordinates = parseGPXCoordinates(from: data)
+            return coordinates.first
+        } catch {
+            print("GPX 로드 실패: \(error)")
             return nil
         }
     }
