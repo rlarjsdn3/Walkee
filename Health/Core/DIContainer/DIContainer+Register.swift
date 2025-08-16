@@ -112,6 +112,12 @@ extension DIContainer {
             return DefaultStepSyncService()
         }
     }
+	
+	func registerPrivacyLayer() {
+		self.register(.privacyService) { _ in
+			DefaultPrivacyService()
+		}
+	}
     
     /// 사용자 정보를 관리하는 ViewModel을 의존성 주입 컨테이너에 등록합니다.
     ///
@@ -145,14 +151,17 @@ extension DIContainer {
     /// 1. `NetworkService` - 네트워크 통신 서비스 (독립적)
     /// 2. `HealthService` - HealthKit 데이터 조회 서비스 (독립적)
     /// 3. `DailyStepViewModel` - 일일 걸음 수 관리 (Core Data 의존)
-    /// 4. `GoalStepCountViewModel` - 목표 걸음 수 관리 (Core Data 의존)
-    /// 5. `StepSyncViewModel` - 걸음 수 동기화 (위 모든 서비스에 의존)
+	/// 4. `DefaultPrivacyService` - 기본 개인정보 서비스 마스킹 처리(독립적)
+    /// 5. `GoalStepCountViewModel` - 목표 걸음 수 관리 (Core Data 의존)
+    /// 6. `StepSyncViewModel` - 걸음 수 동기화 (위 모든 서비스에 의존)
+
     func registerAllServices() {
         registerNetworkService()
         registerHealthService()
         registerCoreDataUserService()
-        registerPromptBuilderService()
         registerPromptRenderService()
+		registerPrivacyLayer()
+        registerPromptBuilderService()
         registerDailyStepViewModel()
         registerGoalStepCountViewModel()
         registerUserInfoViewModel()
