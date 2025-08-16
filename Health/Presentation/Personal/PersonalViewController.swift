@@ -39,7 +39,7 @@ class PersonalViewController: CoreGradientViewController, Alertable {
 
         NotificationCenter.default.addObserver(
                self,
-               selector: #selector(appDidBecomeActive),
+               selector: #selector(checkLocationPermissionChange),
                name: UIApplication.didBecomeActiveNotification,
                object: nil
            )
@@ -81,7 +81,7 @@ class PersonalViewController: CoreGradientViewController, Alertable {
     }
 
     // 위치 권한 변경 감지 및 자동 재계산
-    private func checkLocationPermissionChange() {
+  @objc private func checkLocationPermissionChange() {
         let currentPermission = LocationPermissionService.shared.checkCurrentPermissionStatus()
 
         // 권한이 새로 허용된 경우
@@ -316,11 +316,6 @@ class PersonalViewController: CoreGradientViewController, Alertable {
                 recommendCell.updateDistance(errorMessage)
             }
         }
-    }
-
-    // 앱이 포그라운드로 돌아올 때 실행
-    @objc private func appDidBecomeActive() {
-        checkLocationPermissionChange()
     }
 
     // 메모리 해제 시 옵저버 제거
