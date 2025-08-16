@@ -2,7 +2,7 @@
 //  Logger.swift
 //  Health
 //
-//  Created by Nat Kim on 8/12/25.
+//  Created by Seohyun Kim on 8/12/25.
 //
 
 import os
