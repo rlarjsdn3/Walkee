@@ -124,4 +124,8 @@ extension InjectIdentifier {
     static var calendarStepService: InjectIdentifier<CalendarStepService> {
         InjectIdentifier<CalendarStepService>(type: CalendarStepService.self)
     }
+	
+	static var privacyService: InjectIdentifier<PrivacyService> {
+		.by(type: PrivacyService.self)
+	}
 }
