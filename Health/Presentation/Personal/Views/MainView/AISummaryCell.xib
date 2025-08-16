@@ -29,7 +29,7 @@
                         </subviews>
                         <color key="backgroundColor" name="boxBgColor"/>
                         <constraints>
-                            <constraint firstAttribute="height" constant="127" id="67C-XM-jym"/>
+                            <constraint firstAttribute="height" priority="999" constant="127" id="67C-XM-jym"/>
                             <constraint firstItem="Uqy-ul-Qcd" firstAttribute="leading" secondItem="NQc-Tl-1Xd" secondAttribute="leading" constant="16" id="Y2R-Hu-0Fy"/>
                             <constraint firstItem="Uqy-ul-Qcd" firstAttribute="top" secondItem="NQc-Tl-1Xd" secondAttribute="top" constant="16" id="aeB-f1-iO3"/>
                             <constraint firstAttribute="bottom" secondItem="Uqy-ul-Qcd" secondAttribute="bottom" constant="16" id="ajt-Yk-CBA"/>

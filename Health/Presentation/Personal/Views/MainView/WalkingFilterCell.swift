@@ -33,9 +33,9 @@ class WalkingFilterCell: CoreCollectionViewCell {
     private func setupPullDownMenu() {
         print("setupPullDownMenu 호출됨")
 
-        // 🎯 메뉴 선택 시 실행될 액션 
+        // 메뉴 선택 시 실행될 액션
         let actionHandler: (UIAction) -> Void = { [weak self] action in
-            print("✅ '\(action.title)' 선택됨")
+            print("'\(action.title)' 선택됨")
 
             // PersonalViewController에게 어떤 필터가 선택되었는지 알려줌
             self?.onFilterSelected?(action.title)
@@ -43,8 +43,8 @@ class WalkingFilterCell: CoreCollectionViewCell {
 
         // 메뉴에 맞춰 액션을 생성.
         let actions = [
-            UIAction(title: "가까운순", handler: actionHandler),
-            UIAction(title: "코스길이순", handler: actionHandler)
+            UIAction(title: "코스길이순", handler: actionHandler),
+            UIAction(title: "가까운순", handler: actionHandler)
         ]
 
         // 액션들로 메뉴를 생성.
