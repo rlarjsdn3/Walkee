@@ -2,7 +2,7 @@
 //  EndChatCell.swift
 //  Health
 //
-//  Created by Nat Kim on 8/13/25.
+//  Created by Seohyun Kim on 8/13/25.
 //
 
 import UIKit
