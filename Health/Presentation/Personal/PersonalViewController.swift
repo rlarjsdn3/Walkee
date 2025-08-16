@@ -44,19 +44,10 @@ class PersonalViewController: CoreGradientViewController, Alertable {
             object: nil
         )
 
-
         Task { @MainActor in
             await requestInitialLocationPermission()
-        }
-
-        Task { @MainActor in
             loadWalkingCourses()
-        }
-
-        Task {
-
             await retryDistanceCalculation()
-
         }
     }
 
