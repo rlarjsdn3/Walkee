@@ -4,74 +4,83 @@
 //
 //  Created by Seohyun Kim on 8/16/25.
 //
-
 import Foundation
 
-struct District: Codable {
+/// 대한민국 행정구역(District) 모델과 인덱스 Loader를 정의
+///
+/// - `District`: 시/도, 시/군/구, 읍/면/동 등 행정 단위를 표현하는 구조체.
+/// - `DistrictIndex`: 불변 인덱스로, 특정 지명에서 상위 시/도를 빠르게 찾을 수 있습니다.
+/// - `DistrictIndexFactory`: JSON으로 로드된 `District` 배열을 기반으로 인덱스를 생성합니다.
+/// - `DistrictJSONLoader`: 앱 번들에 포함된 행정구역 JSON 파일(`korea-administrative-district.json`)을 로드합니다.
+///
+/// 이 코드는 개인정보 마스킹 처리에서 **상세 주소 → 시/도 단위로 축약**하기 위해 사용됩니다.
+// MARK: - Model
+struct District: Codable, Sendable {
 	let code: String
 	let name: String
 	let children: [District]?
 }
 
-/// 앱 번들에서 JSON을 1회 로드 + 이름 > 상위 시/도 인덱스 구성
-enum DistrictLoader {
-	@MainActor static let shared = DistrictLoaderImpl()
+struct DistrictIndex: Sendable {
+	let provinces: [District]
+	let nameToProvince: [String: String]
+	let provinceNames: Set<String>
 }
 
-final class DistrictLoaderImpl {
-	private(set) var provinces: [District] = []
-	/// “시/군/구/동/읍/면” → 상위 시/도 이름
-	private(set) var nameToProvince: [String: String] = [:]
-	/// “시/도” 이름 Set
-	private(set) var provinceNames: Set<String> = []
+// MARK: - 전역 불변 캐시 (앱 생애주기 내 1회 생성)
+enum DistrictDB {
+	static let shared: DistrictIndex = {
+		let roots = loadJSON()
+		return makeIndex(from: roots)
+	}()
+}
 
-	init() { loadFromBundle() }
-
-	private func loadFromBundle() {
+// MARK: - JSON 로딩
+private extension DistrictDB {
+	static func loadJSON(from bundle: Bundle = .main,
+						 filename: String = "korea-administrative-district",
+						 ext: String = "json") -> [District] {
 		guard
-			let url = Bundle.main.url(
-				forResource: "korea-administrative-district",
-				withExtension: "json"
-			),
+			let url = bundle.url(forResource: filename, withExtension: ext),
 			let data = try? Data(contentsOf: url),
 			let roots = try? JSONDecoder().decode([District].self, from: data)
 		else {
-			assertionFailure("korea-administrative-district.json 로드 실패")
-			return
+			assertionFailure("⚠️ \(filename).\(ext) 로드 실패(타겟 멤버십 확인)")
+			return []
 		}
-
-		provinces = roots
-		buildIndexes()
+		return roots
 	}
+}
 
-	private func buildIndexes() {
-		provinceNames.removeAll()
-		nameToProvince.removeAll()
+// MARK: - 인덱스 팩토리
+private extension DistrictDB {
+	static func makeIndex(from roots: [District]) -> DistrictIndex {
+		var map: [String: String] = [:]
+		var provincesSet: Set<String> = []
 
-		for p in provinces {
-			provinceNames.insert(p.name)
-			index(province: p, provinceName: p.name)
+		func index(province: District, pname: String) {
+			map[province.name] = pname
+			province.children?.forEach {
+				map[$0.name] = pname
+				indexAll(node: $0, pname: pname)
+			}
 		}
-	}
-
-	private func index(province: District, provinceName: String) {
-		// 시/도 자신도 name > province 매핑에 넣어둠(검색 편의)
-		nameToProvince[province.name] = provinceName
-
-		guard let children = province.children else { return }
-		for c in children {
-			// 시/군/구/자치구
-			nameToProvince[c.name] = provinceName
-			// 하위 읍/면/동까지 재귀
-			indexAllDescendants(node: c, provinceName: provinceName)
+		func indexAll(node: District, pname: String) {
+			node.children?.forEach {
+				map[$0.name] = pname
+				indexAll(node: $0, pname: pname)
+			}
 		}
-	}
 
-	private func indexAllDescendants(node: District, provinceName: String) {
-		guard let children = node.children else { return }
-		for c in children {
-			nameToProvince[c.name] = provinceName
-			indexAllDescendants(node: c, provinceName: provinceName)
+		for p in roots {
+			provincesSet.insert(p.name)
+			index(province: p, pname: p.name)
 		}
+
+		return DistrictIndex(
+			provinces: roots,
+			nameToProvince: map,
+			provinceNames: provincesSet
+		)
 	}
 }
