@@ -38,12 +38,12 @@ class PersonalViewController: CoreGradientViewController, Alertable {
         previousLocationPermission = LocationPermissionService.shared.checkCurrentPermissionStatus()
 
         NotificationCenter.default.addObserver(
-               self,
-               selector: #selector(checkLocationPermissionChange),
-               name: UIApplication.didBecomeActiveNotification,
-               object: nil
-           )
-        
+            self,
+            selector: #selector(checkLocationPermissionChange),
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
+
 
         Task { @MainActor in
             await requestInitialLocationPermission()
@@ -81,7 +81,7 @@ class PersonalViewController: CoreGradientViewController, Alertable {
     }
 
     // 위치 권한 변경 감지 및 자동 재계산
-  @objc private func checkLocationPermissionChange() {
+    @objc private func checkLocationPermissionChange() {
         let currentPermission = LocationPermissionService.shared.checkCurrentPermissionStatus()
 
         // 권한이 새로 허용된 경우
@@ -320,7 +320,11 @@ class PersonalViewController: CoreGradientViewController, Alertable {
 
     // 메모리 해제 시 옵저버 제거
     deinit {
-        NotificationCenter.default.removeObserver(self)
+        NotificationCenter.default.removeObserver(
+            self,
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
     }
 
     // GPX URL로 IndexPath 찾기
