@@ -25,6 +25,8 @@ class PersonalViewController: CoreGradientViewController, Alertable {
     private var networkService = DefaultNetworkService()
     private var didShowLocationPermissionAlert = false
 
+    private var distanceViewModel = CourseDistanceViewModel()
+    private var previousLocationPermission = false  // 이전 권한 상태 추적
 
     override func initVM() { }
 
@@ -32,15 +34,56 @@ class PersonalViewController: CoreGradientViewController, Alertable {
         super.viewDidLoad()
         setupDataSource()
         applyInitialSnapshot()
-        loadWalkingCourses()
-        Task {
+        setupDistanceViewModel()
+        previousLocationPermission = LocationPermissionService.shared.checkCurrentPermissionStatus()
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(checkLocationPermissionChange),
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
+
+        Task { @MainActor in
             await requestInitialLocationPermission()
+            loadWalkingCourses()
+            await retryDistanceCalculation()
+        }
+    }
+
+    // 뷰모델 설정
+    private func setupDistanceViewModel() {
+        // 거리 업데이트 콜백 설정
+        distanceViewModel.onDistanceUpdated = { [weak self] gpxURL, distanceText in
+            self?.updateCellDistance(gpxURL: gpxURL, distanceText: distanceText)
+        }
+
+        // 전체 오류 콜백 설정
+        distanceViewModel.onAllDistancesError = { [weak self] errorMessage in
+            self?.updateAllCellsWithError(errorMessage)
         }
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: animated)
+        // 앱이 포그라운드로 돌아올 때마다 권한 상태 확인
+        checkLocationPermissionChange()
+    }
+
+    // 위치 권한 변경 감지 및 자동 재계산
+    @objc private func checkLocationPermissionChange() {
+        let currentPermission = LocationPermissionService.shared.checkCurrentPermissionStatus()
+
+        // 권한이 새로 허용된 경우
+        if !previousLocationPermission && currentPermission {
+            Task {
+                await retryDistanceCalculation()
+            }
+        }
+
+        // 현재 상태 저장
+        previousLocationPermission = currentPermission
     }
 
     override func setupAttribute() {
@@ -92,11 +135,11 @@ class PersonalViewController: CoreGradientViewController, Alertable {
                 guard let self = self else { return }
 
                 Task {
-                    // 👇 "가까운순" 필터를 선택했을 경우, 권한 확인 로직이 포함된 함수를 호출합니다.
+                    // "가까운순" 필터를 선택했을 경우, 권한 확인 로직이 포함된 함수를 호출합니다.
                     if selectedFilter == "가까운순" {
                         await self.sortCoursesByDistanceWithPermissionCheck()
                     } else {
-                        // 👇 그 외 다른 필터는 이전과 같이 바로 정렬 함수를 호출합니다.
+                        // 그 외 다른 필터는 이전과 같이 바로 정렬 함수를 호출합니다.
                         await MainActor.run {
                             self.applySorting(sortType: selectedFilter)
                         }
@@ -107,8 +150,18 @@ class PersonalViewController: CoreGradientViewController, Alertable {
     }
 
     private func createRecommendPlaceCellRegistration() -> UICollectionView.CellRegistration<RecommendPlaceCell, WalkingCourse> {
-        UICollectionView.CellRegistration<RecommendPlaceCell, WalkingCourse>(cellNib: RecommendPlaceCell.nib) { cell, indexPath, course in
+        UICollectionView.CellRegistration<RecommendPlaceCell, WalkingCourse>(cellNib: RecommendPlaceCell.nib) { [weak self] cell, indexPath, course in
+            // 기본 설정
             cell.configure(with: course)
+
+            //뷰모델에서 캐시된 거리 확인 후 설정
+            if let distanceText = self?.distanceViewModel.getCachedDistance(for: course.gpxpath) {
+                // 이미 계산된 결과가 있으면 바로 표시 (에러 메시지 포함)
+                cell.updateDistance(distanceText)
+            } else {
+                // 캐시된 결과가 없을 때만 로딩 상태
+                cell.updateDistance("거리측정중...")
+            }
         }
     }
 
@@ -181,7 +234,6 @@ class PersonalViewController: CoreGradientViewController, Alertable {
 
             // 이미 추가된 코스인지 확인
             if addedCourseNames.contains(course.crsKorNm) {
-                print("중복 코스 스킵: \(course.crsKorNm)")
                 continue
             }
 
@@ -215,22 +267,67 @@ class PersonalViewController: CoreGradientViewController, Alertable {
 
     @MainActor
     private func loadWalkingCourses() {
+        let viewModel = distanceViewModel
+
         Task {
             allCourses = WalkingCourseService.shared.loadWalkingCourses()
             separateCoursesByDifficulty()
 
-            // 랜덤하게 5개 선택
             if easyLevelCourses.count > 5 {
-                courses = Array(easyLevelCourses.prefix(5)) // 하 난이도에서 5개만
+                courses = Array(easyLevelCourses.prefix(5))
             } else {
-                courses = easyLevelCourses // 하 난이도 전체 (5개 미만일 경우)
+                courses = easyLevelCourses
             }
 
-            // 기본적으로 코스 길이순으로 필터링 되어서 보여줌
-            applySorting(sortType: self.currentSortType)
-            print("코스 수: \(courses.count)")
+            await MainActor.run {
+                applySorting(sortType: self.currentSortType)
+                print("코스 수: \(courses.count)")
+            }
+
+            await viewModel.calculateAllCourseDistances(courses: courses)
         }
     }
+
+    // 뷰모델 콜백 처리 함수들
+    @MainActor
+    private func updateCellDistance(gpxURL: String, distanceText: String) {
+        guard let indexPath = findIndexPath(for: gpxURL) else { return }
+
+        if let cell = collectionView.cellForItem(at: indexPath) as? RecommendPlaceCell {
+            cell.updateDistance(distanceText)
+            print("셀 거리 업데이트: \(distanceText)")
+        }
+    }
+
+    //위치권한이 없을때 모든셀을 "위치권한 없음" 으로 업데이트
+    @MainActor
+    private func updateAllCellsWithError(_ errorMessage: String) {
+        for cell in collectionView.visibleCells {
+            if let recommendCell = cell as? RecommendPlaceCell {
+                recommendCell.updateDistance(errorMessage)
+            }
+        }
+    }
+
+    // 메모리 해제 시 옵저버 제거
+    deinit {
+        NotificationCenter.default.removeObserver(
+            self,
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
+    }
+
+    // GPX URL로 IndexPath 찾기
+    private func findIndexPath(for gpxURL: String) -> IndexPath? {
+        for (index, course) in courses.enumerated() {
+            if course.gpxpath == gpxURL {
+                return IndexPath(item: index, section: 3) // recommendPlace 섹션
+            }
+        }
+        return nil
+    }
+
 
     @MainActor
     private func applySorting(sortType: String) {
@@ -247,13 +344,6 @@ class PersonalViewController: CoreGradientViewController, Alertable {
                 let distance1 = Int(course1.crsDstnc) ?? 0
                 let distance2 = Int(course2.crsDstnc) ?? 0
                 return distance1 < distance2
-            }
-            print("코스길이순으로 정렬 완료")
-
-            // 정렬 결과 확인 (디버깅용)
-            print("정렬된 코스들:")
-            for (index, course) in courses.enumerated() {
-                print("  \(index + 1). \(course.crsKorNm): \(course.crsDstnc)km")
             }
 
         default:
@@ -279,7 +369,6 @@ class PersonalViewController: CoreGradientViewController, Alertable {
 
             // 사용자가 권한을 허용하지 않았을 경우 경고창을 띄웁니다.
             if !granted {
-                print("사용자가 권한을 거부했습니다. 경고창을 표시합니다.")
                 showPermissionDeniedAlert()
             }
         } else {
@@ -299,9 +388,14 @@ class PersonalViewController: CoreGradientViewController, Alertable {
                 }
             },
             onCancelAction: { _ in
-                print("위치 권한 설정 취소됨")
+
             }
         )
+    }
+
+    // 거리 재계산 (권한 복구 시)
+    private func retryDistanceCalculation() async {
+        await distanceViewModel.calculateAllCourseDistances(courses: courses)
     }
 
     @MainActor
