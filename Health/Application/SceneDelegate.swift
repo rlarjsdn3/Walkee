@@ -11,7 +11,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
 
-    @Injected var stepSyncViewModel: StepSyncViewModel
+    @Injected private var stepSyncService: StepSyncService
 
     func scene(_ scene: UIScene,
                willConnectTo session: UISceneSession,
@@ -27,7 +27,28 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
     }
 
-    private func setupRootViewController(hasSeenOnboarding: Bool) -> UIViewController {
+    func sceneDidDisconnect(_ scene: UIScene) {
+    }
+
+    func sceneDidBecomeActive(_ scene: UIScene) {
+    }
+
+    func sceneWillResignActive(_ scene: UIScene) {
+    }
+
+    func sceneWillEnterForeground(_ scene: UIScene) {
+        if UserDefaultsWrapper.shared.hasSeenOnboarding {
+            syncSteps()
+        }
+    }
+
+    func sceneDidEnterBackground(_ scene: UIScene) {
+    }
+}
+
+private extension SceneDelegate {
+
+    func setupRootViewController(hasSeenOnboarding: Bool) -> UIViewController {
         if hasSeenOnboarding {
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             guard let vc = storyboard.instantiateInitialViewController() else {
@@ -46,27 +67,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             }
 
             containerVC.setChildViewController(navController)
-            
+
             return containerVC
         }
     }
 
-    func sceneDidDisconnect(_ scene: UIScene) {
-    }
-
-    func sceneDidBecomeActive(_ scene: UIScene) {
-    	// TODO: 건강 앱 연동 후 HealthKit 걸음 데이터 동기화 작업시 주석 해제
-//        Task {
-//             await stepSyncViewModel.syncDailySteps()
-//        }
-    }
-
-    func sceneWillResignActive(_ scene: UIScene) {
-    }
-
-    func sceneWillEnterForeground(_ scene: UIScene) {
-    }
-
-    func sceneDidEnterBackground(_ scene: UIScene) {
+    func syncSteps() {
+        Task {
+            do {
+                try await stepSyncService.syncSteps()
+            } catch {
+                print("걸음 데이터 동기화 실패: \(error.localizedDescription)")
+            }
+        }
     }
 }
