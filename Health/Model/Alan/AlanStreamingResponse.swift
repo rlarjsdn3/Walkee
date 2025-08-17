@@ -23,9 +23,9 @@ import Foundation
 /// - SeeAlso: `AlanSSEClient` – SSE 연결/파싱 유틸
 struct AlanStreamingResponse: Decodable {
 	enum StreamingType: String, Decodable {
-		case action       // ← 추가
-		case `continue`
-		case complete
+		case action       // 응답 기다릴 때 생성되는 ai 검색 및 결과 관련 텍스트
+		case `continue`   // 조각 단어들 `계속` 내려옴
+		case complete     // 완성 문장 마지막에 내려옴
 	}
 
 	struct StreamingData: Decodable {

@@ -18,34 +18,38 @@ final class HealthInfoStackCollectionViewCell: CoreCollectionViewCell {
     @IBOutlet weak var valueLabel: UILabel!
     @IBOutlet weak var unitLabel: UILabel!
     @IBOutlet weak var chartsContainerView: UIView!
+    @IBOutlet weak var permissionDeniedView: PermissionDeniedCompactView!
 
+    private var cancellable: Set<AnyCancellable> = []
     private var chartsHostingController: UIHostingController<LineChartsView>?
 
+    private var borderWidth: CGFloat {
+        (traitCollection.userInterfaceStyle == .dark) ? 0 : 0.75
+    }
+    
     private var viewModel: HealthInfoStackCellViewModel!
-    private var cancellable: Set<AnyCancellable> = []
-
+    
     override func layoutSubviews() {
-//       symbolContainerView.applyCornerStyle(.circular)
-        symbolContainerView.layer.cornerRadius = symbolContainerView.bounds.height / 2
+       symbolContainerView.applyCornerStyle(.circular)
     }
 
     override func prepareForReuse() {
-        chartsHostingController = nil
-        chartsContainerView.subviews.forEach { $0.removeFromSuperview() }
         cancellable.removeAll()
+        chartsContainerView.subviews.forEach { $0.removeFromSuperview() }
+        chartsHostingController?.removeFromParent()
+        chartsHostingController = nil
     }
 
     override func setupAttribute() {
-//        self.applyCornerStyle(.medium)
         self.backgroundColor = .boxBg
-        self.layer.cornerRadius = 12 // medium
+        self.applyCornerStyle(.medium)
         self.layer.masksToBounds = false
         self.layer.borderColor = UIColor.separator.cgColor
         self.layer.shadowColor = UIColor.black.cgColor
-        self.layer.shadowOpacity = 0.05
+        self.layer.shadowOpacity = 0.15
         self.layer.shadowOffset = CGSize(width: 2, height: 2)
         self.layer.shadowRadius = 5
-        self.layer.borderWidth = (traitCollection.userInterfaceStyle == .dark) ? 0 : 1
+        self.layer.borderWidth = borderWidth
 
         symbolContainerView.backgroundColor = .systemGray5
 
@@ -55,16 +59,15 @@ final class HealthInfoStackCollectionViewCell: CoreCollectionViewCell {
         chartsContainerView.backgroundColor = .boxBg
         chartsContainerView.isHidden = (traitCollection.horizontalSizeClass == .compact)
 
+        permissionDeniedView.isHidden = true
+        permissionDeniedView.symbomPointSize = 8
+
         registerForTraitChanges()
     }
 
     private func registerForTraitChanges() {
         registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: Self, previousTraitCollection: UITraitCollection) in
-            if self.traitCollection.userInterfaceStyle == .dark {
-                self.layer.borderWidth = 0
-            } else {
-                self.layer.borderWidth = 1
-            }
+            self.layer.borderWidth = self.borderWidth
         }
     }
 }
@@ -84,12 +87,14 @@ extension HealthInfoStackCollectionViewCell {
             .store(in: &cancellable)
     }
 
+    // TODO: - 상태 코드 별로 함수로 나누는 리팩토링하기
     private func render(_ new: LoadState<InfoStackContent>, parent: UIViewController?) {
         var lblString: String
         let unitString = viewModel.itemID.kind.unitString
         titleLabel.text = viewModel.itemID.kind.title
         symbolImageView.image = UIImage(systemName: viewModel.itemID.kind.systemName)
         unitLabel.text = unitString
+        permissionDeniedView.isHidden = true
 
         switch new {
         case .idle:
@@ -114,6 +119,7 @@ extension HealthInfoStackCollectionViewCell {
 
         case .denied:
             lblString = "-"
+            permissionDeniedView.isHidden = false
             print("🔵 건강 데이터에 접근할 수 있는 권한이 없음: HealthInfoStackCell (\(viewModel.itemID.kind.quantityTypeIdentifier))")
         }
 

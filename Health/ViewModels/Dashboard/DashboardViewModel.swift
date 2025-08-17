@@ -32,14 +32,18 @@ final class DashboardViewModel {
     private(set) var chartsIDs: [DashboardBarChartsCellViewModel.ItemID] = []
     private(set) var chartsCells: [DashboardBarChartsCellViewModel.ItemID: DashboardBarChartsCellViewModel] = [:]
 
-    // TODO: - Alan 서버에서 요약문을 가져오는 서비스 객체 주입하기
-    // TODO: - 코어 데이터에서 사용자 정보 가져오는 서비스 객체 주입하기
-    @Injected private var healthService: HealthService
+    private let alanService = AlanViewModel()
+    @Injected private var goalStepService: GoalStepCountViewModel
+    @Injected private var coreDataUserService: (any CoreDataUserService)
+    @Injected private var healthService: (any HealthService)
 
     ///
     init(anchorDate: Date = .now) {
         self.anchorDate = anchorDate
     }
+
+
+    // MARK: - Build Layout
 
     ///
     func buildDashboardCells(for environment: DashboardEnvironment) {
@@ -120,7 +124,7 @@ final class DashboardViewModel {
     }
 
     private func buildCardCells() {
-        let (age, _) = fetchCoreDataUserInfo()
+        let (age, _) = fetchCoreDataUser()
 
         let newIDs = [
             HealthInfoCardCellViewModel.ItemID(kind: .walkingSpeed),
@@ -139,6 +143,9 @@ final class DashboardViewModel {
     }
 }
 
+
+// MARK: - Load HKData
+
 extension DashboardViewModel {
 
     func loadHKData() {
@@ -150,8 +157,8 @@ extension DashboardViewModel {
     }
 
     func loadHKDataForGoalRingCells() {
-        let (_, goalStepCount) = fetchCoreDataUserInfo()
-
+        let (_, goalStepCount) = fetchCoreDataUser()
+        
         Task {
             for (_, vm) in self.goalRingCells {
                 vm.setState(.loading)
@@ -344,23 +351,26 @@ extension DashboardViewModel {
     }
 }
 
+
+// MARK: - Fetch CoreData
+
 extension DashboardViewModel {
 
-    ///
-    func fetchCoreDataUserInfo() -> (age: Int, goalStep: Int) {
-        (27, 10_000)  // TODO: - 사용자 목표 걸음 수를 가져오는 코드 작성하기
+    func fetchCoreDataUser() -> (age: Int, goalStep: Int) {
+        // ⚠️ 사용자 및 목표 걸음 수가 제대로 등록되어 있으면 않으면 크래시
+        let user = try! coreDataUserService.fetchUserInfo()
+        let goalStepCount = goalStepService.goalStepCount(for: anchorDate.endOfDay())!
+        return (Int(user.age), Int(goalStepCount))
     }
 }
 
 extension DashboardViewModel {
 
-    ///
     @available(*, deprecated)
     func requestHKAutorizationIfNeeded() async throws -> Bool {
         return try await healthService.requestAuthorization()
     }
 
-    ///
     func fetchStatisticsHKData(
         for identifier: HKQuantityTypeIdentifier,
         from startDate: Date,
@@ -377,7 +387,6 @@ extension DashboardViewModel {
         )
     }
 
-    ///
     func fetchStatisticsCollectionHKData(
         for identifier: HKQuantityTypeIdentifier,
         from startDate: Date,

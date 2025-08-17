@@ -30,8 +30,6 @@ final class DashboardViewController: CoreGradientViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        Task { try await viewModel.requestHKAutorizationIfNeeded() } // ⚠️ 테스트가 끝나면 반드시 해당 코드 삭제하기
-
         setupDataSource()
     }
 

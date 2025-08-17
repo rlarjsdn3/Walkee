@@ -26,18 +26,15 @@ class HeightViewController: CoreGradientViewController {
         let button = UIButton(type: .system)
         button.setTitle("다음", for: .normal)
         button.backgroundColor = UIColor.buttonBackground
-        button.setTitleColor(.white, for: .normal)
+        button.setTitleColor(.label, for: .normal)
         button.applyCornerStyle(.medium)
         button.isEnabled = false
         return button
     }()
     
-    private let progressIndicatorStackView = ProgressIndicatorStackView(totalPages: 4)
-    
     private var continueButtonBottomConstraint: NSLayoutConstraint?
-    
-    // Core Data
     private let context = CoreDataStack.shared.persistentContainer.viewContext
+    
     private var userInfo: UserInfoEntity?
     
     override func initVM() {}
@@ -55,18 +52,20 @@ class HeightViewController: CoreGradientViewController {
         
         registerForKeyboardNotifications()
         setupTapGestureToDismissKeyboard()
-        
-        let backBarButton = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
-        navigationItem.backBarButtonItem = backBarButton
-        
         errorLabel.isHidden = true
         errorLabel.textColor = .red
-        
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         fetchUserInfo()
-        
-        if let height = userInfo?.height, height > 0 {
-            heightInputField.text = String(Int(height))
-            validateInput()
+        fetchAndDisplaySavedHeight()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if heightInputField.text?.isEmpty ?? true {
+            heightInputField.becomeFirstResponder()
         }
     }
     
@@ -88,25 +87,25 @@ class HeightViewController: CoreGradientViewController {
         }
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        progressIndicatorStackView.isHidden = false
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        progressIndicatorStackView.isHidden = true
-    }
-    
-    override func setupHierarchy() {
-        [continueButton, progressIndicatorStackView, cmLabel].forEach {
-            $0.translatesAutoresizingMaskIntoConstraints = false
-            view.addSubview($0)
+    private func fetchAndDisplaySavedHeight() {
+        let request: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
+        do {
+            let results = try context.fetch(request)
+            if let userInfo = results.first, userInfo.height > 0 {
+                self.userInfo = userInfo
+                heightInputField.text = String(Int(userInfo.height))
+                validateInput()
+            }
+        } catch {
+            print("CoreData에서 height 불러오기 실패: \(error)")
         }
     }
     
-    override func setupAttribute() {
-        progressIndicatorStackView.updateProgress(to: 0.625)
+    override func setupHierarchy() {
+        [continueButton, cmLabel].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview($0)
+        }
     }
     
     override func setupConstraints() {
@@ -118,11 +117,6 @@ class HeightViewController: CoreGradientViewController {
             continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             continueButton.heightAnchor.constraint(equalToConstant: 48),
             
-            progressIndicatorStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -24),
-            progressIndicatorStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            progressIndicatorStackView.heightAnchor.constraint(equalToConstant: 4),
-            progressIndicatorStackView.widthAnchor.constraint(equalToConstant: 320),
-            
             cmLabel.leadingAnchor.constraint(equalTo: heightInputField.trailingAnchor, constant: 8),
             cmLabel.centerYAnchor.constraint(equalTo: heightInputField.centerYAnchor)
         ])
@@ -131,14 +125,11 @@ class HeightViewController: CoreGradientViewController {
     @objc private func textFieldDidChange(_ textField: UITextField) {
         guard let text = textField.text else { return }
         
-        if text.isEmpty {
-            hideError()
-            disableContinueButton()
-        } else if text.count <= 3 {
+        if let height = Double(text) {
+            userInfo?.height = height
             validateInput()
         } else {
-            textField.text = String(text.prefix(3))
-            validateInput()
+            disableContinueButton()
         }
     }
     
@@ -151,6 +142,7 @@ class HeightViewController: CoreGradientViewController {
         
         if height > 210 {
             showError()
+            heightInputField.text = ""
             disableContinueButton()
             heightInputField.resignFirstResponder()
         } else if height >= 130 {
@@ -184,6 +176,7 @@ class HeightViewController: CoreGradientViewController {
         continueButton.isEnabled = true
         continueButton.backgroundColor = .accent
         heightInputField.textColor = .accent
+        continueButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .bold)
     }
     
     private func registerForKeyboardNotifications() {
@@ -193,7 +186,7 @@ class HeightViewController: CoreGradientViewController {
     
     @objc private func keyboardWillShow(_ notification: Notification) {
         guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
-        continueButtonBottomConstraint?.constant = -keyboardFrame.height - 10
+        continueButtonBottomConstraint?.constant = -keyboardFrame.height
         UIView.animate(withDuration: 0.3) {
             self.view.layoutIfNeeded()
         }
@@ -229,7 +222,6 @@ class HeightViewController: CoreGradientViewController {
             print("Failed to save height: \(error)")
         }
     }
-    
     deinit {
         NotificationCenter.default.removeObserver(self)
     }

@@ -20,33 +20,45 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
         
-        let hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
+        let hasSeenOnboarding = UserDefaultsWrapper.shared.hasSeenOnboarding
         
-        window?.rootViewController = setupRootViewController(hasCompletedOnboarding: hasCompletedOnboarding)
+        window?.rootViewController = setupRootViewController(hasSeenOnboarding: hasSeenOnboarding)
         window?.makeKeyAndVisible()
+        
     }
 
-    private func setupRootViewController(hasCompletedOnboarding: Bool) -> UIViewController {
-        let storyboardName = hasCompletedOnboarding ? "Main" : "Onboarding"
-        let storyboard = UIStoryboard(name: storyboardName, bundle: nil)
-        
-        guard let viewController = storyboard.instantiateInitialViewController() else {
-            fatalError("\(storyboardName).storyboard 초기 뷰컨트롤러 없음")
+    private func setupRootViewController(hasSeenOnboarding: Bool) -> UIViewController {
+        if hasSeenOnboarding {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            guard let vc = storyboard.instantiateInitialViewController() else {
+                fatalError("Main.storyboard 초기 뷰컨트롤러 없음")
+            }
+            return vc
+        } else {
+            let containerVC = ProgressContainerViewController()
+
+            let onboardingStoryboard = UIStoryboard(name: "Onboarding", bundle: nil)
+            guard let navController = onboardingStoryboard.instantiateInitialViewController() as? UINavigationController else {
+                fatalError("Onboarding.storyboard 초기 뷰컨트롤러가 UINavigationController가 아님")
+            }
+            guard navController.viewControllers.first is OnboardingViewController else {
+                fatalError("UINavigationController 루트가 OnboardingViewController가 아님")
+            }
+
+            containerVC.setChildViewController(navController)
+            
+            return containerVC
         }
-        
-        return viewController
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
     }
 
     func sceneDidBecomeActive(_ scene: UIScene) {
-#if DEBUG
-        print("앱 활성화됨 → 걸음 데이터 동기화")
-#endif
-        Task {
-            await stepSyncViewModel.syncDailySteps()
-        }
+    	// TODO: 건강 앱 연동 후 HealthKit 걸음 데이터 동기화 작업시 주석 해제
+//        Task {
+//             await stepSyncViewModel.syncDailySteps()
+//        }
     }
 
     func sceneWillResignActive(_ scene: UIScene) {
@@ -58,4 +70,3 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func sceneDidEnterBackground(_ scene: UIScene) {
     }
 }
-

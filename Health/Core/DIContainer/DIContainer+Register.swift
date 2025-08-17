@@ -36,6 +36,45 @@ extension DIContainer {
         }
     }
 
+    /// 사용자 정보 관리 서비스를 의존성 주입 컨테이너에 등록합니다.
+    ///
+    /// `DefaultCoreDataUserService`는 `CoreDataUserService` 프로토콜을 구현하며,
+    /// Core Data를 통해 사용자 정보의 CRUD 작업을 처리합니다.
+    /// 해당 서비스는 컨테이너에서 `.coreDataUserService` 식별자를 사용하여
+    /// 타입 안전하게 해결할 수 있습니다.
+    ///
+    /// - Note: `CoreDataStack.shared`가 초기화되어 있어야 정상적으로 동작합니다.
+    func registerCoreDataUserService() {
+        self.register(.coreDataUserService) { _ in
+            return DefaultCoreDataUserService()
+        }
+    }
+
+    /// `DefaultPromptBuilderService`를 의존성 주입 컨테이너에 등록합니다.
+    ///
+    /// - Description:
+    ///   - `DefaultPromptBuilderService`는 프롬프트 생성을 위한 핵심 서비스로,
+    ///     사용자·건강 데이터를 수집하고 `PromptContext`를 구성하여 프롬프트를 빌드합니다.
+    ///   - 해당 서비스는 `.promptGenService` 식별자를 통해 컨테이너에서 타입 안전하게 해결할 수 있습니다.
+    func registerPromptBuilderService() {
+        self.register(.promptBuilderService) { _ in
+            return DefaultPromptBuilderService()
+        }
+    }
+
+    /// `DefaultPromptRenderService`를 의존성 주입 컨테이너에 등록합니다.
+    ///
+    /// - Description:
+    ///   - `DefaultPromptRenderService`는 지정된 `PromptContext`와 옵션을 기반으로
+    ///     문자열 템플릿을 렌더링하여 완성된 프롬프트를 생성합니다.
+    ///   - 해당 서비스는 `.promptTamplateRenderService` 식별자를 통해 컨테이너에서
+    ///     타입 안전하게 해결할 수 있습니다.
+    func registerPromptRenderService() {
+        self.register(.promptRenderService) { _ in
+            return DefaultPromptRenderService()
+        }
+    }
+
     /// 일일 걸음 수 관리를 담당하는 ViewModel을 의존성 주입 컨테이너에 등록합니다.
     ///
     /// `DailyStepViewModel`은 Core Data를 통해 일일 걸음 수 데이터의 CRUD 작업을 처리합니다.
@@ -91,6 +130,15 @@ extension DIContainer {
         }
     }
 
+    /// 달력 기반 걸음 수 데이터 조회 서비스를 의존성 주입 컨테이너에 등록합니다.
+    ///
+    /// `CalendarStepService`는 특정 날짜 또는 기간별로 걸음 수 데이터를 조회하고 관리하는 기능을 제공합니다.
+    func registerCalendarStepService() {
+        self.register(.calendarStepService) { _ in
+            return DefaultCalendarStepService()
+        }
+    }
+
     /// 모든 서비스와 ViewModel을 의존성 주입 컨테이너에 일괄 등록합니다.
     ///
     /// 이 메서드는 애플리케이션에서 사용하는 모든 의존성을 올바른 순서로 등록합니다.
@@ -106,9 +154,13 @@ extension DIContainer {
     func registerAllServices() {
         registerNetworkService()
         registerHealthService()
+        registerCoreDataUserService()
+        registerPromptBuilderService()
+        registerPromptRenderService()
         registerDailyStepViewModel()
         registerGoalStepCountViewModel()
         registerStepSyncViewModel()
         registerUserInfoViewModel()
+        registerCalendarStepService()
     }
 }

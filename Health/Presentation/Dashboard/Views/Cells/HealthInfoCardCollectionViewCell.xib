@@ -77,17 +77,25 @@
                             </view>
                         </subviews>
                     </stackView>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zEs-T9-Tvs" customClass="PermissionDeniedFullView" customModule="Health" customModuleProvider="target">
+                        <rect key="frame" x="0.0" y="0.0" width="300" height="206"/>
+                    </view>
                 </subviews>
             </view>
             <constraints>
                 <constraint firstItem="V49-SI-zqi" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="16" id="8U4-xM-zV6"/>
+                <constraint firstAttribute="bottom" secondItem="zEs-T9-Tvs" secondAttribute="bottom" id="C3K-4e-ctI"/>
                 <constraint firstAttribute="bottom" secondItem="V49-SI-zqi" secondAttribute="bottom" constant="24" id="JwS-eP-OlZ"/>
                 <constraint firstItem="V49-SI-zqi" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="24" id="NFO-86-2qq"/>
                 <constraint firstAttribute="trailing" secondItem="V49-SI-zqi" secondAttribute="trailing" constant="16" id="ZYu-iy-BEF"/>
+                <constraint firstItem="zEs-T9-Tvs" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="k6l-98-JQv"/>
+                <constraint firstItem="zEs-T9-Tvs" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="txW-u5-rzp"/>
+                <constraint firstAttribute="trailing" secondItem="zEs-T9-Tvs" secondAttribute="trailing" id="yR7-Km-MkN"/>
             </constraints>
             <size key="customSize" width="461" height="253"/>
             <connections>
                 <outlet property="gaitStatusLabel" destination="gPV-e6-f8D" id="pTe-S0-4Hz"/>
+                <outlet property="permissionDeniedView" destination="zEs-T9-Tvs" id="ENv-fl-ctm"/>
                 <outlet property="statusContainerView" destination="5ac-L3-PfJ" id="hxD-X9-aIW"/>
                 <outlet property="statusProgressBarView" destination="5UC-7q-A0l" id="aKs-RE-KAr"/>
                 <outlet property="titleLabel" destination="wMV-cm-r7I" id="Tbm-Jb-USM"/>

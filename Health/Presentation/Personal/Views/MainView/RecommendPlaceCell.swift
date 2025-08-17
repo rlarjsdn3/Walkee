@@ -16,6 +16,7 @@ class RecommendPlaceCell: CoreCollectionViewCell {
     @IBOutlet weak var locationLabel: UILabel!
     @IBOutlet weak var distanceLabel: UILabel!
     @IBOutlet weak var durationLabel: UILabel!
+    @IBOutlet weak var userDistanceLabel: UILabel!
 
     private var currentGPXURL: String?
     private var thumbnailTask: Task<Void, Never>?
@@ -33,31 +34,30 @@ class RecommendPlaceCell: CoreCollectionViewCell {
         super.prepareForReuse()
         courseImage.image = nil
         currentGPXURL = nil
+
+ 		//이전 Task 취소 (메모리 누수 방지)
         thumbnailTask?.cancel()
     }
 
     // API에서 받은 실제 데이터로 설정
     func configure(with course: WalkingCourse) {
-        // 텍스트 설정
+        // 기본 텍스트 설정
         courseNameLabel.text = course.crsKorNm
         locationLabel.text = course.sigun
         distanceLabel.text = "\(course.crsDstnc)km"
         durationLabel.text = course.crsTotlRqrmHour.toFormattedDuration()
 
-        // 로딩 이미지
+        // 기본 로딩 상태
         courseImage.image = UIImage(systemName: "map")
         courseImage.tintColor = .systemGray3
 
         currentGPXURL = course.gpxpath
-
-        // 이전 Task 취소
         thumbnailTask?.cancel()
 
-        // 새로운 Task 시작 (Swift Concurrency)
+        // 썸네일만 별도 처리 (거리는 뷰컨트롤러에서 처리)
         thumbnailTask = Task { @MainActor in
             let image = await WalkingCourseService.shared.generateThumbnailAsync(from: course.gpxpath)
 
-            // 셀이 재사용되었는지 확인
             guard currentGPXURL == course.gpxpath else { return }
 
             if let image = image {
@@ -67,6 +67,16 @@ class RecommendPlaceCell: CoreCollectionViewCell {
                 courseImage.image = UIImage(systemName: "location.slash")
                 courseImage.tintColor = .systemOrange
             }
+        }
+    }
+
+    func updateDistance(_ distanceText: String) {
+        userDistanceLabel.text = distanceText
+
+        if distanceText.contains("km") || distanceText.contains("m") {
+            userDistanceLabel.textColor = .systemBlue
+        } else {
+            userDistanceLabel.textColor = .systemOrange
         }
     }
 }

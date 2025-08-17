@@ -16,6 +16,14 @@
                 <rect key="frame" x="0.0" y="0.0" width="376" height="211"/>
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Du8-dP-xaE" customClass="PermissionDeniedCompactView" customModule="Health" customModuleProvider="target">
+                        <rect key="frame" x="0.0" y="0.0" width="26" height="26"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="26" id="1i3-Ja-okr"/>
+                            <constraint firstAttribute="height" constant="26" id="qPY-Eb-pO1"/>
+                        </constraints>
+                    </view>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aoa-18-szu" customClass="CircleProgressView" customModule="Health" customModuleProvider="target">
                         <rect key="frame" x="8" y="8" width="360" height="195"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -26,11 +34,14 @@
                 <constraint firstAttribute="bottom" secondItem="aoa-18-szu" secondAttribute="bottom" constant="8" id="5aL-QR-U1z"/>
                 <constraint firstAttribute="trailing" secondItem="aoa-18-szu" secondAttribute="trailing" constant="8" id="6J2-Nd-8Fc"/>
                 <constraint firstItem="aoa-18-szu" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="8" id="eSk-MV-TT2"/>
+                <constraint firstItem="Du8-dP-xaE" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="jB1-bc-oA3"/>
+                <constraint firstItem="Du8-dP-xaE" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="oUy-ra-frD"/>
                 <constraint firstItem="aoa-18-szu" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="8" id="vWJ-p4-pro"/>
             </constraints>
             <size key="customSize" width="376" height="211"/>
             <connections>
                 <outlet property="circleProgressView" destination="aoa-18-szu" id="rDH-X5-bjZ"/>
+                <outlet property="permissionDeniedView" destination="Du8-dP-xaE" id="40Y-YD-31x"/>
             </connections>
             <point key="canvasLocation" x="285.49618320610688" y="77.112676056338032"/>
         </collectionViewCell>

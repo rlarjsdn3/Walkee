@@ -78,6 +78,14 @@
                             <constraint firstItem="qVC-yD-eOe" firstAttribute="height" secondItem="RYE-W8-flu" secondAttribute="height" multiplier="0.75" id="n21-UK-Euc"/>
                         </constraints>
                     </stackView>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="1fw-km-7na" customClass="PermissionDeniedCompactView" customModule="Health" customModuleProvider="target">
+                        <rect key="frame" x="5" y="11" width="16" height="16"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="16" id="cfY-aK-bUO"/>
+                            <constraint firstAttribute="height" constant="16" id="wgk-VK-KJp"/>
+                        </constraints>
+                    </view>
                 </subviews>
             </view>
             <viewLayoutGuide key="safeArea" id="ZTg-uK-7eu"/>
@@ -89,11 +97,14 @@
                     <variation key="heightClass=regular-widthClass=compact" constant="8"/>
                 </constraint>
                 <constraint firstAttribute="bottom" secondItem="RYE-W8-flu" secondAttribute="bottom" constant="8" id="m4r-xx-aEa"/>
+                <constraint firstItem="1fw-km-7na" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="5" id="owx-8L-XSG"/>
+                <constraint firstItem="1fw-km-7na" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="11" id="pI9-r8-Olk"/>
                 <constraint firstItem="RYE-W8-flu" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="8" id="soL-HM-HkW"/>
             </constraints>
             <size key="customSize" width="302" height="64"/>
             <connections>
                 <outlet property="chartsContainerView" destination="DDj-vA-Ec4" id="2eJ-fm-ynq"/>
+                <outlet property="permissionDeniedView" destination="1fw-km-7na" id="VHY-DF-nNu"/>
                 <outlet property="symbolContainerView" destination="qVC-yD-eOe" id="O2X-Xw-Akx"/>
                 <outlet property="symbolImageView" destination="hCH-M6-aWc" id="xfg-Zd-Ibw"/>
                 <outlet property="titleLabel" destination="lCs-nZ-F1Q" id="btX-cV-8pM"/>
