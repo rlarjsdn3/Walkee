@@ -41,7 +41,7 @@ final class AlanLoadingIndicatorView: CoreView {
 
     override func setupAttribute() {
         loadingIndicatorView.color = .accent
-        loadingIndicatorView.dotDiameter = 24
+        loadingIndicatorView.dotDiameter = 20
         loadingIndicatorView.startAnimating()
 
         titleLabel.text = doingSummaryText
@@ -49,7 +49,7 @@ final class AlanLoadingIndicatorView: CoreView {
         titleLabel.numberOfLines = 0
 
         indicatorStackView.spacing = 8
-        indicatorStackView.alignment = .top
+        indicatorStackView.alignment = .fill
         indicatorStackView.translatesAutoresizingMaskIntoConstraints = false
 
         exclamationMarkImageView.image = exclamationmarkCircleImage([.systemRed])
@@ -67,7 +67,7 @@ final class AlanLoadingIndicatorView: CoreView {
         ])
         
         NSLayoutConstraint.activate([
-            exclamationMarkImageView.widthAnchor.constraint(equalToConstant: 24),
+            exclamationMarkImageView.widthAnchor.constraint(equalToConstant: 20),
             exclamationMarkImageView.heightAnchor.constraint(equalTo: exclamationMarkImageView.widthAnchor, multiplier: 1.0)
         ])
     }
@@ -103,6 +103,7 @@ extension AlanLoadingIndicatorView {
         exclamationMarkImageView.removeFromSuperview()
         indicatorStackView.insertArrangedSubview(loadingIndicatorView, at: 0)
         indicatorStackView.spacing = 6
+        indicatorStackView.alignment = .fill
         titleLabel.text = doingSummaryText
         startTimer()
     }
@@ -113,6 +114,7 @@ extension AlanLoadingIndicatorView {
         exclamationMarkImageView.image = exclamationmarkCircleImage([.systemRed])
         indicatorStackView.insertArrangedSubview(exclamationMarkImageView, at: 0)
         indicatorStackView.spacing = 8
+        indicatorStackView.alignment = .top
         titleLabel.text = failedSummaryText
         stopTimer()
     }
@@ -123,6 +125,7 @@ extension AlanLoadingIndicatorView {
         exclamationMarkImageView.image = exclamationmarkCircleImage([.systemYellow])
         indicatorStackView.insertArrangedSubview(exclamationMarkImageView, at: 0)
         indicatorStackView.spacing = 8
+        indicatorStackView.alignment = .top
         titleLabel.text = deniedSummaryText
         stopTimer()
     }
