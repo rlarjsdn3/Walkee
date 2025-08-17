@@ -5,8 +5,9 @@
 //  Created by 권도현 on 8/5/25.
 //
 
-import UIKit
+import CoreData
 import HealthKit
+import UIKit
 
 class HealthLinkViewController: CoreGradientViewController {
     
@@ -15,7 +16,9 @@ class HealthLinkViewController: CoreGradientViewController {
     @IBOutlet weak var linkedSwitch: UISwitch!
     @IBOutlet weak var supUserDescriptionLabel: UILabel!
     @IBOutlet weak var linkSettingView: UIView!
-    
+
+    @Injected private var stepSyncService: StepSyncService
+
     private let healthService = DefaultHealthService()
     
     @IBAction func linkAction(_ sender: UISwitch) {
@@ -147,8 +150,36 @@ class HealthLinkViewController: CoreGradientViewController {
     }
     
     @objc private func continueButtonTapped() {
+        // TODO: 목표 걸음 설정 화면 구현시 아래의 엔티티 생성 코드만 제거
+        // 임시 목표 걸음 수 엔티티 생성
+        let context = CoreDataStack.shared.viewContext
+        let today = Date().startOfDay()
+        let goal = GoalStepCountEntity(context: context)
+        goal.id = UUID()
+        goal.effectiveDate = today
+        goal.goalStepCount = 10000
+        do {
+            try context.save()
+            print("임시 목표 걸음 수 저장 완료")
+        } catch {
+            print("임시 목표 걸음 수 저장 실패: \(error.localizedDescription)")
+        }
+
+        // 온보딩 완료 플래그
+        UserDefaultsWrapper.shared.hasSeenOnboarding = true
+
+        // 걸음 수 데이터 동기화
+        Task {
+            do {
+                try await stepSyncService.syncSteps()
+                print("온보딩 직후 동기화 완료")
+            } catch {
+                print("온보딩 직후 동기화 실패: \(error.localizedDescription)")
+            }
+        }
+
+        // 메인 화면으로 전환
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        
         guard let tabBarController = storyboard.instantiateInitialViewController() as? UITabBarController else {
             print("Main.storyboard의 초기 뷰컨트롤러가 UITabBarController가 아닙니다.")
             return
@@ -163,7 +194,6 @@ class HealthLinkViewController: CoreGradientViewController {
                                  options: [.transitionCrossDissolve],
                                  animations: nil)
         }
-        UserDefaultsWrapper.shared.hasSeenOnboarding = true
     }
     
     private func openAppSettings() {
