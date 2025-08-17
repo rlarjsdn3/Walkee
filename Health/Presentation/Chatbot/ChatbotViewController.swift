@@ -29,7 +29,7 @@ final class ChatbotViewController: CoreGradientViewController {
 	@IBOutlet private weak var chattingContainerStackView: UIStackView!
 	@IBOutlet private weak var chattingTextField: UITextField!
 	@IBOutlet private weak var sendButton: UIButton!
-	
+
 	// TODO: 임시 로그 확인용 PrivacyService 주입
 	@Injected(.privacyService) private var privacy: PrivacyService
 	
