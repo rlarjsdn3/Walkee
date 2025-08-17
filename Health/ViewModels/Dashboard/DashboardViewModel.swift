@@ -36,6 +36,7 @@ final class DashboardViewModel {
     @Injected private var goalStepService: GoalStepCountViewModel
     @Injected private var coreDataUserService: (any CoreDataUserService)
     @Injected private var healthService: (any HealthService)
+    @Injected private var promptBuilderService: (any PromptBuilderService)
 
     ///
     init(anchorDate: Date = .now) {
@@ -307,8 +308,11 @@ extension DashboardViewModel {
                         continue
                     }
 
-                    let message = try await requestAlanToSummarizeTodayActivity()
-                    vm.setState(.success(AlanContent(message: message)))
+                    if let message = try await requestAlanToSummarizeTodayActivity() {
+                        vm.setState(.success(AlanContent(message: message)))
+                    } else {
+                        vm.setState(.failure(nil))
+                    }
                 } catch {
                     // 네트워크 통신에 실패하면 '⚠️네트워크 통신에 실패했다'고 표시
                     vm.setState(.failure(error))
@@ -411,12 +415,14 @@ extension DashboardViewModel {
 
 extension DashboardViewModel {
 
-    func requestAlanToSummarizeTodayActivity() async throws -> String {
-        // TODO: - Alan AI에게 오늘 활동 요약 묻는 로직 작성하기
-        """
-        Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-        Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
-        when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-        """
+    func requestAlanToSummarizeTodayActivity() async throws -> String? {
+        print(#function)
+        guard let prompt = try? await promptBuilderService.makePrompt(
+            message: nil,
+            context: nil,
+            option: .dailySummary
+        ) else { return nil }
+        let response = await alanService.sendQuestion(prompt)
+        return response
     }
 }

@@ -15,28 +15,24 @@ final class AlanLoadingIndicatorView: CoreView {
         case loading
         /// 작업이 실패한 상태
         case failed
+        /// 데이터 접근 권한이 없는 상태
+        case denied
         /// 작업이 성공적으로 완료된 상태
         case success
     }
 
-    private let failedImageView = UIImageView()
+    private let exclamationMarkImageView = UIImageView()
     private let loadingIndicatorView = CustomActivityIndicatorView()
     private let titleLabel = UILabel()
     private let indicatorStackView = UIStackView()
-
-    private var exclamationmarkCircleImage: UIImage? = {
-        let image = UIImage(systemName: "exclamationmark.circle.fill")
-        let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .regular)
-            .applying(UIImage.SymbolConfiguration(paletteColors: [.systemRed]))
-        return image?.applyingSymbolConfiguration(config)
-    }()
-
+    
     private(set) var state: State = .loading
     private var timer: Timer?
     private var count: Int = 0
 
     private let doingSummaryText = "AI가 열심히 요약 중이예요."
-    private let failedSummaryText = "AI가 요약에 실패했어요."
+    private let deniedSummaryText = "AI가 요약에 실패했어요. 건강 데이터에 대한 접근 권한이 필요합니다."
+    private let failedSummaryText = "AI가 요약에 실패했어요. 잠시 후 다시 시도해주세요."
 
     override func setupHierarchy() {
         addSubview(indicatorStackView)
@@ -53,19 +49,26 @@ final class AlanLoadingIndicatorView: CoreView {
         titleLabel.numberOfLines = 0
 
         indicatorStackView.spacing = 8
+        indicatorStackView.alignment = .top
+        indicatorStackView.translatesAutoresizingMaskIntoConstraints = false
 
-        failedImageView.image = exclamationmarkCircleImage
-        indicatorStackView.backgroundColor = .lightGray
+        exclamationMarkImageView.image = exclamationmarkCircleImage([.systemRed])
+        exclamationMarkImageView.translatesAutoresizingMaskIntoConstraints = false
+        
         setState(state)
     }
 
     override func setupConstraints() {
-        indicatorStackView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             indicatorStackView.leadingAnchor.constraint(equalTo: leadingAnchor),
             indicatorStackView.trailingAnchor.constraint(equalTo: trailingAnchor),
             indicatorStackView.bottomAnchor.constraint(equalTo: bottomAnchor),
             indicatorStackView.topAnchor.constraint(equalTo: topAnchor)
+        ])
+        
+        NSLayoutConstraint.activate([
+            exclamationMarkImageView.widthAnchor.constraint(equalToConstant: 24),
+            exclamationMarkImageView.heightAnchor.constraint(equalTo: exclamationMarkImageView.widthAnchor, multiplier: 1.0)
         ])
     }
 
@@ -90,13 +93,14 @@ extension AlanLoadingIndicatorView {
         switch new {
         case .loading: setLoadingState()
         case .failed:  setFailedState()
+        case .denied:  setDeniedState()
         case .success: setSuccessState()
         }
     }
 
     private func setLoadingState() {
         state = .loading
-        failedImageView.removeFromSuperview()
+        exclamationMarkImageView.removeFromSuperview()
         indicatorStackView.insertArrangedSubview(loadingIndicatorView, at: 0)
         indicatorStackView.spacing = 6
         titleLabel.text = doingSummaryText
@@ -106,9 +110,20 @@ extension AlanLoadingIndicatorView {
     private func setFailedState() {
         state = .failed
         loadingIndicatorView.removeFromSuperview()
-        indicatorStackView.insertArrangedSubview(failedImageView, at: 0)
+        exclamationMarkImageView.image = exclamationmarkCircleImage([.systemRed])
+        indicatorStackView.insertArrangedSubview(exclamationMarkImageView, at: 0)
         indicatorStackView.spacing = 8
         titleLabel.text = failedSummaryText
+        stopTimer()
+    }
+    
+    private func setDeniedState() {
+        state = .denied
+        loadingIndicatorView.removeFromSuperview()
+        exclamationMarkImageView.image = exclamationmarkCircleImage([.systemYellow])
+        indicatorStackView.insertArrangedSubview(exclamationMarkImageView, at: 0)
+        indicatorStackView.spacing = 8
+        titleLabel.text = deniedSummaryText
         stopTimer()
     }
 
@@ -123,7 +138,7 @@ fileprivate extension AlanLoadingIndicatorView {
 
     func startTimer() {
         stopTimer()
-        timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+        timer = Timer.scheduledTimer(withTimeInterval: 0.33, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 guard let self else { return }
                 self.count += 1
@@ -137,5 +152,15 @@ fileprivate extension AlanLoadingIndicatorView {
         count = 0
         timer?.invalidate()
         timer = nil
+    }
+}
+
+fileprivate extension AlanLoadingIndicatorView {
+    
+    private func exclamationmarkCircleImage(_ paletteColors: [UIColor]) -> UIImage? {
+        let image = UIImage(systemName: "exclamationmark.circle.fill")
+        let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .regular)
+            .applying(UIImage.SymbolConfiguration(paletteColors: paletteColors))
+        return image?.applyingSymbolConfiguration(config)
     }
 }

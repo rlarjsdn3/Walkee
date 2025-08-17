@@ -33,9 +33,9 @@ enum BarChartsBackKind {
     func startDate(_ anchorDate: Date) -> Date? {
         switch self {
         case .daysBack(let int):
-            return anchorDate.startOfDay().addingDays(-int)
+            return anchorDate.startOfDay().addingDays(-int+1)
         case .monthsBack(let int):
-            return anchorDate.startOfMonth()?.addingMonths(-int)
+            return anchorDate.startOfMonth()?.addingMonths(-int+1)
         }
     }
     

@@ -11,7 +11,8 @@ import UIKit
 final class AlanActivitySummaryCollectionViewCell: CoreCollectionViewCell {
 
     @IBOutlet weak var summaryLabel: UILabel!
-
+    @IBOutlet weak var loadingIndicatorView: AlanLoadingIndicatorView!
+    
     private var cancellables: Set<AnyCancellable> = []
     
     private var borderWidth: CGFloat {
@@ -55,22 +56,28 @@ extension AlanActivitySummaryCollectionViewCell {
 
     // TODO: - 상태 코드 별로 함수로 나누는 리팩토링하기
     private func render(for state: LoadState<AlanContent>) {
+        summaryLabel.text = ""
+        
         switch state {
         case .idle:
             return // TODO: - 플레이스 홀더 UI 구성하기
 
         case .loading:
-            return // TODO: - 로딩 인디케이터 UI 구성하기
+            loadingIndicatorView.setState(.loading)
+            return
 
         case let .success(content):
             summaryLabel.text = content.message
+            loadingIndicatorView.setState(.success)
 
         case .failure:
-            summaryLabel.text = nil // TODO: - 네트워크 통신 실패 UI 구성하기
+            summaryLabel.text = nil
+            loadingIndicatorView.setState(.failed)
             print("🔴 건강 데이터를 불러오는 데 실패함: AlanActivitySummaryCollectionViewCell")
 
         case .denied:
-            summaryLabel.text = nil // TODO: - 접근 권한 없을 시, 예외 UI 구성하기
+            summaryLabel.text = nil
+            loadingIndicatorView.setState(.denied)
             print("🔵 건강 데이터에 접근할 수 있는 권한이 없음: AlanActivitySummaryCollectionViewCell")
         }
     }
