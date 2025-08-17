@@ -86,7 +86,7 @@ final class GoalStepCountViewModel: ObservableObject {
         effectiveDate: Date
     ) {
         let start = effectiveDate.startOfDay()
-        let end = Calendar.current.date(byAdding: .day, value: 1, to: start)!
+        guard let end = start.addingDays(1) else { return }
 
         let entity: GoalStepCountEntity
         if let id, let existing = fetchGoalStepCount(by: id) {
