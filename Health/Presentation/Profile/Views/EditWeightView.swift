@@ -29,7 +29,7 @@ final class EditWeightView: CoreView {
         pickerView.dataSource = self
         pickerView.delegate = self
         
-        setInitialSelection()
+        setDefaultSelection()
     }
     
     override func setupConstraints() {
@@ -41,7 +41,7 @@ final class EditWeightView: CoreView {
         ])
     }
     
-    private func setInitialSelection() {
+    private func setDefaultSelection() {
         if let idx = weights.firstIndex(of: selectedWeight) {
             pickerView.selectRow(idx, inComponent: 0, animated: false)
         }
@@ -51,9 +51,9 @@ final class EditWeightView: CoreView {
         return selectedWeight
     }
     
-    func setInitialWeight(_ weight: Int) {
+    func setDefaultWeight(_ weight: Int) {
         selectedWeight = min(max(weight, weights.first ?? 30), weights.last ?? 200)
-        setInitialSelection()
+        setDefaultSelection()
     }
 }
 
