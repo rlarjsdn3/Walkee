@@ -68,25 +68,44 @@ final class GoalStepCountViewModel: ObservableObject {
             return nil
         }
     }
-
-    // GoalStepCount 저장 또는 업데이트
+    
+    /// 새로운 목표 걸음 수를 저장하거나, 동일 날짜의 기존 목표를 업데이트합니다.
+    ///
+    /// - 동일한 `id`가 주어지고 해당 엔티티가 존재할 경우, 해당 엔티티를 업데이트합니다.
+    /// - `id`가 없거나 해당 엔티티를 찾을 수 없는 경우:
+    ///     - 같은 날짜(`effectiveDate.startOfDay()`)에 이미 저장된 목표가 있으면 이를 업데이트합니다.
+    ///     - 없을 경우, 새 엔티티를 생성하여 저장합니다.
+    ///
+    /// - Parameters:
+    ///   - id: 업데이트할 엔티티의 식별자. 기본값은 `nil`입니다
+    ///   - goalStepCount: 저장할 목표 걸음 수
+    ///   - effectiveDate: 목표가 적용될 날짜. 내부적으로 자정(`startOfDay()`)으로 정규화됩니다.
     func saveGoalStepCount(
         id: UUID? = nil,
         goalStepCount: Int32,
         effectiveDate: Date
     ) {
-        let normalizedEffectiveDate = effectiveDate.startOfDay()
+        let start = effectiveDate.startOfDay()
+        let end = Calendar.current.date(byAdding: .day, value: 1, to: start)!
 
         let entity: GoalStepCountEntity
-        if let id = id, let existing = fetchGoalStepCount(by: id) {
+        if let id, let existing = fetchGoalStepCount(by: id) {
             entity = existing
         } else {
-            entity = GoalStepCountEntity(context: context)
-            entity.id = UUID()
+            let req: NSFetchRequest<GoalStepCountEntity> = GoalStepCountEntity.fetchRequest()
+            req.predicate = NSPredicate(format: "effectiveDate >= %@ AND effectiveDate < %@", start as CVarArg, end as CVarArg)
+            req.fetchLimit = 1
+
+            if let sameDay = try? context.fetch(req).first {
+                entity = sameDay
+            } else {
+                entity = GoalStepCountEntity(context: context)
+                entity.id = UUID()
+            }
         }
 
         entity.goalStepCount = goalStepCount
-        entity.effectiveDate = normalizedEffectiveDate
+        entity.effectiveDate = start
 
         do {
             try context.save()

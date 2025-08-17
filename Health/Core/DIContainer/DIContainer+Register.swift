@@ -77,6 +77,19 @@ extension DIContainer {
             StepSyncViewModel()
         }
     }
+    
+    /// 사용자 정보를 관리하는 ViewModel을 의존성 주입 컨테이너에 등록합니다.
+    ///
+    /// `UserInfoViewModel`은 Core Data를 통해 사용자 기본 정보(예: 이름, 나이, 성별 등)를
+    /// 저장하고 조회하며, 메인 스레드에서 안전한 UI 업데이트를 보장합니다.
+    ///
+    /// - Parameter context: Core Data의 관리 객체 컨텍스트로 `CoreDataStack.shared.viewContext` 사용
+    /// - Requires: `CoreDataStack.shared`가 초기화되어 있어야 합니다.
+    func registerUserInfoViewModel() {
+        self.register(.userInfoViewModel) { _ in
+            UserInfoViewModel(context: CoreDataStack.shared.viewContext)
+        }
+    }
 
     /// 모든 서비스와 ViewModel을 의존성 주입 컨테이너에 일괄 등록합니다.
     ///
@@ -96,5 +109,6 @@ extension DIContainer {
         registerDailyStepViewModel()
         registerGoalStepCountViewModel()
         registerStepSyncViewModel()
+        registerUserInfoViewModel()
     }
 }

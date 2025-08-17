@@ -59,11 +59,15 @@ class BodyInfoViewController: CoreGradientViewController {
     
     @IBOutlet weak var tableView: UITableView!
     
+    @Injected private var userVM: UserInfoViewModel
+    
+    private var currentUser: UserInfoEntity?
+    
     private var items: [BodyInfoItem] = [
-        .init(iconName: "figure.walk", title: "성별", detail: "남성"),
-        .init(iconName: "birthday.cake", title: "태어난 해", detail: "1990"),
-        .init(iconName: "scalemass", title: "무게", detail: "100kg"),
-        .init(iconName: "ruler", title: "신체 사이즈", detail: "218cm")
+        .init(iconName: "figure.walk", title: "성별", detail: "-"),
+        .init(iconName: "birthday.cake", title: "태어난 해", detail: "-"),
+        .init(iconName: "scalemass", title: "체중", detail: "-"),
+        .init(iconName: "ruler", title: "키", detail: "-")
     ]
     
     override func setupAttribute() {
@@ -75,7 +79,41 @@ class BodyInfoViewController: CoreGradientViewController {
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "bodyInfoCell")
         tableView.backgroundColor = .clear
         tableView.rowHeight = 68
+        
+        fetchUserInfoAndSetupUI()
     }
+    
+    private func fetchUserInfoAndSetupUI() {
+        userVM.fetchUsers()
+        currentUser = userVM.users.first
+        if let u = currentUser {
+            let genderText = (u.gender ?? "").isEmpty ? "-" : (u.gender ?? "")
+            if items.indices.contains(0) {
+                items[0].detail = genderText
+            }
+            
+            if items.indices.contains(1) {
+                let age = Int(u.age)
+                if age > 0 {
+                    let year = Calendar.current.component(.year, from: Date()) - age
+                    items[1].detail = "\(year)"
+                } else {
+                    items[1].detail = "-"
+                }
+            }
+            
+            if items.indices.contains(2), u.weight > 0 {
+                items[2].detail = "\(Int(u.weight))kg"
+            }
+            
+            if items.indices.contains(3), u.height > 0 {
+                items[3].detail = "\(Int(u.height))cm"
+            }
+        }
+        
+        tableView.reloadData()
+    }
+    
     
     
     
@@ -128,65 +166,127 @@ extension BodyInfoViewController: UITableViewDelegate {
                 on: self,
                 buildView: {
                     let v = EditGenderView()
-                    v.setInitialGender(currentGender)
+                    v.setDefaultGender(currentGender)
                     return v
                 }) { [weak self] view in
-                guard let self, let v = view as? EditGenderView else { return }
-                    if let gender = v.selectedGender {
-                        self.items[indexPath.row].detail = "\(gender.rawValue)"
-                    }
-                self.tableView.reloadRows(at: [indexPath], with: .automatic)
-            }
+                    guard let self, let v = view as? EditGenderView else { return }
+                    guard let selected = v.selectedGender else { return }
+                    let u = self.currentUser
+                    self.userVM.saveUser(
+                        age: u?.age ?? 0,
+                        gender: selected.rawValue,
+                        height: u?.height ?? 0,
+                        weight: u?.weight ?? 0,
+                        diseases: u?.diseases as? [Disease]
+                    )
+                    self.fetchUserInfoAndSetupUI()
+                }
         case "태어난 해":
-            let birthYear = Int(items[indexPath.row].detail.filter(\.isNumber)) ?? Calendar.current.component(.year, from: Date())
-
+            let currentYear = Calendar.current.component(.year, from: Date())
+            let cellYear: Int? = {
+                let digits = items[indexPath.row].detail.filter(\.isNumber)
+                let y = Int(digits)
+                return (y ?? 0) > 0 ? y : nil
+            }()
+            let defaultYear = cellYear ?? currentYear
+            
             presentSheet(
                 on: self,
                 buildView: {
                     let v = EditBirthdayView()
-                    v.setInitialYear(birthYear)
+                    v.setDefaultYear(defaultYear)
                     return v
                 }) { [weak self] view in
-                guard let self, let v = view as? EditBirthdayView else { return }
-                self.items[indexPath.row].detail = "\(v.getSelectedYear())"
-                self.tableView.reloadRows(at: [indexPath], with: .automatic)
-            }
-        case "무게":
-            let currentWeight: Int = {
-                let text = items[indexPath.row].detail
-                let numberString = text.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
-                return Int(numberString) ?? 70
+                    guard let self, let v = view as? EditBirthdayView else { return }
+                    
+                    let selectedYear = v.getSelectedYear()
+                    let age = currentYear - selectedYear
+                    let u = self.currentUser
+                    
+                    self.userVM.saveUser(
+                        id: u?.id,
+                        age: Int16(age),
+                        gender: u?.gender ?? "",
+                        height: u?.height ?? 0,
+                        weight: u?.weight ?? 0,
+                        diseases: u?.diseases as? [Disease],
+                        createdAt: u?.createdAt ?? Date()
+                    )
+                    
+                    if self.items.indices.contains(indexPath.row) {
+                        self.items[indexPath.row].detail = "\(selectedYear)"
+                    }
+                    self.fetchUserInfoAndSetupUI()
+                    
+                    
+                }
+        case "체중":
+            let userWeight = currentUser?.weight ?? 0
+            let cellWeight: Int = {
+                let t = items[indexPath.row].detail
+                let digits = t.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
+                return Int(digits) ?? 70
             }()
+            let defaultWeight = userWeight > 0 ? Int(userWeight) : cellWeight
+            
             
             presentSheet(
                 on: self,
                 buildView: {
                     let v = EditWeightView()
-                    v.setInitialWeight(currentWeight)
+                    v.setDefaultWeight(defaultWeight)
                     return v
                 }) { [weak self] view in
-                guard let self, let v = view as? EditWeightView else { return }
-                self.items[indexPath.row].detail = "\(v.selectedWeight)kg"
-                self.tableView.reloadRows(at: [indexPath], with: .automatic)
-            }
-        case "신체 사이즈":
-            let currentHeight: Int = {
-                let text = items[indexPath.row].detail
-                let numberString = text.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
-                return Int(numberString) ?? 170
+                    guard let self, let v = view as? EditWeightView else { return }
+                    let newWeight = v.selectedWeight
+                    let u = self.currentUser
+                                        
+                    self.userVM.saveUser(
+                        age: u?.age ?? 0,
+                        gender: u?.gender ?? "",
+                        height: u?.height ?? 0,
+                        weight: Double(newWeight),
+                        diseases: u?.diseases as? [Disease]
+                    )
+                    
+                    if self.items.indices.contains(indexPath.row) {
+                        self.items[indexPath.row].detail = "\(Int(newWeight))kg"
+                    }
+                    self.fetchUserInfoAndSetupUI()
+                }
+        case "키":
+            let userHeight = currentUser?.height ?? 0
+            let cellHeight: Int = {
+                let t = items[indexPath.row].detail
+                let digits = t.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
+                return Int(digits) ?? 170
             }()
-
+            let defaultHeight = userHeight > 0 ? Int(userHeight) : cellHeight
+            
             presentSheet(
                 on: self,
                 buildView: {
                     let v = EditHeightView()
-                    v.setInitialHeight(currentHeight)
+                    v.setDefaultHeight(defaultHeight)
                     return v
                 }) { [weak self] view in
-                guard let self, let v = view as? EditHeightView else { return }
-                self.items[indexPath.row].detail = "\(v.selectedHeight)cm"
-                self.tableView.reloadRows(at: [indexPath], with: .automatic)
-            }
+                    guard let self, let v = view as? EditHeightView else { return }
+                    let newHeight = v.selectedHeight
+                    let u = self.currentUser
+                    
+                    self.userVM.saveUser(
+                        age: u?.age ?? 0,
+                        gender: u?.gender ?? "",
+                        height: Double(newHeight),
+                        weight: u?.weight ?? 0,
+                        diseases: u?.diseases as? [Disease]
+                    )
+                    
+                    if self.items.indices.contains(indexPath.row) {
+                        self.items[indexPath.row].detail = "\(Int(newHeight))cm"
+                    }
+                    self.fetchUserInfoAndSetupUI()
+                }
         default:
             break
         }
