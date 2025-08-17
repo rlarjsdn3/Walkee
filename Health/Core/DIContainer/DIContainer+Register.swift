@@ -50,6 +50,31 @@ extension DIContainer {
         }
     }
 
+    /// `DefaultPromptBuilderService`를 의존성 주입 컨테이너에 등록합니다.
+    ///
+    /// - Description:
+    ///   - `DefaultPromptBuilderService`는 프롬프트 생성을 위한 핵심 서비스로,
+    ///     사용자·건강 데이터를 수집하고 `PromptContext`를 구성하여 프롬프트를 빌드합니다.
+    ///   - 해당 서비스는 `.promptGenService` 식별자를 통해 컨테이너에서 타입 안전하게 해결할 수 있습니다.
+    func registerPromptBuilderService() {
+        self.register(.promptBuilderService) { _ in
+            return DefaultPromptBuilderService()
+        }
+    }
+
+    /// `DefaultPromptRenderService`를 의존성 주입 컨테이너에 등록합니다.
+    ///
+    /// - Description:
+    ///   - `DefaultPromptRenderService`는 지정된 `PromptContext`와 옵션을 기반으로
+    ///     문자열 템플릿을 렌더링하여 완성된 프롬프트를 생성합니다.
+    ///   - 해당 서비스는 `.promptTamplateRenderService` 식별자를 통해 컨테이너에서
+    ///     타입 안전하게 해결할 수 있습니다.
+    func registerPromptRenderService() {
+        self.register(.promptRenderService) { _ in
+            return DefaultPromptRenderService()
+        }
+    }
+
     /// 일일 걸음 수 관리를 담당하는 ViewModel을 의존성 주입 컨테이너에 등록합니다.
     ///
     /// `DailyStepViewModel`은 Core Data를 통해 일일 걸음 수 데이터의 CRUD 작업을 처리합니다.
@@ -117,6 +142,8 @@ extension DIContainer {
         registerNetworkService()
         registerHealthService()
         registerCoreDataUserService()
+        registerPromptBuilderService()
+        registerPromptRenderService()
         registerDailyStepViewModel()
         registerGoalStepCountViewModel()
         registerStepSyncViewModel()

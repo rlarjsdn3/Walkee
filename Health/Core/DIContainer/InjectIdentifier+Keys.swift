@@ -46,6 +46,30 @@ extension InjectIdentifier {
         InjectIdentifier<CoreDataUserService>(type: CoreDataUserService.self)
     }
 
+    /// `PromptBuilderService`를 식별하는 정적 속성
+    ///
+    /// `PromptBuilderService` 프로토콜을 구현하는 서비스들을
+    /// 의존성 주입 컨테이너에서 등록하고 해결할 때 사용되는
+    /// 타입 안전한 식별자입니다.
+    ///
+    /// - Returns: `PromptBuilderService` 타입의 `InjectIdentifier` 인스턴스
+    /// - Note: 이 식별자는 컴파일 타임에 타입 안전성을 보장합니다.
+    static var promptBuilderService: InjectIdentifier<PromptBuilderService> {
+        InjectIdentifier<PromptBuilderService>(type: PromptBuilderService.self)
+    }
+
+    /// `PromptRenderService`를 식별하는 정적 속성
+    ///
+    /// `PromptRenderService` 프로토콜을 구현하는 서비스들을
+    /// 의존성 주입 컨테이너에서 등록하고 해결할 때 사용되는
+    /// 타입 안전한 식별자입니다.
+    ///
+    /// - Returns: `PromptRenderService` 타입의 `InjectIdentifier` 인스턴스
+    /// - Note: 이 식별자는 컴파일 타임에 타입 안전성을 보장합니다.
+    static var promptRenderService: InjectIdentifier<PromptRenderService> {
+        InjectIdentifier<PromptRenderService>(type: PromptRenderService.self)
+    }
+
     /// 일일 걸음 수 관리 ViewModel을 식별하는 정적 속성
     ///
     /// `DailyStepViewModel` 클래스를 의존성 주입 컨테이너에서

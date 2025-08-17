@@ -18,8 +18,7 @@ struct HKData: Equatable {
 ///
 /// HealthKit 데이터 접근 권한 요청, 샘플 데이터 및 통계 데이터를 가져오는 메서드를 정의합니다.
 /// 모든 메서드는 메인 액터에서 실행되어야 하며, HealthKit 데이터를 안전하게 다루기 위해 비동기 처리 및 에러 처리를 포함합니다.
-@MainActor
-protocol HealthService {
+protocol HealthService: Sendable {
 
     /// HealthKit 샘플 데이터를 반환하는 클로저 타입입니다.
     /// - Parameter Result: 성공 시 `HKSample` 배열을 반환하며, 실패 시 에러를 반환합니다.
