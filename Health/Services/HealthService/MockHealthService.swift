@@ -96,7 +96,7 @@ final class MockHealthService: HealthService {
         unit: HKUnit
     ) async throws -> [HKData] {
         let hkDatas: [HKData] = (0..<7).map { index in
-            let date = Date.now.addingDays(index)!
+            let date = Date.now.addingDays(-index)!
             let (startDay, endDay) = date.rangeOfDay()
             return HKData(startDate: startDay, endDate: endDay, value: Double.random(in: 1..<1000))
         }
