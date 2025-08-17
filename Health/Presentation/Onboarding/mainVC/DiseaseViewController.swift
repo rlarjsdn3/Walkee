@@ -116,7 +116,24 @@ class DiseaseViewController: CoreGradientViewController {
         } catch {
             print("Failed to save diseases to CoreData: \(error)")
         }
-        performSegue(withIdentifier: "goToHealthLink", sender: self)
+        
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        
+        guard let tabBarController = storyboard.instantiateInitialViewController() as? UITabBarController else {
+            print("Main.storyboard의 초기 뷰컨트롤러가 UITabBarController가 아닙니다.")
+            return
+        }
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+            let window = windowScene.windows.first {
+            window.rootViewController = tabBarController
+            window.makeKeyAndVisible()
+            
+            UIView.transition(with: window,
+                                 duration: 0.5,
+                                 options: [.transitionCrossDissolve],
+                                 animations: nil)
+        }
+        UserDefaultsWrapper.shared.hasSeenOnboarding = true
     }
     
     private func updateContinueButtonState() {

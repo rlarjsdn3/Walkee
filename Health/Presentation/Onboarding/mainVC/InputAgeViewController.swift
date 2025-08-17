@@ -99,21 +99,25 @@ class InputAgeViewController: CoreGradientViewController {
     }
     
     private func validateInput() {
-        guard let text = ageInputField.text, let year = Int(text) else {
-            disableContinueButton()
-            hideError()
-            return
+            guard let text = ageInputField.text else {
+                disableContinueButton()
+                hideError()
+                return
+            }
+            if text.count == 4, let year = Int(text) {
+                if year < 1900 || year > 2025 {
+                    showError()
+                    disableContinueButton()
+                    ageInputField.text = ""
+                } else {
+                    hideError()
+                    enableContinueButton()
+                }
+            } else {
+                disableContinueButton()
+                hideError()
+            }
         }
-        
-        if year < 1900 || year > 2025 {
-            showError()
-            disableContinueButton()
-        } else {
-            hideError()
-            enableContinueButton()
-            ageInputField.resignFirstResponder()
-        }
-    }
     
     private func showError() {
         errorLabel.isHidden = false

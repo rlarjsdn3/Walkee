@@ -12,15 +12,7 @@ class HeightViewController: CoreGradientViewController {
     
     @IBOutlet weak var heightInputField: UITextField!
     @IBOutlet weak var errorLabel: UILabel!
-    
-    private let cmLabel: UILabel = {
-        let label = UILabel()
-        label.text = "cm"
-        label.textColor = .accent
-        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
+    @IBOutlet weak var cmLabel: UILabel!
     
     private let continueButton: UIButton = {
         let button = UIButton(type: .system)
@@ -102,7 +94,7 @@ class HeightViewController: CoreGradientViewController {
     }
     
     override func setupHierarchy() {
-        [continueButton, cmLabel].forEach {
+        [continueButton].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview($0)
         }
@@ -116,9 +108,6 @@ class HeightViewController: CoreGradientViewController {
             continueButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             continueButton.heightAnchor.constraint(equalToConstant: 48),
-            
-            cmLabel.leadingAnchor.constraint(equalTo: heightInputField.trailingAnchor, constant: 8),
-            cmLabel.centerYAnchor.constraint(equalTo: heightInputField.centerYAnchor)
         ])
     }
     
@@ -140,20 +129,33 @@ class HeightViewController: CoreGradientViewController {
             return
         }
         
-        if height > 210 {
+        switch text.count {
+        case 1, 2:
+            hideError()
+            disableContinueButton()
+            
+        case 3:
+            if height < 130 {
+                showError()
+                disableContinueButton()
+                heightInputField.text = ""
+                
+            } else if height <= 210 {
+                hideError()
+                enableContinueButton()
+                
+            } else {
+                showError()
+                disableContinueButton()
+                heightInputField.text = ""
+            }
+        default:
             showError()
+            disableContinueButton()
             heightInputField.text = ""
-            disableContinueButton()
-            heightInputField.resignFirstResponder()
-        } else if height >= 130 {
-            hideError()
-            enableContinueButton()
-            heightInputField.resignFirstResponder()
-        } else {
-            hideError()
-            disableContinueButton()
         }
     }
+
     
     private func showError(text: String = "130 ~ 210 사이의 값을 입력해주세요.") {
         errorLabel.isHidden = false

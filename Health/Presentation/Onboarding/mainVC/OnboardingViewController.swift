@@ -20,9 +20,15 @@ class OnboardingViewController: CoreGradientViewController {
         button.setTitleColor(.label, for: .normal)
         button.applyCornerStyle(.medium)
         button.isEnabled = true
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .bold) // 이 줄 추가
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .bold)
         return button
     }()
+
+    private var continueButtonLeading: NSLayoutConstraint!
+    private var continueButtonTrailing: NSLayoutConstraint!
+
+    private var iPadLeadingConstraint: NSLayoutConstraint?
+    private var iPadTrailingConstraint: NSLayoutConstraint?
     
     override func initVM() {}
     
@@ -55,15 +61,47 @@ class OnboardingViewController: CoreGradientViewController {
     }
     
     override func setupConstraints() {
+        // iPhone 기본 margin
+        continueButtonLeading = continueButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20)
+        continueButtonTrailing = continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+        
         NSLayoutConstraint.activate([
             continueButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
-            continueButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            continueButtonLeading,
+            continueButtonTrailing,
             continueButton.heightAnchor.constraint(equalToConstant: 48)
         ])
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        let isIpad = traitCollection.horizontalSizeClass == .regular &&
+                      traitCollection.verticalSizeClass == .regular
+        
+        guard let parentVC = parent as? ProgressContainerViewController else { return }
+        
+        if isIpad {
+            continueButtonLeading.isActive = false
+            continueButtonTrailing.isActive = false
+            
+            iPadLeadingConstraint = continueButton.leadingAnchor.constraint(equalTo: parentVC.customNavigationBar.leadingAnchor)
+            iPadTrailingConstraint = continueButton.trailingAnchor.constraint(equalTo: parentVC.customNavigationBar.trailingAnchor)
+            iPadLeadingConstraint?.isActive = true
+            iPadTrailingConstraint?.isActive = true
+            
+        } else {
+            iPadLeadingConstraint?.isActive = false
+            iPadTrailingConstraint?.isActive = false
+            continueButtonLeading.isActive = true
+            continueButtonTrailing.isActive = true
+        }
+        
+        view.layoutIfNeeded()
+    }
+    
     @objc private func continueButtonTapped() {
-        performSegue(withIdentifier: "goToGenderInfo", sender: self)
+        performSegue(withIdentifier: "goToHealthLink", sender: self)
     }
 }
+

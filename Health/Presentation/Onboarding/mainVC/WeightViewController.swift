@@ -12,15 +12,7 @@ class WeightViewController: CoreGradientViewController {
     
     @IBOutlet weak var weightInputField: UITextField!
     @IBOutlet weak var errorLabel: UILabel!
-    
-    private let kgLabel: UILabel = {
-        let label = UILabel()
-        label.text = "kg"
-        label.textColor = .accent
-        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
+    @IBOutlet weak var kgLabel: UILabel!
     
     private let continueButton: UIButton = {
         let button = UIButton(type: .system)
@@ -62,7 +54,7 @@ class WeightViewController: CoreGradientViewController {
             validateInput()
         }
     }
-
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         if weightInputField.text?.isEmpty ?? true {
@@ -71,7 +63,7 @@ class WeightViewController: CoreGradientViewController {
     }
     
     override func setupHierarchy() {
-        [continueButton, kgLabel].forEach {
+        [continueButton].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview($0)
         }
@@ -84,9 +76,6 @@ class WeightViewController: CoreGradientViewController {
             continueButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             continueButton.heightAnchor.constraint(equalToConstant: 48),
-            
-            kgLabel.leadingAnchor.constraint(equalTo: weightInputField.trailingAnchor, constant: 8),
-            kgLabel.centerYAnchor.constraint(equalTo: weightInputField.centerYAnchor)
         ])
     }
     
@@ -142,18 +131,33 @@ class WeightViewController: CoreGradientViewController {
             return
         }
         
-        if weight > 200 {
+        switch text.count {
+        case 1:
+            hideError()
+            disableContinueButton()
+        case 2:
+            if weight >= 35 {
+                hideError()
+                enableContinueButton()
+            } else {
+                showError()
+                disableContinueButton()
+            }
+        case 3:
+            if weight <= 200 {
+                hideError()
+                enableContinueButton()
+            } else {
+                showError()
+                disableContinueButton()
+                weightInputField.text = ""
+            }
+            
+        default:
             showError()
             disableContinueButton()
             weightInputField.text = ""
             weightInputField.resignFirstResponder()
-        } else if weight >= 35 {
-            hideError()
-            enableContinueButton()
-            weightInputField.resignFirstResponder()
-        } else {
-            hideError()
-            disableContinueButton()
         }
     }
     
