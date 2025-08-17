@@ -16,7 +16,7 @@ import Foundation
 /// 이 코드는 개인정보 마스킹 처리에서 **상세 주소 → 시/도 단위로 축약**하기 위해 사용됩니다.
 // MARK: - Model
 struct District: Codable, Sendable {
-	let code: String
+	let code: String?
 	let name: String
 	let children: [District]?
 }
@@ -37,18 +37,46 @@ enum DistrictDB {
 
 // MARK: - JSON 로딩
 private extension DistrictDB {
-	static func loadJSON(from bundle: Bundle = .main,
-						 filename: String = "korea-administrative-district",
-						 ext: String = "json") -> [District] {
+	struct CosmosRoot: Codable {
+		let name: String?
+		let version: String?
+		let url: String?
+		let data: [[String: [String]]]
+	}
+
+	static func loadJSON(
+		from bundle: Bundle = .main,
+		filename: String = "korea-administrative-district",
+		ext: String = "json"
+	) -> [District] {
+
+		// 1) 파일/데이터 로드까지만 보장
 		guard
 			let url = bundle.url(forResource: filename, withExtension: ext),
-			let data = try? Data(contentsOf: url),
-			let roots = try? JSONDecoder().decode([District].self, from: data)
+			let data = try? Data(contentsOf: url)
 		else {
-			assertionFailure("⚠️ \(filename).\(ext) 로드 실패(타겟 멤버십 확인)")
+			assertionFailure("⚠️ \(filename).\(ext) 파일을 찾지 못했어요(타겟 멤버십/경로 확인).")
 			return []
 		}
-		return roots
+
+		// 2) 기존 포맷([District]) 먼저 시도
+		if let roots = try? JSONDecoder().decode([District].self, from: data) {
+			return roots
+		}
+
+		// 3) cosmosfarm 포맷 시도 (루트 객체 + data 배열)
+		if let root = try? JSONDecoder().decode(CosmosRoot.self, from: data) {
+			let provinces: [District] = root.data.compactMap { dict in
+				guard let (provinceName, cities) = dict.first else { return nil }
+				let children = cities.map { District(code: nil, name: $0, children: nil) }
+				return District(code: nil, name: provinceName, children: children)
+			}
+			return provinces
+		}
+
+		// 4) 둘 다 실패한 경우에만 크래시
+		assertionFailure("⚠️ \(filename).\(ext) 디코딩 실패(스키마 불일치/인코딩 확인).")
+		return []
 	}
 }
 

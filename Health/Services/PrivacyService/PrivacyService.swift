@@ -23,16 +23,16 @@ enum RRNMaskStyle {
 struct PrivacyService {
 	static func maskSensitiveInfo(in text: String) -> String {
 		var replacements: [(range: NSRange, replacement: String)] = []
-
+		
 		// 각 항목별 마스킹 대상 추출
-		replacements += findNameReplacements(in: text)
+		replacements += findAddressReplacements(in: text)
 		replacements += findRRNReplacements(in: text)
 		replacements += findPhoneReplacements(in: text)
-		replacements += findAddressReplacements(in: text)
-
+		replacements += findNameReplacements(in: text)
+		
 		// 충돌 방지를 위해 뒤에서부터 교체
 		replacements.sort { $0.range.location > $1.range.location }
-
+		
 		var result = text
 		for r in replacements {
 			if let swiftRange = Range(r.range, in: result) {
@@ -41,123 +41,155 @@ struct PrivacyService {
 		}
 		return result
 	}
-
+	
 	// MARK: - 이름 마스킹
 	static func findNameReplacements(in text: String) -> [(NSRange, String)] {
 		var results: [(NSRange, String)] = []
-
+		let nsText = text as NSString
+		
+		// 1단계: NLTagger로 개인 이름 감지
+		let tagger = NLTagger(tagSchemes: [.nameType])
+		tagger.string = text
+		
+		let options: NLTagger.Options = [.omitPunctuation, .omitWhitespace, .joinNames]
+		
+		tagger.enumerateTags(in: text.startIndex..<text.endIndex,
+							 unit: .word,
+							 scheme: .nameType,
+							 options: options) { tag, tokenRange in
+			if tag == .personalName {
+				let name = String(text[tokenRange])
+				if isKoreanName(name) {
+					let nsRange = NSRange(tokenRange, in: text)
+					let maskedName = maskKoreanName(name)
+					results.append((nsRange, maskedName))
+				}
+			}
+			return true
+		}
+		
+		// 2단계: 정규식으로 놓친 패턴들 추가 처리
 		let patterns = [
-			#"(?<=내 이름은\s)([가-힣])[가-힣]{1,2}"#,
-			#"(?<=나는\s)([가-힣])[가-힣]{1,2}"#,
-			#"(?<=저는\s)([가-힣])[가-힣]{1,2}"#,
-			#"(?<=이름은\s)([가-힣])[가-힣]{1,2}"#,
-			#"(?<=제 이름은\s)([가-힣])[가-힣]{1,2}"#,
-			#"([가-힣])[가-힣]{1,2}(?=(고|야|입니다|이고|이에요|이예요|입니다\.|입니다!|입니다,))"#
+			// "이지훈이고" 패턴
+			#"([가-힣]{2,4})(?=이고)"#,
+			#"([가-힣]{2,4})(?=고)"#,
+			// "내 이름은 김길동" 패턴
+			#"(?<=내\s이름은\s)([가-힣]{2,4})"#,
+			#"(?<=나는\s)([가-힣]{2,4})(?=이)"#,
+			#"(?<=저는\s)([가-힣]{2,4})(?=이)"#,
+			#"(?<=이름은\s)([가-힣]{2,4})"#,
+			#"(?<=제\s이름은\s)([가-힣]{2,4})"#,
+			
+			// "김길동입니다", "김길동이에요" 패턴
+			#"([가-힣]{2,4})(?=입니다|이에요|이예요|야|이야)"#,
+			
+			// "김길동인데" 패턴
+			#"([가-힣]{2,4})(?=인데|이거든|라고)"#
 		]
-
+		
 		for pattern in patterns {
 			if let regex = try? NSRegularExpression(pattern: pattern) {
 				let range = NSRange(text.startIndex..<text.endIndex, in: text)
 				regex.enumerateMatches(in: text, options: [], range: range) { match, _, _ in
-					guard let match = match,
-						  let nameRange = match.range(at: 1) as NSRange? else { return }
-					let original = (text as NSString).substring(with: nameRange)
-					results.append((match.range, "\(original)모씨"))
+					guard let match = match else { return }
+					let nameRange = match.range(at: 1)
+					let name = nsText.substring(with: nameRange)
+					
+					if isKoreanName(name) {
+						// 이미 처리된 범위와 겹치는지 확인
+						let alreadyProcessed = results.contains { existing in
+							NSIntersectionRange(existing.0, match.range).length > 0
+						}
+						
+						if !alreadyProcessed {
+							let maskedName = maskKoreanName(name)
+							results.append((match.range, maskedName))
+						}
+					}
 				}
 			}
 		}
+		
 		return results
 	}
-
-	// MARK: - 주민등록번호 마스킹
-	static func findRRNReplacements(in text: String) -> [(NSRange, String)] {
-		let pattern = #"(?<!\d)(\d{2})(\d{2})(\d{2})[-]?(?:\s)?([1-8])(\d{6})(?!\d)"#
-		guard let regex = try? NSRegularExpression(pattern: pattern) else { return [] }
-
-		let range = NSRange(text.startIndex..<text.endIndex, in: text)
-		var results: [(NSRange, String)] = []
-
-		regex.enumerateMatches(in: text, options: [], range: range) { match, _, _ in
-			guard let match = match else { return }
-			let yy = (text as NSString).substring(with: match.range(at: 1))
-			let mm = (text as NSString).substring(with: match.range(at: 2))
-			let dd = (text as NSString).substring(with: match.range(at: 3))
-			let g  = (text as NSString).substring(with: match.range(at: 4))
-
-			if isValidDateYYMMDD(yy: yy, mm: mm, dd: dd) {
-				results.append((match.range, "**\(mm)**-\(g)******"))
+	
+	// 한국어 이름 판별
+	static func isKoreanName(_ name: String) -> Bool {
+		let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+		guard trimmed.count >= 2 && trimmed.count <= 4 else { return false }
+		
+		return trimmed.allSatisfy { char in
+			char.unicodeScalars.allSatisfy { scalar in
+				(scalar.value >= 0xAC00 && scalar.value <= 0xD7AF) // 한글 완성형
 			}
 		}
+	}
+	
+	// 한국어 이름 마스킹
+	static func maskKoreanName(_ name: String) -> String {
+		let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+		if trimmed.count >= 2 {
+			let firstChar = String(trimmed.prefix(1))
+			return firstChar + "모씨"
+		}
+		return trimmed
+	}
+	
+	// MARK: - 주민등록번호 마스킹 (13자리 연속 + 하이픈 패턴)
+	static func findRRNReplacements(in text: String) -> [(NSRange, String)] {
+		var results: [(NSRange, String)] = []
+		
+		let patterns = [
+			// 하이픈 있는 패턴: 830412-1234567
+			#"(?<!\d)(\d{2})(\d{2})(\d{2})[-]([1-8])(\d{6})(?!\d)"#,
+			
+			// 13자리 연속 패턴: 8304121234567
+			#"(?<!\d)(\d{2})(\d{2})(\d{2})([1-8])(\d{6})(?!\d)"#
+		]
+		
+		for pattern in patterns {
+			guard let regex = try? NSRegularExpression(pattern: pattern) else { continue }
+			let range = NSRange(text.startIndex..<text.endIndex, in: text)
+			
+			regex.enumerateMatches(in: text, options: [], range: range) { match, _, _ in
+				guard let match = match else { return }
+				let yy = (text as NSString).substring(with: match.range(at: 1))
+				let mm = (text as NSString).substring(with: match.range(at: 2))
+				let dd = (text as NSString).substring(with: match.range(at: 3))
+				let g  = (text as NSString).substring(with: match.range(at: 4))
+				
+				if isValidDateYYMMDD(yy: yy, mm: mm, dd: dd) {
+					results.append((match.range, "**\(mm)**-\(g)******"))
+				}
+			}
+		}
+		
 		return results
 	}
-
+	
 	static func isValidDateYYMMDD(yy: String, mm: String, dd: String) -> Bool {
 		guard let m = Int(mm), let d = Int(dd), (1...12).contains(m) else { return false }
 		let days = [31,28,31,30,31,30,31,31,30,31,30,31]
 		return (1...days[m - 1]).contains(d)
 	}
-
+	
 	// MARK: - 전화번호 (간단한 예시)
 	static func findPhoneReplacements(in text: String) -> [(NSRange, String)] {
 		let pattern = #"(01[016789])-?(\d{3,4})-?(\d{4})"#
 		guard let regex = try? NSRegularExpression(pattern: pattern) else { return [] }
-
+		
 		let range = NSRange(text.startIndex..<text.endIndex, in: text)
 		var results: [(NSRange, String)] = []
-
+		
 		regex.enumerateMatches(in: text, options: [], range: range) { match, _, _ in
 			guard let match = match else { return }
 			results.append((match.range, "010-****-****"))
 		}
 		return results
 	}
-
+	
 	// MARK: - 주소 마스킹 (도시 + 구만 남기기)
 	static func findAddressReplacements(in text: String) -> [(NSRange, String)] {
-		let db = DistrictDB.shared
-		let sorted = db.nameToProvince.keys.sorted { $0.count > $1.count }
-
-		for keyword in sorted {
-			guard let province = db.nameToProvince[keyword],
-				  let range = text.range(of: keyword) else { continue }
-
-			// "경기도 부천시" 형태로 축약
-			let replacement = "\(province) \(keyword)"
-
-			let nsRange = NSRange(text.startIndex..<text.endIndex, in: text)
-			return [(nsRange, replacement)]
-		}
-		return []
-	}
-}
-
-// MARK: - 정규식 치환 헬퍼 (캡처 그룹 배열 접근)
-private extension String {
-	/// 정규식 패턴으로 매칭된 구간을 **캡처 그룹 배열**을 이용해 커스텀 빌더로 교체합니다.
-	///
-	/// - Parameters:
-	///   - pattern: 정규식 패턴
-	///   - options: 정규식 옵션
-	///   - builder: 캡처 그룹(`m[0]` 전체, `m[1...]` 그룹들)을 받아 치환 문자열을 반환하는 클로저
-	/// - Returns: 치환이 적용된 문자열
-	func replacingOccurrences(of pattern: String,
-							  options: NSRegularExpression.Options = [],
-							  with builder: ([String]) -> String) -> String {
-		guard let regex = try? NSRegularExpression(pattern: pattern, options: options) else { return self }
-		let nsrange = NSRange(startIndex..<endIndex, in: self)
-		var result = self
-		for match in regex.matches(in: self, options: [], range: nsrange).reversed() {
-			var groups: [String] = []
-			for i in 0..<match.numberOfRanges {
-				let r = match.range(at: i)
-				if let rr = Range(r, in: self) { groups.append(String(self[rr])) }
-				else { groups.append("") }
-			}
-			let replacement = builder(groups)
-			if let rr = Range(match.range, in: result) {
-				result.replaceSubrange(rr, with: replacement)
-			}
-		}
-		return result
+		return AddressRegionClassifier.findAddressReplacements(in: text)
 	}
 }
