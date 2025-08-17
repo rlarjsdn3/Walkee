@@ -103,6 +103,17 @@ extension InjectIdentifier {
     static var stepSyncViewModel: InjectIdentifier<StepSyncViewModel> {
         InjectIdentifier<StepSyncViewModel>(type: StepSyncViewModel.self)
     }
+    
+    /// 사용자 정보 ViewModel을 식별하는 정적 속성
+    ///
+    /// `UserInfoViewModel` 클래스를 의존성 주입 컨테이너에서
+    /// 등록하고 해결할 때 사용되는 타입 안전한 식별자입니다.
+    ///
+    /// - Returns: `UserInfoViewModel` 타입의 `InjectIdentifier` 인스턴스
+    /// - Note: Core Data의 `viewContext`와 함께 초기화됩니다.
+    static var userInfoViewModel: InjectIdentifier<UserInfoViewModel> {
+        InjectIdentifier<UserInfoViewModel>(type: UserInfoViewModel.self)
+    }
 
     /// 달력 기반 걸음 수 데이터 조회 서비스를 식별하는 정적 속성
     ///

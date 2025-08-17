@@ -26,7 +26,7 @@ class EditBirthdayView: CoreView {
         setupYears()
         setupPicker()
         
-        setInitialSelection()
+        setDefaultSelection()
     }
     
     override func setupConstraints() {
@@ -54,15 +54,15 @@ class EditBirthdayView: CoreView {
         pickerView.translatesAutoresizingMaskIntoConstraints = false
     }
     
-    private func setInitialSelection() {
+    private func setDefaultSelection() {
         if let yearIndex = years.firstIndex(of: selectedYear) {
             pickerView.selectRow(yearIndex, inComponent: 0, animated: false)
         }
     }
     
-    func setInitialYear(_ year: Int) {
+    func setDefaultYear(_ year: Int) {
         selectedYear = clampYear(year)
-        setInitialSelection()
+        setDefaultSelection()
     }
     
     func getSelectedYear() -> Int {
