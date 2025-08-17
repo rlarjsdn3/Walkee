@@ -115,7 +115,7 @@ extension DIContainer {
 	
 	func registerPrivacyLayer() {
 		self.register(.privacyService) { _ in
-			DefaultPrivacyService()
+			PrivacyService()
 		}
 	}
     

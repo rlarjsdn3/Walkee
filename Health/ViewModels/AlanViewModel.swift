@@ -4,7 +4,7 @@ import Foundation
 final class AlanViewModel {
 	
 	@Injected private var networkService: NetworkService
-	
+
 	private(set) var errorMessage: String?
 	
 	private var clientID: String {
@@ -20,7 +20,8 @@ final class AlanViewModel {
 	
 	// MARK: - 일반 질문 형식 APIEndpoint
 	func sendQuestion(_ content: String) async {
-		let endpoint = APIEndpoint.ask(content: content, clientID: clientID)
+		let safe = PrivacyService.maskSensitiveInfo(in: content)
+		let endpoint = APIEndpoint.ask(content: safe, clientID: clientID)
 		
 		do {
 			let response = try await networkService.request(endpoint: endpoint, as: AlanQuestionResponse.self)
@@ -33,12 +34,47 @@ final class AlanViewModel {
 	
 	// MARK: SSE Streaming 형식의 응답을 받는 질문 요청
 	func startStreamingQuestion(_ content: String) {
+#if DEBUG
+		// ── Debug: 로컬 목 JSON을 “한 글자씩” 흘려서 SSE처럼 보이게
+		Task { @MainActor [weak self] in
+			guard let self else { return }
+			defer { self.onStreamCompleted?() }
+			
+			struct Mock: Decodable {
+				struct Action: Decodable { let name: String; let speak: String }
+				let action: Action
+				let content: String
+			}
+			
+			do {
+				guard let url = Bundle.main.url(forResource: "mock_ask_response", withExtension: "json") else {
+					self.onActionText?("모킹 파일을 찾을 수 없어요.")
+					return
+				}
+				let data = try Data(contentsOf: url)
+				let mock = try JSONDecoder().decode(Mock.self, from: data)
+				
+				if mock.action.speak.isEmpty == false {
+					self.onActionText?(mock.action.speak)
+				}
+				
+				// 실제 SSE 느낌: 20~40ms 간격으로 한 글자씩
+				for ch in mock.content {
+					try await Task.sleep(nanoseconds: 30_000_000)
+					self.onStreamChunk?(String(ch))
+				}
+			} catch {
+				self.errorMessage = error.localizedDescription
+			}
+		}
+		#else
+		// ── Release: 실제 SSE
 		do {
-			let url = try buildStreamingURL(content: content, clientID: clientID)
-
+			let safe = PrivacyService.maskSensitiveInfo(in: content)
+			let url = try buildStreamingURL(content: safe, clientID: clientID)
 			let client = AlanSSEClient()
 			self.sseClient = client
-
+			
 			let stream = client.connect(url: url)
 			Task { @MainActor [weak self]  in
 				guard let self else { return }
@@ -47,21 +83,18 @@ final class AlanViewModel {
 					self.sseClient = nil
 					self.onStreamCompleted?()
 				}
-
+				
 				do {
 					streamLoop: for try await event in stream {
 						switch event.type {
 						case .action:
-							// 서버 진행 멘트(speak 우선, 없으면 content)
 							if let speak = event.data.speak ?? event.data.content, !speak.isEmpty {
 								self.onActionText?(speak)
 							}
-
 						case .continue:
 							if let piece = event.data.content, !piece.isEmpty {
 								self.onStreamChunk?(piece)
 							}
-
 						case .complete:
 							break streamLoop
 						}
@@ -74,6 +107,7 @@ final class AlanViewModel {
 			self.errorMessage = error.localizedDescription
 			self.onStreamCompleted?()
 		}
+		#endif
 	}
 	
 	func resetAgentState() async {
@@ -89,16 +123,23 @@ final class AlanViewModel {
 	
 	// MARK: - SSE 요청 중 Server Error 500 이 뜰 때 reset State
 	func startStreamingQuestionWithAutoReset(_ content: String) {
+#if DEBUG
+		// Debug 모드에서는 mock 데이터 사용
+		startStreamingQuestion(content)
+#else
+		// Release 모드에서는 실제 SSE + 자동 재시도 로직
 		Task { @MainActor [weak self] in
 			guard let self else { return }
 			await self._startStreaming(content: content, canRetry: true)
 		}
+#endif
 	}
 
 	private func _startStreaming(content: String, canRetry: Bool) async {
 		var shouldCallCompleted = true
 		do {
-			let url = try buildStreamingURL(content: content, clientID: clientID)
+			let safe = PrivacyService.maskSensitiveInfo(in: content)
+			let url = try buildStreamingURL(content: safe, clientID: clientID)
 			let client = AlanSSEClient()
 			self.sseClient = client
 			
