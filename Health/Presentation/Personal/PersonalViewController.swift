@@ -256,13 +256,6 @@ class PersonalViewController: CoreGradientViewController, Alertable {
         easyLevelCourses.shuffle()
         mediumLevelCourses.shuffle()
         hardLevelCourses.shuffle()
-
-        // 결과 출력
-        print("난이도별 분류 완료:")
-        print("- 하(1): \(easyLevelCourses.count)개")
-        print("- 중(2): \(mediumLevelCourses.count)개")
-        print("- 상(3): \(hardLevelCourses.count)개")
-        print("- 총 코스: \(easyLevelCourses.count + mediumLevelCourses.count + hardLevelCourses.count)개")
     }
 
     @MainActor
@@ -281,7 +274,6 @@ class PersonalViewController: CoreGradientViewController, Alertable {
 
             await MainActor.run {
                 applySorting(sortType: self.currentSortType)
-                print("코스 수: \(courses.count)")
             }
 
             await viewModel.calculateAllCourseDistances(courses: courses)
@@ -295,7 +287,6 @@ class PersonalViewController: CoreGradientViewController, Alertable {
 
         if let cell = collectionView.cellForItem(at: indexPath) as? RecommendPlaceCell {
             cell.updateDistance(distanceText)
-            print("셀 거리 업데이트: \(distanceText)")
         }
     }
 
@@ -347,7 +338,7 @@ class PersonalViewController: CoreGradientViewController, Alertable {
             }
 
         default:
-            print("알 수 없는 정렬 타입: \(sortType)")
+            return
         }
 
         // UI 업데이트
@@ -362,7 +353,6 @@ class PersonalViewController: CoreGradientViewController, Alertable {
 
         // 아직 권한을 요청한 적이 없을 때(.notDetermined)만 실행합니다.
         if manager.isPermissionNotDetermined() { // isPermissionNotDetermined()는 권한 상태가 .notDetermined인지 확인하는 가상 함수
-            print("최초 권한을 요청합니다.")
 
             // 시스템 권한 팝업을 띄웁니다.
             let granted = await manager.requestLocationPermission()
@@ -371,8 +361,6 @@ class PersonalViewController: CoreGradientViewController, Alertable {
             if !granted {
                 showPermissionDeniedAlert()
             }
-        } else {
-            print("이미 권한이 설정되어 있습니다 (허용 또는 거부됨).")
         }
     }
 
@@ -405,7 +393,6 @@ class PersonalViewController: CoreGradientViewController, Alertable {
         // 현재 권한 상태를 다시 확인
         if manager.checkCurrentPermissionStatus() {
             // 1. 권한이 이미 허용된 상태일 경우
-            print("위치 권한 있음. 가까운순 정렬을 실행합니다.")
 
             // TODO: - 실제 사용자 위치를 가져오는 로직 구현 필요
             // let userLocation = await LocationService.shared.getCurrentLocation()

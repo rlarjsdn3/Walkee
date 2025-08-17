@@ -27,6 +27,8 @@ class RecommendPlaceCell: CoreCollectionViewCell {
 
     override func setupAttribute() {
         super.setupAttribute()
+        BackgroundHeightUtils.setupShadow(for: self)
+        BackgroundHeightUtils.setupDarkModeBorder(for: placeBackground)
         placeBackground.applyCornerStyle(.medium)
     }
 

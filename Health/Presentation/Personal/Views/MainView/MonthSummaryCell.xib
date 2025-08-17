@@ -5,6 +5,7 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -18,9 +19,9 @@
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 <subviews>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="7월 기록 요약" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="omY-84-VhQ">
-                        <rect key="frame" x="5" y="0.0" width="117.33333333333333" height="41.333333333333336"/>
-                        <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
-                        <nil key="textColor"/>
+                        <rect key="frame" x="5" y="0.0" width="91.666666666666671" height="41.333333333333336"/>
+                        <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
+                        <color key="textColor" systemColor="secondaryLabelColor"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aan-of-cHS" userLabel="Stack View">
@@ -34,8 +35,8 @@
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" text="총 걸음 수" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cUf-6G-6hJ">
                                                 <rect key="frame" x="0.0" y="0.0" width="205" height="41"/>
-                                                <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
-                                                <nil key="textColor"/>
+                                                <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
+                                                <color key="textColor" systemColor="secondaryLabelColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="YBv-oP-HV2">
@@ -43,7 +44,7 @@
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="249" horizontalCompressionResistancePriority="751" text="102332보" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="IM2-td-MUR">
                                                         <rect key="frame" x="0.0" y="0.0" width="205" height="27.666666666666668"/>
-                                                        <fontDescription key="fontDescription" style="UICTFontTextStyleTitle3"/>
+                                                        <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
@@ -62,8 +63,8 @@
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="251" text="총 거리" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="agm-Li-mO1">
                                                 <rect key="frame" x="0.0" y="0.0" width="205.66666666666666" height="40.666666666666664"/>
-                                                <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
-                                                <nil key="textColor"/>
+                                                <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
+                                                <color key="textColor" systemColor="secondaryLabelColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="mSq-am-M1k">
@@ -71,7 +72,7 @@
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="5KM" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1bI-zz-HJB">
                                                         <rect key="frame" x="0.0" y="0.0" width="205.33333333333334" height="27.333333333333332"/>
-                                                        <fontDescription key="fontDescription" style="UICTFontTextStyleTitle3"/>
+                                                        <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
@@ -90,8 +91,8 @@
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="251" text="소비 활동 에너지" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="CzQ-m7-7Nj">
                                                 <rect key="frame" x="0.0" y="0.0" width="205" height="41"/>
-                                                <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
-                                                <nil key="textColor"/>
+                                                <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
+                                                <color key="textColor" systemColor="secondaryLabelColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="HK0-Vt-uZc">
@@ -99,7 +100,7 @@
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="100kcal" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HXX-JU-zXY">
                                                         <rect key="frame" x="0.0" y="0.0" width="205" height="27.666666666666668"/>
-                                                        <fontDescription key="fontDescription" style="UICTFontTextStyleTitle3"/>
+                                                        <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
@@ -157,5 +158,8 @@
         <namedColor name="boxBgColor">
             <color red="0.95294117647058818" green="0.95294117647058818" blue="0.95294117647058818" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
+        <systemColor name="secondaryLabelColor">
+            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
     </resources>
 </document>

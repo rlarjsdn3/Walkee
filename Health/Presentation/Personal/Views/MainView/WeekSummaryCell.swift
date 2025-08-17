@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Combine
 
 class WeekSummaryCell: CoreCollectionViewCell {
     
@@ -17,11 +18,9 @@ class WeekSummaryCell: CoreCollectionViewCell {
     @IBOutlet weak var backgroundHeight: NSLayoutConstraint!
     
     private var barChartView: BarChartsView?
-    private static var cachedWeeklyData: WeeklyHealthData?
-    private static var lastCacheTime: Date?
-    
-    private let healthDataViewModel = HealthDataViewModel()
-    
+    private let viewModel = WeekSummaryCellViewModel()
+    private var cancellables = Set<AnyCancellable>()
+
     //기존 생성자 제거하고 기본 초기화만 사용
     @MainActor required init?(coder: NSCoder) {
         super.init(coder: coder)
@@ -29,14 +28,18 @@ class WeekSummaryCell: CoreCollectionViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
+        bindViewModel()
     }
     
     override func setupAttribute() {
-        super.setupAttribute()
-        weekBackgroundView.applyCornerStyle(.medium)
-        loadWeeklyData()
-    }
-    
+           super.setupAttribute()
+           BackgroundHeightUtils.setupShadow(for: self)
+           BackgroundHeightUtils.setupDarkModeBorder(for: weekBackgroundView)
+           weekBackgroundView.applyCornerStyle(.medium)
+
+           viewModel.loadWeeklyData()
+       }
+
     override func setupConstraints() {
         super.setupConstraints()
         BackgroundHeightUtils.updateBackgroundHeight(constraint: backgroundHeight, in: self)
@@ -45,6 +48,89 @@ class WeekSummaryCell: CoreCollectionViewCell {
             BackgroundHeightUtils.updateBackgroundHeight(constraint: self.backgroundHeight, in: self)
         }
     }
+
+    private func bindViewModel() {
+          viewModel.$state
+              .receive(on: DispatchQueue.main)
+              .sink { [weak self] state in
+                  self?.updateUI(for: state)
+              }
+              .store(in: &cancellables)
+      }
+
+    // MARK: - UI 업데이트
+
+        private func updateUI(for state: WeekSummaryCellViewModel.LoadState) {
+            switch state {
+            case .idle:
+                hidePermissionView()
+
+            case .loading:
+                hidePermissionView()
+
+            case .success(let data):
+                hidePermissionView()
+                configureChart(weeklySteps: data.dailySteps)
+                updateUIWithData(data)
+
+            case .denied:
+                showPermissionView()
+
+            case .failure:
+                hidePermissionView()
+            }
+        }
+
+    private func updateUIWithData(_ data: WeeklyHealthData) {
+        // 걸음수 스타일링
+        let stepsString = "\(data.weeklyTotalSteps.formatted()) 걸음"
+        let stepsAttrString = NSAttributedString(string: stepsString)
+            .font(.preferredFont(forTextStyle: .footnote), to: "걸음")
+            .foregroundColor(.secondaryLabel, to: "걸음")
+        walkingLabel.attributedText = stepsAttrString
+
+        // 거리 스타일링
+        let distanceString = "\(String(format: "%.1f", data.weeklyTotalDistance)) km"
+        let distanceAttrString = NSAttributedString(string: distanceString)
+            .font(.preferredFont(forTextStyle: .footnote), to: "km")
+            .foregroundColor(.secondaryLabel, to: "km")
+        distanceLabel.attributedText = distanceAttrString
+    }
+
+        // MARK: - 권한 요청 뷰
+
+        private func showPermissionView() {
+            if weekBackgroundView.subviews.contains(where: { $0 is PermissionDeniedFullView }) {
+                return
+            }
+
+            let permissionView = PermissionDeniedFullView()
+            weekBackgroundView.addSubview(permissionView)
+
+            permissionView.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                permissionView.topAnchor.constraint(equalTo: weekBackgroundView.topAnchor),
+                permissionView.leadingAnchor.constraint(equalTo: weekBackgroundView.leadingAnchor),
+                permissionView.trailingAnchor.constraint(equalTo: weekBackgroundView.trailingAnchor),
+                permissionView.bottomAnchor.constraint(equalTo: weekBackgroundView.bottomAnchor)
+            ])
+
+            permissionView.touchHandler = { [weak self] in
+                Task {
+                    await self?.viewModel.requestPermission()
+                }
+            }
+        }
+
+        private func hidePermissionView() {
+            weekBackgroundView.subviews.forEach { subview in
+                if subview is PermissionDeniedFullView {
+                    subview.removeFromSuperview()
+                }
+            }
+        }
+
+
     // MARK: - 차트 관련 메서드
     
     // 목표 걸음 수와 함께 차트를 설정합니다
@@ -63,7 +149,6 @@ class WeekSummaryCell: CoreCollectionViewCell {
         barChartView = BarChartsView(chartData: chartData, configuration: configuration)
         
         guard let barChartView = barChartView else {
-            print("barChartView 생성 실패!")
             return
         }
         
@@ -153,33 +238,6 @@ class WeekSummaryCell: CoreCollectionViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        // 셀이 재사용될 때 업데이트(5분간격)
-        loadWeeklyData()
-    }
-    
-    private func loadWeeklyData() {
-        // 5분 이내 캐시가 있으면 재사용
-        if let cached = Self.cachedWeeklyData,
-           let lastTime = Self.lastCacheTime,
-           Date().timeIntervalSince(lastTime) < 300 { // 5분
-            
-            updateUI(with: cached)
-            return
-        }
-        
-        // 새로 데이터 로드
-        Task { @MainActor in
-            let weeklyData = await healthDataViewModel.getWeeklyHealthData()
-            Self.cachedWeeklyData = weeklyData
-            Self.lastCacheTime = Date()
-            updateUI(with: weeklyData)
-        }
-    }
-    
-    private func updateUI(with data: WeeklyHealthData) {
-        
-        configureChart(weeklySteps: data.dailySteps)
-        walkingLabel.text = "\(data.weeklyTotalSteps.formatted())보"
-        distanceLabel.text = "\(String(format: "%.1f", data.weeklyTotalDistance))km"
+        viewModel.loadWeeklyData()
     }
 }

@@ -35,8 +35,6 @@ final class HealthDataViewModel: ObservableObject {
         var dailySteps = [10, 10, 10, 10, 10, 10, 10]        // 걸음수 배열
         var dailyDistances = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]  // 거리 배열
 
-        print("7일간 실제 걸음수 + 거리 데이터 가져오기 시작")
-
         // 오늘부터 지난 6일까지 총 7일 데이터 가져오기
         for dayOffset in 0...6 {  // 0=오늘, 1=어제, 2=그저께, ..., 6=6일전
             do {
@@ -86,9 +84,6 @@ final class HealthDataViewModel: ObservableObject {
                 // 실패해도 계속 진행 (해당 날짜는 0으로 남음)
             }
         }
-
-        print("최종 걸음수 배열 (월화수목금토일): \(dailySteps)")
-        print("최종 거리 배열 (월화수목금토일): \(dailyDistances.map { String(format: "%.1f", $0) + "km" })")
 
         // 결과 반환
         return WeeklyHealthData(
@@ -149,8 +144,6 @@ final class HealthDataViewModel: ObservableObject {
                                 thisMonthStart: thisMonthStart, thisMonthEnd: thisMonthEnd)
         }
 
-        print("HealthKit에서 실제 월간 데이터 가져오는 중...")
-
         // 실제 데이터 가져오기
         async let thisMonthData = fetchMonthData(from: thisMonthStart, to: thisMonthEnd, monthName: "이번 달")
         async let lastMonthData = fetchMonthData(from: lastMonthStart, to: lastMonthEnd, monthName: "지난 달")
@@ -159,7 +152,6 @@ final class HealthDataViewModel: ObservableObject {
 
         // 데이터가 있으면 실제 데이터 사용
         if thisMonth.steps > 0 || thisMonth.distance > 0 || thisMonth.calories > 0 {
-            print("실제 HealthKit 월간 데이터 사용")
             return createResult(thisMonth: thisMonth, lastMonth: lastMonth,
                                 thisMonthStart: thisMonthStart, thisMonthEnd: thisMonthEnd)
         } else {
@@ -177,8 +169,6 @@ final class HealthDataViewModel: ObservableObject {
     /// - Returns: (걸음수, 거리, 칼로리) 튜플
     private func fetchMonthData(from startDate: Date, to endDate: Date, monthName: String) async -> (steps: Int, distance: Double, calories: Double) {
         do {
-            print("\(monthName) 데이터 가져오는 중...")
-
             // 걸음수, 거리, 칼로리 가져오기
             let stepsTask = try await healthService.fetchStatistics(
                 for: .stepCount, from: startDate, to: endDate,
@@ -202,12 +192,9 @@ final class HealthDataViewModel: ObservableObject {
             let distance = max(0.0, distanceData.value.isNaN ? 0.0 : distanceData.value)
             let calories = max(0.0, caloriesData.value.isNaN ? 0.0 : caloriesData.value)
 
-            print("\(monthName) HealthKit 데이터: \(steps.formatted())걸음, \(String(format: "%.1f", distance))km, \(String(format: "%.1f", calories))kcal")
-
             return (steps: steps, distance: distance, calories: calories)
 
         } catch {
-            print("\(monthName) 데이터 가져오기 실패: \(error)")
             return (steps: 0, distance: 0.0, calories: 0.0)
         }
     }
@@ -230,11 +217,6 @@ final class HealthDataViewModel: ObservableObject {
         let stepsDiff = thisMonth.steps - lastMonth.steps
         let distanceDiff = thisMonth.distance - lastMonth.distance
         let caloriesDiff = thisMonth.calories - lastMonth.calories
-
-        print("전월 대비 변화량:")
-        print("   - 걸음수: \(stepsDiff > 0 ? "+" : "")\(stepsDiff.formatted())걸음")
-        print("   - 거리: \(distanceDiff > 0 ? "+" : "")\(String(format: "%.1f", distanceDiff))km")
-        print("   - 칼로리: \(caloriesDiff > 0 ? "+" : "")\(String(format: "%.1f", caloriesDiff))kcal")
 
         return MonthlyHealthData(
             monthlyTotalSteps: thisMonth.steps,
