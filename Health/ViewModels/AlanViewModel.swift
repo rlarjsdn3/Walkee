@@ -19,7 +19,7 @@ final class AlanViewModel {
 	private var sseClient: AlanSSEClient?
 	
 	// MARK: - 일반 질문 형식 APIEndpoint
-	func sendQuestion(_ content: String) async {
+	func sendQuestion(_ content: String) async -> String? {
 		let safe = PrivacyService.maskSensitiveInfo(in: content)
 		let endpoint = APIEndpoint.ask(content: safe, clientID: clientID)
 		
