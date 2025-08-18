@@ -187,4 +187,9 @@ extension CalendarViewController: UICollectionViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         scrollManager.handleScrollForInfiniteLoading(scrollView)
     }
+
+    /// 상단바를 탭해서 최상단으로 스크롤하는 동작 방지
+    func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
+        return false
+    }
 }
