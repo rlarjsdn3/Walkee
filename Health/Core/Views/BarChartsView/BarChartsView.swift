@@ -68,6 +68,7 @@ final class BarChartsView: UIView {
     }
 
     override func layoutSubviews() {
+        super.layoutSubviews()
         guard let chartData = chartData else { return }
         constructGraph(using: chartData)
     }
@@ -89,7 +90,11 @@ final class BarChartsView: UIView {
             values.append(limitValue)
         }
 
-        let maxValue = values.max() ?? 0
+        var maxValue = values.max() ?? 0
+        // 모든 값이 0인 경우 '0으로 나눌 수 없다'는 예외가 발생하고,
+        // 막대 차트를 그릴 기준점 역시 모호해집니다.
+        // 따라서 모든 값이 0일 때는 maxValue를 임의로 뷰의 높이로 설정합니다.
+        if maxValue == 0 { maxValue = self.bounds.height }
 
         chartData.elements.forEach { element in
             let elementView = UIView()
@@ -223,7 +228,7 @@ final class BarChartsView: UIView {
         // 최대값에 비해 현재 값이 어느 정도인지 계산한 비율(역수)입니다.
         // 예: 최대값이 10,000이고 현재 값이 5,000이면, 비율은 2입니다.
         // 이 값은 막대가 전체 높이 중 얼마만큼 차지할지를 계산하는 데 사용됩니다.
-        let divider = CGFloat(maxValue / element.value)
+        let divider = maxValue > 0 ? CGFloat(element.value / maxValue) : 1e-9
 
         // 막대의 실제 높이를 계산합니다.
         // 전체 높이에서 위에서 구한 비율만큼 나누어, 현재 값에 비례한 높이를 구합니다.
@@ -282,7 +287,7 @@ final class BarChartsView: UIView {
         limitView.configuration = configuration
         limitView.translatesAutoresizingMaskIntoConstraints = false
 
-        barChartsStackView.addSubview(limitView) // x-xcode-debug-views:///36d7d7560 Height and vertical position are ambiguous for LimitView.
+        barChartsStackView.addSubview(limitView)
 
         NSLayoutConstraint.activate([
             limitView.bottomAnchor.constraint(equalTo: barParentView.bottomAnchor, constant: -bottomPadding),

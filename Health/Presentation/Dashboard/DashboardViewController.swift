@@ -22,7 +22,7 @@ final class DashboardViewController: CoreGradientViewController {
     private var hasBuiltLayout = false
     private var hasLoadedData = false
     
-    private lazy var viewModel: DashboardViewModel = {
+    lazy var viewModel: DashboardViewModel = {
         .init()
     }()
 
@@ -131,65 +131,84 @@ final class DashboardViewController: CoreGradientViewController {
     }
 
     private func applySnapshot() {
-        // TODO: - 스냅샷 다시 구성하기
-
         var snapshot = NSDiffableDataSourceSnapshot<DashboardContent.Section, DashboardContent.Item>()
-        snapshot.appendSections([.top, .ring, .charts, .alan, .card, .bottom])
-
-
-        snapshot.appendItems([.topBar], toSection: .top)
-
-        // -------
-        var stackItems: [DashboardContent.Item] = []
-        viewModel.goalRingIDs.forEach { id in
-            stackItems.append(.goalRing(id))
-        }
-        // ------- 코드 리팩토링하기
-
-        // -------
-        viewModel.stackIDs.forEach { id in
-            stackItems.append(.stackInfo(id))
-        }
-        snapshot.appendItems(stackItems, toSection: .ring)
-        // ------- 코드 리팩토링하기
-        
-        // -------
-        var chartsItem: [DashboardContent.Item] = []
-        viewModel.chartsIDs.forEach { id in
-            chartsItem.append(.barCharts(id))
-        }
-        snapshot.appendItems(chartsItem, toSection: .charts)
-        // ------- 코드 리팩토링하기
-
-        // ------
-        var summaryItem: [DashboardContent.Item] = []
-        viewModel.summaryIDs.forEach { id in
-            summaryItem.append(.alanSummary(id))
-        }
-        snapshot.appendItems(summaryItem, toSection: .alan)
-        // ------ 코드 리팩토링하기
-
-        // ------
-        var cardItems: [DashboardContent.Item] = []
-        viewModel.cardIDs.forEach { id in
-            cardItems.append(.cardInfo(id))
-        }
-        snapshot.appendItems(cardItems, toSection: .card)
-        // ------- 코드 리팩토링하기
-
-        // -------
-        snapshot.appendItems([.text], toSection: .bottom)
-        // ------- 코드 리팩토링하기
-        
+        appendTopBarSection(to: &snapshot)
+        appendGoalRingSection(to: &snapshot)
+        appendBarChartsSection(to: &snapshot)
+        appendAISummarySection(to: &snapshot)
+        appendCardSection(to: &snapshot)
+        appendBottomBarSection(to: &snapshot)
         dataSource?.apply(snapshot)
     }
 }
 
 fileprivate extension DashboardViewController {
 
+    private func appendTopBarSection(to snapshot: inout NSDiffableDataSourceSnapshot<DashboardContent.Section, DashboardContent.Item>) {
+        snapshot.appendSections([.top])
+        snapshot.appendItems([.topBar], toSection: .top)
+    }
+
+    private func appendGoalRingSection(to snapshot: inout NSDiffableDataSourceSnapshot<DashboardContent.Section, DashboardContent.Item>) {
+        snapshot.appendSections([.ring])
+
+        var items: [DashboardContent.Item] = []
+        viewModel.goalRingIDs.forEach { id in
+            items.append(.goalRing(id))
+        }
+        viewModel.stackIDs.forEach { id in
+            items.append(.stackInfo(id))
+        }
+        snapshot.appendItems(items, toSection: .ring)
+    }
+
+    private func appendBarChartsSection(to snapshot: inout NSDiffableDataSourceSnapshot<DashboardContent.Section, DashboardContent.Item>) {
+        // 기준 날짜가 `오늘`이 아니라면 섹션 추가하지 않기
+        guard viewModel.anchorDate.isEqual(with: .now) else { return }
+
+        snapshot.appendSections([.charts])
+
+        var item: [DashboardContent.Item] = []
+        viewModel.chartsIDs.forEach { id in
+            item.append(.barCharts(id))
+        }
+        snapshot.appendItems(item, toSection: .charts)
+    }
+
+    private func appendAISummarySection(to snapshot: inout NSDiffableDataSourceSnapshot<DashboardContent.Section, DashboardContent.Item>) {
+        // 기준 날짜가 `오늘`이 아니라면 섹션 추가하지 않기
+        guard viewModel.anchorDate.isEqual(with: .now) else { return }
+
+        snapshot.appendSections([.alan])
+
+        var item: [DashboardContent.Item] = []
+        viewModel.summaryIDs.forEach { id in
+            item.append(.alanSummary(id))
+        }
+        snapshot.appendItems(item, toSection: .alan)
+    }
+
+    private func appendCardSection(to snapshot: inout NSDiffableDataSourceSnapshot<DashboardContent.Section, DashboardContent.Item>) {
+        snapshot.appendSections([.card])
+
+        var items: [DashboardContent.Item] = []
+        viewModel.cardIDs.forEach { id in
+            items.append(.cardInfo(id))
+        }
+        snapshot.appendItems(items, toSection: .card)
+    }
+
+    private func appendBottomBarSection(to snapshot: inout NSDiffableDataSourceSnapshot<DashboardContent.Section, DashboardContent.Item>) {
+        snapshot.appendSections([.bottom])
+        snapshot.appendItems([.text], toSection: .bottom)
+    }
+}
+
+fileprivate extension DashboardViewController {
+
     func createTopBarCellRegistration() -> UICollectionView.CellRegistration<DashboardTopBarCollectionViewCell, Void> {
-        UICollectionView.CellRegistration<DashboardTopBarCollectionViewCell, Void>(cellNib: DashboardTopBarCollectionViewCell.nib) { cell, indexPath, _ in
-            cell.update(with: .now) // TODO: - 실제 날짜 값으로 전달하기
+        UICollectionView.CellRegistration<DashboardTopBarCollectionViewCell, Void>(cellNib: DashboardTopBarCollectionViewCell.nib) { [weak self] cell, indexPath, _ in
+            cell.update(with: self?.viewModel.anchorDate ?? .now)
         }
     }
 
