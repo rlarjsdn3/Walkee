@@ -160,9 +160,9 @@ extension PersonalContent.Section {
         let section = NSCollectionLayoutSection(group: group)
         section.interGroupSpacing = 10
         section.contentInsets = NSDirectionalEdgeInsets(
-            top: 10,
+            top: 0,
             leading: horizontalInset,
-            bottom: 30,
+            bottom: 16,
             trailing: horizontalInset
         )
 
@@ -230,7 +230,7 @@ extension PersonalContent.Section {
 
         // 오른쪽 정렬: leading을 크게 설정해서 버튼을 오른쪽으로 밀기
         section.contentInsets = NSDirectionalEdgeInsets(
-            top: 0,
+            top: -10,
             leading: containerWidth - buttonWidth - 16,
             bottom: 0,
             trailing: 16  // 오른쪽 여백
@@ -299,9 +299,9 @@ extension PersonalContent.Section {
         let section = NSCollectionLayoutSection(group: group)
         section.interGroupSpacing = 12  // 각 그룹(행) 사이의 간격
         section.contentInsets = NSDirectionalEdgeInsets(
-            top: 5,
+            top: -10,
             leading: UICollectionViewConstant.defaultInset,
-            bottom: 15,
+            bottom: 20,
             trailing: UICollectionViewConstant.defaultInset
         )
         return section

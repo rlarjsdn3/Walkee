@@ -56,7 +56,7 @@ final class BackgroundHeightUtils {
     static func setupDarkModeBorder(for view: UIView) {
         // 초기 테두리 설정
         view.layer.borderWidth = calculateBorderWidth(for: view.traitCollection)
-        view.layer.borderColor = UIColor.separator.cgColor
+        view.layer.borderColor = UIColor.boxBgLightModeStroke.cgColor
         view.layer.masksToBounds = true
 
         // 다크모드/라이트모드 전환 감지 등록

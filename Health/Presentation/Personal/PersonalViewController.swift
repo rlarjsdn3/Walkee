@@ -101,7 +101,7 @@ class PersonalViewController: CoreGradientViewController, Alertable {
         }
 
         let config = UICollectionViewCompositionalLayoutConfiguration()
-        config.interSectionSpacing = 5
+        config.interSectionSpacing = 16
         return UICollectionViewCompositionalLayout(sectionProvider: sectionProvider, configuration: config)
     }
 

@@ -19,7 +19,7 @@
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 <subviews>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="7월 기록 요약" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="omY-84-VhQ">
-                        <rect key="frame" x="5" y="0.0" width="91.666666666666671" height="41.333333333333336"/>
+                        <rect key="frame" x="5" y="0.0" width="91.666666666666671" height="34.333333333333336"/>
                         <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                         <color key="textColor" systemColor="secondaryLabelColor"/>
                         <nil key="highlightedColor"/>
@@ -135,7 +135,7 @@
                 <constraint firstAttribute="trailing" secondItem="aan-of-cHS" secondAttribute="trailing" id="JE0-wz-eT1"/>
                 <constraint firstItem="aan-of-cHS" firstAttribute="centerX" secondItem="KEe-aD-T4W" secondAttribute="centerX" id="JqE-Uc-Adx"/>
                 <constraint firstItem="omY-84-VhQ" firstAttribute="leading" secondItem="KEe-aD-T4W" secondAttribute="leading" constant="5" id="QPY-xM-Cwx"/>
-                <constraint firstItem="aan-of-cHS" firstAttribute="top" secondItem="omY-84-VhQ" secondAttribute="bottom" constant="4.9999999999999964" id="Qpk-jX-Wkp"/>
+                <constraint firstItem="aan-of-cHS" firstAttribute="top" secondItem="omY-84-VhQ" secondAttribute="bottom" constant="12" id="Qpk-jX-Wkp"/>
                 <constraint firstItem="omY-84-VhQ" firstAttribute="top" secondItem="KEe-aD-T4W" secondAttribute="top" id="c0n-Vb-1jC"/>
                 <constraint firstAttribute="bottom" secondItem="aan-of-cHS" secondAttribute="bottom" id="lZM-f7-PTJ"/>
             </constraints>

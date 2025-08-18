@@ -19,7 +19,7 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="이번주 기록" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zIx-qZ-V2K">
-                        <rect key="frame" x="5" y="0.0" width="77.666666666666671" height="25.333333333333332"/>
+                        <rect key="frame" x="5" y="0.0" width="77.666666666666671" height="18.333333333333332"/>
                         <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                         <color key="textColor" systemColor="secondaryLabelColor"/>
                         <nil key="highlightedColor"/>
@@ -111,7 +111,7 @@
                     <constraint firstAttribute="trailing" secondItem="aw2-2O-Rk7" secondAttribute="trailing" id="Qg5-Tk-heH"/>
                     <constraint firstItem="zIx-qZ-V2K" firstAttribute="top" secondItem="tB6-3j-phh" secondAttribute="top" id="f5U-eB-RbX"/>
                     <constraint firstItem="zIx-qZ-V2K" firstAttribute="leading" secondItem="tB6-3j-phh" secondAttribute="leading" constant="5" id="lzZ-xI-k4Q"/>
-                    <constraint firstItem="aw2-2O-Rk7" firstAttribute="top" secondItem="zIx-qZ-V2K" secondAttribute="bottom" constant="5" id="onG-Q9-nOK"/>
+                    <constraint firstItem="aw2-2O-Rk7" firstAttribute="top" secondItem="zIx-qZ-V2K" secondAttribute="bottom" constant="12" id="onG-Q9-nOK"/>
                     <constraint firstAttribute="bottom" secondItem="aw2-2O-Rk7" secondAttribute="bottom" id="xEf-7u-1El"/>
                 </constraints>
             </collectionViewCellContentView>
