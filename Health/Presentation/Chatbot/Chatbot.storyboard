@@ -17,8 +17,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" ambiguous="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="Sjn-mm-DvB">
-                                <rect key="frame" x="0.0" y="0.0" width="393" height="704"/>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="Sjn-mm-DvB">
+                                <rect key="frame" x="0.0" y="182" width="393" height="522"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </tableView>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="3mU-rj-JGX">
@@ -63,13 +63,23 @@
                                 </subviews>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </stackView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pb1-hy-Jgy" customClass="ChatbotHeaderTitleView" customModule="Health" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="118" width="393" height="64"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="64" id="uqz-Fr-Z5Y"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vgf-3o-Tx2"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
+                            <constraint firstItem="pb1-hy-Jgy" firstAttribute="top" secondItem="vgf-3o-Tx2" secondAttribute="top" id="Bcb-LM-NfE"/>
+                            <constraint firstItem="pb1-hy-Jgy" firstAttribute="leading" secondItem="vgf-3o-Tx2" secondAttribute="leading" id="Grh-5S-6ux"/>
                             <constraint firstItem="3mU-rj-JGX" firstAttribute="bottom" secondItem="vgf-3o-Tx2" secondAttribute="bottom" id="ODB-MH-Tcl"/>
+                            <constraint firstItem="vgf-3o-Tx2" firstAttribute="trailing" secondItem="pb1-hy-Jgy" secondAttribute="trailing" id="R2D-tX-w3g"/>
                             <constraint firstItem="vgf-3o-Tx2" firstAttribute="bottom" secondItem="Sjn-mm-DvB" secondAttribute="bottom" constant="80" id="RqY-8N-hsN"/>
-                            <constraint firstItem="Sjn-mm-DvB" firstAttribute="top" relation="greaterThanOrEqual" secondItem="bIH-9k-yXg" secondAttribute="top" id="eXd-xE-YDp"/>
+                            <constraint firstItem="Sjn-mm-DvB" firstAttribute="top" secondItem="pb1-hy-Jgy" secondAttribute="bottom" id="Zlc-r2-1AD"/>
                             <constraint firstItem="Sjn-mm-DvB" firstAttribute="leading" secondItem="vgf-3o-Tx2" secondAttribute="leading" id="ioe-9z-joi"/>
                             <constraint firstItem="vgf-3o-Tx2" firstAttribute="trailing" secondItem="3mU-rj-JGX" secondAttribute="trailing" constant="16" id="kHh-e7-Smv"/>
                             <constraint firstItem="3mU-rj-JGX" firstAttribute="leading" secondItem="vgf-3o-Tx2" secondAttribute="leading" constant="16" id="oL1-rU-rTT"/>
@@ -81,6 +91,7 @@
                         <outlet property="chattingInputStackView" destination="JcR-5o-DiP" id="lDv-9C-jgs"/>
                         <outlet property="chattingTextField" destination="o50-vy-lbP" id="pDR-5e-edJ"/>
                         <outlet property="containerViewBottomConstraint" destination="ODB-MH-Tcl" id="UcB-4b-CDa"/>
+                        <outlet property="headerView" destination="pb1-hy-Jgy" id="ni0-tM-QuI"/>
                         <outlet property="sendButton" destination="Jhw-LG-ZoI" id="CFe-Za-2Lz"/>
                         <outlet property="tableView" destination="Sjn-mm-DvB" id="kml-mG-8HL"/>
                     </connections>
