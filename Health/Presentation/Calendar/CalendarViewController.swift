@@ -52,7 +52,7 @@ final class CalendarViewController: CoreGradientViewController {
         // 이 경우, scrollManager는 아직 초기화되지 않았기 때문에 강제 접근 시 crash 발생 가능
         // 따라서 "뷰가 이미 로드되고 실제 화면(window)에 표시된 경우"에만
         // scrollManager.handleDeviceRotation()을 호출하도록 제한.
-        guard isViewLoaded && view.window != nil else { return }
+        guard viewIfLoaded?.window != nil else { return }
         scrollManager.handleDeviceRotation(coordinator: coordinator)
     }
 }
