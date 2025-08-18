@@ -164,7 +164,7 @@ extension AIMonthlySummaryCellViewModel {
             // 월간 데이터만 사용
             stepCount: Double(monthlyData.monthlyTotalSteps),      // 월간 총 걸음수
             distanceWalkingRunning: monthlyData.monthlyTotalDistance, // 월간 총 거리
-            activeEnergyBurned: monthlyData.monthlyTotalCalories,     // 월간 총 칼로리
+            activeEnergyBurned: monthlyData.monthlyTotalCalories     // 월간 총 칼로리
         )
         
         return PromptContext(descriptor: descriptor)
