@@ -21,7 +21,7 @@ final class DefaultPromptBuilderService: PromptBuilderService {
     /// - Returns: 생성된 프롬프트 문자열.
     /// - Throws: 사용자 정보/HealthKit 조회 중 발생한 오류를 전파합니다.
     func makePrompt(
-        message extraInstructions: String,
+        message extraInstructions: String? = nil,
         context: PromptContext? = nil,
         option: PromptOption
     ) async throws -> String {
@@ -38,9 +38,9 @@ final class DefaultPromptBuilderService: PromptBuilderService {
             let startOfMonth = Date.now.startOfMonth() ?? .now
             let endOfMonth = Date.now.endOfMonth() ?? .now
             async let stepCount = try fetchHKData(.stepCount)
-            async let distanceWalkingRunning = try fetchHKData(.distanceWalkingRunning)
-            async let activeEnergyBurned = try fetchHKData(.activeEnergyBurned)
-            async let basalEnergyBurned = try fetchHKData(.basalEnergyBurned)
+            async let distanceWalkingRunning = try fetchHKData(.distanceWalkingRunning, unit: .meterUnit(with: .kilo))
+            async let activeEnergyBurned = try fetchHKData(.activeEnergyBurned, unit: .kilocalorie())
+            async let basalEnergyBurned = try fetchHKData(.basalEnergyBurned, unit: .kilocalorie())
             async let walkingSpeed = try fetchHKData(.walkingSpeed, options: .mostRecent, unit: .meter().unitDivided(by: .second()))
             async let stepLength = try fetchHKData(.walkingStepLength, options: .mostRecent, unit: .meterUnit(with: .centi))
             async let doubleSupportPercentage = try fetchHKData(.walkingDoubleSupportPercentage, options: .mostRecent, unit: .percent())
@@ -70,7 +70,7 @@ final class DefaultPromptBuilderService: PromptBuilderService {
         }
 
         var prompt = promptTemplateRenderService.render(with: ctx, option: option)
-        prompt.append(extraInstructions)
+        prompt.append(extraInstructions ?? "")
         return prompt
     }
 }
@@ -89,8 +89,8 @@ fileprivate extension DefaultPromptBuilderService {
             for: type,
             from: startDate,
             to: endDate,
-            options: .cumulativeSum,
-            unit: .count()
+            options: options,
+            unit: unit
         ).value
     }
 

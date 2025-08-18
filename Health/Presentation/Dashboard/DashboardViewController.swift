@@ -17,7 +17,11 @@ final class DashboardViewController: CoreGradientViewController {
     @IBOutlet weak var dashboardCollectionView: UICollectionView!
 
     private var dataSource: DashboardDiffableDataSource?
-
+    
+    //
+    private var hasBuiltLayout = false
+    private var hasLoadedData = false
+    
     private lazy var viewModel: DashboardViewModel = {
         .init()
     }()
@@ -30,22 +34,29 @@ final class DashboardViewController: CoreGradientViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        setupDataSource()
     }
 
     override func viewIsAppearing(_ animated: Bool) {
         super.viewIsAppearing(animated)
 
-        let vSizeClass = traitCollection.verticalSizeClass
-        let hSizeClass = traitCollection.horizontalSizeClass
-        let env = DashboardViewModel.DashboardEnvironment(
-            vericalClassIsRegular: vSizeClass == .regular,
-            horizontalClassIsRegular: hSizeClass == .regular
-        )
+        // TODO: - 다른 메서드로 빼서 코드 정돈하기
+        if !hasBuiltLayout {
+            let vSizeClass = traitCollection.verticalSizeClass
+            let hSizeClass = traitCollection.horizontalSizeClass
+            let env = DashboardViewModel.DashboardEnvironment(
+                vericalClassIsRegular: vSizeClass == .regular,
+                horizontalClassIsRegular: hSizeClass == .regular
+            )
+            viewModel.buildDashboardCells(for: env)
+            hasBuiltLayout = true
+        }
         
-        viewModel.buildDashboardCells(for: env)
-        viewModel.loadHKData() // TODO: - 적절한 다른 시점으로 메서드 옮겨보기 / 로드가 라이프-사이클 동안 한번만 실행되게 하기
-        applySnapshot() // TODO: - 적절한 다른 시점으로 메서드 옮겨보기
+        if !hasLoadedData {
+            viewModel.loadHKData()
+            setupDataSource()
+            applySnapshot()
+            hasLoadedData = true
+        }
     }
 
     override func setupAttribute() {
@@ -206,7 +217,15 @@ fileprivate extension DashboardViewController {
     func createAlanSummaryCellRegistration() -> UICollectionView.CellRegistration<AlanActivitySummaryCollectionViewCell, AlanActivitySummaryCellViewModel.ItemID> {
         UICollectionView.CellRegistration<AlanActivitySummaryCollectionViewCell, AlanActivitySummaryCellViewModel.ItemID>(cellNib: AlanActivitySummaryCollectionViewCell.nib) { [weak self] cell, indexPath, id in
             guard let vm = self?.viewModel.summaryCells[id] else { return }
-            vm.didChange = { _ in self?.dashboardCollectionView.collectionViewLayout.invalidateLayout() }
+            vm.didChange = { _ in
+                guard var snapshot = self?.dataSource?.snapshot() else { return }
+                snapshot.reconfigureItems([.alanSummary(id)])
+                self?.dashboardCollectionView.performBatchUpdates {
+                    self?.dataSource?.apply(snapshot, animatingDifferences: true)
+                } completion: { _ in
+                    self?.dashboardCollectionView.collectionViewLayout.invalidateLayout()
+                }
+            }
             cell.bind(with: vm)
         }
     }

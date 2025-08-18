@@ -178,7 +178,10 @@ extension Date {
     ///   - components: 비교할 캘린더 컴포넌트 집합입니다.
     ///   - date: 비교 대상 날짜입니다.
     /// - Returns: 지정된 컴포넌트 기준으로 두 날짜가 동일하면 `true`, 그렇지 않으면 `false`입니다.
-    func isEqual(_ components: Set<Calendar.Component>, with date: Date) -> Bool {
+    func isEqual(
+        _ components: Set<Calendar.Component> = [.year, .month, .day],
+        with date: Date
+    ) -> Bool {
         for component in components {
             let target = calendar.component(component, from: date)
             if calendar.component(component, from: self) != target {
