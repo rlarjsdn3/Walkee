@@ -18,11 +18,26 @@ extension UserDefaultsKeys {
             defaultValue: false
         )
     }
-    
+
     var healthkitLinked: UserDefaultsKey<Bool> {
         UserDefaultsKey<Bool>(
             "HealthKitLinked",
             defaultValue: false
+        )
+    }
+
+    /// PersonalView에서 월간 AI 요약 Label은 하루동안 캐시에 저장됩니다.
+    var aiSummaryMessage: UserDefaultsKey<String?> {
+        UserDefaultsKey<String?>(
+            "AISummary_Message",
+            defaultValue: nil
+        )
+    }
+
+    var aiSummaryDate: UserDefaultsKey<String?> {
+        UserDefaultsKey<String?>(
+            "AISummary_Date",
+            defaultValue: nil
         )
     }
 }
