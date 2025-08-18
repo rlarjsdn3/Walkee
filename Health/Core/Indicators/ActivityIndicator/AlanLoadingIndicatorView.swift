@@ -30,9 +30,9 @@ final class AlanLoadingIndicatorView: CoreView {
     private var timer: Timer?
     private var count: Int = 0
 
-    private let doingSummaryText = "AI가 열심히 요약 중이예요."
-    private let deniedSummaryText = "AI가 요약에 실패했어요. 건강 데이터에 대한 접근 권한이 필요합니다."
-    private let failedSummaryText = "AI가 요약에 실패했어요. 잠시 후 다시 시도해주세요."
+    private let doingSummaryText = "AI가 열심히 요약 중이에요."
+    private let deniedSummaryText = "AI가 요약에 실패했어요. 건강 데이터에 대한 접근 권한이 필요해요."
+    private let failedSummaryText = "AI가 요약에 실패했어요. 잠시 후 다시 시도해 주세요."
 
     override func setupHierarchy() {
         addSubview(indicatorStackView)
@@ -45,6 +45,7 @@ final class AlanLoadingIndicatorView: CoreView {
         loadingIndicatorView.startAnimating()
 
         titleLabel.text = doingSummaryText
+        titleLabel.font = .preferredFont(forTextStyle: .subheadline)
         titleLabel.textColor = .secondaryLabel
         titleLabel.numberOfLines = 0
 

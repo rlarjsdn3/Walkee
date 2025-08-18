@@ -416,7 +416,6 @@ extension DashboardViewModel {
 extension DashboardViewModel {
 
     func requestAlanToSummarizeTodayActivity() async throws -> String? {
-        print(#function)
         guard let prompt = try? await promptBuilderService.makePrompt(
             message: nil,
             context: nil,
