@@ -130,9 +130,9 @@ extension HealthInfoStackCollectionViewCell {
         with charts: [InfoStackContent.Charts],
         parent: UIViewController?
     ) {
-        // TOOD: - LineCharts가 범용 데이터를 받도록 코드 리팩토링하기
-        let sliced = Array(charts.prefix(7))
-        let hkd = sliced.map { HKData(startDate: $0.date, endDate: $0.date, value: $0.value) }
+        // 가장 최근 데이터를 오른쪽에 정렬시키기
+        let reversed = Array(charts.reversed())
+        let hkd = reversed.map { HKData(startDate: $0.date, endDate: $0.date, value: $0.value) }
         let hVC = LineChartsHostingController(chartsData: hkd)
         parent?.addChild(hVC, to: chartsContainerView)
         self.chartsHostingController = hVC

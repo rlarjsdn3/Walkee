@@ -18,7 +18,7 @@ protocol PromptBuilderService {
     /// - Returns: 생성된 프롬프트 문자열.
     /// - Throws: 사용자 정보/HealthKit 조회 중 발생한 오류를 전파합니다.
     func makePrompt(
-        message extraInstructions: String,
+        message extraInstructions: String?,
         context: PromptContext?,
         option: PromptOption
     ) async throws -> String
