@@ -109,7 +109,7 @@ class AISummaryCell: CoreCollectionViewCell {
         case .denied:
             aiSummaryLabel.isHidden = true
             aiSummaryLabel.text = nil
-            loadingIndicatorView.isHidden = false  // ← 이게 핵심!
+            loadingIndicatorView.isHidden = false
             loadingIndicatorView.setState(.denied)
         }
     }
