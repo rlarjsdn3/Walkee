@@ -48,11 +48,15 @@ final class DashboardViewModel {
 
     ///
     func buildDashboardCells(for environment: DashboardEnvironment) {
-        buildGoalRingCells()
-        buildAlanSummaryCells()
         buildStackCells()
+        buildGoalRingCells()
         buildCardCells()
-        buildBarChartsCells(for: environment)
+
+        // 오늘 날짜가 
+        if anchorDate.isEqual(with: .now) {
+            buildAlanSummaryCells()
+            buildBarChartsCells(for: environment)
+        }
     }
 
     private func buildGoalRingCells() {
