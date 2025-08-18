@@ -41,8 +41,10 @@ extension Alertable where Self: UIViewController {
         alert.configuration.exitingTransition = .slideDown
         alert.configuration.headerAnimation = .slideUp
         alert.configuration.buttonGroupAnimation = .slideUp
-        alert.viewConfiguration.backgroundBorderColor = UIColor.systemGray4.cgColor
-        alert.viewConfiguration.backgroundBorderWidth = 1
+        
+        sizeClasses(vRhR: {
+            alert.viewConfiguration.size.width = .proportional(minimumRatio: 0.33, maximumRatio: 0.33)
+        })
 
         let primaryAction = TSAlertAction(
             title: "확인",
@@ -51,7 +53,8 @@ extension Alertable where Self: UIViewController {
         )
         primaryAction.configuration.titleAttributes = [.font: UIFont.preferredFont(forTextStyle: .headline),
                                                        .foregroundColor: UIColor.white]
-        primaryAction.configuration.backgroundColor = UIColor.systemBlue // TODO: - 강조 색상으로 수정하기
+        primaryAction.configuration.backgroundColor = .accent
+        primaryAction.highlightType = .fadeIn
         alert.addAction(primaryAction)
 
         if let onCancelAction = onCancelAction {
@@ -92,9 +95,11 @@ extension Alertable where Self: UIViewController {
         alert.configuration.exitingTransition = .slideDown
         alert.configuration.headerAnimation = .slideUp
         alert.configuration.buttonGroupAnimation = .slideUp
-        alert.viewConfiguration.backgroundBorderColor = UIColor.systemGray4.cgColor
-        alert.viewConfiguration.backgroundBorderWidth = 1
 
+        sizeClasses(vRhR: {
+            alert.viewConfiguration.size.width = .proportional(minimumRatio: 0.5, maximumRatio: 0.5)
+        })
+        
         let deleteAction = TSAlertAction(
             title: "삭제",
             style: .destructive,
@@ -103,6 +108,7 @@ extension Alertable where Self: UIViewController {
         deleteAction.configuration.backgroundColor = UIColor.systemRed
         deleteAction.configuration.titleAttributes = [.font: UIFont.preferredFont(forTextStyle: .headline),
                                                       .foregroundColor: UIColor.white]
+        deleteAction.highlightType = .fadeIn
         alert.addAction(deleteAction)
 
         let cancelAction = TSAlertAction(
@@ -110,6 +116,7 @@ extension Alertable where Self: UIViewController {
             style: .cancel,
             handler: onCancelAction
         )
+        cancelAction.highlightType = .fadeIn
         alert.addAction(cancelAction)
 
         self.present(alert, animated: true)
@@ -134,10 +141,15 @@ extension Alertable where Self: UIViewController {
             options: [.dismissOnSwipeDown, .interactiveScaleAndDrag],
             preferredStyle: .floatingSheet
         )
-        alert.viewConfiguration.backgroundBorderColor = UIColor.systemGray4.cgColor
-        alert.viewConfiguration.backgroundBorderWidth = 1
+        
+        sizeClasses(vRhR: {
+            alert.viewConfiguration.size.width = .proportional(minimumRatio: 0.5, maximumRatio: 0.5)
+        })
 
-        actions.forEach { action in alert.addAction(action) }
+        actions.forEach { action in
+            action.highlightType = .fadeIn
+            alert.addAction(action)
+        }
 
         self.present(alert, animated: true)
     }
@@ -158,10 +170,15 @@ extension Alertable where Self: UIViewController {
             options: [.dismissOnSwipeDown, .interactiveScaleAndDrag],
             preferredStyle: .floatingSheet
         )
-        alert.viewConfiguration.backgroundBorderColor = UIColor.systemGray4.cgColor
-        alert.viewConfiguration.backgroundBorderWidth = 1
+        
+        sizeClasses(vRhR: {
+            alert.viewConfiguration.size.width = .proportional(minimumRatio: 0.33, maximumRatio: 0.33)
+        })
 
-        actions.forEach { action in alert.addAction(action) }
+        actions.forEach { action in
+            action.highlightType = .fadeIn
+            alert.addAction(action)
+        }
 
         self.present(alert, animated: true)
     }
