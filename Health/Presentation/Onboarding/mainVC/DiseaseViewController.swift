@@ -10,19 +10,18 @@ import HealthKit
 import CoreData
 
 class DiseaseViewController: CoreGradientViewController {
+    
+    @Injected private var stepSyncService: StepSyncService
 
     @IBOutlet weak var descriptionLabel: UILabel!
     @IBOutlet weak var diseaseCollectionView: UICollectionView!
+    @IBOutlet weak var continueButton: UIButton!
     
-    private let continueButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("다음", for: .normal)
-        button.setTitleColor(.label, for: .normal)
-        button.applyCornerStyle(.medium)
-        button.isEnabled = false
-        button.backgroundColor = UIColor.buttonBackground
-        return button
-    }()
+    @IBOutlet weak var continueButtonLeading: NSLayoutConstraint!
+    @IBOutlet weak var continueButtonTrailing: NSLayoutConstraint!
+    
+    private var iPadWidthConstraint: NSLayoutConstraint?
+    private var iPadCenterXConstraint: NSLayoutConstraint?
     
     private let progressIndicatorStackView = ProgressIndicatorStackView(totalPages: 4)
     private let defaultDiseases: [Disease] = Disease.allCases
@@ -36,10 +35,12 @@ class DiseaseViewController: CoreGradientViewController {
         super.viewDidLoad()
         applyBackgroundGradient(.midnightBlack)
         setupCollectionView()
-        continueButton.addTarget(self, action: #selector(continueButtonTapped), for: .touchUpInside)
-        view.bringSubviewToFront(continueButton)
+        
+        continueButton.setTitle("다음", for: .normal)
+        continueButton.applyCornerStyle(.medium)
+        continueButton.isEnabled = false
     }
-
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         fetchUserInfo()
@@ -48,12 +49,36 @@ class DiseaseViewController: CoreGradientViewController {
         updateNavigationBarVisibility()
     }
 
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        
+        let isIpad = traitCollection.horizontalSizeClass == .regular &&
+                     traitCollection.verticalSizeClass == .regular
+        
+        if isIpad {
+            continueButtonLeading?.isActive = false
+            continueButtonTrailing?.isActive = false
+            
+            if iPadWidthConstraint == nil {
+                iPadWidthConstraint = continueButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7)
+                iPadCenterXConstraint = continueButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+                iPadWidthConstraint?.isActive = true
+                iPadCenterXConstraint?.isActive = true
+            }
+        } else {
+            iPadWidthConstraint?.isActive = false
+            iPadCenterXConstraint?.isActive = false
+            
+            continueButtonLeading?.isActive = true
+            continueButtonTrailing?.isActive = true
+        }
+    }
+    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         diseaseCollectionView.collectionViewLayout.invalidateLayout()
     }
     
-    // 회전/trait 변화 시 네비게이션바 처리
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
         updateNavigationBarVisibility()
@@ -80,7 +105,9 @@ class DiseaseViewController: CoreGradientViewController {
     }
     
     private func selectUserDiseases() {
+        diseaseCollectionView.reloadData()
         guard !userDiseases.isEmpty else { return }
+        
         for (index, disease) in defaultDiseases.enumerated() {
             if userDiseases.contains(disease) {
                 let indexPath = IndexPath(item: index, section: 0)
@@ -89,27 +116,13 @@ class DiseaseViewController: CoreGradientViewController {
         }
     }
 
-    override func setupHierarchy() {
-        [continueButton, diseaseCollectionView, descriptionLabel].forEach {
-            $0.translatesAutoresizingMaskIntoConstraints = false
-            view.addSubview($0)
-        }
-    }
-
+    override func setupHierarchy() {}
     override func setupAttribute() {
         descriptionLabel.text = "평소 겪는 지병을 골라주세요."
         descriptionLabel.textColor = .label
     }
+    override func setupConstraints() {}
 
-    override func setupConstraints() {
-        NSLayoutConstraint.activate([
-            continueButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
-            continueButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            continueButton.heightAnchor.constraint(equalToConstant: 48)
-        ])
-    }
-    
     private func setupCollectionView() {
         diseaseCollectionView.delegate = self
         diseaseCollectionView.dataSource = self
@@ -123,23 +136,47 @@ class DiseaseViewController: CoreGradientViewController {
         diseaseCollectionView.backgroundColor = .clear
     }
 
-    @objc private func continueButtonTapped() {
+    @IBAction func continueButtonTapped(_ sender: Any) {
         let selectedIndexPaths = diseaseCollectionView.indexPathsForSelectedItems ?? []
         let selectedDiseases = selectedIndexPaths.map { defaultDiseases[$0.item] }
+
+        let context = CoreDataStack.shared.viewContext
+        let today = Date().startOfDay()
+
         userInfo?.diseases = selectedDiseases
+        let goal = GoalStepCountEntity(context: context)
+        goal.id = UUID()
+        goal.effectiveDate = today
+        goal.goalStepCount = 10000
+
         do {
             try context.save()
+            print("질병 정보와 임시 목표 걸음 수 저장 완료")
         } catch {
-            print("Failed to save diseases to CoreData: \(error)")
+            print("CoreData 저장 실패: \(error.localizedDescription)")
         }
-        
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        guard let tabBarController = storyboard.instantiateInitialViewController() as? UITabBarController else {
-            print("Main.storyboard의 초기 뷰컨트롤러가 UITabBarController가 아닙니다.")
-            return
+
+        UserDefaultsWrapper.shared.hasSeenOnboarding = true
+
+        Task {
+            do {
+                try await stepSyncService.syncSteps()
+                print("온보딩 직후 동기화 완료")
+            } catch {
+                print("온보딩 직후 동기화 실패: \(error.localizedDescription)")
+            }
         }
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let window = windowScene.windows.first {
+
+        if let window = UIApplication.shared.connectedScenes
+                            .compactMap({ $0 as? UIWindowScene })
+                            .flatMap({ $0.windows })
+                            .first(where: { $0.isKeyWindow }) {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            guard let tabBarController = storyboard.instantiateInitialViewController() as? UITabBarController else {
+                print("Main.storyboard의 초기 뷰컨트롤러가 UITabBarController가 아닙니다.")
+                return
+            }
+
             window.rootViewController = tabBarController
             window.makeKeyAndVisible()
             UIView.transition(with: window,
@@ -147,7 +184,6 @@ class DiseaseViewController: CoreGradientViewController {
                               options: [.transitionCrossDissolve],
                               animations: nil)
         }
-        UserDefaultsWrapper.shared.hasSeenOnboarding = true
     }
     
     private func updateContinueButtonState() {
@@ -206,8 +242,6 @@ extension DiseaseViewController: UICollectionViewDelegateFlowLayout {
         return CGSize(width: width, height: height)
     }
 
-
-    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if indexPath.item == noneDiseaseIndex {
             for i in 0..<defaultDiseases.count where i != noneDiseaseIndex {
@@ -228,4 +262,3 @@ extension DiseaseViewController: UICollectionViewDelegateFlowLayout {
         updateContinueButtonState()
     }
 }
-

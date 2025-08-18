@@ -54,19 +54,39 @@
                                     <constraint firstItem="t5L-9X-9pv" firstAttribute="centerY" secondItem="5ea-Yw-38L" secondAttribute="centerY" id="UgR-Fa-hfI"/>
                                 </constraints>
                             </stackView>
+                            <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="S8c-Kb-czc">
+                                <rect key="frame" x="20" y="734" width="353" height="50"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="50" id="R7x-ei-F7n"/>
+                                </constraints>
+                                <color key="tintColor" name="AccentColor"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="filled" title="다음">
+                                    <color key="baseForegroundColor" systemColor="labelColor"/>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="buttonAction:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="2fk-em-rtL"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="5ea-Yw-38L" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="20" id="LAa-t5-Ui4"/>
                             <constraint firstItem="5ea-Yw-38L" firstAttribute="centerX" secondItem="5EZ-qb-Rvc" secondAttribute="centerX" id="TxB-kh-AMF"/>
+                            <constraint firstItem="S8c-Kb-czc" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="20" id="VWr-e1-XdO"/>
                             <constraint firstItem="5ea-Yw-38L" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" constant="68" id="e4S-Bx-vtf"/>
+                            <constraint firstItem="S8c-Kb-czc" firstAttribute="bottom" secondItem="vDu-zF-Fre" secondAttribute="bottom" id="fkl-dr-lUZ"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="5ea-Yw-38L" secondAttribute="bottom" constant="219" id="n4g-6C-yXx"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="S8c-Kb-czc" secondAttribute="trailing" constant="20" id="ngm-F9-5q6"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="IeC-4y-Zir"/>
                     <connections>
                         <outlet property="appImageView" destination="t5L-9X-9pv" id="Ccx-mn-oY0"/>
+                        <outlet property="continueButton" destination="S8c-Kb-czc" id="J3O-fN-sMM"/>
+                        <outlet property="continueButtonLeading" destination="VWr-e1-XdO" id="teL-JP-AKQ"/>
+                        <outlet property="continueButtonTrailing" destination="ngm-F9-5q6" id="YG3-E0-f1i"/>
                         <outlet property="descriptionLabel" destination="2Vh-6U-HsA" id="iap-om-e7s"/>
                         <outlet property="titleLabel" destination="qfX-4l-STv" id="pEt-T5-Qi9"/>
                         <segue destination="Loh-xd-3Eb" kind="show" identifier="goToHealthLink" id="QXu-dt-f3R"/>
@@ -134,6 +154,20 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kfA-li-D6b">
+                                <rect key="frame" x="20" y="734" width="353" height="50"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="50" id="8ZB-fn-wPh"/>
+                                </constraints>
+                                <color key="tintColor" name="AccentColor"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="filled" title="다음">
+                                    <color key="baseForegroundColor" systemColor="labelColor"/>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="continueButtonTapped:" destination="hrK-kw-Dwx" eventType="touchUpInside" id="3lP-Ap-i1o"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="gos-vJ-VnX"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -141,9 +175,12 @@
                             <constraint firstItem="VUD-Ki-YLx" firstAttribute="centerX" secondItem="TCQ-d8-z0K" secondAttribute="centerX" id="G69-9e-YuM"/>
                             <constraint firstItem="gos-vJ-VnX" firstAttribute="trailing" secondItem="vNf-rt-nsg" secondAttribute="trailing" constant="20" id="HDo-Li-Anm"/>
                             <constraint firstItem="vNf-rt-nsg" firstAttribute="top" secondItem="gos-vJ-VnX" secondAttribute="top" constant="50" id="LGx-Kr-emI"/>
+                            <constraint firstItem="kfA-li-D6b" firstAttribute="leading" secondItem="gos-vJ-VnX" secondAttribute="leading" constant="20" id="TIY-I0-pRI"/>
                             <constraint firstItem="vNf-rt-nsg" firstAttribute="leading" secondItem="gos-vJ-VnX" secondAttribute="leading" constant="20" id="XBf-TF-5OD"/>
                             <constraint firstItem="DCc-HP-5JK" firstAttribute="centerX" secondItem="Toy-Hh-iBE" secondAttribute="centerX" id="bPe-t1-9pX"/>
+                            <constraint firstItem="kfA-li-D6b" firstAttribute="bottom" secondItem="gos-vJ-VnX" secondAttribute="bottom" id="pGR-Vl-9OB"/>
                             <constraint firstItem="jVr-0Q-cfk" firstAttribute="centerX" secondItem="JsL-Wl-VOl" secondAttribute="centerX" id="tvN-rH-Pa8"/>
+                            <constraint firstItem="gos-vJ-VnX" firstAttribute="trailing" secondItem="kfA-li-D6b" secondAttribute="trailing" constant="20" id="ugq-8B-7gd"/>
                             <constraint firstItem="jVr-0Q-cfk" firstAttribute="centerY" secondItem="JsL-Wl-VOl" secondAttribute="centerY" id="wv2-KG-t4c"/>
                             <constraint firstItem="DCc-HP-5JK" firstAttribute="centerY" secondItem="Toy-Hh-iBE" secondAttribute="centerY" constant="-20" id="yco-st-NPx"/>
                             <constraint firstItem="VUD-Ki-YLx" firstAttribute="centerY" secondItem="TCQ-d8-z0K" secondAttribute="centerY" id="zBm-y5-eUw"/>
@@ -151,6 +188,9 @@
                     </view>
                     <navigationItem key="navigationItem" largeTitleDisplayMode="never" id="AP0-zc-zz6"/>
                     <connections>
+                        <outlet property="continueButton" destination="kfA-li-D6b" id="wSw-0O-YAo"/>
+                        <outlet property="continueButtonLeading" destination="TIY-I0-pRI" id="mcA-D9-pIr"/>
+                        <outlet property="continueButtonTrailing" destination="ugq-8B-7gd" id="DzG-eo-kBP"/>
                         <outlet property="femaleButton" destination="TCQ-d8-z0K" id="at6-ZX-kyY"/>
                         <outlet property="femaleGender" destination="VUD-Ki-YLx" id="IeY-ao-HJt"/>
                         <outlet property="maleButton" destination="JsL-Wl-VOl" id="XQn-kX-pAP"/>
@@ -214,6 +254,20 @@
                                     <fontDescription key="fontDescription" style="UICTFontTextStyleTitle1"/>
                                 </variation>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MPF-9L-XvH">
+                                <rect key="frame" x="20" y="734" width="353" height="50"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="50" id="LTV-1o-zTg"/>
+                                </constraints>
+                                <color key="tintColor" name="AccentColor"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="filled" title="다음">
+                                    <color key="baseForegroundColor" systemColor="labelColor"/>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="continueButtonTapped:" destination="Rg3-Ue-2cM" eventType="touchUpInside" id="0pM-PM-Jf0"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vW4-aD-9Ar"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -223,16 +277,23 @@
                             <constraint firstItem="vW4-aD-9Ar" firstAttribute="trailing" secondItem="oup-qX-kbR" secondAttribute="trailing" constant="20" id="PyY-y7-XEc"/>
                             <constraint firstItem="hAW-KS-XK4" firstAttribute="leading" secondItem="vW4-aD-9Ar" secondAttribute="leading" constant="20" id="XNl-NZ-BEo"/>
                             <constraint firstItem="hAW-KS-XK4" firstAttribute="centerX" secondItem="dRu-12-2UK" secondAttribute="centerX" id="ZfP-TW-Oei"/>
+                            <constraint firstItem="vW4-aD-9Ar" firstAttribute="trailing" secondItem="MPF-9L-XvH" secondAttribute="trailing" constant="20" id="bCw-YH-uKf"/>
                             <constraint firstItem="vW4-aD-9Ar" firstAttribute="trailing" secondItem="ycv-JD-noa" secondAttribute="trailing" constant="20" id="gDx-oe-QGR"/>
+                            <constraint firstItem="MPF-9L-XvH" firstAttribute="leading" secondItem="vW4-aD-9Ar" secondAttribute="leading" constant="20" id="hgo-YO-caK"/>
                             <constraint firstItem="ycv-JD-noa" firstAttribute="top" secondItem="vW4-aD-9Ar" secondAttribute="top" constant="50" id="jg5-Ao-nOy"/>
                             <constraint firstItem="vW4-aD-9Ar" firstAttribute="trailing" secondItem="hAW-KS-XK4" secondAttribute="trailing" constant="20" id="mdV-D7-hbi"/>
                             <constraint firstItem="ycv-JD-noa" firstAttribute="leading" secondItem="vW4-aD-9Ar" secondAttribute="leading" constant="20" id="nQE-ak-gIx"/>
                             <constraint firstItem="oup-qX-kbR" firstAttribute="top" secondItem="ycv-JD-noa" secondAttribute="bottom" constant="30" id="pof-lk-Kbt"/>
+                            <constraint firstItem="MPF-9L-XvH" firstAttribute="bottom" secondItem="vW4-aD-9Ar" secondAttribute="bottom" id="vq9-hR-4b9"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" largeTitleDisplayMode="never" id="Ezz-LN-cou"/>
                     <connections>
                         <outlet property="ageInputField" destination="hAW-KS-XK4" id="N8X-r8-ay9"/>
+                        <outlet property="continueButton" destination="MPF-9L-XvH" id="q7g-Yh-6Fp"/>
+                        <outlet property="continueButtonBottomConstraint" destination="vq9-hR-4b9" id="y9X-60-o9Q"/>
+                        <outlet property="continueButtonLeading" destination="hgo-YO-caK" id="JhK-qk-ngM"/>
+                        <outlet property="continueButtonTrailing" destination="bCw-YH-uKf" id="tnG-Rk-947"/>
                         <outlet property="errorLabel" destination="oup-qX-kbR" id="1Pd-ge-OkK"/>
                         <segue destination="3Hs-PQ-OGm" kind="show" identifier="goToWeightInfo" id="jy5-4l-1xB"/>
                     </connections>
@@ -288,25 +349,50 @@
                                         </variation>
                                     </label>
                                 </subviews>
+                                <constraints>
+                                    <constraint firstAttribute="bottom" secondItem="MBV-gl-LZA" secondAttribute="bottom" id="4No-Ei-jeR"/>
+                                </constraints>
                             </stackView>
+                            <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HPM-3I-uRw">
+                                <rect key="frame" x="20" y="734" width="353" height="50"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="50" id="vhQ-3h-HSJ"/>
+                                </constraints>
+                                <color key="tintColor" name="AccentColor"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="filled" title="다음">
+                                    <color key="baseForegroundColor" systemColor="labelColor"/>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="buttonAction:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="ici-8m-D7b"/>
+                                    <action selector="continueButtonTapped:" destination="3Hs-PQ-OGm" eventType="touchUpInside" id="eSl-QM-QCg"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="VWS-Gh-Be8"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="MFN-Q1-5mt" firstAttribute="top" secondItem="Ska-x0-2uO" secondAttribute="bottom" constant="30" id="41D-Wf-7Lr"/>
                             <constraint firstItem="MFN-Q1-5mt" firstAttribute="leading" secondItem="VWS-Gh-Be8" secondAttribute="leading" constant="20" id="Aze-Oo-nXa"/>
+                            <constraint firstItem="VWS-Gh-Be8" firstAttribute="trailing" secondItem="HPM-3I-uRw" secondAttribute="trailing" constant="20" id="BqN-bC-Hdv"/>
                             <constraint firstItem="Ska-x0-2uO" firstAttribute="leading" secondItem="VWS-Gh-Be8" secondAttribute="leading" constant="20" id="D60-hc-Jaa"/>
                             <constraint firstItem="VWS-Gh-Be8" firstAttribute="trailing" secondItem="MFN-Q1-5mt" secondAttribute="trailing" constant="20" id="FuR-ME-RYr"/>
                             <constraint firstItem="sEg-CQ-STO" firstAttribute="centerY" secondItem="Ogr-ui-Uhg" secondAttribute="centerY" constant="-40.833333333333371" id="J1Q-2W-dgT"/>
                             <constraint firstItem="sEg-CQ-STO" firstAttribute="centerX" secondItem="Ogr-ui-Uhg" secondAttribute="centerX" id="LOj-HI-wIe"/>
                             <constraint firstItem="VWS-Gh-Be8" firstAttribute="trailing" secondItem="Ska-x0-2uO" secondAttribute="trailing" constant="20" id="cEk-Ns-4kL"/>
                             <constraint firstItem="Ska-x0-2uO" firstAttribute="top" secondItem="VWS-Gh-Be8" secondAttribute="top" constant="50" id="sNH-V5-MEv"/>
+                            <constraint firstItem="HPM-3I-uRw" firstAttribute="leading" secondItem="VWS-Gh-Be8" secondAttribute="leading" constant="20" id="tXx-dA-HG2"/>
+                            <constraint firstItem="HPM-3I-uRw" firstAttribute="bottom" secondItem="VWS-Gh-Be8" secondAttribute="bottom" id="ysO-YW-hKj"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" largeTitleDisplayMode="never" id="EdL-mC-dCR"/>
                     <connections>
+                        <outlet property="continueButton" destination="HPM-3I-uRw" id="maR-Oy-FL1"/>
+                        <outlet property="continueButtonBottomConstraint" destination="ysO-YW-hKj" id="YmT-Xi-jp4"/>
+                        <outlet property="continueButtonLeading" destination="tXx-dA-HG2" id="yFg-cl-HA1"/>
+                        <outlet property="continueButtonTrailing" destination="BqN-bC-Hdv" id="LL2-du-RCR"/>
                         <outlet property="errorLabel" destination="MFN-Q1-5mt" id="MZJ-0Q-x7J"/>
-                        <outlet property="kgLabel" destination="KXo-3b-tnu" id="KnW-dv-dzG"/>
+                        <outlet property="kgLabel" destination="KXo-3b-tnu" id="afD-QL-lUl"/>
                         <outlet property="weightInputField" destination="MBV-gl-LZA" id="sHA-9N-EPQ"/>
                         <segue destination="ye2-gc-ZBC" kind="show" identifier="goToHeightInfo" id="6t5-tj-YRJ"/>
                     </connections>
@@ -363,23 +449,45 @@
                                     </label>
                                 </subviews>
                             </stackView>
+                            <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="E5s-xP-emC">
+                                <rect key="frame" x="20" y="734" width="353" height="50"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="50" id="slJ-ZO-VfC"/>
+                                </constraints>
+                                <color key="tintColor" name="AccentColor"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="filled" title="다음">
+                                    <color key="baseForegroundColor" systemColor="labelColor"/>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="buttonAction:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="yoR-i7-bjn"/>
+                                    <action selector="continueButtonTapped:" destination="ye2-gc-ZBC" eventType="touchUpInside" id="MlN-LJ-l5q"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="rvf-Hr-gyf"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="rvf-Hr-gyf" firstAttribute="trailing" secondItem="4nP-gH-NA4" secondAttribute="trailing" constant="20" id="22U-4I-Un1"/>
                             <constraint firstItem="Hfb-gN-7Hw" firstAttribute="top" secondItem="rvf-Hr-gyf" secondAttribute="top" constant="50" id="39R-Ph-wmC"/>
+                            <constraint firstItem="E5s-xP-emC" firstAttribute="bottom" secondItem="rvf-Hr-gyf" secondAttribute="bottom" id="7xh-L0-5ZU"/>
                             <constraint firstItem="Hfb-gN-7Hw" firstAttribute="leading" secondItem="rvf-Hr-gyf" secondAttribute="leading" constant="20" id="8Xg-16-6Q9"/>
+                            <constraint firstItem="E5s-xP-emC" firstAttribute="leading" secondItem="rvf-Hr-gyf" secondAttribute="leading" constant="20" id="AlN-S0-NgO"/>
                             <constraint firstItem="1ad-LM-W8S" firstAttribute="centerY" secondItem="eJR-uP-Ler" secondAttribute="centerY" constant="-40.833333333333371" id="BrM-8D-72J"/>
                             <constraint firstItem="4nP-gH-NA4" firstAttribute="top" secondItem="Hfb-gN-7Hw" secondAttribute="bottom" constant="30" id="LSA-gd-Ic0"/>
                             <constraint firstItem="4nP-gH-NA4" firstAttribute="leading" secondItem="rvf-Hr-gyf" secondAttribute="leading" constant="20" id="T1F-yN-RMw"/>
                             <constraint firstItem="rvf-Hr-gyf" firstAttribute="trailing" secondItem="Hfb-gN-7Hw" secondAttribute="trailing" constant="20" id="ZIS-H8-n7i"/>
+                            <constraint firstItem="rvf-Hr-gyf" firstAttribute="trailing" secondItem="E5s-xP-emC" secondAttribute="trailing" constant="20" id="bMJ-I4-iRW"/>
                             <constraint firstItem="1ad-LM-W8S" firstAttribute="centerX" secondItem="eJR-uP-Ler" secondAttribute="centerX" id="j47-gR-SCZ"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" largeTitleDisplayMode="never" id="XPX-cO-FJ7"/>
                     <connections>
                         <outlet property="cmLabel" destination="vL7-E1-Sl2" id="amN-fh-xJS"/>
+                        <outlet property="continueButton" destination="E5s-xP-emC" id="FgN-2i-8oJ"/>
+                        <outlet property="continueButtonBottomConstraint" destination="7xh-L0-5ZU" id="hIh-8a-NOd"/>
+                        <outlet property="continueButtonLeading" destination="AlN-S0-NgO" id="Zn5-Nk-CIS"/>
+                        <outlet property="continueButtonTrailing" destination="bMJ-I4-iRW" id="6ti-kf-rFO"/>
                         <outlet property="errorLabel" destination="4nP-gH-NA4" id="5yn-TR-ODh"/>
                         <outlet property="heightInputField" destination="6xh-tM-tSN" id="Bqg-9r-Mgi"/>
                         <segue destination="0RQ-ca-avW" kind="show" identifier="goToDiseaseTap" id="nR8-Bh-14p"/>
@@ -407,7 +515,7 @@
                                 </variation>
                             </label>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="vQR-FY-lSz">
-                                <rect key="frame" x="20" y="262.33333333333326" width="353" height="511.66666666666674"/>
+                                <rect key="frame" x="20" y="262.33333333333326" width="353" height="463.66666666666674"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="fWp-Mw-FPK">
                                     <size key="itemSize" width="128" height="128"/>
@@ -444,29 +552,51 @@
                                     </collectionViewCell>
                                 </cells>
                             </collectionView>
+                            <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qVa-ch-ZGd">
+                                <rect key="frame" x="20" y="734" width="353" height="50"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="50" id="aeE-FA-HuA"/>
+                                </constraints>
+                                <color key="tintColor" name="AccentColor"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="filled" title="다음">
+                                    <color key="baseForegroundColor" systemColor="labelColor"/>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="buttonAction:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="zlu-OW-KGg"/>
+                                    <action selector="continueButtonTapped:" destination="0RQ-ca-avW" eventType="touchUpInside" id="ENo-sE-hCy"/>
+                                    <action selector="continueButtonTapped:" destination="ye2-gc-ZBC" eventType="touchUpInside" id="Zqz-r4-r5l"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="167-xC-vNX"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="vQR-FY-lSz" firstAttribute="leading" secondItem="167-xC-vNX" secondAttribute="leading" constant="20" id="0mg-UI-wSV"/>
                             <constraint firstItem="arK-5t-fYt" firstAttribute="top" secondItem="167-xC-vNX" secondAttribute="top" constant="50" id="7Ub-XW-z30"/>
+                            <constraint firstItem="qVa-ch-ZGd" firstAttribute="top" secondItem="vQR-FY-lSz" secondAttribute="bottom" constant="8" symbolic="YES" id="8K2-w6-ju9"/>
                             <constraint firstItem="arK-5t-fYt" firstAttribute="centerX" secondItem="i3G-ch-9IE" secondAttribute="centerX" id="CWo-Uf-6wh"/>
                             <constraint firstItem="167-xC-vNX" firstAttribute="trailing" secondItem="arK-5t-fYt" secondAttribute="trailing" constant="20" id="E4a-K6-yb8"/>
+                            <constraint firstItem="167-xC-vNX" firstAttribute="trailing" secondItem="qVa-ch-ZGd" secondAttribute="trailing" constant="20" id="QWz-X0-q1Q"/>
                             <constraint firstItem="167-xC-vNX" firstAttribute="trailing" secondItem="vQR-FY-lSz" secondAttribute="trailing" constant="20" id="Z5f-Bo-1fK"/>
+                            <constraint firstItem="qVa-ch-ZGd" firstAttribute="bottom" secondItem="167-xC-vNX" secondAttribute="bottom" id="e4W-TO-Q2X"/>
                             <constraint firstItem="arK-5t-fYt" firstAttribute="leading" secondItem="167-xC-vNX" secondAttribute="leading" constant="20" id="n9w-nv-CCq"/>
-                            <constraint firstItem="167-xC-vNX" firstAttribute="bottom" secondItem="vQR-FY-lSz" secondAttribute="bottom" constant="10" id="v8o-Ic-ExX"/>
+                            <constraint firstItem="qVa-ch-ZGd" firstAttribute="leading" secondItem="167-xC-vNX" secondAttribute="leading" constant="20" id="pPT-tx-YaR"/>
                             <constraint firstItem="vQR-FY-lSz" firstAttribute="top" secondItem="arK-5t-fYt" secondAttribute="bottom" constant="30.000000000000028" id="wdG-ox-tFs"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="RS3-OZ-rF0"/>
                     <connections>
+                        <outlet property="continueButton" destination="qVa-ch-ZGd" id="cjN-Dj-Iga"/>
+                        <outlet property="continueButtonLeading" destination="pPT-tx-YaR" id="gH4-J1-8cm"/>
+                        <outlet property="continueButtonTrailing" destination="QWz-X0-q1Q" id="UI4-oa-hga"/>
                         <outlet property="descriptionLabel" destination="arK-5t-fYt" id="VmW-4E-fk4"/>
                         <outlet property="diseaseCollectionView" destination="vQR-FY-lSz" id="Ha1-4J-3hs"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ajr-ac-KKb" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="5915" y="18"/>
+            <point key="canvasLocation" x="5913.740458015267" y="17.605633802816904"/>
         </scene>
         <!--Health Link View Controller-->
         <scene sceneID="rqf-xG-WZh">
@@ -537,24 +667,44 @@
                                     <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
                                 </variation>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="H3s-yL-Td3">
+                                <rect key="frame" x="20" y="734" width="353" height="50"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="50" id="dSS-ct-RNb"/>
+                                </constraints>
+                                <color key="tintColor" name="AccentColor"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="filled" title="다음">
+                                    <color key="baseForegroundColor" systemColor="labelColor"/>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="continueButtonTapped:" destination="Loh-xd-3Eb" eventType="touchUpInside" id="vj0-Ug-YZc"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Pxa-Pg-z3x"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="c8g-YO-D2g" firstAttribute="leading" secondItem="Pxa-Pg-z3x" secondAttribute="leading" constant="20" id="3ah-FH-8Zq"/>
                             <constraint firstItem="c8g-YO-D2g" firstAttribute="top" secondItem="Pxa-Pg-z3x" secondAttribute="top" constant="50" id="4Uf-8s-brJ"/>
+                            <constraint firstItem="Pxa-Pg-z3x" firstAttribute="trailing" secondItem="H3s-yL-Td3" secondAttribute="trailing" constant="20" id="BLr-Q2-Ir8"/>
                             <constraint firstItem="Pxa-Pg-z3x" firstAttribute="trailing" secondItem="c8g-YO-D2g" secondAttribute="trailing" constant="20" id="Llb-YP-p8S"/>
                             <constraint firstItem="Qdr-8Z-lhJ" firstAttribute="leading" secondItem="Pxa-Pg-z3x" secondAttribute="leading" constant="30" id="QD6-Sk-V1U"/>
                             <constraint firstItem="EcJ-fw-xiT" firstAttribute="top" secondItem="ifP-QI-Inn" secondAttribute="bottom" constant="70" id="Rk3-v0-hBH"/>
                             <constraint firstItem="EcJ-fw-xiT" firstAttribute="leading" secondItem="Pxa-Pg-z3x" secondAttribute="leading" constant="20" id="ZaL-LF-v1f"/>
+                            <constraint firstItem="H3s-yL-Td3" firstAttribute="leading" secondItem="Pxa-Pg-z3x" secondAttribute="leading" constant="20" id="bMS-WJ-wac"/>
                             <constraint firstItem="Pxa-Pg-z3x" firstAttribute="trailing" secondItem="EcJ-fw-xiT" secondAttribute="trailing" constant="20" id="cZv-qf-dPg"/>
                             <constraint firstItem="ifP-QI-Inn" firstAttribute="centerX" secondItem="0sO-CY-Uun" secondAttribute="centerX" id="lHP-le-lhl"/>
                             <constraint firstItem="Qdr-8Z-lhJ" firstAttribute="top" secondItem="EcJ-fw-xiT" secondAttribute="bottom" constant="8" id="mfF-DM-KoD"/>
+                            <constraint firstItem="H3s-yL-Td3" firstAttribute="bottom" secondItem="Pxa-Pg-z3x" secondAttribute="bottom" id="ue0-t5-3Cz"/>
                             <constraint firstItem="ifP-QI-Inn" firstAttribute="top" secondItem="c8g-YO-D2g" secondAttribute="bottom" constant="30" id="yaQ-x3-ERy"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" largeTitleDisplayMode="never" id="vGH-Q7-MqQ"/>
                     <connections>
+                        <outlet property="continueButton" destination="H3s-yL-Td3" id="FYV-WO-Kfx"/>
+                        <outlet property="continueButtonLeading" destination="bMS-WJ-wac" id="JYa-yT-rbo"/>
+                        <outlet property="continueButtonTrailing" destination="BLr-Q2-Ir8" id="GTO-it-eFC"/>
                         <outlet property="healthAppIcon" destination="ifP-QI-Inn" id="TC2-CF-Y07"/>
                         <outlet property="linkSettingView" destination="Niz-4d-1kV" id="YSs-vl-bck"/>
                         <outlet property="linkedSwitch" destination="TLh-RM-cub" id="Jev-ww-1P5"/>
@@ -575,6 +725,9 @@
         <namedColor name="buttonBackground">
             <color red="0.64313725490196083" green="0.64313725490196083" blue="0.64313725490196083" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>
+        <systemColor name="labelColor">
+            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

@@ -13,20 +13,16 @@ class HeightViewController: CoreGradientViewController {
     @IBOutlet weak var heightInputField: UITextField!
     @IBOutlet weak var errorLabel: UILabel!
     @IBOutlet weak var cmLabel: UILabel!
+    @IBOutlet weak var continueButton: UIButton!
     
-    private let continueButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("다음", for: .normal)
-        button.backgroundColor = UIColor.buttonBackground
-        button.setTitleColor(.label, for: .normal)
-        button.applyCornerStyle(.medium)
-        button.isEnabled = false
-        return button
-    }()
+    @IBOutlet weak var continueButtonLeading: NSLayoutConstraint!
+    @IBOutlet weak var continueButtonTrailing: NSLayoutConstraint!
+    @IBOutlet weak var continueButtonBottomConstraint: NSLayoutConstraint!
     
-    private var continueButtonBottomConstraint: NSLayoutConstraint?
+    private var iPadWidthConstraint: NSLayoutConstraint?
+    private var iPadCenterXConstraint: NSLayoutConstraint?
+    
     private let context = CoreDataStack.shared.persistentContainer.viewContext
-    
     private var userInfo: UserInfoEntity?
     
     override func initVM() {}
@@ -40,12 +36,40 @@ class HeightViewController: CoreGradientViewController {
         heightInputField.keyboardType = .numberPad
         heightInputField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         
-        continueButton.addTarget(self, action: #selector(continueButtonTapped), for: .touchUpInside)
+        continueButton.applyCornerStyle(.medium)
+        continueButton.isEnabled = false
+        continueButton.backgroundColor = .buttonBackground
+        continueButton.setTitleColor(.label, for: .normal)
         
         registerForKeyboardNotifications()
         setupTapGestureToDismissKeyboard()
         errorLabel.isHidden = true
         errorLabel.textColor = .red
+    }
+    
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        
+        let isIpad = traitCollection.horizontalSizeClass == .regular &&
+                     traitCollection.verticalSizeClass == .regular
+        
+        if isIpad {
+            continueButtonLeading?.isActive = false
+            continueButtonTrailing?.isActive = false
+            
+            if iPadWidthConstraint == nil {
+                iPadWidthConstraint = continueButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7)
+                iPadCenterXConstraint = continueButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+                iPadWidthConstraint?.isActive = true
+                iPadCenterXConstraint?.isActive = true
+            }
+        } else {
+            iPadWidthConstraint?.isActive = false
+            iPadCenterXConstraint?.isActive = false
+            
+            continueButtonLeading?.isActive = true
+            continueButtonTrailing?.isActive = true
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -93,24 +117,6 @@ class HeightViewController: CoreGradientViewController {
         }
     }
     
-    override func setupHierarchy() {
-        [continueButton].forEach {
-            $0.translatesAutoresizingMaskIntoConstraints = false
-            view.addSubview($0)
-        }
-    }
-    
-    override func setupConstraints() {
-        continueButtonBottomConstraint = continueButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
-        
-        NSLayoutConstraint.activate([
-            continueButtonBottomConstraint!,
-            continueButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            continueButton.heightAnchor.constraint(equalToConstant: 48),
-        ])
-    }
-    
     @objc private func textFieldDidChange(_ textField: UITextField) {
         guard let text = textField.text else { return }
         
@@ -155,7 +161,6 @@ class HeightViewController: CoreGradientViewController {
             heightInputField.text = ""
         }
     }
-
     
     private func showError(text: String = "130 ~ 210 사이의 값을 입력해주세요.") {
         errorLabel.isHidden = false
@@ -172,6 +177,7 @@ class HeightViewController: CoreGradientViewController {
         continueButton.isEnabled = false
         continueButton.backgroundColor = .buttonBackground
         heightInputField.textColor = .label
+        continueButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .regular)
     }
     
     private func enableContinueButton() {
@@ -179,6 +185,20 @@ class HeightViewController: CoreGradientViewController {
         continueButton.backgroundColor = .accent
         heightInputField.textColor = .accent
         continueButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .bold)
+    }
+    
+    @IBAction func continueButtonTapped(_ sender: Any) {
+        guard continueButton.isEnabled,
+              let text = heightInputField.text,
+              let heightValue = Double(text) else { return }
+        
+        userInfo?.height = heightValue
+        do {
+            try context.save()
+            performSegue(withIdentifier: "goToDiseaseTap", sender: self)
+        } catch {
+            print("Failed to save height: \(error)")
+        }
     }
     
     private func registerForKeyboardNotifications() {
@@ -211,19 +231,6 @@ class HeightViewController: CoreGradientViewController {
         view.endEditing(true)
     }
     
-    @objc private func continueButtonTapped() {
-        guard continueButton.isEnabled,
-              let text = heightInputField.text,
-              let heightValue = Double(text) else { return }
-        
-        userInfo?.height = heightValue
-        do {
-            try context.save()
-            performSegue(withIdentifier: "goToDiseaseTap", sender: self)
-        } catch {
-            print("Failed to save height: \(error)")
-        }
-    }
     deinit {
         NotificationCenter.default.removeObserver(self)
     }

@@ -13,91 +13,71 @@ class WeightViewController: CoreGradientViewController {
     @IBOutlet weak var weightInputField: UITextField!
     @IBOutlet weak var errorLabel: UILabel!
     @IBOutlet weak var kgLabel: UILabel!
+    @IBOutlet weak var continueButton: UIButton!
     
-    private let continueButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("다음", for: .normal)
-        button.backgroundColor = UIColor.buttonBackground
-        button.setTitleColor(.label, for: .normal)
-        button.applyCornerStyle(.medium)
-        button.isEnabled = false
-        return button
-    }()
+    @IBOutlet weak var continueButtonLeading: NSLayoutConstraint!
+    @IBOutlet weak var continueButtonTrailing: NSLayoutConstraint!
+    @IBOutlet weak var continueButtonBottomConstraint: NSLayoutConstraint!
     
-    private var continueButtonBottomConstraint: NSLayoutConstraint?
-    private let context = CoreDataStack.shared.persistentContainer.viewContext
+    private var iPadWidthConstraint: NSLayoutConstraint?
+    private var iPadCenterXConstraint: NSLayoutConstraint?
+    
     private var userInfo: UserInfoEntity?
-    
-    var onContinue: (() -> Void)?
-    
-    override func initVM() { }
+    private let context = CoreDataStack.shared.persistentContainer.viewContext
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         applyBackgroundGradient(.midnightBlack)
+        
         weightInputField.delegate = self
         weightInputField.keyboardType = .numberPad
         weightInputField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         
-        continueButton.addTarget(self, action: #selector(didTapContinue), for: .touchUpInside)
+        errorLabel.isHidden = true
+        errorLabel.textColor = .red
+        
+        continueButton.addTarget(self, action: #selector(continueButtonTapped(_:)), for: .touchUpInside)
         
         registerForKeyboardNotifications()
         setupTapGestureToDismissKeyboard()
         
-        errorLabel.isHidden = true
-        errorLabel.textColor = .red
         fetchUserInfo()
-        
         if let weight = userInfo?.weight, weight > 0 {
             weightInputField.text = String(Int(weight))
             validateInput()
+        } else {
+            disableContinueButton()
         }
     }
+
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        if weightInputField.text?.isEmpty ?? true {
-            weightInputField.becomeFirstResponder()
-        }
-    }
-    
-    override func setupHierarchy() {
-        [continueButton].forEach {
-            $0.translatesAutoresizingMaskIntoConstraints = false
-            view.addSubview($0)
-        }
-    }
-    
-    override func setupConstraints() {
-        continueButtonBottomConstraint = continueButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
-        NSLayoutConstraint.activate([
-            continueButtonBottomConstraint!,
-            continueButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            continueButton.heightAnchor.constraint(equalToConstant: 48),
-        ])
-    }
-    
-    private func fetchUserInfo() {
-        let request: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
-        do {
-            let results = try context.fetch(request)
-            if let firstUserInfo = results.first {
-                userInfo = firstUserInfo
-            } else {
-                let newUserInfo = UserInfoEntity(context: context)
-                newUserInfo.id = UUID()
-                newUserInfo.createdAt = Date()
-                userInfo = newUserInfo
-                try context.save()
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        
+        let isIpad = traitCollection.horizontalSizeClass == .regular &&
+                     traitCollection.verticalSizeClass == .regular
+        
+        if isIpad {
+            continueButtonLeading?.isActive = false
+            continueButtonTrailing?.isActive = false
+            
+            if iPadWidthConstraint == nil {
+                iPadWidthConstraint = continueButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7)
+                iPadCenterXConstraint = continueButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+                iPadWidthConstraint?.isActive = true
+                iPadCenterXConstraint?.isActive = true
             }
-        } catch {
-            print("UserInfo fetch error: \(error)")
+        } else {
+            iPadWidthConstraint?.isActive = false
+            iPadCenterXConstraint?.isActive = false
+            
+            continueButtonLeading?.isActive = true
+            continueButtonTrailing?.isActive = true
         }
     }
     
-    @objc private func didTapContinue() {
+    @IBAction func continueButtonTapped(_ sender: UIButton) {
         guard continueButton.isEnabled else { return }
         guard let text = weightInputField.text, let weightValue = Double(text) else { return }
         
@@ -111,17 +91,7 @@ class WeightViewController: CoreGradientViewController {
     }
     
     @objc private func textFieldDidChange(_ textField: UITextField) {
-        guard let text = textField.text else { return }
-        
-        if text.isEmpty {
-            hideError()
-            disableContinueButton()
-        } else if text.count <= 3 {
-            validateInput()
-        } else {
-            hideError()
-            disableContinueButton()
-        }
+        validateInput()
     }
     
     private func validateInput() {
@@ -152,7 +122,6 @@ class WeightViewController: CoreGradientViewController {
                 disableContinueButton()
                 weightInputField.text = ""
             }
-            
         default:
             showError()
             disableContinueButton()
@@ -175,6 +144,7 @@ class WeightViewController: CoreGradientViewController {
         continueButton.isEnabled = false
         continueButton.backgroundColor = .buttonBackground
         weightInputField.textColor = .label
+        continueButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .regular)
     }
     
     private func enableContinueButton() {
@@ -182,6 +152,24 @@ class WeightViewController: CoreGradientViewController {
         continueButton.backgroundColor = .accent
         weightInputField.textColor = .accent
         continueButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .bold)
+    }
+    
+    private func fetchUserInfo() {
+        let request: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
+        do {
+            let results = try context.fetch(request)
+            if let firstUserInfo = results.first {
+                userInfo = firstUserInfo
+            } else {
+                let newUserInfo = UserInfoEntity(context: context)
+                newUserInfo.id = UUID()
+                newUserInfo.createdAt = Date()
+                userInfo = newUserInfo
+                try context.save()
+            }
+        } catch {
+            print("UserInfo fetch error: \(error)")
+        }
     }
     
     private func registerForKeyboardNotifications() {
@@ -232,9 +220,7 @@ class WeightViewController: CoreGradientViewController {
 extension WeightViewController: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         let allowedCharacters = CharacterSet.decimalDigits
-        if string.rangeOfCharacter(from: allowedCharacters.inverted) != nil {
-            return false
-        }
+        if string.rangeOfCharacter(from: allowedCharacters.inverted) != nil { return false }
         
         let currentText = textField.text ?? ""
         let prospectiveText = (currentText as NSString).replacingCharacters(in: range, with: string)
