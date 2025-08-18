@@ -223,6 +223,7 @@ extension DashboardViewModel {
                     unit: id.kind.unit
                 )
 
+
                 async let hkCollection = try? fetchStatisticsCollectionHKData(
                     for: id.kind.quantityTypeIdentifier,
                     from: startDate,
@@ -233,6 +234,11 @@ extension DashboardViewModel {
 
                 let (data, collection) = await (hkData, hkCollection)
 
+                // Note: `startDate`를 사용하는 이유는,
+                // 데이터가 `2025-08-17 15:00 (KST 8/18 00:00)`부터 `2025-08-18 15:00 (KST 8/19 00:00)`까지의
+                // 걸음 수 데이터를 나타내기 때문입니다.
+                // 만약 `endDate`를 사용하면, 실제로는 8/18 데이터임에도 불구하고 잘못하면 8/19 데이터로 처리될 수 있습니다.
+                // 이 동작은 다른 코드에서도 동일하게 적용됩니다.
                 var charts: [InfoStackContent.Charts] = []
                 if let collection = collection {
                     charts = collection.map { InfoStackContent.Charts(date: $0.startDate, value: $0.value) }
