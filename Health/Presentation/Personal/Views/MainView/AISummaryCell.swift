@@ -20,8 +20,11 @@ class AISummaryCell: CoreCollectionViewCell {
 
     override func setupAttribute() {
         super.setupAttribute()
+        BackgroundHeightUtils.setupShadow(for: self)
         summaryBackgroundView.applyCornerStyle(.medium)
+        BackgroundHeightUtils.setupDarkModeBorder(for: summaryBackgroundView)
     }
+
 
     override func setupConstraints() {
         super.setupConstraints()

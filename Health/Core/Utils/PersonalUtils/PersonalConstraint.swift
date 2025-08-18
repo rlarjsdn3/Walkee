@@ -42,4 +42,35 @@ final class BackgroundHeightUtils {
             view.layoutIfNeeded()
         }
     }
+
+    // MARK: - 테두리 관련
+    /// 다크모드/라이트모드에 따른 테두리 두께를 계산합니다
+    /// - Parameter traitCollection: 현재 trait collection
+    /// - Returns: 다크모드일 때 0, 라이트모드일 때 0.75
+    static func calculateBorderWidth(for traitCollection: UITraitCollection) -> CGFloat {
+        return (traitCollection.userInterfaceStyle == .dark) ? 0 : 0.75
+    }
+
+    /// 뷰에 다크모드 대응 테두리를 설정합니다
+    /// - Parameter view: 테두리를 설정할 뷰
+    static func setupDarkModeBorder(for view: UIView) {
+        // 초기 테두리 설정
+        view.layer.borderWidth = calculateBorderWidth(for: view.traitCollection)
+        view.layer.borderColor = UIColor.boxBgLightModeStroke.cgColor
+        view.layer.masksToBounds = true
+
+        // 다크모드/라이트모드 전환 감지 등록
+        view.registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (view: UIView, previousTraitCollection: UITraitCollection) in
+            // 모드 전환 시 테두리 두께 업데이트
+            view.layer.borderWidth = calculateBorderWidth(for: view.traitCollection)
+        }
+    }
+
+    static func setupShadow(for view: UIView) {
+        view.layer.masksToBounds = false
+        view.layer.shadowColor = UIColor.black.cgColor
+        view.layer.shadowOpacity = 0.15
+        view.layer.shadowOffset = CGSize(width: 2, height: 2)
+        view.layer.shadowRadius = 5
+    }
 }
