@@ -19,7 +19,7 @@
         <!--Dashboard-->
         <scene sceneID="eTf-2B-xE4">
             <objects>
-                <viewControllerPlaceholder storyboardName="Dashboard" id="HpR-RL-5lT" sceneMemberID="viewController">
+                <viewControllerPlaceholder storyboardIdentifier="DashboardViewController" storyboardName="Dashboard" id="HpR-RL-5lT" sceneMemberID="viewController">
                     <navigationItem key="navigationItem" id="e3a-eB-BAw"/>
                 </viewControllerPlaceholder>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="gKq-WX-MUy" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
