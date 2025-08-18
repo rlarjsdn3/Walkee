@@ -154,7 +154,6 @@ private extension CalendarViewController {
         dashboardVC.hidesBottomBarWhenPushed = true
         tabBarController?.tabBar.isHidden = true
         navigationController?.pushViewController(dashboardVC, animated: true)
-
     }
 
     @objc func reloadCalendar() {
