@@ -41,10 +41,10 @@ final class DefaultPromptBuilderService: PromptBuilderService {
             async let distanceWalkingRunning = try? fetchHKData(.distanceWalkingRunning, unit: .meterUnit(with: .kilo))
             async let activeEnergyBurned = try? fetchHKData(.activeEnergyBurned, unit: .kilocalorie())
             async let basalEnergyBurned = try? fetchHKData(.basalEnergyBurned, unit: .kilocalorie())
-            async let walkingSpeed = try? fetchHKData(.walkingSpeed, options: .mostRecent, unit: .meter().unitDivided(by: .second()))
-            async let stepLength = try? fetchHKData(.walkingStepLength, options: .mostRecent, unit: .meterUnit(with: .centi))
-            async let doubleSupportPercentage = try? fetchHKData(.walkingDoubleSupportPercentage, options: .mostRecent, unit: .percent())
-            async let asymmetryPercentage = try? fetchHKData(.walkingAsymmetryPercentage, options: .mostRecent, unit: .percent())
+            async let walkingSpeed = try? fetchHKData(.walkingSpeed, options: .discreteAverage, unit: .meter().unitDivided(by: .second()))
+            async let stepLength = try? fetchHKData(.walkingStepLength, options: .discreteAverage, unit: .meterUnit(with: .centi))
+            async let doubleSupportPercentage = try? fetchHKData(.walkingDoubleSupportPercentage, options: .discreteAverage, unit: .percent())
+            async let asymmetryPercentage = try? fetchHKData(.walkingAsymmetryPercentage, options: .discreteAverage, unit: .percent())
             async let thisMonthStepCounts = try? healthService.fetchStatisticsCollection(for: .stepCount, from: startOfMonth, to: endOfMonth, options: .cumulativeSum, interval: .init(day: 1), unit: .count())
             // TODO: - HealthService에서 가져오는 QuantityType과 HKUnit을 쉽게 일치시킬 방안 강구하기
 

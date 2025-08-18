@@ -366,7 +366,7 @@ extension DashboardViewModel {
                     for: id.kind.quantityTypeIdentifier,
                     from: anchorDate.startOfDay(),
                     to: anchorDate.endOfDay(),
-                    options: .mostRecent,
+                    options: .discreteAverage,
                     unit: id.kind.unit
                 )
 
