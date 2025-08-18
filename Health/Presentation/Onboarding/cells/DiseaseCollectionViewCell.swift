@@ -12,8 +12,6 @@ class DiseaseCollectionViewCell: CoreCollectionViewCell {
     
     @IBOutlet weak var diseaseLabel: UILabel!
     
-    private var traitChangeRegistration: Any?
-    
     override func setupHierarchy() {
         super.setupHierarchy()
         contentView.applyCornerStyle(.medium)
@@ -24,18 +22,6 @@ class DiseaseCollectionViewCell: CoreCollectionViewCell {
         super.setupAttribute()
         contentView.backgroundColor = .boxBg
         updateTextColor()
-        diseaseLabel.font = .systemFont(ofSize: 16)
-
-        if #available(iOS 17.0, *) {
-            traitChangeRegistration = registerForTraitChanges(
-                [UITraitUserInterfaceStyle.self]
-            ) { [weak self] (cell: DiseaseCollectionViewCell, previousTraitCollection: UITraitCollection) in
-                guard let self = self else { return }
-                if !self.isSelected {
-                    self.updateTextColor()
-                }
-            }
-        }
     }
     
     override var isSelected: Bool {
@@ -43,11 +29,11 @@ class DiseaseCollectionViewCell: CoreCollectionViewCell {
             if isSelected {
                 contentView.backgroundColor = .accent
                 diseaseLabel.textColor = .black
-                diseaseLabel.font = .boldSystemFont(ofSize: 16)
+                diseaseLabel.font = UIFont.systemFont(ofSize: diseaseLabel.font.pointSize, weight: .bold)
             } else {
                 contentView.backgroundColor = .boxBg
                 updateTextColor()
-                diseaseLabel.font = .systemFont(ofSize: 16)
+                diseaseLabel.font = UIFont.systemFont(ofSize: diseaseLabel.font.pointSize, weight: .regular)
             }
         }
     }
@@ -62,12 +48,11 @@ class DiseaseCollectionViewCell: CoreCollectionViewCell {
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
-        if #unavailable(iOS 17.0) {
-            if !isSelected {
-                updateTextColor()
-            }
+        if !isSelected {
+            updateTextColor()
         }
     }
 }
+
 
 
