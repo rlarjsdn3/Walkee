@@ -48,7 +48,7 @@ class DisplayModeView: CoreView {
         stackView.spacing = 0
         stackView.alignment = .fill
         
-        let current = loadSavedTheme()
+        let current = Self.loadSavedTheme()
         
         options.enumerated().forEach { idx, theme in
             let row = makeOptionRow(
@@ -74,7 +74,7 @@ class DisplayModeView: CoreView {
         UserDefaultsWrapper.shared.appThemeStyle = theme.rawValue
     }
     
-    func loadSavedTheme() -> AppTheme {
+    static func loadSavedTheme() -> AppTheme {
         let raw = UserDefaultsWrapper.shared.appThemeStyle
         return AppTheme(rawValue: raw) ?? .system
     }
@@ -143,22 +143,19 @@ class DisplayModeView: CoreView {
         }
     }
     
-    @objc private func rowTapped(_ gesture: UITapGestureRecognizer) {
-        guard let row = gesture.view else { return }
-        let idx = row.tag
-        updateSelection(selectedIndex: idx)
-        
-        let theme = options[idx]
+    private func selectTheme(at index: Int) {
+        updateSelection(selectedIndex: index)
+        let theme = options[index]
         saveTheme(theme)
         applyAppTheme(theme)
     }
+
+    @objc private func rowTapped(_ gesture: UITapGestureRecognizer) {
+        guard let row = gesture.view else { return }
+        selectTheme(at: row.tag)
+    }
     
     @objc private func buttonTapped(_ sender: UIButton) {
-        buttons.forEach { $0.setImage(UIImage(systemName: "circle"), for: .normal) }
-        sender.setImage(UIImage(systemName: "inset.filled.circle"), for: .normal)
-        
-        let theme = options[sender.tag]
-        saveTheme(theme)
-        applyAppTheme(theme)
+        selectTheme(at: sender.tag)
     }
 }

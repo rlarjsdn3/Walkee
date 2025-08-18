@@ -35,35 +35,39 @@ class ProfileViewController: CoreGradientViewController {
     ]
     
     private var sectionItems: [[ProfileCellModel]] = [
-        [ProfileCellModel(
-            title: "신체 정보",
-            iconName: "person.fill",
-            isSwitch: false
-        )
+        [
+            ProfileCellModel(
+                title: "신체 정보",
+                iconName: "person.fill",
+                isSwitch: false
+            )
         ],
-        [ProfileCellModel(
-            title: "목표 걸음 설정",
-            iconName: "figure.walk",
-            isSwitch: false
-        ),
-         ProfileCellModel(
-            title: "화면 모드 설정",
-            iconName: "iphone.motion",
-            isSwitch: false
-         )
+        [
+            ProfileCellModel(
+                title: "목표 걸음 설정",
+                iconName: "figure.walk",
+                isSwitch: false
+            ),
+            ProfileCellModel(
+                title: "화면 모드 설정",
+                iconName: "iphone.motion",
+                isSwitch: false
+            )
         ],
-        [ProfileCellModel(
-            title: "Apple 건강 앱",
-            iconName: "applelogo",
-            isSwitch: true,
-            switchState: UserDefaultsWrapper.shared.healthkitLinked
-        )
+        [
+            ProfileCellModel(
+                title: "Apple 건강 앱",
+                iconName: "applelogo",
+                isSwitch: true,
+                switchState: UserDefaultsWrapper.shared.healthkitLinked
+            )
         ],
-        [ProfileCellModel(
-            title: "문의하기",
-            iconName: "envelope.fill",
-            isSwitch: false
-        )
+        [
+            ProfileCellModel(
+                title: "문의하기",
+                iconName: "envelope.fill",
+                isSwitch: false
+            )
         ]
     ]
     
@@ -96,7 +100,7 @@ class ProfileViewController: CoreGradientViewController {
     deinit {
         stopForegroundGrantSync()
     }
-        
+    
     /// 앱이 포어그라운드로 복귀할 때마다 HealthKit 권한을 재확인하도록 옵저버를 등록합니다.
     ///
     /// - Important: Swift 6 기준 `MainActor` 격리를 위해 클로저 내부에서 `Task { @MainActor in ... }`로 hop 합니다.
@@ -385,7 +389,7 @@ extension ProfileViewController: UITableViewDelegate {
                           let version = dictionary["CFBundleShortVersionString"] as? String else { return "" }
                     return version
                 }
-
+                
                 let bodyString = """
                                          이곳에 내용을 작성해 주세요.
                                          
@@ -401,17 +405,15 @@ extension ProfileViewController: UITableViewDelegate {
                 
                 self.present(vc, animated: true)
             } else {
-                let alertController = UIAlertController(title: "메일 계정 활성화 필요",
-                                                        message: "Mail 앱에서 사용자의 Email을 계정을 설정해 주세요.",
-                                                        preferredStyle: .alert)
-                let alertAction = UIAlertAction(title: "확인", style: .default) { _ in
+                let alertController = TSAlertController(title: "메일 계정 활성화 필요", message: "Mail 앱에서 사용자의 Email을 계정을 설정해 주세요.", preferredStyle: .alert)
+                let action = TSAlertAction(title: "확인", style: .default) { _ in
                     guard let mailSettingsURL = URL(string: UIApplication.openSettingsURLString + "&&path=MAIL") else { return }
                     
                     if UIApplication.shared.canOpenURL(mailSettingsURL) {
                         UIApplication.shared.open(mailSettingsURL, options: [:], completionHandler: nil)
                     }
                 }
-                alertController.addAction(alertAction)
+                alertController.addAction(action)
                 
                 self.present(alertController, animated: true)
             }

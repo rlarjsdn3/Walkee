@@ -22,7 +22,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let hasSeenOnboarding = UserDefaultsWrapper.shared.hasSeenOnboarding
         
-        let savedTheme = DisplayModeView().loadSavedTheme()
+        let savedTheme = DisplayModeView.loadSavedTheme()
         window?.overrideUserInterfaceStyle = savedTheme.uiStyle
         
         window?.rootViewController = setupRootViewController(hasSeenOnboarding: hasSeenOnboarding)
