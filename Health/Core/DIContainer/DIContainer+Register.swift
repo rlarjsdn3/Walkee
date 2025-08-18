@@ -113,7 +113,7 @@ extension DIContainer {
         }
     }
 	
-	func registerPrivacyLayer() {
+	func registerPrivacyService() {
 		self.register(.privacyService) { _ in
 			PrivacyService()
 		}
@@ -160,7 +160,7 @@ extension DIContainer {
         registerHealthService()
         registerCoreDataUserService()
         registerPromptRenderService()
-		registerPrivacyLayer()
+		registerPrivacyService()
         registerPromptBuilderService()
         registerDailyStepViewModel()
         registerGoalStepCountViewModel()
