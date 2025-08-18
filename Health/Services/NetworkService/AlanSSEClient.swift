@@ -199,7 +199,6 @@ final class AlanSSEClient: NSObject {
 
 		// 2) 싱글쿼트 -> 유효 JSON으로 보정 후 재시도
 		let fixed = coerceSingleQuotedJSON(jsonString)
-		let fixedPreview = fixed.prefix(120)
 		//log.debug("fixed json preview=\(String(fixedPreview), privacy: .public)")
 
 		guard let fixedData = fixed.data(using: .utf8) else { throw SSEParseError.badJSON }
