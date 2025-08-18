@@ -158,6 +158,18 @@ extension CalendarViewController: UICollectionViewDataSource {
             cell.configure(with: monthData)
         }
 
+        cell.onDateSelected = { [weak self] date in
+            guard let self else { return }
+
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let dashboardVC = storyboard.instantiateViewController(identifier: DashboardViewController.id) { coder in
+                DashboardViewController(date: date, coder: coder)
+            }
+
+            dashboardVC.hidesBottomBarWhenPushed = true
+            navigationController?.pushViewController(dashboardVC, animated: true)
+        }
+
         return cell
     }
 }
