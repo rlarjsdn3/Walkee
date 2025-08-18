@@ -141,7 +141,17 @@ private extension CalendarViewController {
         }
     }
 
-    @objc private func reloadCalendar() {
+    func navigationToDashboard(with date: Date) {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let dashboardVC = storyboard.instantiateViewController(identifier: DashboardViewController.id) { coder in
+            DashboardViewController(date: date, coder: coder)
+        }
+        dashboardVC.hidesBottomBarWhenPushed = true
+        navigationController?.pushViewController(dashboardVC, animated: true)
+
+    }
+
+    @objc func reloadCalendar() {
         collectionView.reloadData()
     }
 }
@@ -158,16 +168,10 @@ extension CalendarViewController: UICollectionViewDataSource {
             cell.configure(with: monthData)
         }
 
-        cell.onDateSelected = { [weak self] date in
-            guard let self else { return }
-
-            let storyboard = UIStoryboard(name: "Main", bundle: nil)
-            let dashboardVC = storyboard.instantiateViewController(identifier: DashboardViewController.id) { coder in
-                DashboardViewController(date: date, coder: coder)
+        if cell.onDateSelected == nil {
+            cell.onDateSelected = { [weak self] date in
+                self?.navigationToDashboard(with: date)
             }
-
-            dashboardVC.hidesBottomBarWhenPushed = true
-            navigationController?.pushViewController(dashboardVC, animated: true)
         }
 
         return cell
