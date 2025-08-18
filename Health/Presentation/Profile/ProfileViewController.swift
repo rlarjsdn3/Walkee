@@ -20,9 +20,12 @@ class ProfileViewController: CoreGradientViewController {
     @IBOutlet weak var tableView: UITableView!
     
     @Injected private var healthService: HealthService
+    @Injected(.goalStepCountViewModel) private var goalVM: GoalStepCountViewModel
+    
+    private var currentGoalCache: Int = 0
     
     private var grantRecheckObserver: NSObjectProtocol?
-    
+
     private let sectionTitles: [String?] = [
         nil,
         "개인 설정",
@@ -73,6 +76,8 @@ class ProfileViewController: CoreGradientViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         startForegroundGrantSync()
+        let latest = goalVM.goalStepCount(for: Date()).map(Int.init) ?? 0
+        currentGoalCache = latest
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -314,6 +319,10 @@ extension ProfileViewController: UITableViewDataSource {
             toggle.addTarget(self, action: #selector(switchChanged(_:)), for: .valueChanged)
             cell.accessoryView = toggle
             cell.selectionStyle = .none
+        } else if model.title == "목표 걸음 설정" {
+            cell.accessoryView = nil
+            cell.accessoryType = .none
+            cell.selectionStyle = .default
         } else {
             cell.accessoryView = nil
             cell.accessoryType = .disclosureIndicator
@@ -336,9 +345,22 @@ extension ProfileViewController: UITableViewDelegate {
         case "신체 정보":
             performSegue(withIdentifier: "bodyInfo", sender: nil)
         case "목표 걸음 설정":
+            let goalStep = goalVM.goalStepCount(for: Date()).map(Int.init) ?? 0
+            currentGoalCache = goalStep
+            print("goalstep:\(goalStep)")
+            
             presentSheet(on: self,
-                         buildView: { EditStepGoalView() }) { [weak self] view in
+                         buildView: {
+                let v = EditStepGoalView()
+                v.value = goalStep
+                v.step = 500
+                v.minValue = 0
+                v.maxValue = 100_000
+                return v
+            }) { [weak self] view in
                 guard let self, let v = view as? EditStepGoalView else { return }
+                self.goalVM.saveGoalStepCount(goalStepCount: Int32(v.value), effectiveDate: Date())
+                self.currentGoalCache = v.value
                 print(v.value)
             }
         case "일반 설정":

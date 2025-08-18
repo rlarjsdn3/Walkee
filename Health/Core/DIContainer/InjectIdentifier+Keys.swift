@@ -35,6 +35,41 @@ extension InjectIdentifier {
         InjectIdentifier<HealthService>(type: HealthService.self)
     }
 
+    /// 사용자 정보 관리 서비스를 식별하는 정적 속성
+    ///
+    /// `CoreDataUserService` 프로토콜을 구현하는 서비스들을 의존성 주입 컨테이너에서
+    /// 등록하고 해결할 때 사용되는 타입 안전한 식별자입니다.
+    ///
+    /// - Returns: `CoreDataUserService` 타입의 `InjectIdentifier` 인스턴스
+    /// - Note: 이 식별자는 컴파일 타임에 타입 안전성을 보장합니다.
+    static var coreDataUserService: InjectIdentifier<CoreDataUserService> {
+        InjectIdentifier<CoreDataUserService>(type: CoreDataUserService.self)
+    }
+
+    /// `PromptBuilderService`를 식별하는 정적 속성
+    ///
+    /// `PromptBuilderService` 프로토콜을 구현하는 서비스들을
+    /// 의존성 주입 컨테이너에서 등록하고 해결할 때 사용되는
+    /// 타입 안전한 식별자입니다.
+    ///
+    /// - Returns: `PromptBuilderService` 타입의 `InjectIdentifier` 인스턴스
+    /// - Note: 이 식별자는 컴파일 타임에 타입 안전성을 보장합니다.
+    static var promptBuilderService: InjectIdentifier<PromptBuilderService> {
+        InjectIdentifier<PromptBuilderService>(type: PromptBuilderService.self)
+    }
+
+    /// `PromptRenderService`를 식별하는 정적 속성
+    ///
+    /// `PromptRenderService` 프로토콜을 구현하는 서비스들을
+    /// 의존성 주입 컨테이너에서 등록하고 해결할 때 사용되는
+    /// 타입 안전한 식별자입니다.
+    ///
+    /// - Returns: `PromptRenderService` 타입의 `InjectIdentifier` 인스턴스
+    /// - Note: 이 식별자는 컴파일 타임에 타입 안전성을 보장합니다.
+    static var promptRenderService: InjectIdentifier<PromptRenderService> {
+        InjectIdentifier<PromptRenderService>(type: PromptRenderService.self)
+    }
+
     /// 일일 걸음 수 관리 ViewModel을 식별하는 정적 속성
     ///
     /// `DailyStepViewModel` 클래스를 의존성 주입 컨테이너에서
@@ -57,15 +92,36 @@ extension InjectIdentifier {
         InjectIdentifier<GoalStepCountViewModel>(type: GoalStepCountViewModel.self)
     }
 
-    /// 걸음 수 동기화 ViewModel을 식별하는 정적 속성
+    /// 사용자 정보 ViewModel을 식별하는 정적 속성
     ///
-    /// `StepSyncViewModel` 클래스를 의존성 주입 컨테이너에서
+    /// `UserInfoViewModel` 클래스를 의존성 주입 컨테이너에서
     /// 등록하고 해결할 때 사용되는 타입 안전한 식별자입니다.
     ///
-    /// - Returns: `StepSyncViewModel` 타입의 `InjectIdentifier` 인스턴스
-    /// - Important: 이 ViewModel은 `@Injected` 프로퍼티를 통해 다른 서비스들에 의존하므로,
-    ///   해당 서비스들이 먼저 등록되어 있어야 합니다.
-    static var stepSyncViewModel: InjectIdentifier<StepSyncViewModel> {
-        InjectIdentifier<StepSyncViewModel>(type: StepSyncViewModel.self)
+    /// - Returns: `UserInfoViewModel` 타입의 `InjectIdentifier` 인스턴스
+    /// - Note: Core Data의 `viewContext`와 함께 초기화됩니다.
+    static var userInfoViewModel: InjectIdentifier<UserInfoViewModel> {
+        InjectIdentifier<UserInfoViewModel>(type: UserInfoViewModel.self)
+    }
+
+    /// 걸음 수 동기화 서비스를 식별하는 정적 속성
+    ///
+    /// `StepSyncService` 프로토콜을 구현하는 서비스들을 의존성 주입 컨테이너에서
+    /// 등록하고 해결할 때 사용되는 타입 안전한 식별자입니다.
+    ///
+    /// - Returns: `StepSyncService` 타입의 `InjectIdentifier` 인스턴스
+    /// - Note: HealthKit 데이터를 Core Data로 동기화하는 서비스 해결에 사용되며, 컴파일 타임에 타입 안전성을 보장합니다.
+    static var stepSyncService: InjectIdentifier<StepSyncService> {
+        InjectIdentifier<StepSyncService>(type: StepSyncService.self)
+    }
+
+    /// 달력 기반 걸음 수 데이터 조회 서비스를 식별하는 정적 속성
+    ///
+    /// `CalendarStepService` 프로토콜을 구현하는 서비스들을 의존성 주입 컨테이너에서
+    /// 등록하고 해결할 때 사용되는 타입 안전한 식별자입니다.
+    ///
+    /// - **Returns**: `CalendarStepService` 타입의 `InjectIdentifier` 인스턴스
+    /// - **Note**: 특정 날짜 또는 기간별 걸음 수 데이터 조회에 사용되며, 컴파일 타임에 타입 안전성을 보장합니다.
+    static var calendarStepService: InjectIdentifier<CalendarStepService> {
+        InjectIdentifier<CalendarStepService>(type: CalendarStepService.self)
     }
 }

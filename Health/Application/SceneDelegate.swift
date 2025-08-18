@@ -11,7 +11,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
 
-    @Injected var stepSyncViewModel: StepSyncViewModel
+    @Injected private var stepSyncService: StepSyncService
 
     func scene(_ scene: UIScene,
                willConnectTo session: UISceneSession,
@@ -27,7 +27,28 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
     }
 
-    private func setupRootViewController(hasSeenOnboarding: Bool) -> UIViewController {
+    func sceneDidDisconnect(_ scene: UIScene) {
+    }
+
+    func sceneDidBecomeActive(_ scene: UIScene) {
+    }
+
+    func sceneWillResignActive(_ scene: UIScene) {
+    }
+
+    func sceneWillEnterForeground(_ scene: UIScene) {
+        if UserDefaultsWrapper.shared.hasSeenOnboarding {
+            syncSteps()
+        }
+    }
+
+    func sceneDidEnterBackground(_ scene: UIScene) {
+    }
+}
+
+private extension SceneDelegate {
+
+    func setupRootViewController(hasSeenOnboarding: Bool) -> UIViewController {
         if hasSeenOnboarding {
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             guard let vc = storyboard.instantiateInitialViewController() else {
@@ -46,29 +67,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             }
 
             containerVC.setChildViewController(navController)
-            
+
             return containerVC
         }
     }
 
-    func sceneDidDisconnect(_ scene: UIScene) {
-    }
-
-    func sceneDidBecomeActive(_ scene: UIScene) {
-#if DEBUG
-        print("앱 활성화됨 → 걸음 데이터 동기화")
-#endif
+    func syncSteps() {
         Task {
-            await stepSyncViewModel.syncDailySteps()
+            do {
+                try await stepSyncService.syncSteps()
+            } catch {
+                print("걸음 데이터 동기화 실패: \(error.localizedDescription)")
+            }
         }
-    }
-
-    func sceneWillResignActive(_ scene: UIScene) {
-    }
-
-    func sceneWillEnterForeground(_ scene: UIScene) {
-    }
-
-    func sceneDidEnterBackground(_ scene: UIScene) {
     }
 }

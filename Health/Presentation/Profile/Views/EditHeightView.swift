@@ -29,7 +29,7 @@ final class EditHeightView: CoreView {
         pickerView.dataSource = self
         pickerView.delegate = self
 
-        setInitialSelection()
+        setDefaultSelection()
     }
 
     override func setupConstraints() {
@@ -41,7 +41,7 @@ final class EditHeightView: CoreView {
         ])
     }
 
-    private func setInitialSelection() {
+    private func setDefaultSelection() {
         if let idx = heights.firstIndex(of: selectedHeight) {
             pickerView.selectRow(idx, inComponent: 0, animated: false)
         }
@@ -51,9 +51,9 @@ final class EditHeightView: CoreView {
         selectedHeight
     }
 
-    func setInitialHeight(_ height: Int) {
+    func setDefaultHeight(_ height: Int) {
         selectedHeight = min(max(height, heights.first ?? 120), heights.last ?? 220)
-        setInitialSelection()
+        setDefaultSelection()
     }
 }
 

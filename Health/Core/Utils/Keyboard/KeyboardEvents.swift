@@ -32,7 +32,7 @@ struct KeyboardChangePayload: Sendable {
 
 /// NotificationCenter > AsyncStream<KeyboardChangePayload>
 /// -  Notification(Non-Sendable)을 밖으로 내보내지 않고,
-///         Sendable인 Payload만 흘려보낸다.
+/// Sendable인 Payload만 흘려보낸다.
 enum KeyboardEvents {
 	/// keyboardWillChangeFrame 스트림 (메인 큐 수신)
 	static func willChangeFrameStream() -> AsyncStream<KeyboardChangePayload> {

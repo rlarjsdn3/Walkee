@@ -20,6 +20,13 @@ class WeekSummaryCell: CoreCollectionViewCell {
     private static var cachedWeeklyData: WeeklyHealthData?
     private static var lastCacheTime: Date?
     
+    private let healthDataViewModel = HealthDataViewModel()
+    
+    //기존 생성자 제거하고 기본 초기화만 사용
+    @MainActor required init?(coder: NSCoder) {
+        super.init(coder: coder)
+    }
+    
     override func awakeFromNib() {
         super.awakeFromNib()
     }
@@ -162,7 +169,7 @@ class WeekSummaryCell: CoreCollectionViewCell {
         
         // 새로 데이터 로드
         Task { @MainActor in
-            let weeklyData = await HealthDataViewModel.shared.getWeeklyHealthData()
+            let weeklyData = await healthDataViewModel.getWeeklyHealthData()
             Self.cachedWeeklyData = weeklyData
             Self.lastCacheTime = Date()
             updateUI(with: weeklyData)

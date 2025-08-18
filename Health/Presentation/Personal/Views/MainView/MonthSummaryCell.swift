@@ -22,6 +22,13 @@ class MonthSummaryCell: CoreCollectionViewCell {
     private static var cachedMonthlyData: MonthlyHealthData?
     private static var cacheDate: String?
 
+    private let healthDataViewModel = HealthDataViewModel()
+
+    // 생성자 제거하고 기본 초기화만 사용
+    @MainActor required init?(coder: NSCoder) {
+        super.init(coder: coder)
+    }
+
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
@@ -67,7 +74,7 @@ class MonthSummaryCell: CoreCollectionViewCell {
 
         // 새로운 날에만 네트워크 요청
         Task { @MainActor in
-            let monthlyData = await HealthDataViewModel.shared.getMonthlyHealthData()
+            let monthlyData = await healthDataViewModel.getMonthlyHealthData()
             Self.cachedMonthlyData = monthlyData
             Self.cacheDate = today
             updateUI(with: monthlyData)
