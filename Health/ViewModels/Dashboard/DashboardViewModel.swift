@@ -210,7 +210,7 @@ extension DashboardViewModel {
                 }
 
                 // 지난 7일 간 라인 차트를 그리기 위해 30일 전 시간 구하기
-                guard let startDate: Date = anchorDate.endOfDay().addingDays(-365) else {
+                guard let startDate: Date = anchorDate.endOfDay().addingDays(-14) else {
                     vm.setState(.failure(nil))
                     continue
                 }
@@ -235,7 +235,7 @@ extension DashboardViewModel {
 
                 var charts: [InfoStackContent.Charts] = []
                 if let collection = collection {
-                    charts = collection.map { InfoStackContent.Charts(date: $0.endDate, value: $0.value) }
+                    charts = collection.map { InfoStackContent.Charts(date: $0.startDate, value: $0.value) }
                 } else {
                     // 유효한 데이터가 없다면 '빈 배열'로 표시
                     charts = []
@@ -260,7 +260,7 @@ extension DashboardViewModel {
                 vm.setState(.loading)
                 // 차트 유형에 따라 시작 날짜와 마지막 날짜 구하기
                 guard let startDate = id.kind.startDate(anchorDate),
-                    let endDate = id.kind.endDate(anchorDate)
+                      let endDate = id.kind.endDate(anchorDate)
                 else {
                     vm.setState(.failure(nil))
                     continue
@@ -283,7 +283,31 @@ extension DashboardViewModel {
 
                 var contents: DashboardChartsContents
                 if let collection = hkCollection {
-                    contents = collection.map { DashboardChartsContent(date: $0.startDate, value: $0.value) }
+                    contents = collection.map {
+                        DashboardChartsContent(date: $0.startDate, value: $0.value)
+                    }
+
+                    // 일부 날짜의 걸음 수가 '0'이라서 일부 데이터가 존재하지 않으면
+                    if contents.count < id.kind.count {
+                        let diff = { // 일자 또는 월을 기준으로 차이 구하기
+                            switch id.kind {
+                            case .daysBack:   return startDate.dayDiff(to: endDate)
+                            case .monthsBack: return startDate.monthDiff(to: endDate)
+                            }
+                        }()
+
+                        // 시작 날짜와 종료 날짜의 차이만큼 순회하고
+                        for offset in 0..<diff {
+                            guard let offsetDate = adding(byKind: id.kind, value: offset, to: startDate)
+                            else { continue }
+
+                            // 특정 날짜에 해당하는 데이터가 없다면
+                            if contents.first(where: { $0.date.isEqual(with: offsetDate) }) == nil {
+                                contents.append(DashboardChartsContent(date: offsetDate, value: 0.0))
+                            }
+                        }
+                    }
+                    contents.sort { $0.date < $1.date }
                 } else {
                     // 유효한 데이터가 없다면 '⚠️데이터를 가져올 수 없다'고 표시
                     vm.setState(.failure(nil))
@@ -423,5 +447,27 @@ extension DashboardViewModel {
         ) else { return nil }
         let response = await alanService.sendQuestion(prompt)
         return response
+    }
+}
+
+
+fileprivate extension DashboardViewModel {
+
+    ///
+    func adding(byKind kind: BarChartsBackKind, value: Int, to date: Date) -> Date? {
+        switch kind {
+        case .daysBack:
+            return Calendar.current.date(byAdding: .day, value: value, to: date)
+        case .monthsBack:
+            return Calendar.current.date(byAdding: .month, value: value, to: date)
+        }
+    }
+}
+
+
+fileprivate extension Array {
+
+    func prefix(maxLength convertToArrayImmediately: Int) -> [Element] {
+        Array(prefix(maxLength: convertToArrayImmediately))
     }
 }

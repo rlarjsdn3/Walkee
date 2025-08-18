@@ -191,6 +191,30 @@ extension Date {
         return true
     }
 
+    /// 두 날짜 간의 일(day) 단위 차이를 반환합니다.
+    ///
+    /// - Parameter date: 비교할 대상 날짜입니다.
+    /// - Returns: 현재 날짜(`self`)와 전달받은 날짜 사이의 일 수 차이를 절댓값으로 반환합니다.
+    /// - Note: 시간, 분, 초 단위는 무시되고, 연·월·일만 비교하여 계산합니다.
+    func dayDiff(to date: Date) -> Int {
+        let startDate = calendar.dateComponents([.year, .month, .day], from: self)
+        let endDate = calendar.dateComponents([.year, .month, .day], from: date)
+        let dayDiff = calendar.dateComponents([.day], from: startDate, to: endDate).day!
+        return abs(dayDiff)
+    }
+
+    /// 두 날짜 간의 월(month) 단위 차이를 반환합니다.
+    ///
+    /// - Parameter date: 비교할 대상 날짜입니다.
+    /// - Returns: 현재 날짜(`self`)와 전달받은 날짜 사이의 월 수 차이를 절댓값으로 반환합니다.
+    /// - Note: 일(day) 단위는 무시되고, 연·월만 비교하여 계산합니다.
+    func monthDiff(to date: Date) -> Int {
+        let startDate = calendar.dateComponents([.year, .month], from: self)
+        let endDate = calendar.dateComponents([.year, .month], from: date)
+        let monthDiff = calendar.dateComponents([.month], from: startDate, to: endDate).month!
+        return abs(monthDiff)
+    }
+
     /// 지정된 구성 요소에 일치하는 다음 날짜를 반환합니다.
     ///
     /// 예를 들어, 매주 월요일 또는 매월 1일 등 특정 요일 또는 날짜를 기준으로 다음 시점을 계산할 때 사용할 수 있습니다.

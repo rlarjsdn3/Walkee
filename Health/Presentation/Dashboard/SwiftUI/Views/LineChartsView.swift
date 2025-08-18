@@ -27,7 +27,7 @@ struct LineChartsView: View {
             .foregroundStyle(.gray)
             .symbol(symbol: {
                 ZStack {
-                    if data.endDate.isEqual(with: .now.endOfDay()) {
+                    if data.startDate.isEqual(with: .now.startOfDay()) {
                         Circle()
                             .frame(width: 8, height: 8)
                             .foregroundStyle(.accent)
@@ -55,7 +55,7 @@ struct LineChartsView: View {
     let chartsData: [HKData] = (0..<7).map { index in
         let date = Date.now.addingDays(-index)!
         let (startDay, endDay) = date.rangeOfDay()
-        return HKData(startDate: startDay, endDate: endDay, value: Double.random(in: 1..<1000))
+        return HKData(startDate: startDay, endDate: startDay, value: Double.random(in: 1..<1000))
     }
 
     LineChartsView(chartsData: chartsData)
