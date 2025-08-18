@@ -228,7 +228,7 @@ final class BarChartsView: UIView {
         // 최대값에 비해 현재 값이 어느 정도인지 계산한 비율(역수)입니다.
         // 예: 최대값이 10,000이고 현재 값이 5,000이면, 비율은 2입니다.
         // 이 값은 막대가 전체 높이 중 얼마만큼 차지할지를 계산하는 데 사용됩니다.
-        let divider = CGFloat(maxValue / max(element.value, 1e-9))
+        let divider = maxValue > 0 ? CGFloat(element.value / maxValue) : 1e-9
 
         // 막대의 실제 높이를 계산합니다.
         // 전체 높이에서 위에서 구한 비율만큼 나누어, 현재 값에 비례한 높이를 구합니다.

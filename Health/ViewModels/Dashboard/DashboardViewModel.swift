@@ -52,7 +52,7 @@ final class DashboardViewModel {
         buildGoalRingCells()
         buildCardCells()
 
-        // 오늘 날짜가 
+        // 대시보드가 오늘자 데이터를 보여준다면
         if anchorDate.isEqual(with: .now) {
             buildAlanSummaryCells()
             buildBarChartsCells(for: environment)
