@@ -20,19 +20,24 @@ final class HealthInfoStackCollectionViewCell: CoreCollectionViewCell {
     @IBOutlet weak var chartsContainerView: UIView!
     @IBOutlet weak var permissionDeniedView: PermissionDeniedCompactView!
 
+    private var cancellable: Set<AnyCancellable> = []
     private var chartsHostingController: UIHostingController<LineChartsView>?
 
+    private var borderWidth: CGFloat {
+        (traitCollection.userInterfaceStyle == .dark) ? 0 : 0.75
+    }
+    
     private var viewModel: HealthInfoStackCellViewModel!
-    private var cancellable: Set<AnyCancellable> = []
-
+    
     override func layoutSubviews() {
        symbolContainerView.applyCornerStyle(.circular)
     }
 
     override func prepareForReuse() {
-        chartsHostingController = nil
-        chartsContainerView.subviews.forEach { $0.removeFromSuperview() }
         cancellable.removeAll()
+        chartsContainerView.subviews.forEach { $0.removeFromSuperview() }
+        chartsHostingController?.removeFromParent()
+        chartsHostingController = nil
     }
 
     override func setupAttribute() {
@@ -44,7 +49,7 @@ final class HealthInfoStackCollectionViewCell: CoreCollectionViewCell {
         self.layer.shadowOpacity = 0.15
         self.layer.shadowOffset = CGSize(width: 2, height: 2)
         self.layer.shadowRadius = 5
-        self.layer.borderWidth = (traitCollection.userInterfaceStyle == .dark) ? 0 : 1
+        self.layer.borderWidth = borderWidth
 
         symbolContainerView.backgroundColor = .systemGray5
 
@@ -62,11 +67,7 @@ final class HealthInfoStackCollectionViewCell: CoreCollectionViewCell {
 
     private func registerForTraitChanges() {
         registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: Self, previousTraitCollection: UITraitCollection) in
-            if self.traitCollection.userInterfaceStyle == .dark {
-                self.layer.borderWidth = 0
-            } else {
-                self.layer.borderWidth = 1
-            }
+            self.layer.borderWidth = self.borderWidth
         }
     }
 }

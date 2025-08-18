@@ -13,7 +13,7 @@ class WalkingCourseService {
 
     // 썸네일 캐시
     private var thumbnailCache = NSCache<NSString, UIImage>()
-	//코스 데이터 캐시(한 번 로드하면 계속 사용)
+    //코스 데이터 캐시(한 번 로드하면 계속 사용)
     private var coursesCache: [WalkingCourse]?
 
     private init() {}
@@ -44,7 +44,6 @@ class WalkingCourseService {
 
             // 5. 캐시에 저장하고 반환
             coursesCache = localCourses.courses
-            print("\(localCourses.courses.count)개의 코스를 성공적으로 불러왔습니다")
             return localCourses.courses
 
         } catch {
@@ -71,6 +70,7 @@ class WalkingCourseService {
         return image
     }
 
+    //좌표값 다운로드해서 이미지 생성
     private func downloadAndProcessGPX(urlString: String) async -> UIImage? {
         guard let url = URL(string: urlString) else {
             return nil
@@ -88,12 +88,27 @@ class WalkingCourseService {
             return await createMapSnapshot(coordinates: coordinates)
 
         } catch {
-            print("❌ GPX 다운로드 실패: \(error)")
+            print("GPX 다운로드 실패: \(error)")
             return nil
         }
     }
 
-    private func parseGPXCoordinates(from data: Data) -> [CLLocationCoordinate2D] {
+    //첫번째 좌표값 가져오기
+    func getFirstCoordinate(from gpxURL: String) async -> CLLocationCoordinate2D? {
+        guard let url = URL(string: gpxURL) else { return nil }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let coordinates = parseGPXCoordinates(from: data)
+            return coordinates.first
+        } catch {
+            print("GPX 로드 실패: \(error)")
+            return nil
+        }
+    }
+
+    //좌표 리스트만 반환
+    func parseGPXCoordinates(from data: Data) -> [CLLocationCoordinate2D] {
         var coordinates = [CLLocationCoordinate2D]()
 
         guard let xmlString = String(data: data, encoding: .utf8) else {
@@ -153,7 +168,6 @@ class WalkingCourseService {
             let snapshot = try await snapshotter.start()
             return drawRouteOnSnapshot(snapshot: snapshot, coordinates: coordinates)
         } catch {
-            print("스냅샷 생성 실패: \(error)")
             return nil
         }
     }

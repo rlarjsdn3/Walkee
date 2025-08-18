@@ -140,14 +140,14 @@ extension PersonalContent.Section {
 
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .absolute(itemWidth),
-            heightDimension: .estimated(250)
+            heightDimension: .estimated(220)
         )
 
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .absolute(containerWidth - horizontalInset * 2),
-            heightDimension: .estimated(250)
+            heightDimension: .estimated(220)
         )
 
         let group = NSCollectionLayoutGroup.horizontal(

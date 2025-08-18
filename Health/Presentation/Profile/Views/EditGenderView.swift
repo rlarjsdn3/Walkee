@@ -84,7 +84,7 @@ final class EditGenderView: CoreView {
         return button
     }
     
-    func setInitialGender(_ gender: Gender?) {
+    func setDefaultGender(_ gender: Gender?) {
         selectedGender = gender
     }
     

@@ -12,10 +12,6 @@ final class HealthDataViewModel: ObservableObject {
     // 의존성 주입
     @Injected(.healthService) private var healthService: HealthService
 
-    // 싱글톤 패턴
-    @MainActor static let shared = HealthDataViewModel()
-    private init() {}
-
     /// 일주일간의 건강 데이터를 비동기로 가져옵니다
     /// - Returns: 일주일간의 걸음수, 거리 등이 포함된 WeeklyHealthData
     func getWeeklyHealthData() async -> WeeklyHealthData {

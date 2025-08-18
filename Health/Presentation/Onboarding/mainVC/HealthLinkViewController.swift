@@ -5,8 +5,9 @@
 //  Created by 권도현 on 8/5/25.
 //
 
-import UIKit
+import CoreData
 import HealthKit
+import UIKit
 
 class HealthLinkViewController: CoreGradientViewController {
     
@@ -15,7 +16,9 @@ class HealthLinkViewController: CoreGradientViewController {
     @IBOutlet weak var linkedSwitch: UISwitch!
     @IBOutlet weak var supUserDescriptionLabel: UILabel!
     @IBOutlet weak var linkSettingView: UIView!
-    
+
+    @Injected private var stepSyncService: StepSyncService
+
     private let healthService = DefaultHealthService()
     
     @IBAction func linkAction(_ sender: UISwitch) {
