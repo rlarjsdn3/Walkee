@@ -25,4 +25,11 @@ extension UserDefaultsKeys {
             defaultValue: false
         )
     }
+    
+    var appThemeStyle: UserDefaultsKey<Int> {
+        UserDefaultsKey<Int>(
+            "appThemeStyle",
+            defaultValue: AppTheme.system.rawValue
+        )
+    }
 }

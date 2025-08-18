@@ -7,6 +7,7 @@
 
 import UIKit
 import TSAlertController
+import MessageUI
 
 struct ProfileCellModel {
     let title: String
@@ -25,11 +26,12 @@ class ProfileViewController: CoreGradientViewController {
     private var currentGoalCache: Int = 0
     
     private var grantRecheckObserver: NSObjectProtocol?
-
+    
     private let sectionTitles: [String?] = [
         nil,
         "개인 설정",
-        "권한 설정"
+        "권한 설정",
+        "기타"
     ]
     
     private var sectionItems: [[ProfileCellModel]] = [
@@ -45,8 +47,8 @@ class ProfileViewController: CoreGradientViewController {
             isSwitch: false
         ),
          ProfileCellModel(
-            title: "일반 설정",
-            iconName: "gearshape.fill",
+            title: "화면 모드 설정",
+            iconName: "iphone.motion",
             isSwitch: false
          )
         ],
@@ -55,6 +57,12 @@ class ProfileViewController: CoreGradientViewController {
             iconName: "applelogo",
             isSwitch: true,
             switchState: UserDefaultsWrapper.shared.healthkitLinked
+        )
+        ],
+        [ProfileCellModel(
+            title: "문의하기",
+            iconName: "envelope.fill",
+            isSwitch: false
         )
         ]
     ]
@@ -261,7 +269,6 @@ class ProfileViewController: CoreGradientViewController {
         })
         
         present(alert, animated: true)
-
     }
     
     /// 건강(Health) 앱을 엽니다.
@@ -319,7 +326,7 @@ extension ProfileViewController: UITableViewDataSource {
             toggle.addTarget(self, action: #selector(switchChanged(_:)), for: .valueChanged)
             cell.accessoryView = toggle
             cell.selectionStyle = .none
-        } else if model.title == "목표 걸음 설정" {
+        } else if model.title == "목표 걸음 설정" || model.title == "화면 모드 설정" {
             cell.accessoryView = nil
             cell.accessoryType = .none
             cell.selectionStyle = .default
@@ -363,10 +370,73 @@ extension ProfileViewController: UITableViewDelegate {
                 self.currentGoalCache = v.value
                 print(v.value)
             }
-        case "일반 설정":
-            break
+        case "화면 모드 설정":
+            presentSheet(on: self) {
+                let v = DisplayModeView()
+                return v
+            }
+        case "문의하기":
+            if MFMailComposeViewController.canSendMail() {
+                let vc = MFMailComposeViewController()
+                vc.mailComposeDelegate = self
+                
+                var currentAppVersion: String {
+                    guard let dictionary = Bundle.main.infoDictionary,
+                          let version = dictionary["CFBundleShortVersionString"] as? String else { return "" }
+                    return version
+                }
+
+                let bodyString = """
+                                         이곳에 내용을 작성해 주세요.
+                                         
+                                         ================================
+                                         Device Model : \(UIDevice.current.model)
+                                         Device OS : \(UIDevice.current.systemVersion)
+                                         App Version: \(currentAppVersion)
+                                         ================================
+                                         """
+                vc.setToRecipients(["rlarjsdn3@naver.com"])
+                vc.setSubject("문의 사항")
+                vc.setMessageBody(bodyString, isHTML: false)
+                
+                self.present(vc, animated: true)
+            } else {
+                let alertController = UIAlertController(title: "메일 계정 활성화 필요",
+                                                        message: "Mail 앱에서 사용자의 Email을 계정을 설정해 주세요.",
+                                                        preferredStyle: .alert)
+                let alertAction = UIAlertAction(title: "확인", style: .default) { _ in
+                    guard let mailSettingsURL = URL(string: UIApplication.openSettingsURLString + "&&path=MAIL") else { return }
+                    
+                    if UIApplication.shared.canOpenURL(mailSettingsURL) {
+                        UIApplication.shared.open(mailSettingsURL, options: [:], completionHandler: nil)
+                    }
+                }
+                alertController.addAction(alertAction)
+                
+                self.present(alertController, animated: true)
+            }
         default:
             break
         }
+    }
+}
+
+extension ProfileViewController: MFMailComposeViewControllerDelegate {
+    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: (any Error)?) {
+        switch result {
+            
+        case .cancelled:
+            showToast(message: "작성 취소")
+        case .saved:
+            showToast(message: "임시 저장")
+        case .sent:
+            showToast(message: "메일 전송 완료")
+        case .failed:
+            showToast(message: "메일 전송 실패")
+        @unknown default:
+            break
+        }
+        
+        self.dismiss(animated: true)
     }
 }
