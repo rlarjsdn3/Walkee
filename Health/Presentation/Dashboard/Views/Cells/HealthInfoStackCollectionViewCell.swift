@@ -132,7 +132,8 @@ extension HealthInfoStackCollectionViewCell {
     ) {
         // 가장 최근 데이터를 오른쪽에 정렬시키기
         let reversed = Array(charts.reversed())
-        let hkd = reversed.map { HKData(startDate: $0.date, endDate: $0.date, value: $0.value) }
+        let suffixed = reversed.suffix(7)
+        let hkd = suffixed.map { HKData(startDate: $0.date, endDate: $0.date, value: $0.value) }
         let hVC = LineChartsHostingController(chartsData: hkd)
         parent?.addChild(hVC, to: chartsContainerView)
         self.chartsHostingController = hVC

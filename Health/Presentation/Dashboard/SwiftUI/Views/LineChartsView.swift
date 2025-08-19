@@ -19,15 +19,15 @@ struct LineChartsView: View {
     }
 
     var body: some View {
-        Chart(chartsData, id: \.endDate) { data in
+        Chart(chartsData, id: \.startDate) { data in
             LineMark(
-                x: .value("date", data.endDate.description),
+                x: .value("date", data.startDate.description),
                 y: .value("value", data.value)
             )
             .foregroundStyle(.gray)
             .symbol(symbol: {
                 ZStack {
-                    if data.endDate.isEqual(with: .now.endOfDay()) {
+                    if data.startDate.isEqual(with: .now.startOfDay()) {
                         Circle()
                             .frame(width: 8, height: 8)
                             .foregroundStyle(.accent)
@@ -54,8 +54,8 @@ struct LineChartsView: View {
 #Preview(traits: .fixedLayout(width: 300, height: 200)) {
     let chartsData: [HKData] = (0..<7).map { index in
         let date = Date.now.addingDays(-index)!
-        let (startDay, endDay) = date.rangeOfDay()
-        return HKData(startDate: startDay, endDate: endDay, value: Double.random(in: 1..<1000))
+        let (startDate, endDate) = date.rangeOfDay()
+        return HKData(startDate: startDate, endDate: endDate, value: Double.random(in: 1..<1000))
     }
 
     LineChartsView(chartsData: chartsData)

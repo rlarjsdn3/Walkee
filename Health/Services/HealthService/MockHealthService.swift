@@ -95,12 +95,26 @@ final class MockHealthService: HealthService {
         interval intervalComponents: DateComponents,
         unit: HKUnit
     ) async throws -> [HKData] {
-        let hkDatas: [HKData] = (0..<7).map { index in
-            let date = Date.now.addingDays(-index)!
-            let (startDay, endDay) = date.rangeOfDay()
-            return HKData(startDate: startDay, endDate: endDay, value: Double.random(in: 1..<1000))
+        var hkDatas: [HKData] = []
+        if let _ = intervalComponents.day {
+            let diff = startDate.dayDiff(to: endDate)
+            for index in 0..<diff {
+                let date = Date.now.addingDays(-index)!
+//                if index == 0 { continue }
+//                if index == 6 { continue }
+                let (startDate, endDate) = date.rangeOfDay()
+                hkDatas.append(HKData(startDate: startDate, endDate: endDate, value: Double.random(in: 1..<1000)))
+            }
+        } else {
+            let diff = startDate.monthDiff(to: endDate)
+            for index in 0..<diff {
+                let date = Date.now.addingMonths(-index)!
+//                if index == 3 { continue }
+//                if index == 5 { continue }
+                let (startDate, endDate) = date.rangeOfMonth()
+                hkDatas.append(HKData(startDate: startDate!, endDate: endDate!, value: Double.random(in: 1..<1000)))
+            }
         }
-
         return hkDatas
     }
 }

@@ -11,7 +11,7 @@ import UIKit
 ///
 /// 이 클래스를 상속하여 화면마다 공통적인 UI 계층 구성, 속성 설정,
 /// 제약 조건 설정 등의 작업을 일관되게 구현할 수 있습니다.
-class CoreViewController: UIViewController {
+class CoreViewController: UIViewController, StoryboardInstantiable {
 
     override func viewDidLoad() {
         super.viewDidLoad()

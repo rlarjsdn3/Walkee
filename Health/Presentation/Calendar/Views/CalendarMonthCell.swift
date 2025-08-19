@@ -10,6 +10,8 @@ final class CalendarMonthCell: CoreCollectionViewCell {
 
     private var datesWithBlank: [Date] = []
 
+    var onDateSelected: ((Date) -> Void)?
+
     override func setupAttribute() {
         super.setupAttribute()
         dateCollectionView.dataSource = self
@@ -49,7 +51,7 @@ final class CalendarMonthCell: CoreCollectionViewCell {
     }
 }
 
-extension CalendarMonthCell: UICollectionViewDataSource, UICollectionViewDelegate {
+extension CalendarMonthCell: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         datesWithBlank.count
     }
@@ -66,5 +68,13 @@ extension CalendarMonthCell: UICollectionViewDataSource, UICollectionViewDelegat
         }
 
         return cell
+    }
+}
+
+extension CalendarMonthCell: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let date = datesWithBlank[indexPath.item]
+        guard date != .distantPast, date <= Date() else { return }
+        onDateSelected?(date)
     }
 }

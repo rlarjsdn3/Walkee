@@ -46,6 +46,13 @@ final class CalendarViewController: CoreGradientViewController {
 
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
+
+        // 회전 이벤트는 뷰컨트롤러가 화면에 표시되지 않아도 호출될 수 있음.
+        // 앱 최초 실행 시에는 캘린더 탭을 열지 않은 상태에서도 이 메서드가 불리는데
+        // 이 경우, scrollManager는 아직 초기화되지 않았기 때문에 강제 접근 시 crash 발생 가능
+        // 따라서 "뷰가 이미 로드되고 실제 화면(window)에 표시된 경우"에만
+        // scrollManager.handleDeviceRotation()을 호출하도록 제한.
+        guard viewIfLoaded?.window != nil else { return }
         scrollManager.handleDeviceRotation(coordinator: coordinator)
     }
 }
@@ -141,7 +148,20 @@ private extension CalendarViewController {
         }
     }
 
-    @objc private func reloadCalendar() {
+    func navigationToDashboard(with date: Date) {
+        let dashboardVC = DashboardViewController.instantiateInitialViewController(name: "Dashboard")
+        dashboardVC.viewModel = DashboardViewModel(anchorDate: date)
+
+        // push 시 탭바가 잠깐 보였다 내려가는 문제로 미리 tabBar를 숨깁니다.
+        // pop 해서 DashboardVC가 사라지면 다시 `hidesBottomBarWhenPushed = false`인 화면이 되므로
+        // UITabBarController는 이 상태를 감지하고 탭바를 "자동으로 복원"해줍니다.
+        // 그래서 따로 tabBar.isHidden = false 복원 코드를 작성할 필요가 없습니다.
+        dashboardVC.hidesBottomBarWhenPushed = true
+        tabBarController?.tabBar.isHidden = true
+        navigationController?.pushViewController(dashboardVC, animated: true)
+    }
+
+    @objc func reloadCalendar() {
         collectionView.reloadData()
     }
 }
@@ -158,6 +178,12 @@ extension CalendarViewController: UICollectionViewDataSource {
             cell.configure(with: monthData)
         }
 
+        if cell.onDateSelected == nil {
+            cell.onDateSelected = { [weak self] date in
+                self?.navigationToDashboard(with: date)
+            }
+        }
+
         return cell
     }
 }
@@ -167,5 +193,10 @@ extension CalendarViewController: UICollectionViewDelegate {
     /// 스크롤 시 무한 스크롤 처리 (상단/하단 임계점 도달 시 추가 데이터 로드)
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         scrollManager.handleScrollForInfiniteLoading(scrollView)
+    }
+
+    /// 상단바를 탭해서 최상단으로 스크롤하는 동작 방지
+    func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
+        return false
     }
 }

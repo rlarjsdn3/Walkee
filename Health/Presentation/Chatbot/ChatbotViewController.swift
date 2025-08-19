@@ -30,6 +30,8 @@ final class ChatbotViewController: CoreGradientViewController {
 	@IBOutlet private weak var chattingTextField: UITextField!
 	@IBOutlet private weak var sendButton: UIButton!
 	
+	// TODO: 임시 로그 확인용 PrivacyService 주입
+	@Injected(.privacyService) private var privacy: PrivacyService
 	
 	// MARK: - Properties & States
 	/// 현재 대화에 표시되는 메시지 목록
@@ -437,6 +439,13 @@ final class ChatbotViewController: CoreGradientViewController {
 		
 		showWaitingCell()
 		
+		let masked = PrivacyService.maskSensitiveInfo(in: text)
+		print("[Chatbot] Original: \(text)")
+		print("[Chatbot] Masked  : \(masked)")
+		
+		Log.privacy.info("Original: \(text, privacy: .public)")
+		Log.privacy.info("Masked  : \(masked, privacy: .public)")
+		
 		Task {
 			await viewModel.sendQuestion(text)
 			
@@ -489,8 +498,29 @@ final class ChatbotViewController: CoreGradientViewController {
 		inFootnote = false
 		pendingOpenBracket = false
 		
+		//  원문 vs 비식별화 로그
+		let masked = PrivacyService.maskSensitiveInfo(in: text)
+		// 강제로 print 출력 (릴리즈 모드에서도 확실히 출력)
+		print("=== 마스킹 디버그 ===")
+		print("[Chatbot] Original: \(text)")
+		print("[Chatbot] Masked  : \(masked)")
+		print("==================")
+		
+		// Log도 출력 (설정에 따라 다를 수 있음)
+		Log.privacy.info("Original: \(text, privacy: .public)")
+		Log.privacy.info("Masked  : \(masked, privacy: .public)")
+		
+		// 조건부 컴파일로 추가 디버그 정보
+#if DEBUG
+		print("[DEBUG] 디버그 모드에서 실행 중")
+		print("[DEBUG] 마스킹 전 길이: \(text.count), 마스킹 후 길이: \(masked.count)")
+#else
+		print("[RELEASE] 릴리즈 모드에서 실행 중")
+		print("[RELEASE] 마스킹 전 길이: \(text.count), 마스킹 후 길이: \(masked.count)")
+#endif
+		
 		// SSE 시작
-		viewModel.startStreamingQuestionWithAutoReset(text)
+		viewModel.startStreamingQuestionWithAutoReset(masked)
 	}
 	
 	// MARK: 각주 [^ number ^] 는 제거하는 메서드
@@ -940,7 +970,7 @@ extension ChatbotViewController: UITableViewDelegate {
 		guard let messageIndex = computeMessageIndex(for: indexPath) else {
 			return UITableView.automaticDimension
 		}
-		let message = messages[messageIndex]
+		//let message = messages[messageIndex]
 		
 		return UITableView.automaticDimension
 	}

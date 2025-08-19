@@ -20,7 +20,7 @@ enum BarChartsBackKind {
             return max(0, abs(value))
         }
     }
-    
+
     ///
     var interval: DateComponents {
         switch self {
@@ -28,7 +28,15 @@ enum BarChartsBackKind {
         case .monthsBack:   return DateComponents(month: 1)
         }
     }
-    
+
+    ///
+    var component: Calendar.Component {
+        switch self {
+        case .daysBack:     return .day
+        case .monthsBack:   return .month
+        }
+    }
+
     ///
     func startDate(_ anchorDate: Date) -> Date? {
         switch self {
@@ -38,7 +46,7 @@ enum BarChartsBackKind {
             return anchorDate.startOfMonth()?.addingMonths(-int+1)
         }
     }
-    
+
     ///
     func endDate(_ anchorDate: Date) -> Date? {
         switch self {

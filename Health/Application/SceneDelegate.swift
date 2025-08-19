@@ -22,9 +22,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let hasSeenOnboarding = UserDefaultsWrapper.shared.hasSeenOnboarding
         
+        let savedTheme = DisplayModeView.loadSavedTheme()
+        window?.overrideUserInterfaceStyle = savedTheme.uiStyle
+        
         window?.rootViewController = setupRootViewController(hasSeenOnboarding: hasSeenOnboarding)
         window?.makeKeyAndVisible()
-        
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
