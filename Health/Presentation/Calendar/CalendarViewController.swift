@@ -3,7 +3,8 @@ import UIKit
 final class CalendarViewController: CoreGradientViewController {
 
     @IBOutlet weak var collectionView: UICollectionView!
-
+    @IBOutlet weak var scrollToCurrentButton: UIButton!
+    
     private let calendarVM = CalendarViewModel()
     private lazy var scrollManager = CalendarScrollManager(calendarVM: calendarVM, collectionView: collectionView)
 
@@ -54,6 +55,10 @@ final class CalendarViewController: CoreGradientViewController {
         // scrollManager.handleDeviceRotation()을 호출하도록 제한.
         guard viewIfLoaded?.window != nil else { return }
         scrollManager.handleDeviceRotation(coordinator: coordinator)
+    }
+
+    @IBAction func scrollToCurrentButtonTapped(_ sender: Any) {
+        scrollManager.scrollToCurrentMonth(animated: true)
     }
 }
 
@@ -161,6 +166,42 @@ private extension CalendarViewController {
         navigationController?.pushViewController(dashboardVC, animated: true)
     }
 
+    func updateScrollToCurrentButtonVisibility() {
+        // 초기 스크롤이 끝나기 전에는 버튼을 숨긴 상태 유지
+        guard scrollManager.didFinishInitialScroll else {
+            scrollToCurrentButton.alpha = 0
+            scrollToCurrentButton.isHidden = true
+            return
+        }
+
+        guard let currentIndexPath = calendarVM.indexOfCurrentMonth() else { return }
+
+        let visibleIndexPaths = collectionView.indexPathsForVisibleItems
+        let shouldShow = !visibleIndexPaths.contains(currentIndexPath)
+
+        // 현재 상태와 바뀌어야 될 상태가 같으면 아무것도 하지 않음
+        guard scrollToCurrentButton.isHidden == shouldShow else { return }
+
+        updateButtonState(shouldShow: shouldShow)
+    }
+
+    func updateButtonState(shouldShow: Bool) {
+        if shouldShow {
+            scrollToCurrentButton.alpha = 0
+            scrollToCurrentButton.isHidden = false
+
+            UIView.animate(withDuration: 0.25) { [weak self] in
+                self?.scrollToCurrentButton.alpha = 1
+            }
+        } else {
+            UIView.animate(withDuration: 0.25) { [weak self] in
+                self?.scrollToCurrentButton.alpha = 0
+            } completion: { [weak self] _ in
+                self?.scrollToCurrentButton.isHidden = true
+            }
+        }
+    }
+
     @objc func reloadCalendar() {
         collectionView.reloadData()
     }
@@ -190,9 +231,10 @@ extension CalendarViewController: UICollectionViewDataSource {
 
 extension CalendarViewController: UICollectionViewDelegate {
 
-    /// 스크롤 시 무한 스크롤 처리 (상단/하단 임계점 도달 시 추가 데이터 로드)
+    /// 스크롤 시 무한 스크롤 처리 및 현재 월로 스크롤하는 버튼 표시 여부 업데이트
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         scrollManager.handleScrollForInfiniteLoading(scrollView)
+        updateScrollToCurrentButtonVisibility()
     }
 
     /// 상단바를 탭해서 최상단으로 스크롤하는 동작 방지
