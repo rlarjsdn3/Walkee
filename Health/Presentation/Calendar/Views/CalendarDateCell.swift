@@ -17,6 +17,8 @@ final class CalendarDateCell: CoreCollectionViewCell {
     private var isBlankCell = false
     private var isCompletedCell = false
 
+    private(set) var isClickable = false
+
     override func setupHierarchy() {
         super.setupHierarchy()
 
@@ -53,6 +55,31 @@ final class CalendarDateCell: CoreCollectionViewCell {
         }
 
         configureCircleViewUI()
+    }
+
+    override var isHighlighted: Bool {
+        didSet {
+            guard isClickable else { return }
+
+            let alpha: CGFloat = isHighlighted ? 0.75 : 1.0
+            let scale: CGFloat = isHighlighted ? 0.95 : 1.0
+
+            UIView.animate(
+                withDuration: 0.25,
+                delay: 0,
+                options: [.allowUserInteraction, .curveEaseInOut]
+            ) {
+                self.contentView.alpha = alpha
+                self.contentView.transform = CGAffineTransform(scaleX: scale, y: scale)
+            }
+        }
+    }
+
+    // 셀 재사용시 원래 상태 복원 보장
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        contentView.alpha = 1.0
+        contentView.transform = .identity
     }
 
     private func updateCircleViewConstraints(inset: CGFloat) {
@@ -99,11 +126,13 @@ final class CalendarDateCell: CoreCollectionViewCell {
         // 빈 셀 처리
         if date == .distantPast {
             isBlankCell = true
+            isClickable = false
             configureForBlank()
             return
         }
 
         isBlankCell = false
+        isClickable = date.startOfDay() <= Date().startOfDay()
         dateLabel.text = "\(date.day)"
 
         // 데이터 없음 처리

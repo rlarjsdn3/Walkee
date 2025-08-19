@@ -52,6 +52,7 @@ final class CalendarMonthCell: CoreCollectionViewCell {
 }
 
 extension CalendarMonthCell: UICollectionViewDataSource {
+
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         datesWithBlank.count
     }
@@ -72,6 +73,15 @@ extension CalendarMonthCell: UICollectionViewDataSource {
 }
 
 extension CalendarMonthCell: UICollectionViewDelegate {
+
+    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+        guard let cell = collectionView.cellForItem(at: indexPath) as? CalendarDateCell else {
+            return false
+        }
+        let date = datesWithBlank[indexPath.item]
+        return date != .distantPast && cell.isClickable
+    }
+
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let date = datesWithBlank[indexPath.item]
         guard date != .distantPast, date <= Date() else { return }
