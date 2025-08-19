@@ -22,6 +22,45 @@ final class AlanActivitySummaryCollectionViewCell: CoreCollectionViewCell {
 
     private var viewModel: AlanActivitySummaryCellViewModel!
 
+    // TODO: - ChatBotImageView / SummaryLabel을 별도 뷰로 빼기
+    override func preferredLayoutAttributesFitting(_ attrs: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
+        setNeedsLayout()
+        layoutIfNeeded()
+
+        let target = CGSize(
+            width: attrs.size.width,
+            height: UIView.layoutFittingCompressedSize.height
+        )
+        let size = self.systemLayoutSizeFitting(
+            target,
+            withHorizontalFittingPriority: .required,
+            verticalFittingPriority: .fittingSizeLevel
+        )
+        attrs.size = size
+
+        // TODO: - 아래 코드를 사용하지 않고도 Intrinsic Content Size로 셀의 높이 결정하기
+        if loadingIndicatorView.state == .success {
+            let text: NSString = (summaryLabel.attributedText?.string as NSString?) ??
+                                 (summaryLabel.text as NSString?) ?? ""
+            let font: UIFont = summaryLabel.font ?? UIFont.preferredFont(forTextStyle: .callout)
+            let width = max(0, self.bounds.width
+                            - 24    // leading/trailing 패딩 합
+                            - 26)   //  좌측 아이콘의 고정 너비
+
+
+            let rect = text.boundingRect(
+                with: CGSize(width: width, height: .greatestFiniteMagnitude),
+                options: [.usesFontLeading, .usesLineFragmentOrigin],
+                attributes: [.font: font],
+                context: nil
+            )
+            attrs.size.height = rect.height + 24 // top/bottom 패딩 합
+        }
+
+        return attrs
+
+    }
+
     override func setupAttribute() {
         self.backgroundColor = .boxBg
         self.applyCornerStyle(.medium)
@@ -65,7 +104,7 @@ extension AlanActivitySummaryCollectionViewCell {
 
         switch state {
         case .idle:
-            return // TODO: - 플레이스 홀더 UI 구성하기
+            return 
 
         case .loading:
             loadingIndicatorView.isHidden = false

@@ -24,7 +24,7 @@
                         </constraints>
                     </imageView>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aNK-jK-Xk1">
-                        <rect key="frame" x="50" y="13" width="332" height="100"/>
+                        <rect key="frame" x="50" y="12" width="332" height="101"/>
                         <fontDescription key="fontDescription" style="UICTFontTextStyleCallout"/>
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
@@ -36,15 +36,15 @@
             </view>
             <viewLayoutGuide key="safeArea" id="ZTg-uK-7eu"/>
             <constraints>
-                <constraint firstAttribute="trailing" secondItem="aNK-jK-Xk1" secondAttribute="trailing" constant="12" id="64L-Mp-dYi"/>
+                <constraint firstItem="aNK-jK-Xk1" firstAttribute="leading" secondItem="Hr5-ae-uBX" secondAttribute="trailing" constant="12" id="7UL-Qq-Tcx"/>
+                <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="Hr5-ae-uBX" secondAttribute="bottom" constant="12" id="A9C-v8-YHf"/>
                 <constraint firstItem="Udn-KC-rhh" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="12" id="CF0-rA-EUC"/>
-                <constraint firstItem="Hr5-ae-uBX" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="12" id="Cbs-YN-WKQ"/>
-                <constraint firstItem="aNK-jK-Xk1" firstAttribute="leading" secondItem="Hr5-ae-uBX" secondAttribute="trailing" constant="12" id="Cd5-rC-iUl"/>
-                <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="Hr5-ae-uBX" secondAttribute="bottom" constant="12" id="GCY-ME-Mb2"/>
+                <constraint firstAttribute="bottom" secondItem="aNK-jK-Xk1" secondAttribute="bottom" constant="12" id="I9y-Lj-IzP"/>
                 <constraint firstItem="Udn-KC-rhh" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="12" id="JZn-Ra-aUe"/>
-                <constraint firstItem="aNK-jK-Xk1" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="13" id="SVo-fP-hBI"/>
-                <constraint firstAttribute="bottom" secondItem="aNK-jK-Xk1" secondAttribute="bottom" constant="12" id="Sxi-To-ajl"/>
-                <constraint firstItem="Hr5-ae-uBX" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="12" id="UOL-E3-Vuw"/>
+                <constraint firstItem="Hr5-ae-uBX" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="12" id="ZaZ-r7-ZYm"/>
+                <constraint firstItem="Hr5-ae-uBX" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="12" id="caz-b1-iuR"/>
+                <constraint firstItem="aNK-jK-Xk1" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="12" id="d0h-8K-0SV"/>
+                <constraint firstAttribute="trailing" secondItem="aNK-jK-Xk1" secondAttribute="trailing" constant="12" id="qpl-Uu-dz2"/>
                 <constraint firstAttribute="bottom" secondItem="Udn-KC-rhh" secondAttribute="bottom" constant="12" id="vL7-Ev-gOf"/>
                 <constraint firstAttribute="trailing" secondItem="Udn-KC-rhh" secondAttribute="trailing" constant="12" id="xK3-r3-yQ7"/>
             </constraints>

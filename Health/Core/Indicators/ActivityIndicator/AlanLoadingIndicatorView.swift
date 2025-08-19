@@ -34,15 +34,36 @@ final class AlanLoadingIndicatorView: CoreView {
     private let deniedSummaryText = "AI가 요약에 실패했어요. 건강 데이터에 대한 접근 권한이 필요해요."
     private let failedSummaryText = "AI가 요약에 실패했어요. 잠시 후 다시 시도해 주세요."
 
+    override var intrinsicContentSize: CGSize {
+        guard bounds.width > 0 else {
+            return CGSize(width: UIView.noIntrinsicMetric, height: UIView.noIntrinsicMetric)
+        }
+
+        let text: NSString = (titleLabel.attributedText?.string as NSString?) ??
+                             (titleLabel.text as NSString? ?? "")
+        let font = titleLabel.font ?? UIFont.preferredFont(forTextStyle: .subheadline)
+
+        let width = max(0, bounds.width
+                        - 20  // 왼쪽 아이콘의 너비
+                        - 8)  // 스택의 간격(spacing)
+
+        let rect = text.boundingRect(
+            with: CGSize(width: width, height: .greatestFiniteMagnitude),
+            options: [.usesLineFragmentOrigin, .usesFontLeading],
+            attributes: [.font: font],
+            context: nil
+        )
+        return CGSize(width: UIView.noIntrinsicMetric, height: ceil(rect.height - 2))
+    }
+
     override func setupHierarchy() {
         addSubview(indicatorStackView)
-        indicatorStackView.addArrangedSubviews(loadingIndicatorView, titleLabel)
+        indicatorStackView.addArrangedSubviews(loadingIndicatorView, exclamationMarkImageView, titleLabel)
     }
 
     override func setupAttribute() {
         loadingIndicatorView.color = .accent
         loadingIndicatorView.dotDiameter = 20
-        loadingIndicatorView.startAnimating()
 
         titleLabel.text = doingSummaryText
         titleLabel.font = .preferredFont(forTextStyle: .subheadline)
@@ -101,40 +122,48 @@ extension AlanLoadingIndicatorView {
 
     private func setLoadingState() {
         state = .loading
-        exclamationMarkImageView.removeFromSuperview()
-        indicatorStackView.insertArrangedSubview(loadingIndicatorView, at: 0)
+        loadingIndicatorView.startAnimating()
+        loadingIndicatorView.isHidden = false
+        exclamationMarkImageView.isHidden = true
         indicatorStackView.spacing = 6
         indicatorStackView.alignment = .fill
         titleLabel.text = doingSummaryText
         startTimer()
+        invalidateIntrinsicContentSize()
     }
 
     private func setFailedState() {
         state = .failed
-        loadingIndicatorView.removeFromSuperview()
+        loadingIndicatorView.stopAnimating()
+        loadingIndicatorView.isHidden = true
         exclamationMarkImageView.image = exclamationmarkCircleImage([.systemRed])
-        indicatorStackView.insertArrangedSubview(exclamationMarkImageView, at: 0)
+        exclamationMarkImageView.isHidden = false
         indicatorStackView.spacing = 8
         indicatorStackView.alignment = .top
         titleLabel.text = failedSummaryText
         stopTimer()
+        invalidateIntrinsicContentSize()
     }
     
     private func setDeniedState() {
         state = .denied
-        loadingIndicatorView.removeFromSuperview()
+        loadingIndicatorView.stopAnimating()
+        loadingIndicatorView.isHidden = true
         exclamationMarkImageView.image = exclamationmarkCircleImage([.systemYellow])
-        indicatorStackView.insertArrangedSubview(exclamationMarkImageView, at: 0)
+        exclamationMarkImageView.isHidden = false
         indicatorStackView.spacing = 8
         indicatorStackView.alignment = .top
         titleLabel.text = deniedSummaryText
         stopTimer()
+        invalidateIntrinsicContentSize()
     }
 
     private func setSuccessState() {
         state = .success
+        loadingIndicatorView.stopAnimating()
         isHidden = true
         stopTimer()
+//        invalidateIntrinsicContentSize()
     }
 }
 

@@ -44,10 +44,10 @@ extension DailyGoalRingCollectionViewCell {
 
         switch state {
         case .idle:
-            return // TODO: - 플레이스 홀더 UI 구성하기
+            return
 
         case .loading:
-            return // TODO: - 스켈레톤 UI 구성하기
+            return
 
         case let .success(content):
             circleProgressView.totalValue = Double(content.goalStepCount)

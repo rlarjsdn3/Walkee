@@ -83,7 +83,7 @@ final class DashboardViewController: CoreGradientViewController {
 
     @objc private func refreshHKData() {
         // TODO: - 리프레시 시, AI 요약도 함께 리프레시되도록 하기
-        viewModel.loadHKData(includeAISummary: false)
+        viewModel.loadHKData(includeAISummary: true)
 
         Task.delay(for: 1.0) { @MainActor in
             refreshControl.endRefreshing()
