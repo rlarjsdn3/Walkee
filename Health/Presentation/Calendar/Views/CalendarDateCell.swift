@@ -75,7 +75,7 @@ final class CalendarDateCell: CoreCollectionViewCell {
         }
     }
 
-    // 셀 재사용시 원래 상태 복원 보장
+    // 셀 재사용 시 원래 상태 복원 보장
     override func prepareForReuse() {
         super.prepareForReuse()
         contentView.alpha = 1.0
