@@ -5,16 +5,25 @@
 //  Created by 권도현 on 8/1/25.
 //
 
+//TODO: 성별 불러오는 명칭 영어 한글 통일 시키기
+
 import UIKit
 import CoreData
 
 class GenderSelectViewController: CoreGradientViewController {
-    
+
     @IBOutlet weak var femaleButton: UIButton!
     @IBOutlet weak var maleButton: UIButton!
     @IBOutlet weak var femaleGender: UILabel!
     @IBOutlet weak var maleGender: UILabel!
     
+    @IBOutlet weak var continueButton: UIButton!
+    @IBOutlet weak var continueButtonLeading: NSLayoutConstraint!
+    @IBOutlet weak var continueButtonTrailing: NSLayoutConstraint!
+
+    private var iPadWidthConstraint: NSLayoutConstraint?
+    private var iPadCenterXConstraint: NSLayoutConstraint?
+
     private enum Gender {
         case male
         case female
@@ -26,20 +35,12 @@ class GenderSelectViewController: CoreGradientViewController {
             updateContinueButtonState()
         }
     }
-    
-    private let continueButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("다음", for: .normal)
-        button.backgroundColor = UIColor.buttonBackground
-        button.setTitleColor(.label, for: .normal)
-        button.applyCornerStyle(.medium)
-        button.isEnabled = false
-        return button
-    }()
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         applyBackgroundGradient(.midnightBlack)
+    
+        continueButton.applyCornerStyle(.medium)
         continueButton.addTarget(self, action: #selector(continueButtonTapped), for: .touchUpInside)
         updateGenderSelectionUI()
         updateContinueButtonState()
@@ -50,6 +51,31 @@ class GenderSelectViewController: CoreGradientViewController {
         loadSavedGender()
     }
     
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        
+        let isIpad = traitCollection.horizontalSizeClass == .regular &&
+                     traitCollection.verticalSizeClass == .regular
+
+        if isIpad {
+            continueButtonLeading?.isActive = false
+            continueButtonTrailing?.isActive = false
+            
+            if iPadWidthConstraint == nil {
+                iPadWidthConstraint = continueButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7)
+                iPadCenterXConstraint = continueButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+                iPadWidthConstraint?.isActive = true
+                iPadCenterXConstraint?.isActive = true
+            }
+        } else {
+            iPadWidthConstraint?.isActive = false
+            iPadCenterXConstraint?.isActive = false
+
+            continueButtonLeading?.isActive = true
+            continueButtonTrailing?.isActive = true
+        }
+    }
+
     override func initVM() {}
     
     override func setupHierarchy() {
@@ -61,16 +87,7 @@ class GenderSelectViewController: CoreGradientViewController {
         femaleGender.text = "여성"
         maleGender.text = "남성"
     }
-    
-    override func setupConstraints() {
-        NSLayoutConstraint.activate([
-            continueButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
-            continueButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            continueButton.heightAnchor.constraint(equalToConstant: 48)
-        ])
-    }
-    
+
     @IBAction func selectedFM(_ sender: Any) {
         selectedGender = .female
     }
@@ -78,8 +95,8 @@ class GenderSelectViewController: CoreGradientViewController {
     @IBAction func selectedM(_ sender: Any) {
         selectedGender = .male
     }
-    
-    @objc private func continueButtonTapped() {
+
+    @IBAction private func continueButtonTapped(_ sender: Any) {
         guard let selectedGender = selectedGender else { return }
         
         let context = CoreDataStack.shared.viewContext
@@ -103,9 +120,10 @@ class GenderSelectViewController: CoreGradientViewController {
             print("CoreData 저장 오류: \(error.localizedDescription)")
             return
         }
+        
         performSegue(withIdentifier: "goToAgeInfo", sender: self)
     }
-    
+
     private func loadSavedGender() {
         let context = CoreDataStack.shared.viewContext
         let fetchRequest: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
@@ -114,12 +132,9 @@ class GenderSelectViewController: CoreGradientViewController {
             if let userInfo = try context.fetch(fetchRequest).first,
                let genderString = userInfo.gender {
                 switch genderString {
-                case "male":
-                    selectedGender = .male
-                case "female":
-                    selectedGender = .female
-                default:
-                    selectedGender = nil
+                case "male": selectedGender = .male
+                case "female": selectedGender = .female
+                default: selectedGender = nil
                 }
             } else {
                 selectedGender = nil
@@ -129,7 +144,7 @@ class GenderSelectViewController: CoreGradientViewController {
             selectedGender = nil
         }
     }
-    
+
     private func updateGenderSelectionUI() {
         let defaultBG = UIColor.buttonBackground
         let selectedBG = UIColor.accent
@@ -154,11 +169,8 @@ class GenderSelectViewController: CoreGradientViewController {
         let isSelected = (selectedGender != nil)
         continueButton.isEnabled = isSelected
         continueButton.backgroundColor = isSelected ? .accent : .buttonBackground
-
-        if isSelected {
-            continueButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .bold)
-        } else {
-            continueButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .regular)
-        }
+        continueButton.titleLabel?.font = isSelected
+            ? UIFont.systemFont(ofSize: 18, weight: .bold)
+            : UIFont.systemFont(ofSize: 18, weight: .regular)
     }
 }

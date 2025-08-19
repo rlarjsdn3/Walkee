@@ -22,7 +22,6 @@ final class EditStepGoalView: CoreView {
     var step: Int = 500
     var minValue: Int = 0
     var maxValue: Int = 100_000
-    
     var onValueChanged: ((Int) -> Void)?
     
     private let buttonDiameter: CGFloat = 72

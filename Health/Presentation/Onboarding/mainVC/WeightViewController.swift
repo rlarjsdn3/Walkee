@@ -12,57 +12,50 @@ class WeightViewController: CoreGradientViewController {
     
     @IBOutlet weak var weightInputField: UITextField!
     @IBOutlet weak var errorLabel: UILabel!
+    @IBOutlet weak var kgLabel: UILabel!
+    @IBOutlet weak var continueButton: UIButton!
     
-    private let kgLabel: UILabel = {
-        let label = UILabel()
-        label.text = "kg"
-        label.textColor = .accent
-        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
+    @IBOutlet weak var continueButtonLeading: NSLayoutConstraint!
+    @IBOutlet weak var continueButtonTrailing: NSLayoutConstraint!
+    @IBOutlet weak var continueButtonBottomConstraint: NSLayoutConstraint!
     
-    private let continueButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("다음", for: .normal)
-        button.backgroundColor = UIColor.buttonBackground
-        button.setTitleColor(.label, for: .normal)
-        button.applyCornerStyle(.medium)
-        button.isEnabled = false
-        return button
-    }()
+    @IBOutlet weak var weightInputFieldCenterY: NSLayoutConstraint! // centerY 연결
+    private var originalCenterY: CGFloat = 0
     
-    private var continueButtonBottomConstraint: NSLayoutConstraint?
-    private let context = CoreDataStack.shared.persistentContainer.viewContext
+    private var iPadWidthConstraint: NSLayoutConstraint?
+    private var iPadCenterXConstraint: NSLayoutConstraint?
+    
     private var userInfo: UserInfoEntity?
-    
-    var onContinue: (() -> Void)?
-    
-    override func initVM() { }
+    private let context = CoreDataStack.shared.persistentContainer.viewContext
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         applyBackgroundGradient(.midnightBlack)
+        
         weightInputField.delegate = self
         weightInputField.keyboardType = .numberPad
         weightInputField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         
-        continueButton.addTarget(self, action: #selector(didTapContinue), for: .touchUpInside)
+        errorLabel.isHidden = true
+        errorLabel.textColor = .red
+        
+        continueButton.applyCornerStyle(.medium)
+        
+        originalCenterY = weightInputFieldCenterY.constant
         
         registerForKeyboardNotifications()
         setupTapGestureToDismissKeyboard()
         
-        errorLabel.isHidden = true
-        errorLabel.textColor = .red
         fetchUserInfo()
-        
         if let weight = userInfo?.weight, weight > 0 {
             weightInputField.text = String(Int(weight))
             validateInput()
+        } else {
+            disableContinueButton()
         }
     }
-
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         if weightInputField.text?.isEmpty ?? true {
@@ -70,24 +63,169 @@ class WeightViewController: CoreGradientViewController {
         }
     }
     
-    override func setupHierarchy() {
-        [continueButton, kgLabel].forEach {
-            $0.translatesAutoresizingMaskIntoConstraints = false
-            view.addSubview($0)
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        updateContinueButtonConstraints()
+    }
+    
+    private func updateContinueButtonConstraints() {
+        let isIpad = traitCollection.horizontalSizeClass == .regular &&
+                     traitCollection.verticalSizeClass == .regular
+        
+        if isIpad {
+            continueButtonLeading?.isActive = false
+            continueButtonTrailing?.isActive = false
+            
+            if iPadWidthConstraint == nil {
+                iPadWidthConstraint = continueButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7)
+                iPadCenterXConstraint = continueButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+                iPadWidthConstraint?.isActive = true
+                iPadCenterXConstraint?.isActive = true
+            }
+        } else {
+            iPadWidthConstraint?.isActive = false
+            iPadCenterXConstraint?.isActive = false
+            
+            continueButtonLeading?.isActive = true
+            continueButtonTrailing?.isActive = true
         }
     }
     
-    override func setupConstraints() {
-        continueButtonBottomConstraint = continueButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
-        NSLayoutConstraint.activate([
-            continueButtonBottomConstraint!,
-            continueButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            continueButton.heightAnchor.constraint(equalToConstant: 48),
-            
-            kgLabel.leadingAnchor.constraint(equalTo: weightInputField.trailingAnchor, constant: 8),
-            kgLabel.centerYAnchor.constraint(equalTo: weightInputField.centerYAnchor)
-        ])
+    private func registerForKeyboardNotifications() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillShow(_:)),
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillHide(_:)),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil
+        )
+    }
+    
+    @objc private func keyboardWillShow(_ notification: Notification) {
+        guard let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double,
+              let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
+        
+        let isIpad = traitCollection.horizontalSizeClass == .regular &&
+                     traitCollection.verticalSizeClass == .regular
+        let isLandscape = view.bounds.width > view.bounds.height
+        let isIphonePortrait = !isIpad && !isLandscape
+        
+        if (isIpad && isLandscape) || isIphonePortrait {
+            weightInputFieldCenterY.constant = originalCenterY - keyboardFrame.height * 0.5
+        }
+        
+        continueButtonBottomConstraint?.constant = -(keyboardFrame.height + 20)
+        
+        UIView.animate(withDuration: duration) {
+            self.view.layoutIfNeeded()
+        }
+    }
+    
+    @objc private func keyboardWillHide(_ notification: Notification) {
+        guard let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double else { return }
+        
+        weightInputFieldCenterY.constant = originalCenterY
+        continueButtonBottomConstraint?.constant = -20
+        
+        UIView.animate(withDuration: duration) {
+            self.view.layoutIfNeeded()
+        }
+    }
+    
+    private func setupTapGestureToDismissKeyboard() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    @IBAction func continueButtonTapped(_ sender: UIButton) {
+        guard continueButton.isEnabled else { return }
+        guard let text = weightInputField.text, let weightValue = Double(text) else { return }
+        
+        userInfo?.weight = weightValue
+        do {
+            try context.save()
+            performSegue(withIdentifier: "goToHeightInfo", sender: nil)
+        } catch {
+            print("Failed to save weight: \(error)")
+        }
+    }
+    
+    @objc private func textFieldDidChange(_ textField: UITextField) {
+        validateInput()
+    }
+    
+    private func validateInput() {
+        guard let text = weightInputField.text, let weight = Int(text) else {
+            disableContinueButton()
+            hideError()
+            return
+        }
+        
+        switch text.count {
+        case 1:
+            hideError()
+            disableContinueButton()
+        case 2:
+            if weight >= 35 {
+                hideError()
+                enableContinueButton()
+            } else {
+                showError()
+                disableContinueButton()
+            }
+        case 3:
+            if weight <= 200 {
+                hideError()
+                enableContinueButton()
+            } else {
+                showError()
+                disableContinueButton()
+                weightInputField.text = ""
+            }
+        default:
+            showError()
+            disableContinueButton()
+            weightInputField.text = ""
+            weightInputField.resignFirstResponder()
+        }
+    }
+    
+    private func showError(text: String = "35 ~ 200 사이의 값을 입력해주세요.") {
+        errorLabel.isHidden = false
+        errorLabel.text = text
+    }
+    
+    private func hideError() {
+        errorLabel.isHidden = true
+        errorLabel.text = ""
+    }
+    
+    private func disableContinueButton() {
+        continueButton.isEnabled = false
+        continueButton.backgroundColor = .buttonBackground
+        weightInputField.textColor = .label
+        continueButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .regular)
+    }
+    
+    private func enableContinueButton() {
+        continueButton.isEnabled = true
+        continueButton.backgroundColor = .accent
+        weightInputField.textColor = .accent
+        continueButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .bold)
     }
     
     private func fetchUserInfo() {
@@ -107,130 +245,12 @@ class WeightViewController: CoreGradientViewController {
             print("UserInfo fetch error: \(error)")
         }
     }
-    
-    @objc private func didTapContinue() {
-        guard continueButton.isEnabled else { return }
-        guard let text = weightInputField.text, let weightValue = Double(text) else { return }
-        
-        userInfo?.weight = weightValue
-        do {
-            try context.save()
-            performSegue(withIdentifier: "goToHeightInfo", sender: nil)
-        } catch {
-            print("Failed to save weight: \(error)")
-        }
-    }
-    
-    @objc private func textFieldDidChange(_ textField: UITextField) {
-        guard let text = textField.text else { return }
-        
-        if text.isEmpty {
-            hideError()
-            disableContinueButton()
-        } else if text.count <= 3 {
-            validateInput()
-        } else {
-            hideError()
-            disableContinueButton()
-        }
-    }
-    
-    private func validateInput() {
-        guard let text = weightInputField.text, let weight = Int(text) else {
-            disableContinueButton()
-            hideError()
-            return
-        }
-        
-        if weight > 200 {
-            showError()
-            disableContinueButton()
-            weightInputField.text = ""
-            weightInputField.resignFirstResponder()
-        } else if weight >= 35 {
-            hideError()
-            enableContinueButton()
-            weightInputField.resignFirstResponder()
-        } else {
-            hideError()
-            disableContinueButton()
-        }
-    }
-    
-    private func showError(text: String = "35 ~ 200 사이의 값을 입력해주세요.") {
-        errorLabel.isHidden = false
-        errorLabel.text = text
-    }
-    
-    private func hideError() {
-        errorLabel.isHidden = true
-        errorLabel.text = ""
-    }
-    
-    private func disableContinueButton() {
-        continueButton.isEnabled = false
-        continueButton.backgroundColor = .buttonBackground
-        weightInputField.textColor = .label
-    }
-    
-    private func enableContinueButton() {
-        continueButton.isEnabled = true
-        continueButton.backgroundColor = .accent
-        weightInputField.textColor = .accent
-        continueButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .bold)
-    }
-    
-    private func registerForKeyboardNotifications() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillShow(_:)),
-            name: UIResponder.keyboardWillShowNotification,
-            object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillHide(_:)),
-            name: UIResponder.keyboardWillHideNotification,
-            object: nil
-        )
-    }
-    
-    @objc private func keyboardWillShow(_ notification: Notification) {
-        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
-        continueButtonBottomConstraint?.constant = -keyboardFrame.height
-        UIView.animate(withDuration: 0.3) {
-            self.view.layoutIfNeeded()
-        }
-    }
-    
-    @objc private func keyboardWillHide(_ notification: Notification) {
-        continueButtonBottomConstraint?.constant = -20
-        UIView.animate(withDuration: 0.3) {
-            self.view.layoutIfNeeded()
-        }
-    }
-    
-    private func setupTapGestureToDismissKeyboard() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        tapGesture.cancelsTouchesInView = false
-        view.addGestureRecognizer(tapGesture)
-    }
-    
-    @objc private func dismissKeyboard() {
-        view.endEditing(true)
-    }
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
 }
 
 extension WeightViewController: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         let allowedCharacters = CharacterSet.decimalDigits
-        if string.rangeOfCharacter(from: allowedCharacters.inverted) != nil {
-            return false
-        }
+        if string.rangeOfCharacter(from: allowedCharacters.inverted) != nil { return false }
         
         let currentText = textField.text ?? ""
         let prospectiveText = (currentText as NSString).replacingCharacters(in: range, with: string)

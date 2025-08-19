@@ -16,34 +16,14 @@ class HealthLinkViewController: CoreGradientViewController {
     @IBOutlet weak var linkedSwitch: UISwitch!
     @IBOutlet weak var supUserDescriptionLabel: UILabel!
     @IBOutlet weak var linkSettingView: UIView!
-
-    @Injected private var stepSyncService: StepSyncService
-
+    @IBOutlet weak var continueButton: UIButton!
+    @IBOutlet weak var continueButtonLeading: NSLayoutConstraint!
+    @IBOutlet weak var continueButtonTrailing: NSLayoutConstraint!
+    
+    private var iPadWidthConstraint: NSLayoutConstraint?
+    private var iPadCenterXConstraint: NSLayoutConstraint?
+    
     private let healthService = DefaultHealthService()
-    
-    @IBAction func linkAction(_ sender: UISwitch) {
-        if sender.isOn {
-            Task {
-                await requestHealthKitAuthorization()
-            }
-        } else {
-            sender.isOn = false
-            UserDefaultsWrapper.shared.hasSeenOnboarding = false
-            showAlert(title: "연동 해제됨", message: "Apple 건강 앱과의 연동이 해제되었습니다.")
-        }
-    }
-    
-    private let continueButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("다음", for: .normal)
-        button.backgroundColor = UIColor.accent
-        button.setTitleColor(.label, for: .normal)
-        button.applyCornerStyle(.medium)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .bold)
-
-        return button
-    }()
-    
     private let progressIndicatorStackView = ProgressIndicatorStackView(totalPages: 4)
     
     override func initVM() {}
@@ -52,11 +32,46 @@ class HealthLinkViewController: CoreGradientViewController {
         super.viewDidLoad()
         applyBackgroundGradient(.midnightBlack)
         
-        NotificationCenter.default.addObserver(self, selector: #selector(handleAppWillEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(handleAppWillEnterForeground),
+                                               name: UIApplication.willEnterForegroundNotification,
+                                               object: nil)
+
+        continueButton.setTitle("다음", for: .normal)
+        continueButton.backgroundColor = UIColor.accent
+        continueButton.setTitleColor(.label, for: .normal)
+        continueButton.applyCornerStyle(.medium)
         
-        continueButton.addTarget(self, action: #selector(continueButtonTapped), for: .touchUpInside)
+        continueButton.addTarget(self, action: #selector(continueButtonTapped(_:)), for: .touchUpInside)
+        
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
+        
         checkHealthKitPermissionStatus()
+    }
+    
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        
+        let isIpad = traitCollection.horizontalSizeClass == .regular &&
+                     traitCollection.verticalSizeClass == .regular
+        
+        if isIpad {
+            continueButtonLeading?.isActive = false
+            continueButtonTrailing?.isActive = false
+            
+            if iPadWidthConstraint == nil {
+                iPadWidthConstraint = continueButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7)
+                iPadCenterXConstraint = continueButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+                iPadWidthConstraint?.isActive = true
+                iPadCenterXConstraint?.isActive = true
+            }
+        } else {
+            iPadWidthConstraint?.isActive = false
+            iPadCenterXConstraint?.isActive = false
+
+            continueButtonLeading?.isActive = true
+            continueButtonTrailing?.isActive = true
+        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -68,33 +83,14 @@ class HealthLinkViewController: CoreGradientViewController {
         NotificationCenter.default.removeObserver(self)
     }
     
-    override func setupHierarchy() {
-        [continueButton].forEach {
-            $0.translatesAutoresizingMaskIntoConstraints = false
-            view.addSubview($0)
-        }
-    }
-    
     override func setupAttribute() {
         healthAppIcon.image = UIImage(systemName: "heart.fill")
-        
         userDescriptionLabel.text = "사용자 데이터 입력 및 \n건강 앱 정보 가져오기 권한 설정"
-        
         supUserDescriptionLabel.text = "신체 측정값을 가져와서 걸음 수를 Apple 건강 앱과\n 지속적으로 동기화 할 수 있습니다."
         supUserDescriptionLabel.alpha = 0.5
-        
         linkSettingView.backgroundColor = UIColor(named: "boxBgColor")
         linkSettingView.applyCornerStyle(.medium)
         linkSettingView.clipsToBounds = true
-    }
-    
-    override func setupConstraints() {
-        NSLayoutConstraint.activate([
-            continueButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
-            continueButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            continueButton.heightAnchor.constraint(equalToConstant: 48)
-        ])
     }
     
     @objc private func handleAppWillEnterForeground() {
@@ -104,16 +100,13 @@ class HealthLinkViewController: CoreGradientViewController {
     private func checkHealthKitPermissionStatus() {
         Task {
             let hasAnyPermission = await healthService.checkHasAnyReadPermission()
-            
             await MainActor.run {
                 let storedLinked = UserDefaultsWrapper.shared.hasSeenOnboarding
-                
                 if hasAnyPermission {
                     linkedSwitch.isOn = true
                     UserDefaultsWrapper.shared.hasSeenOnboarding = true
                 } else {
                     linkedSwitch.isOn = false
-                    
                     if storedLinked {
                         showAlert(title: "권한 부족", message: "건강 앱 권한이 변경되어 연동이 해제되었습니다. 설정에서 다시 권한을 허용해주세요.")
                         UserDefaultsWrapper.shared.hasSeenOnboarding = false
@@ -126,7 +119,6 @@ class HealthLinkViewController: CoreGradientViewController {
     private func requestHealthKitAuthorization() async {
         do {
             let granted = try await healthService.requestAuthorization()
-            
             await MainActor.run {
                 if granted {
                     showAlert(title: "연동 완료", message: "Apple 건강 앱과의 연동이 완료되었습니다.")
@@ -135,7 +127,8 @@ class HealthLinkViewController: CoreGradientViewController {
                 } else {
                     linkedSwitch.isOn = false
                     UserDefaultsWrapper.shared.hasSeenOnboarding = false
-                    showAlert(title: "권한 부족", message: "모든 권한을 허용해야 연동이 가능합니다. 설정 화면에서 권한을 다시 설정해주세요.") {
+                    showAlert(title: "권한 부족",
+                              message: "모든 권한을 허용해야 연동이 가능합니다. 설정 화면에서 권한을 다시 설정해주세요.") {
                         self.openAppSettings()
                     }
                 }
@@ -149,50 +142,18 @@ class HealthLinkViewController: CoreGradientViewController {
         }
     }
     
-    @objc private func continueButtonTapped() {
-        // TODO: 목표 걸음 설정 화면 구현시 아래의 엔티티 생성 코드만 제거
-        // 임시 목표 걸음 수 엔티티 생성
-        let context = CoreDataStack.shared.viewContext
-        let today = Date().startOfDay()
-        let goal = GoalStepCountEntity(context: context)
-        goal.id = UUID()
-        goal.effectiveDate = today
-        goal.goalStepCount = 10000
-        do {
-            try context.save()
-            print("임시 목표 걸음 수 저장 완료")
-        } catch {
-            print("임시 목표 걸음 수 저장 실패: \(error.localizedDescription)")
-        }
+    @IBAction private func continueButtonTapped(_ sender: Any) {
+        performSegue(withIdentifier: "goToGenderInfo", sender: nil)
+    }
 
-        // 온보딩 완료 플래그
-        UserDefaultsWrapper.shared.hasSeenOnboarding = true
-
-        // 걸음 수 데이터 동기화
-        Task {
-            do {
-                try await stepSyncService.syncSteps()
-                print("온보딩 직후 동기화 완료")
-            } catch {
-                print("온보딩 직후 동기화 실패: \(error.localizedDescription)")
+    @IBAction private func linkAction(_ sender: UISwitch) {
+        if sender.isOn {
+            Task {
+                await requestHealthKitAuthorization()
             }
-        }
-
-        // 메인 화면으로 전환
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        guard let tabBarController = storyboard.instantiateInitialViewController() as? UITabBarController else {
-            print("Main.storyboard의 초기 뷰컨트롤러가 UITabBarController가 아닙니다.")
-            return
-        }
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-            let window = windowScene.windows.first {
-            window.rootViewController = tabBarController
-            window.makeKeyAndVisible()
-            
-            UIView.transition(with: window,
-                                 duration: 0.5,
-                                 options: [.transitionCrossDissolve],
-                                 animations: nil)
+        } else {
+            UserDefaultsWrapper.shared.hasSeenOnboarding = false
+            showAlert(title: "연동 해제", message: "Apple 건강 앱 연동이 해제되었습니다.")
         }
     }
     
@@ -206,8 +167,8 @@ class HealthLinkViewController: CoreGradientViewController {
 extension HealthLinkViewController {
     func showAlert(title: String, message: String, completion: (() -> Void)? = nil) {
         let alertController = UIAlertController(title: title,
-                                                 message: message,
-                                                 preferredStyle: .alert)
+                                                message: message,
+                                                preferredStyle: .alert)
         let okAction = UIAlertAction(title: "확인", style: .default) { _ in
             completion?()
         }
