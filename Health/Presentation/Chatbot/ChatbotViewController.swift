@@ -254,8 +254,6 @@ final class ChatbotViewController: CoreGradientViewController {
 	}
 	
 	private func setupTableView() {
-		tableView.delegate = self
-		tableView.dataSource = self
 		tableView.backgroundColor = .clear
 		tableView.separatorStyle = .none
 		tableView.keyboardDismissMode = .interactive
@@ -785,14 +783,7 @@ final class ChatbotViewController: CoreGradientViewController {
 			tableView.reloadData()
 		}
 	}
-	
-	//	viewDidDisappear에서 cancel처리 함 - Swift 6 경고 이슈로 그렇게 처리함
-	// TODO: 그치만 정말 deinit을 설정하지 않아도 되는 것은 좀 더 검증이 차후 필요할 것 같음.
-	//	deinit {
-	//		NotificationCenter.default.removeObserver(self)
-	//		networkStatusObservationTask?.cancel()
-	//	}
-	
+
 	// URL 생성 유틸 — APIEndpoint.askStreaming 재사용
 	private func buildStreamingURL(content: String, clientID: String) throws -> URL {
 		let endpoint = APIEndpoint.askStreaming(content: content, clientID: clientID)
