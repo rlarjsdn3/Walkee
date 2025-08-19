@@ -7,11 +7,17 @@ final class CalendarScrollManager {
     private weak var calendarVM: CalendarViewModel?
     private weak var collectionView: UICollectionView?
 
-    /// 첫 번째 스크롤(현재 월로 이동) 완료 여부
-    private(set) var didScrollToCurrent = false
+    /// 첫 번째 스크롤(현재 월로 이동)을 완료했는지 여부
+    ///
+    /// 이 플래그는 앱 시작 시 한 번만 현재 월로 스크롤하도록 보장합니다.
+    /// `handleViewDidLayoutSubviews()`에서 `true`로 설정됩니다.
+    private(set) var didPerformInitialScroll = false
 
-    /// 초기 스크롤이 완전히 완료되었는지 여부 (무한 스크롤 허용 조건)
-    private(set) var didFinishInitialScroll = false
+    /// 최초 스크롤이 안정적으로 끝나 무한 스크롤을 허용할 수 있는 상태인지 여부
+    ///
+    /// 초기 스크롤 직후에는 불안정한 상태이므로 무한 스크롤을 비활성화합니다.
+    /// 0.1초 지연 후 `true`로 설정되어 무한 스크롤이 활성화됩니다.
+    private(set) var isInitialScrollSettled = false
 
     /// 마지막으로 상단 로드를 요청한 시간
     private var lastTopLoadTime: Date?
@@ -26,25 +32,30 @@ final class CalendarScrollManager {
     /// 최초 1회만 현재 월로 스크롤하고 무한 스크롤을 활성화합니다.
     /// 레이아웃이 완전히 설정된 후에 호출되어야 정확한 스크롤 위치를 계산할 수 있습니다.
     func handleViewDidLayoutSubviews() {
-        if !didScrollToCurrent {
-            scrollToCurrentMonth()
-            didScrollToCurrent = true
+        guard !didPerformInitialScroll else { return }
 
-            // 초기에 현재 월로 스크롤 완료 후 짧은 지연을 두고 무한 스크롤 활성화
-            Task { [weak self] in
-                try? await Task.sleep(nanoseconds: 100_000_000) // 0.1s
-                await MainActor.run { self?.didFinishInitialScroll = true }
-            }
+        scrollToCurrentMonth()
+        didPerformInitialScroll = true
+
+        // 짧은 지연 후 무한 스크롤 활성화
+        Task { [weak self] in
+            try? await Task.sleep(nanoseconds: 100_000_000) // 0.1s
+            await MainActor.run { self?.isInitialScrollSettled = true }
         }
     }
 
     /// `viewWillAppear`에서 호출되는 메서드
     ///
-    /// 이미 초기 스크롤을 한 상태에서만 현재 월 위치를 재조정합니다.
-    /// 다른 화면에서 돌아왔을 때 현재 월이 제대로 표시되도록 보장합니다.
-    func handleViewWillAppear() {
-        if didScrollToCurrent {
+    /// 탭 전환 시나리오에 따라 적절한 스크롤 동작을 수행합니다.
+    ///
+    /// - Parameter shouldScrollToCurrent: 현재 월로 스크롤할지 여부
+    ///   - `true`: 다른 탭에서 캘린더 탭으로 진입 시 (현재 월로 스크롤)
+    ///   - `false`: 캘린더 탭 내에서 push/pop 복귀 시 (스크롤 위치 유지)
+    func handleViewWillAppear(_ shouldScrollToCurrent: Bool) {
+        if shouldScrollToCurrent {
             scrollToCurrentMonth()
+        } else {
+            return
         }
     }
 
@@ -86,7 +97,7 @@ final class CalendarScrollManager {
     /// - Parameter scrollView: 스크롤 이벤트가 발생한 스크롤뷰
     func handleScrollForInfiniteLoading(_ scrollView: UIScrollView) {
         // 초기 스크롤이 완료되기 전에는 무한 스크롤 비활성화
-        guard didFinishInitialScroll else { return }
+        guard isInitialScrollSettled else { return }
 
         let loadThreshold: CGFloat = 200
         let offsetY = scrollView.contentOffset.y
