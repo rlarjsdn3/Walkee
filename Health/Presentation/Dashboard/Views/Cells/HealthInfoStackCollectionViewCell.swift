@@ -98,10 +98,10 @@ extension HealthInfoStackCollectionViewCell {
 
         switch new {
         case .idle:
-            return // TODO: - 로딩 전 플레이스 홀더 UI 구성하기
+            return
             
         case .loading:
-            return // TODO: - 로딩 시 Skeleton Effect 출력하기
+            return
 
         case let .success(content):
             lblString = String(format: "%0.f", content.value)

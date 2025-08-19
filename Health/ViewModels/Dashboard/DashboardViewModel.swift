@@ -153,10 +153,10 @@ final class DashboardViewModel {
 
 extension DashboardViewModel {
 
-    func loadHKData() {
+    func loadHKData(includeAISummary: Bool = true) {
         loadHKDataForGoalRingCells()
         loadHKDataForStackCells()
-        loadAlanAIResponseForSummaryCells()
+        if includeAISummary { loadAlanAIResponseForSummaryCells() }
         loadHKDataForCardCells()
         loadHKDataForBarChartsCells()
     }

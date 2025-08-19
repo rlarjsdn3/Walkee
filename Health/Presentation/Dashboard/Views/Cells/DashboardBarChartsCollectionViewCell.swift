@@ -81,10 +81,10 @@ extension DashboardBarChartsCollectionViewCell {
 
         switch state {
         case .idle:
-            return // TODO: - 플레이스 홀더 UI 구성하기
+            return
             
         case .loading:
-            return // TODO: - 스켈레톤 UI 코드 구성하기
+            return
             
         case let .success(chartsDatas):
             let count = Double(chartsDatas.count)
