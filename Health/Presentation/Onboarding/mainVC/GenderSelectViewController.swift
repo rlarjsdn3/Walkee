@@ -5,6 +5,8 @@
 //  Created by 권도현 on 8/1/25.
 //
 
+//TODO: 성별 불러오는 명칭 영어 한글 통일 시키기
+
 import UIKit
 import CoreData
 

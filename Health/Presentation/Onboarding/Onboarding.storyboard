@@ -56,14 +56,15 @@
                             </stackView>
                             <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="S8c-Kb-czc">
                                 <rect key="frame" x="20" y="734" width="353" height="50"/>
+                                <color key="backgroundColor" name="AccentColor"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="50" id="R7x-ei-F7n"/>
                                 </constraints>
                                 <color key="tintColor" name="AccentColor"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="filled" title="다음">
-                                    <color key="baseForegroundColor" systemColor="labelColor"/>
-                                </buttonConfiguration>
+                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                <state key="normal" title="다음">
+                                    <color key="titleColor" systemColor="labelColor"/>
+                                </state>
                                 <connections>
                                     <action selector="buttonAction:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="2fk-em-rtL"/>
                                 </connections>
@@ -156,14 +157,15 @@
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kfA-li-D6b">
                                 <rect key="frame" x="20" y="734" width="353" height="50"/>
+                                <color key="backgroundColor" name="AccentColor"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="50" id="8ZB-fn-wPh"/>
                                 </constraints>
                                 <color key="tintColor" name="AccentColor"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="filled" title="다음">
-                                    <color key="baseForegroundColor" systemColor="labelColor"/>
-                                </buttonConfiguration>
+                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                <state key="normal" title="다음">
+                                    <color key="titleColor" systemColor="labelColor"/>
+                                </state>
                                 <connections>
                                     <action selector="continueButtonTapped:" destination="hrK-kw-Dwx" eventType="touchUpInside" id="3lP-Ap-i1o"/>
                                 </connections>
@@ -238,7 +240,7 @@
                                 </variation>
                             </label>
                             <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="1900" textAlignment="center" adjustsFontSizeToFit="NO" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="hAW-KS-XK4">
-                                <rect key="frame" x="20" y="365" width="353" height="42.333333333333314"/>
+                                <rect key="frame" x="157" y="452" width="79" height="42.333333333333314"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleTitle0"/>
                                 <textInputTraits key="textInputTraits" spellCheckingType="no" keyboardType="numberPad" returnKeyType="done" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
                                 <variation key="heightClass=regular-widthClass=regular">
@@ -256,14 +258,15 @@
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MPF-9L-XvH">
                                 <rect key="frame" x="20" y="734" width="353" height="50"/>
+                                <color key="backgroundColor" name="AccentColor"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="50" id="LTV-1o-zTg"/>
                                 </constraints>
                                 <color key="tintColor" name="AccentColor"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="filled" title="다음">
-                                    <color key="baseForegroundColor" systemColor="labelColor"/>
-                                </buttonConfiguration>
+                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                <state key="normal" title="다음">
+                                    <color key="titleColor" systemColor="labelColor"/>
+                                </state>
                                 <connections>
                                     <action selector="continueButtonTapped:" destination="Rg3-Ue-2cM" eventType="touchUpInside" id="0pM-PM-Jf0"/>
                                 </connections>
@@ -272,16 +275,14 @@
                         <viewLayoutGuide key="safeArea" id="vW4-aD-9Ar"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="hAW-KS-XK4" firstAttribute="centerY" secondItem="dRu-12-2UK" secondAttribute="centerY" constant="-40" id="FOn-zm-el0"/>
+                            <constraint firstItem="hAW-KS-XK4" firstAttribute="centerY" secondItem="vW4-aD-9Ar" secondAttribute="centerY" id="1hg-YW-Zpt"/>
                             <constraint firstItem="oup-qX-kbR" firstAttribute="leading" secondItem="vW4-aD-9Ar" secondAttribute="leading" constant="20" id="Pu5-g4-A2P"/>
                             <constraint firstItem="vW4-aD-9Ar" firstAttribute="trailing" secondItem="oup-qX-kbR" secondAttribute="trailing" constant="20" id="PyY-y7-XEc"/>
-                            <constraint firstItem="hAW-KS-XK4" firstAttribute="leading" secondItem="vW4-aD-9Ar" secondAttribute="leading" constant="20" id="XNl-NZ-BEo"/>
-                            <constraint firstItem="hAW-KS-XK4" firstAttribute="centerX" secondItem="dRu-12-2UK" secondAttribute="centerX" id="ZfP-TW-Oei"/>
+                            <constraint firstItem="hAW-KS-XK4" firstAttribute="centerX" secondItem="vW4-aD-9Ar" secondAttribute="centerX" id="aBf-6G-y8j"/>
                             <constraint firstItem="vW4-aD-9Ar" firstAttribute="trailing" secondItem="MPF-9L-XvH" secondAttribute="trailing" constant="20" id="bCw-YH-uKf"/>
                             <constraint firstItem="vW4-aD-9Ar" firstAttribute="trailing" secondItem="ycv-JD-noa" secondAttribute="trailing" constant="20" id="gDx-oe-QGR"/>
                             <constraint firstItem="MPF-9L-XvH" firstAttribute="leading" secondItem="vW4-aD-9Ar" secondAttribute="leading" constant="20" id="hgo-YO-caK"/>
                             <constraint firstItem="ycv-JD-noa" firstAttribute="top" secondItem="vW4-aD-9Ar" secondAttribute="top" constant="50" id="jg5-Ao-nOy"/>
-                            <constraint firstItem="vW4-aD-9Ar" firstAttribute="trailing" secondItem="hAW-KS-XK4" secondAttribute="trailing" constant="20" id="mdV-D7-hbi"/>
                             <constraint firstItem="ycv-JD-noa" firstAttribute="leading" secondItem="vW4-aD-9Ar" secondAttribute="leading" constant="20" id="nQE-ak-gIx"/>
                             <constraint firstItem="oup-qX-kbR" firstAttribute="top" secondItem="ycv-JD-noa" secondAttribute="bottom" constant="30" id="pof-lk-Kbt"/>
                             <constraint firstItem="MPF-9L-XvH" firstAttribute="bottom" secondItem="vW4-aD-9Ar" secondAttribute="bottom" id="vq9-hR-4b9"/>
@@ -290,6 +291,7 @@
                     <navigationItem key="navigationItem" largeTitleDisplayMode="never" id="Ezz-LN-cou"/>
                     <connections>
                         <outlet property="ageInputField" destination="hAW-KS-XK4" id="N8X-r8-ay9"/>
+                        <outlet property="ageInputFieldCenterY" destination="1hg-YW-Zpt" id="nxP-cq-fE5"/>
                         <outlet property="continueButton" destination="MPF-9L-XvH" id="q7g-Yh-6Fp"/>
                         <outlet property="continueButtonBottomConstraint" destination="vq9-hR-4b9" id="y9X-60-o9Q"/>
                         <outlet property="continueButtonLeading" destination="hgo-YO-caK" id="JhK-qk-ngM"/>
@@ -328,10 +330,26 @@
                                     <fontDescription key="fontDescription" style="UICTFontTextStyleTitle1"/>
                                 </variation>
                             </label>
-                            <stackView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="sEg-CQ-STO">
-                                <rect key="frame" x="152" y="364" width="89" height="42.333333333333314"/>
+                            <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HPM-3I-uRw">
+                                <rect key="frame" x="20" y="734" width="353" height="50"/>
+                                <color key="backgroundColor" name="AccentColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="50" id="vhQ-3h-HSJ"/>
+                                </constraints>
+                                <color key="tintColor" name="AccentColor"/>
+                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                <state key="normal" title="다음">
+                                    <color key="titleColor" systemColor="labelColor"/>
+                                </state>
+                                <connections>
+                                    <action selector="buttonAction:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="ici-8m-D7b"/>
+                                    <action selector="continueButtonTapped:" destination="3Hs-PQ-OGm" eventType="touchUpInside" id="eSl-QM-QCg"/>
+                                </connections>
+                            </button>
+                            <stackView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" alignment="lastBaseline" translatesAutoresizingMaskIntoConstraints="NO" id="sEg-CQ-STO">
+                                <rect key="frame" x="153" y="452" width="87" height="42.333333333333314"/>
                                 <subviews>
-                                    <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="100" textAlignment="center" adjustsFontSizeToFit="NO" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="MBV-gl-LZA">
+                                    <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="100" textAlignment="center" adjustsFontSizeToFit="NO" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="MBV-gl-LZA">
                                         <rect key="frame" x="0.0" y="0.0" width="57.666666666666664" height="42.333333333333336"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleTitle0"/>
                                         <textInputTraits key="textInputTraits" spellCheckingType="no" keyboardType="numberPad" returnKeyType="done" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
@@ -339,8 +357,8 @@
                                             <fontDescription key="fontDescription" type="system" pointSize="60"/>
                                         </variation>
                                     </textField>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="kg" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="KXo-3b-tnu">
-                                        <rect key="frame" x="59.666666666666664" y="0.0" width="29.333333333333336" height="42.333333333333336"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="249" verticalHuggingPriority="251" text="kg" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="KXo-3b-tnu">
+                                        <rect key="frame" x="57.666666666666664" y="6.6666666666666856" width="29.333333333333336" height="33.666666666666671"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleTitle1"/>
                                         <color key="textColor" name="AccentColor"/>
                                         <nil key="highlightedColor"/>
@@ -349,25 +367,7 @@
                                         </variation>
                                     </label>
                                 </subviews>
-                                <constraints>
-                                    <constraint firstAttribute="bottom" secondItem="MBV-gl-LZA" secondAttribute="bottom" id="4No-Ei-jeR"/>
-                                </constraints>
                             </stackView>
-                            <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HPM-3I-uRw">
-                                <rect key="frame" x="20" y="734" width="353" height="50"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="50" id="vhQ-3h-HSJ"/>
-                                </constraints>
-                                <color key="tintColor" name="AccentColor"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="filled" title="다음">
-                                    <color key="baseForegroundColor" systemColor="labelColor"/>
-                                </buttonConfiguration>
-                                <connections>
-                                    <action selector="buttonAction:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="ici-8m-D7b"/>
-                                    <action selector="continueButtonTapped:" destination="3Hs-PQ-OGm" eventType="touchUpInside" id="eSl-QM-QCg"/>
-                                </connections>
-                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="VWS-Gh-Be8"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -377,9 +377,9 @@
                             <constraint firstItem="VWS-Gh-Be8" firstAttribute="trailing" secondItem="HPM-3I-uRw" secondAttribute="trailing" constant="20" id="BqN-bC-Hdv"/>
                             <constraint firstItem="Ska-x0-2uO" firstAttribute="leading" secondItem="VWS-Gh-Be8" secondAttribute="leading" constant="20" id="D60-hc-Jaa"/>
                             <constraint firstItem="VWS-Gh-Be8" firstAttribute="trailing" secondItem="MFN-Q1-5mt" secondAttribute="trailing" constant="20" id="FuR-ME-RYr"/>
-                            <constraint firstItem="sEg-CQ-STO" firstAttribute="centerY" secondItem="Ogr-ui-Uhg" secondAttribute="centerY" constant="-40.833333333333371" id="J1Q-2W-dgT"/>
-                            <constraint firstItem="sEg-CQ-STO" firstAttribute="centerX" secondItem="Ogr-ui-Uhg" secondAttribute="centerX" id="LOj-HI-wIe"/>
                             <constraint firstItem="VWS-Gh-Be8" firstAttribute="trailing" secondItem="Ska-x0-2uO" secondAttribute="trailing" constant="20" id="cEk-Ns-4kL"/>
+                            <constraint firstItem="sEg-CQ-STO" firstAttribute="centerY" secondItem="VWS-Gh-Be8" secondAttribute="centerY" id="dvS-1f-oGR"/>
+                            <constraint firstItem="sEg-CQ-STO" firstAttribute="centerX" secondItem="VWS-Gh-Be8" secondAttribute="centerX" id="lrl-uq-mwb"/>
                             <constraint firstItem="Ska-x0-2uO" firstAttribute="top" secondItem="VWS-Gh-Be8" secondAttribute="top" constant="50" id="sNH-V5-MEv"/>
                             <constraint firstItem="HPM-3I-uRw" firstAttribute="leading" secondItem="VWS-Gh-Be8" secondAttribute="leading" constant="20" id="tXx-dA-HG2"/>
                             <constraint firstItem="HPM-3I-uRw" firstAttribute="bottom" secondItem="VWS-Gh-Be8" secondAttribute="bottom" id="ysO-YW-hKj"/>
@@ -394,6 +394,7 @@
                         <outlet property="errorLabel" destination="MFN-Q1-5mt" id="MZJ-0Q-x7J"/>
                         <outlet property="kgLabel" destination="KXo-3b-tnu" id="afD-QL-lUl"/>
                         <outlet property="weightInputField" destination="MBV-gl-LZA" id="sHA-9N-EPQ"/>
+                        <outlet property="weightInputFieldCenterY" destination="dvS-1f-oGR" id="j7v-Q6-jN4"/>
                         <segue destination="ye2-gc-ZBC" kind="show" identifier="goToHeightInfo" id="6t5-tj-YRJ"/>
                     </connections>
                 </viewController>
@@ -427,10 +428,26 @@
                                     <fontDescription key="fontDescription" style="UICTFontTextStyleTitle1"/>
                                 </variation>
                             </label>
-                            <stackView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="1ad-LM-W8S">
-                                <rect key="frame" x="149.33333333333334" y="364" width="94.333333333333343" height="42.333333333333314"/>
+                            <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="E5s-xP-emC">
+                                <rect key="frame" x="20" y="734" width="353" height="50"/>
+                                <color key="backgroundColor" name="AccentColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="50" id="slJ-ZO-VfC"/>
+                                </constraints>
+                                <color key="tintColor" name="AccentColor"/>
+                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                <state key="normal" title="다음">
+                                    <color key="titleColor" systemColor="labelColor"/>
+                                </state>
+                                <connections>
+                                    <action selector="buttonAction:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="yoR-i7-bjn"/>
+                                    <action selector="continueButtonTapped:" destination="ye2-gc-ZBC" eventType="touchUpInside" id="MlN-LJ-l5q"/>
+                                </connections>
+                            </button>
+                            <stackView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" alignment="firstBaseline" baselineRelativeArrangement="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1ad-LM-W8S">
+                                <rect key="frame" x="150.33333333333331" y="452" width="92.333333333333343" height="42.333333333333314"/>
                                 <subviews>
-                                    <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="175" textAlignment="center" adjustsFontSizeToFit="NO" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="6xh-tM-tSN">
+                                    <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="249" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="175" textAlignment="center" adjustsFontSizeToFit="NO" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="6xh-tM-tSN">
                                         <rect key="frame" x="0.0" y="0.0" width="55" height="42.333333333333336"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleTitle0"/>
                                         <textInputTraits key="textInputTraits" spellCheckingType="no" keyboardType="numberPad" returnKeyType="done" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
@@ -438,8 +455,8 @@
                                             <fontDescription key="fontDescription" type="system" pointSize="60"/>
                                         </variation>
                                     </textField>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="cm" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vL7-E1-Sl2">
-                                        <rect key="frame" x="57" y="0.0" width="37.333333333333343" height="42.333333333333336"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="cm" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vL7-E1-Sl2">
+                                        <rect key="frame" x="55" y="6.6666666666666856" width="37.333333333333343" height="33.666666666666671"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleTitle1"/>
                                         <color key="textColor" name="AccentColor"/>
                                         <nil key="highlightedColor"/>
@@ -449,21 +466,6 @@
                                     </label>
                                 </subviews>
                             </stackView>
-                            <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="E5s-xP-emC">
-                                <rect key="frame" x="20" y="734" width="353" height="50"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="50" id="slJ-ZO-VfC"/>
-                                </constraints>
-                                <color key="tintColor" name="AccentColor"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="filled" title="다음">
-                                    <color key="baseForegroundColor" systemColor="labelColor"/>
-                                </buttonConfiguration>
-                                <connections>
-                                    <action selector="buttonAction:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="yoR-i7-bjn"/>
-                                    <action selector="continueButtonTapped:" destination="ye2-gc-ZBC" eventType="touchUpInside" id="MlN-LJ-l5q"/>
-                                </connections>
-                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="rvf-Hr-gyf"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -473,12 +475,12 @@
                             <constraint firstItem="E5s-xP-emC" firstAttribute="bottom" secondItem="rvf-Hr-gyf" secondAttribute="bottom" id="7xh-L0-5ZU"/>
                             <constraint firstItem="Hfb-gN-7Hw" firstAttribute="leading" secondItem="rvf-Hr-gyf" secondAttribute="leading" constant="20" id="8Xg-16-6Q9"/>
                             <constraint firstItem="E5s-xP-emC" firstAttribute="leading" secondItem="rvf-Hr-gyf" secondAttribute="leading" constant="20" id="AlN-S0-NgO"/>
-                            <constraint firstItem="1ad-LM-W8S" firstAttribute="centerY" secondItem="eJR-uP-Ler" secondAttribute="centerY" constant="-40.833333333333371" id="BrM-8D-72J"/>
                             <constraint firstItem="4nP-gH-NA4" firstAttribute="top" secondItem="Hfb-gN-7Hw" secondAttribute="bottom" constant="30" id="LSA-gd-Ic0"/>
                             <constraint firstItem="4nP-gH-NA4" firstAttribute="leading" secondItem="rvf-Hr-gyf" secondAttribute="leading" constant="20" id="T1F-yN-RMw"/>
                             <constraint firstItem="rvf-Hr-gyf" firstAttribute="trailing" secondItem="Hfb-gN-7Hw" secondAttribute="trailing" constant="20" id="ZIS-H8-n7i"/>
                             <constraint firstItem="rvf-Hr-gyf" firstAttribute="trailing" secondItem="E5s-xP-emC" secondAttribute="trailing" constant="20" id="bMJ-I4-iRW"/>
-                            <constraint firstItem="1ad-LM-W8S" firstAttribute="centerX" secondItem="eJR-uP-Ler" secondAttribute="centerX" id="j47-gR-SCZ"/>
+                            <constraint firstItem="1ad-LM-W8S" firstAttribute="centerX" secondItem="rvf-Hr-gyf" secondAttribute="centerX" id="pOG-FI-47j"/>
+                            <constraint firstItem="1ad-LM-W8S" firstAttribute="centerY" secondItem="rvf-Hr-gyf" secondAttribute="centerY" id="q97-mA-ylZ"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" largeTitleDisplayMode="never" id="XPX-cO-FJ7"/>
@@ -490,6 +492,7 @@
                         <outlet property="continueButtonTrailing" destination="bMJ-I4-iRW" id="6ti-kf-rFO"/>
                         <outlet property="errorLabel" destination="4nP-gH-NA4" id="5yn-TR-ODh"/>
                         <outlet property="heightInputField" destination="6xh-tM-tSN" id="Bqg-9r-Mgi"/>
+                        <outlet property="heightInputFieldCenterY" destination="q97-mA-ylZ" id="pxG-jC-3dq"/>
                         <segue destination="0RQ-ca-avW" kind="show" identifier="goToDiseaseTap" id="nR8-Bh-14p"/>
                     </connections>
                 </viewController>
@@ -554,14 +557,15 @@
                             </collectionView>
                             <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qVa-ch-ZGd">
                                 <rect key="frame" x="20" y="734" width="353" height="50"/>
+                                <color key="backgroundColor" name="AccentColor"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="50" id="aeE-FA-HuA"/>
                                 </constraints>
                                 <color key="tintColor" name="AccentColor"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="filled" title="다음">
-                                    <color key="baseForegroundColor" systemColor="labelColor"/>
-                                </buttonConfiguration>
+                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                <state key="normal" title="다음">
+                                    <color key="titleColor" systemColor="labelColor"/>
+                                </state>
                                 <connections>
                                     <action selector="buttonAction:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="zlu-OW-KGg"/>
                                     <action selector="continueButtonTapped:" destination="0RQ-ca-avW" eventType="touchUpInside" id="ENo-sE-hCy"/>
@@ -669,14 +673,15 @@
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="H3s-yL-Td3">
                                 <rect key="frame" x="20" y="734" width="353" height="50"/>
+                                <color key="backgroundColor" name="AccentColor"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="50" id="dSS-ct-RNb"/>
                                 </constraints>
                                 <color key="tintColor" name="AccentColor"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="filled" title="다음">
-                                    <color key="baseForegroundColor" systemColor="labelColor"/>
-                                </buttonConfiguration>
+                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                <state key="normal" title="다음">
+                                    <color key="titleColor" systemColor="labelColor"/>
+                                </state>
                                 <connections>
                                     <action selector="continueButtonTapped:" destination="Loh-xd-3Eb" eventType="touchUpInside" id="vj0-Ug-YZc"/>
                                 </connections>

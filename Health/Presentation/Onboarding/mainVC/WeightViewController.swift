@@ -19,6 +19,9 @@ class WeightViewController: CoreGradientViewController {
     @IBOutlet weak var continueButtonTrailing: NSLayoutConstraint!
     @IBOutlet weak var continueButtonBottomConstraint: NSLayoutConstraint!
     
+    @IBOutlet weak var weightInputFieldCenterY: NSLayoutConstraint! // centerY 연결
+    private var originalCenterY: CGFloat = 0
+    
     private var iPadWidthConstraint: NSLayoutConstraint?
     private var iPadCenterXConstraint: NSLayoutConstraint?
     
@@ -37,7 +40,9 @@ class WeightViewController: CoreGradientViewController {
         errorLabel.isHidden = true
         errorLabel.textColor = .red
         
-        continueButton.addTarget(self, action: #selector(continueButtonTapped(_:)), for: .touchUpInside)
+        continueButton.applyCornerStyle(.medium)
+        
+        originalCenterY = weightInputFieldCenterY.constant
         
         registerForKeyboardNotifications()
         setupTapGestureToDismissKeyboard()
@@ -50,11 +55,20 @@ class WeightViewController: CoreGradientViewController {
             disableContinueButton()
         }
     }
-
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if weightInputField.text?.isEmpty ?? true {
+            weightInputField.becomeFirstResponder()
+        }
+    }
     
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
-        
+        updateContinueButtonConstraints()
+    }
+    
+    private func updateContinueButtonConstraints() {
         let isIpad = traitCollection.horizontalSizeClass == .regular &&
                      traitCollection.verticalSizeClass == .regular
         
@@ -77,6 +91,70 @@ class WeightViewController: CoreGradientViewController {
         }
     }
     
+    // MARK: - Keyboard Handling
+    
+    private func registerForKeyboardNotifications() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillShow(_:)),
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillHide(_:)),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil
+        )
+    }
+    
+    @objc private func keyboardWillShow(_ notification: Notification) {
+        guard let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double,
+              let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
+        
+        let isIpad = traitCollection.horizontalSizeClass == .regular &&
+                     traitCollection.verticalSizeClass == .regular
+        let isLandscape = view.bounds.width > view.bounds.height
+        
+        if isIpad && isLandscape {
+            // iPad 가로모드에서는 텍스트필드 위로 올리기
+            weightInputFieldCenterY.constant = originalCenterY - keyboardFrame.height * 0.5
+        }
+        
+        continueButtonBottomConstraint?.constant = -(keyboardFrame.height + 20)
+        
+        UIView.animate(withDuration: duration) {
+            self.view.layoutIfNeeded()
+        }
+    }
+    
+    @objc private func keyboardWillHide(_ notification: Notification) {
+        guard let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double else { return }
+        
+        weightInputFieldCenterY.constant = originalCenterY
+        continueButtonBottomConstraint?.constant = -20
+        
+        UIView.animate(withDuration: duration) {
+            self.view.layoutIfNeeded()
+        }
+    }
+    
+    private func setupTapGestureToDismissKeyboard() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    // MARK: - Continue Button
+    
     @IBAction func continueButtonTapped(_ sender: UIButton) {
         guard continueButton.isEnabled else { return }
         guard let text = weightInputField.text, let weightValue = Double(text) else { return }
@@ -89,6 +167,8 @@ class WeightViewController: CoreGradientViewController {
             print("Failed to save weight: \(error)")
         }
     }
+    
+    // MARK: - Input Validation
     
     @objc private func textFieldDidChange(_ textField: UITextField) {
         validateInput()
@@ -170,50 +250,6 @@ class WeightViewController: CoreGradientViewController {
         } catch {
             print("UserInfo fetch error: \(error)")
         }
-    }
-    
-    private func registerForKeyboardNotifications() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillShow(_:)),
-            name: UIResponder.keyboardWillShowNotification,
-            object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillHide(_:)),
-            name: UIResponder.keyboardWillHideNotification,
-            object: nil
-        )
-    }
-    
-    @objc private func keyboardWillShow(_ notification: Notification) {
-        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
-        continueButtonBottomConstraint?.constant = -keyboardFrame.height
-        UIView.animate(withDuration: 0.3) {
-            self.view.layoutIfNeeded()
-        }
-    }
-    
-    @objc private func keyboardWillHide(_ notification: Notification) {
-        continueButtonBottomConstraint?.constant = -20
-        UIView.animate(withDuration: 0.3) {
-            self.view.layoutIfNeeded()
-        }
-    }
-    
-    private func setupTapGestureToDismissKeyboard() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        tapGesture.cancelsTouchesInView = false
-        view.addGestureRecognizer(tapGesture)
-    }
-    
-    @objc private func dismissKeyboard() {
-        view.endEditing(true)
-    }
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self)
     }
 }
 

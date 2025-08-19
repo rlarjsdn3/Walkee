@@ -39,6 +39,7 @@ class DiseaseViewController: CoreGradientViewController {
         continueButton.setTitle("다음", for: .normal)
         continueButton.applyCornerStyle(.medium)
         continueButton.isEnabled = false
+        continueButton.titleLabel?.numberOfLines = 1
     }
     
     override func viewWillAppear(_ animated: Bool) {
