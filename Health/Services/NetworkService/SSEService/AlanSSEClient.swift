@@ -55,47 +55,51 @@ enum AlanSSEClientError: Error, LocalizedError {
 private let log = Logger(subsystem: "Health", category: "SSE")
 
 final class AlanSSEClient: NSObject, AlanSSEClientProtocol {
+	typealias Stream = AsyncThrowingStream<AlanStreamingResponse, Error>
+	
 	private var session: URLSession?
 	private var task: URLSessionDataTask?
-
-	typealias Stream = AsyncThrowingStream<AlanStreamingResponse, Error>
 	private var continuation: Stream.Continuation?
 
 	private var byteBuffer = Data()
-
 	private lazy var decoder = JSONDecoder() // 재사용
 
 	func connect(url: URL) -> Stream {
 		let stream = Stream { continuation in
 			self.continuation = continuation
+			continuation.onTermination = { [weak self] _ in
+				self?.disconnect()
+			}
 		}
-
-		let cfg = URLSessionConfiguration.default
-		cfg.httpAdditionalHeaders = [
+		
+		startSession(with: url)
+		
+		return stream
+	}
+	
+	private func startSession(with url: URL) {
+		let configuration = URLSessionConfiguration.default
+		configuration.httpAdditionalHeaders = [
 			"Accept": "text/event-stream",
 			"Cache-Control": "no-cache",
-			// 보수적으로 "identity"를 강제하면 전송 최적화가 막힐 수 있어 주석하고 테스트 시도
 			"Accept-Encoding": "identity"
 		]
+		configuration.timeoutIntervalForRequest  = 600   // 10분
+		configuration.timeoutIntervalForResource = 0     // 무제한
+		configuration.waitsForConnectivity = true
+		configuration.allowsConstrainedNetworkAccess = true
+		configuration.allowsExpensiveNetworkAccess  = true
 		
-		cfg.timeoutIntervalForRequest = 600            // 10분
-		cfg.timeoutIntervalForResource = 0             // 무제한
-		cfg.waitsForConnectivity = true                // 네트워크 복구 시 자동 재시도
-		cfg.allowsConstrainedNetworkAccess = true
-		cfg.allowsExpensiveNetworkAccess = true
+		session = URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
 		
-		session = URLSession(configuration: cfg, delegate: self, delegateQueue: nil)
-
-		var req = URLRequest(url: url)
-		req.httpMethod = "GET"
-		req.timeoutInterval = 0
-		req.setValue("text/event-stream", forHTTPHeaderField: "Accept")
-
+		var request = URLRequest(url: url)
+		request.httpMethod = "GET"
+		request.timeoutInterval = 0
+		request.setValue("text/event-stream", forHTTPHeaderField: "Accept")
+		
 		Log.net.info("SSE connect -> \(url.absoluteString, privacy: .public)")
-
-		task = session?.dataTask(with: req)
+		task = session?.dataTask(with: request)
 		task?.resume()
-		return stream
 	}
 
 	func disconnect() {
