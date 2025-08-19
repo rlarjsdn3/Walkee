@@ -129,7 +129,6 @@ extension AlanLoadingIndicatorView {
         indicatorStackView.alignment = .fill
         titleLabel.text = doingSummaryText
         startTimer()
-        invalidateIntrinsicContentSize()
     }
 
     private func setFailedState() {
@@ -142,7 +141,6 @@ extension AlanLoadingIndicatorView {
         indicatorStackView.alignment = .top
         titleLabel.text = failedSummaryText
         stopTimer()
-        invalidateIntrinsicContentSize()
     }
     
     private func setDeniedState() {
@@ -155,7 +153,6 @@ extension AlanLoadingIndicatorView {
         indicatorStackView.alignment = .top
         titleLabel.text = deniedSummaryText
         stopTimer()
-        invalidateIntrinsicContentSize()
     }
 
     private func setSuccessState() {
@@ -163,7 +160,6 @@ extension AlanLoadingIndicatorView {
         loadingIndicatorView.stopAnimating()
         isHidden = true
         stopTimer()
-//        invalidateIntrinsicContentSize()
     }
 }
 

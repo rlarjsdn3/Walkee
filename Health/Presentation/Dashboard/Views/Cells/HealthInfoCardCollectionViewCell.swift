@@ -82,7 +82,7 @@ extension HealthInfoCardCollectionViewCell {
         titleLabel.text = viewModel.itemID.kind.title
         statusProgressBarView.higherIsBetter = viewModel.itemID.kind.higherIsBetter
         statusProgressBarView.thresholdsValues = viewModel.itemID.kind.thresholdValues(age: viewModel.anchorAge)
-        statusContainerView.isHidden = false
+        statusContainerView.isHidden = true
         permissionDeniedView.isHidden = true
 
         switch state {
@@ -116,6 +116,7 @@ extension HealthInfoCardCollectionViewCell {
             attrString = NSAttributedString(string: String(format: "%.1f", hkValue) + unitString)
             gaitStatusLabel.text = status.rawValue
             gaitStatusLabel.textColor = status.backgroundColor
+            statusContainerView.isHidden = false
             statusContainerView.backgroundColor = status.secondaryBackgroundColor
             
         case .failure:
