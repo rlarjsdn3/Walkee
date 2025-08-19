@@ -9,6 +9,7 @@ import CoreLocation
 import UIKit
 
 // 위치 권한을 관리하는 클래스
+@MainActor
 class LocationPermissionService: NSObject {
 
     @MainActor static let shared = LocationPermissionService()
@@ -118,50 +119,56 @@ class LocationPermissionService: NSObject {
 
 // MARK: - CLLocationManagerDelegate
 // 위치 관련 이벤트를 처리하는 확장
+
 extension LocationPermissionService: CLLocationManagerDelegate {
 
     // 위치 업데이트 처리
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let location = locations.last else { return }
+    nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        // 모든 작업을 Task 블록 안으로 이동
+        Task { @MainActor in
+            guard let location = locations.last else { return }
 
-        // 캐시에 저장
-        cachedLocation = location
-        lastLocationTime = Date()
-
-        // 대기 중인 continuation에 결과 전달
-        locationContinuation?.resume(returning: location)
-        locationContinuation = nil
+            // ✅ '보안 구역' 안에서 안전하게 물건을 만지는 중
+            self.cachedLocation = location
+            self.lastLocationTime = Date()
+            self.locationContinuation?.resume(returning: location)
+            self.locationContinuation = nil
+        }
     }
 
     //위치요청실패 처리
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("위치 요청 실패: \(error.localizedDescription)")
+    nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        Task { @MainActor in
+            print("위치 요청 실패: \(error.localizedDescription)")
 
-        // 대기 중인 continuation에 nil 전달
-        locationContinuation?.resume(returning: nil)
-        locationContinuation = nil
+            // 대기 중인 continuation에 nil 전달
+            self.locationContinuation?.resume(returning: nil)
+            self.locationContinuation = nil
+        }
     }
 
-    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        switch status {
-        case .authorizedWhenInUse, .authorizedAlways:
-            print("위치 권한 허용됨")
-            permissionContinuation?.resume(returning: true)
+    nonisolated func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        Task { @MainActor in
+            switch status {
+            case .authorizedWhenInUse, .authorizedAlways:
+                print("위치 권한 허용됨")
+                self.permissionContinuation?.resume(returning: true)
 
-        case .denied, .restricted:
-            print("위치 권한 거부됨")
-            permissionContinuation?.resume(returning: false)
+            case .denied, .restricted:
+                print("위치 권한 거부됨")
+                self.permissionContinuation?.resume(returning: false)
 
-        case .notDetermined:
-            print("위치 권한 아직 결정되지 않음")
-            break
+            case .notDetermined:
+                print("위치 권한 아직 결정되지 않음")
+                break
 
-        @unknown default:
-            print("알 수 없는 위치 권한 상태")
-            permissionContinuation?.resume(returning: false)
+            @unknown default:
+                print("알 수 없는 위치 권한 상태")
+                self.permissionContinuation?.resume(returning: false)
+            }
+
+            // continuation 초기화
+            self.permissionContinuation = nil
         }
-
-        // continuation 초기화
-        permissionContinuation = nil
     }
 }
