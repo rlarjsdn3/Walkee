@@ -13,9 +13,7 @@ import os
 @MainActor
 final class ChatbotViewController: CoreGradientViewController {
 	// MARK: - Outlets & Dependencies
-	@Injected(default: AlanViewModel()) private var viewModel: AlanViewModel
-	
-	//private let headerView = ChatbotHeaderTitleView()
+	@Injected private var viewModel: ChatbotViewModel
 	private var headerHeight: CGFloat = 64   // 필요시 64~80 조정
 	
 	@IBOutlet weak var headerView: ChatbotHeaderTitleView!
@@ -180,6 +178,16 @@ final class ChatbotViewController: CoreGradientViewController {
 		
 		viewModel.onStreamCompleted = { [weak self] in
 			self?.finishStreamingUI()
+		}
+		
+		viewModel.onError = { [weak self] errorText in
+			guard let self else { return }
+			// 에러 처리: 로딩 셀에 에러 메시지 표시 후 상태 정리
+			Task { @MainActor in
+				self.updateWaitingCellText(errorText)
+				try await Task.sleep(for: .seconds(2))
+				self.cleanupStreamingState()
+			}
 		}
 	}
 
