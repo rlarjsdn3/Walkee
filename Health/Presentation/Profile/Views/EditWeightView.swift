@@ -9,22 +9,22 @@ import UIKit
 
 final class EditWeightView: CoreView {
     
-    private let pickerView: UIPickerView = {
-        let v = UIPickerView()
-        v.translatesAutoresizingMaskIntoConstraints = false
-        return v
-    }()
+    private let titleLabel = UILabel()
+    
+    private let pickerView = UIPickerView()
     
     private let weights: [Int] = Array(30...200)
     var selectedWeight: Int = 70
     
     override func setupHierarchy() {
-        addSubview(pickerView)
+        addSubviews(titleLabel, pickerView)
     }
     
     override func setupAttribute() {
         super.setupAttribute()
         backgroundColor = .clear
+        
+        titleLabel.configureAsTitle("체중")
         
         pickerView.dataSource = self
         pickerView.delegate = self
@@ -33,12 +33,20 @@ final class EditWeightView: CoreView {
     }
     
     override func setupConstraints() {
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        pickerView.translatesAutoresizingMaskIntoConstraints = false
+        
         NSLayoutConstraint.activate([
+            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 12),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
+            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+            
+            pickerView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 24),
             pickerView.leadingAnchor.constraint(equalTo: leadingAnchor),
             pickerView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            pickerView.topAnchor.constraint(equalTo: topAnchor),
             pickerView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
+        
     }
     
     private func setDefaultSelection() {

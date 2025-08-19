@@ -50,6 +50,13 @@ func presentSheet(on viewController: UIViewController,
     let action = TSAlertAction(title: "확인", style: .default) { _ in
         onConfirm?(contentView)
     }
+    action.configuration.backgroundColor = .accent
+    action.configuration.titleAttributes = [
+        .font: UIFont.preferredFont(forTextStyle: .headline),
+        .foregroundColor: UIColor.systemBackground
+    ]
+    action.highlightType = .fadeIn
+    
     alertController.addAction(action)
     
     viewController.present(alertController, animated: true)

@@ -9,6 +9,8 @@ import UIKit
 
 final class EditStepGoalView: CoreView {
     
+    let titleLabel = UILabel()
+    
     var value: Int = 0 {
         didSet {
             value = max(minValue, min(maxValue, value))
@@ -65,13 +67,14 @@ final class EditStepGoalView: CoreView {
         hStack.addArrangedSubview(valueStack)
         hStack.addArrangedSubview(plusButton)
         
-        addSubview(hStack)
+        addSubviews(titleLabel, hStack)
     }
     
     override func setupAttribute() {
         super.setupAttribute()
         backgroundColor = .clear
         
+        titleLabel.configureAsTitle("목표 걸음")
         setupConfigure()
         setupButtons()
         updateUI()
@@ -80,13 +83,19 @@ final class EditStepGoalView: CoreView {
     
     
     override func setupConstraints() {
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        
         let horizontalPadding: CGFloat = UIDevice.current.userInterfaceIdiom == .pad ? 160 : 16
         
         NSLayoutConstraint.activate([
+            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 12),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
+            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+
+            hStack.centerYAnchor.constraint(equalTo: centerYAnchor),
             hStack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: horizontalPadding),
-            hStack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -horizontalPadding),
-            hStack.topAnchor.constraint(equalTo: topAnchor),
-            hStack.bottomAnchor.constraint(equalTo: bottomAnchor)
+            hStack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -horizontalPadding)
+
         ])
     }
     

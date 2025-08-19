@@ -9,20 +9,22 @@ import UIKit
 
 class EditBirthdayView: CoreView {
     
+    private let titleLabel = UILabel()
     private let pickerView = UIPickerView()
     private var years: [Int] = []
     var selectedYear: Int = Calendar.current.component(.year, from: Date())
-        
+    
     override func setupHierarchy() {
-        addSubview(pickerView)
+        addSubviews(titleLabel, pickerView)
     }
     
     override func setupAttribute() {
         super.setupAttribute()
         backgroundColor = .clear
         
+        titleLabel.configureAsTitle("태어난 해")
         self.selectedYear = Calendar.current.component(.year, from: Date())
-
+        
         setupYears()
         setupPicker()
         
@@ -30,19 +32,27 @@ class EditBirthdayView: CoreView {
     }
     
     override func setupConstraints() {
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        pickerView.translatesAutoresizingMaskIntoConstraints = false
+        
+        
         NSLayoutConstraint.activate([
+            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 12),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
+            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+            
+            pickerView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 24),
             pickerView.leadingAnchor.constraint(equalTo: leadingAnchor),
             pickerView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            pickerView.topAnchor.constraint(equalTo: topAnchor),
             pickerView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
     }
     
     private func clampYear(_ y: Int) -> Int {
-            guard let first = years.first, let last = years.last else { return y }
-            return min(max(y, first), last)
+        guard let first = years.first, let last = years.last else { return y }
+        return min(max(y, first), last)
     }
-
+    
     private func setupYears() {
         let currentYear = Calendar.current.component(.year, from: Date())
         years = Array(1900...currentYear)

@@ -23,6 +23,8 @@ final class EditGenderView: CoreView {
         }
     }
     
+    private let titleLabel = UILabel()
+    
     private lazy var femaleButton = createGenderButton(for: .female)
     private lazy var maleButton = createGenderButton(for: .male)
     
@@ -38,16 +40,24 @@ final class EditGenderView: CoreView {
     override func setupAttribute() {
         super.setupAttribute()
         backgroundColor = .clear
+        
+        titleLabel.configureAsTitle("성별")
     }
     
     override func setupHierarchy() {
-        addSubview(stackView)
+        addSubviews(titleLabel, stackView)
     }
     
     override func setupConstraints() {
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        
         NSLayoutConstraint.activate([
+            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 12),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
+            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+            
             stackView.centerXAnchor.constraint(equalTo: centerXAnchor),
-            stackView.centerYAnchor.constraint(equalTo: centerYAnchor),
+            stackView.centerYAnchor.constraint(equalTo: centerYAnchor, constant: 12),
             stackView.heightAnchor.constraint(equalToConstant: 300),
             
             femaleButton.widthAnchor.constraint(equalToConstant: buttonSize),
@@ -72,8 +82,8 @@ final class EditGenderView: CoreView {
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = .buttonBackground
         button.titleLabel?.font = UIDevice.current.userInterfaceIdiom == .pad
-            ? .preferredFont(forTextStyle: .largeTitle)
-            : .preferredFont(forTextStyle: .body)
+        ? .preferredFont(forTextStyle: .largeTitle)
+        : .preferredFont(forTextStyle: .body)
         button.titleLabel?.adjustsFontForContentSizeCategory = true
         button.clipsToBounds = true
         button.layer.cornerRadius = buttonSize / 2

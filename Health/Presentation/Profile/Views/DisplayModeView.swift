@@ -31,18 +31,21 @@ enum AppTheme: Int, CaseIterable {
 
 class DisplayModeView: CoreView {
     
+    private let titleLabel = UILabel()
     private let stackView = UIStackView()
     private var buttons: [UIButton] = []
     private let options: [AppTheme] = [.light, .dark, .system]
     
     
     override func setupHierarchy() {
-        addSubviews(stackView)
+        addSubviews(titleLabel, stackView)
     }
     
     override func setupAttribute() {
         super.setupAttribute()
         backgroundColor = .clear
+        
+        titleLabel.configureAsTitle("화면 모드 설정")
         
         stackView.axis = .vertical
         stackView.spacing = 0
@@ -61,9 +64,15 @@ class DisplayModeView: CoreView {
     }
     
     override func setupConstraints() {
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
         stackView.translatesAutoresizingMaskIntoConstraints = false
+        
         NSLayoutConstraint.activate([
-            stackView.topAnchor.constraint(equalTo: topAnchor, constant: 16),
+            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 12),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
+            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+            
+            stackView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 24),
             stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
             stackView.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -16)
@@ -107,7 +116,7 @@ class DisplayModeView: CoreView {
         
         button.configuration = cfg
         button.addTarget(self, action: #selector(buttonTapped(_:)), for: .touchUpInside)
-
+        
         let h = UIStackView(arrangedSubviews: [titleLabel, spacer, button])
         h.axis = .horizontal
         h.alignment = .center
@@ -121,7 +130,7 @@ class DisplayModeView: CoreView {
             h.trailingAnchor.constraint(equalTo: row.trailingAnchor, constant: -8),
             h.bottomAnchor.constraint(equalTo: row.bottomAnchor, constant: -8)
         ])
-
+        
         titleLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         titleLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         spacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
@@ -149,7 +158,7 @@ class DisplayModeView: CoreView {
         saveTheme(theme)
         applyAppTheme(theme)
     }
-
+    
     @objc private func rowTapped(_ gesture: UITapGestureRecognizer) {
         guard let row = gesture.view else { return }
         selectTheme(at: row.tag)
