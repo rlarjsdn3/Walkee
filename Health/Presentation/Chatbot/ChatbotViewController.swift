@@ -34,6 +34,7 @@ final class ChatbotViewController: CoreGradientViewController {
 	private let hasFixedHeader = true
 	/// 네트워크 상태
 	private var networkStatusObservationTask: Task<Void, Never>?
+	private var wasPreviouslyDisconnected: Bool = false
 	// MARK: - Keyboard State
 	private let keyboardObserver = KeyboardObserver()
 	/// 현재 키보드 높이
@@ -76,6 +77,7 @@ final class ChatbotViewController: CoreGradientViewController {
 		setupTableView()
 		setupKeyboardObservers()
 		setupTapGesture()
+		observeNetworkStatusChanges()
 	}
 	
 	override func viewWillAppear(_ animated: Bool) {
@@ -138,6 +140,30 @@ final class ChatbotViewController: CoreGradientViewController {
 		chattingTextField.delegate = self
 		setupStackViewStyles()
 		automaticallyAdjustsScrollViewInsets = false
+	}
+	
+	private func observeNetworkStatusChanges() {
+		networkStatusObservationTask = Task {
+			for await isConnected in await NetworkMonitor.shared.networkStatusStream() {
+				if isConnected {
+					if wasPreviouslyDisconnected {
+						showWarningToast(
+							title: "네트워크 연결이 복구되었습니다.",
+							message: "계속해서 대화를 이어가세요 😊",
+							duration: 2.5
+						)
+						wasPreviouslyDisconnected = false
+					}
+				} else {
+					showWarningToast(
+						title: "네트워크 연결 상태를 확인해주세요.",
+						message: "와이파이나 셀룰러 데이터 연결상태를 확인해주세요.",
+						duration: 3.0
+					)
+					wasPreviouslyDisconnected = true
+				}
+			}
+		}
 	}
 	
 	private func setupHeaderView() {
@@ -777,8 +803,8 @@ final class ChatbotViewController: CoreGradientViewController {
 	}
 }
 
-// MARK: - UITableViewDataSource
-extension ChatbotViewController: UITableViewDataSource {
+// MARK: - UITableViewDataSource & UITableViewDelegate
+extension ChatbotViewController: UITableViewDataSource, UITableViewDelegate {
 	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 		return messages.count + (isWaitingResponse ? 1 : 0)
 	}
@@ -843,10 +869,8 @@ extension ChatbotViewController: UITableViewDataSource {
 			return cell
 		}
 	}
-}
-
-// MARK: - UITableViewDelegate
-extension ChatbotViewController: UITableViewDelegate {
+	
+	// MARK: - UITableViewDelegate
 	func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
 		let result = UITableView.automaticDimension
 		return result
@@ -881,6 +905,7 @@ extension ChatbotViewController: UITableViewDelegate {
 		focusLatestAIHead = false
 	}
 }
+
 
 // MARK: - UITextFieldDelegate
 extension ChatbotViewController: UITextFieldDelegate {
