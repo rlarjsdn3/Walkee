@@ -20,14 +20,14 @@ final class BackgroundHeightUtils {
 
         if UIDevice.current.userInterfaceIdiom == .pad {
             if screenWidth > screenHeight {
-                // iPad 가로: 더 작은 비율
-                heightRatio = 0.18  // 18%
+                // iPad 가로
+                heightRatio = 0.25  // 25%
             } else {
-                // iPad 세로: 기본 비율
+                // iPad 세로
                 heightRatio = 0.20  // 20%
             }
         } else {
-            // iPhone: 기본 비율
+            // iPhone
             heightRatio = 0.25
         }
 

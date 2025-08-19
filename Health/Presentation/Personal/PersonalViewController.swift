@@ -13,7 +13,7 @@ class PersonalViewController: CoreGradientViewController, Alertable {
     typealias PersonalDiffableDataSource = UICollectionViewDiffableDataSource<PersonalContent.Section, PersonalContent.Item>
 
     @IBOutlet weak var collectionView: UICollectionView!
-
+    @Injected private var promptBuilderService: (any PromptBuilderService)
     private var dataSource: PersonalDiffableDataSource?
     private var courses: [WalkingCourse] = [] //실제 표시되는 코스 데이터
     private var allCourses: [WalkingCourse] = [] // 전체 코스 데이터
@@ -118,8 +118,11 @@ class PersonalViewController: CoreGradientViewController, Alertable {
 
     private func aiSummaryCellRegistration() -> UICollectionView.CellRegistration<AISummaryCell, Void> {
         UICollectionView.CellRegistration<AISummaryCell, Void>(cellNib: AISummaryCell.nib) { cell, indexPath, _ in
-            // AISummaryCell 셀 설정
-        }
+            let itemID = AIMonthlySummaryCellViewModel.ItemID()
+                  let viewModel = AIMonthlySummaryCellViewModel(itemID: itemID)
+
+                  cell.configure(with: viewModel, promptBuilderService: self.promptBuilderService)
+              }
     }
 
     private func createWalkingHeaderRegistration() -> UICollectionView.CellRegistration<WalkingHeaderCell, Void> {

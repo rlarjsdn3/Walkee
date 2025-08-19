@@ -18,10 +18,10 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lkv-Oj-vEc">
-                                <rect key="frame" x="376" y="64" width="48" height="48"/>
+                                <rect key="frame" x="392" y="64" width="32" height="32"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="48" id="VLc-2Z-4jP"/>
-                                    <constraint firstAttribute="height" constant="48" id="msg-xq-mfy"/>
+                                    <constraint firstAttribute="width" constant="32" id="VLc-2Z-4jP"/>
+                                    <constraint firstAttribute="height" constant="32" id="msg-xq-mfy"/>
                                 </constraints>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" image="chatBot"/>
