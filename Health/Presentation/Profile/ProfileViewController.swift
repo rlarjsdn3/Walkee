@@ -223,6 +223,7 @@ class ProfileViewController: CoreGradientViewController {
                 """,
             preferredStyle: .alert
         )
+        alert.viewConfiguration.titleAlignment = .center
         alert.viewConfiguration.messageAlignment = .center
         alert.viewConfiguration.size.width = .proportional(minimumRatio: 0.9)
         
@@ -262,6 +263,7 @@ class ProfileViewController: CoreGradientViewController {
                 """,
             preferredStyle: .alert
         )
+        alert.viewConfiguration.titleAlignment = .center
         alert.viewConfiguration.messageAlignment = .center
         alert.viewConfiguration.size.width = .proportional(minimumRatio: 0.9)
         alert.addAction(TSAlertAction(title: "취소", style: .cancel) { [weak self] _ in

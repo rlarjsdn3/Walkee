@@ -123,6 +123,7 @@ final class EditStepGoalView: CoreView {
             b.translatesAutoresizingMaskIntoConstraints = false
             b.tintColor = .white
             b.backgroundColor = accentColor
+            b.tintColor = .systemBackground
             b.layer.cornerRadius = buttonDiameter / 2
             b.clipsToBounds = true
             b.widthAnchor.constraint(equalToConstant: buttonDiameter).isActive = true
