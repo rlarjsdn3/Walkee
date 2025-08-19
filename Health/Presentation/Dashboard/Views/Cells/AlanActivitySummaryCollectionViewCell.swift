@@ -68,6 +68,7 @@ extension AlanActivitySummaryCollectionViewCell {
             return // TODO: - 플레이스 홀더 UI 구성하기
 
         case .loading:
+            loadingIndicatorView.isHidden = false
             loadingIndicatorView.setState(.loading)
             return
 

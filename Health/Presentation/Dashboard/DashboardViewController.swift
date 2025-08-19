@@ -14,6 +14,7 @@ final class DashboardViewController: CoreGradientViewController {
 
     typealias DashboardDiffableDataSource = UICollectionViewDiffableDataSource<DashboardContent.Section, DashboardContent.Item>
 
+    private let refreshControl = UIRefreshControl()
     @IBOutlet weak var dashboardCollectionView: UICollectionView!
 
     private var dataSource: DashboardDiffableDataSource?
@@ -25,11 +26,6 @@ final class DashboardViewController: CoreGradientViewController {
     lazy var viewModel: DashboardViewModel = {
         .init()
     }()
-
-    convenience init(date: Date, coder: NSCoder) {
-        self.init(coder: coder)!
-        // TODO: - CalendarVC에서 날짜를 넘겨주기 위한 생성자 구성하기
-    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -60,6 +56,12 @@ final class DashboardViewController: CoreGradientViewController {
     }
 
     override func setupAttribute() {
+        refreshControl.addTarget(
+            self,
+            action: #selector(refreshHKData),
+            for: .valueChanged
+        )
+
         dashboardCollectionView.delegate = self
         dashboardCollectionView.backgroundColor = .clear
         dashboardCollectionView.setCollectionViewLayout(
@@ -74,8 +76,18 @@ final class DashboardViewController: CoreGradientViewController {
             top: 46, left: .zero,
             bottom: 24, right: .zero
         )
+        dashboardCollectionView.refreshControl = refreshControl
 
         applyBackgroundGradient(.midnightBlack)
+    }
+
+    @objc private func refreshHKData() {
+        // TODO: - 리프레시 시, AI 요약도 함께 리프레시되도록 하기
+        viewModel.loadHKData(includeAISummary: false)
+
+        Task.delay(for: 1.0) { @MainActor in
+            refreshControl.endRefreshing()
+        }
     }
 
 
@@ -238,6 +250,7 @@ fileprivate extension DashboardViewController {
             guard let vm = self?.viewModel.summaryCells[id] else { return }
             vm.didChange = { _ in
                 guard var snapshot = self?.dataSource?.snapshot() else { return }
+
                 snapshot.reconfigureItems([.alanSummary(id)])
                 self?.dashboardCollectionView.performBatchUpdates {
                     self?.dataSource?.apply(snapshot, animatingDifferences: true)
