@@ -318,6 +318,7 @@ fileprivate extension DashboardViewController {
         }
 
         let okAction = TSAlertAction(title: "확인")
+        okAction.highlightType = .fadeIn
         okAction.configuration.backgroundColor = .accent
         okAction.configuration.titleAttributes = [.font: UIFont.preferredFont(forTextStyle: .headline),
                                                   .foregroundColor: UIColor.systemBackground]
