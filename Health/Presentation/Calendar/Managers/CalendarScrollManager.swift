@@ -48,6 +48,16 @@ final class CalendarScrollManager {
         }
     }
 
+    /// 현재 월로 스크롤합니다.
+    func scrollToCurrentMonth(animated: Bool = false) {
+        guard let collectionView = collectionView,
+              let calendarVM,
+              let indexPath = calendarVM.indexOfCurrentMonth() else {
+            return
+        }
+        collectionView.scrollToItem(at: indexPath, at: .top, animated: animated)
+    }
+
     /// 화면 회전 시 스크롤 위치를 처리합니다.
     func handleDeviceRotation(coordinator: UIViewControllerTransitionCoordinator) {
         // 회전 전 현재 화면 최상단에 보이는 월을 기억
@@ -116,16 +126,6 @@ private extension CalendarScrollManager {
         func distanceFromScreenTop(_ screenArea: CGRect) -> CGFloat {
             return abs(frame.minY - screenArea.minY)
         }
-    }
-
-    /// 현재 월로 스크롤합니다.
-    func scrollToCurrentMonth() {
-        guard let collectionView = collectionView,
-              let calendarVM,
-              let indexPath = calendarVM.indexOfCurrentMonth() else {
-            return
-        }
-        collectionView.scrollToItem(at: indexPath, at: .top, animated: false)
     }
 
     /// 현재 화면에서 가장 위에 보이는 월의 IndexPath를 찾습니다.
