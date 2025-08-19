@@ -112,8 +112,9 @@ class InputAgeViewController: CoreGradientViewController {
         let isIpad = traitCollection.horizontalSizeClass == .regular &&
                      traitCollection.verticalSizeClass == .regular
         let isLandscape = view.bounds.width > view.bounds.height
+        let isIphonePortrait = !isIpad && !isLandscape
         
-        if isIpad && isLandscape {
+        if (isIpad && isLandscape) || isIphonePortrait {
             ageInputFieldCenterY.constant = originalCenterY - keyboardFrame.height * 0.5
         }
         
@@ -148,8 +149,6 @@ class InputAgeViewController: CoreGradientViewController {
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
-
-    // MARK: - Continue Button
     
     @IBAction func continueButtonTapped(_ sender: UIButton) {
         guard continueButton.isEnabled else { return }
@@ -164,8 +163,6 @@ class InputAgeViewController: CoreGradientViewController {
         }
     }
 
-    // MARK: - Input Validation
-    
     @objc private func textFieldDidChange(_ textField: UITextField) {
         validateInput()
     }
@@ -210,8 +207,6 @@ class InputAgeViewController: CoreGradientViewController {
         continueButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .bold)
     }
 
-    // MARK: - Core Data
-    
     private func fetchAndDisplayUserInfo() {
         let request: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
         do {

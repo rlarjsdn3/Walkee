@@ -91,8 +91,6 @@ class WeightViewController: CoreGradientViewController {
         }
     }
     
-    // MARK: - Keyboard Handling
-    
     private func registerForKeyboardNotifications() {
         NotificationCenter.default.addObserver(
             self,
@@ -115,9 +113,9 @@ class WeightViewController: CoreGradientViewController {
         let isIpad = traitCollection.horizontalSizeClass == .regular &&
                      traitCollection.verticalSizeClass == .regular
         let isLandscape = view.bounds.width > view.bounds.height
+        let isIphonePortrait = !isIpad && !isLandscape
         
-        if isIpad && isLandscape {
-            // iPad 가로모드에서는 텍스트필드 위로 올리기
+        if (isIpad && isLandscape) || isIphonePortrait {
             weightInputFieldCenterY.constant = originalCenterY - keyboardFrame.height * 0.5
         }
         
@@ -153,8 +151,6 @@ class WeightViewController: CoreGradientViewController {
         NotificationCenter.default.removeObserver(self)
     }
     
-    // MARK: - Continue Button
-    
     @IBAction func continueButtonTapped(_ sender: UIButton) {
         guard continueButton.isEnabled else { return }
         guard let text = weightInputField.text, let weightValue = Double(text) else { return }
@@ -167,8 +163,6 @@ class WeightViewController: CoreGradientViewController {
             print("Failed to save weight: \(error)")
         }
     }
-    
-    // MARK: - Input Validation
     
     @objc private func textFieldDidChange(_ textField: UITextField) {
         validateInput()

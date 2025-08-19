@@ -113,8 +113,9 @@ class HeightViewController: CoreGradientViewController {
         let isIpad = traitCollection.horizontalSizeClass == .regular &&
                      traitCollection.verticalSizeClass == .regular
         let isLandscape = view.bounds.width > view.bounds.height
+        let isIphonePortrait = !isIpad && !isLandscape
         
-        if isIpad && isLandscape {
+        if (isIpad && isLandscape) || isIphonePortrait  {
             heightInputFieldCenterY.constant = originalCenterY - keyboardFrame.height * 0.5
         }
         
@@ -177,7 +178,7 @@ class HeightViewController: CoreGradientViewController {
         }
         
         switch text.count {
-        case 2:
+        case 1,2:
             if height >= 100 {
                 hideError()
                 enableContinueButton()

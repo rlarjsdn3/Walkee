@@ -56,7 +56,6 @@ class HealthLinkViewController: CoreGradientViewController {
                      traitCollection.verticalSizeClass == .regular
         
         if isIpad {
-            // iPhone 제약 비활성화
             continueButtonLeading?.isActive = false
             continueButtonTrailing?.isActive = false
             
@@ -67,11 +66,9 @@ class HealthLinkViewController: CoreGradientViewController {
                 iPadCenterXConstraint?.isActive = true
             }
         } else {
-            // iPad 제약 비활성화
             iPadWidthConstraint?.isActive = false
             iPadCenterXConstraint?.isActive = false
-            
-            // iPhone 제약 활성화
+
             continueButtonLeading?.isActive = true
             continueButtonTrailing?.isActive = true
         }
@@ -148,6 +145,17 @@ class HealthLinkViewController: CoreGradientViewController {
     @IBAction private func continueButtonTapped(_ sender: Any) {
         performSegue(withIdentifier: "goToGenderInfo", sender: nil)
     }
+
+    @IBAction private func linkAction(_ sender: UISwitch) {
+        if sender.isOn {
+            Task {
+                await requestHealthKitAuthorization()
+            }
+        } else {
+            UserDefaultsWrapper.shared.hasSeenOnboarding = false
+            showAlert(title: "연동 해제", message: "Apple 건강 앱 연동이 해제되었습니다.")
+        }
+    }
     
     private func openAppSettings() {
         if let url = URL(string: UIApplication.openSettingsURLString) {
@@ -168,4 +176,3 @@ extension HealthLinkViewController {
         present(alertController, animated: true)
     }
 }
-
