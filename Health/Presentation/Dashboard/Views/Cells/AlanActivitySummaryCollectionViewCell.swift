@@ -22,29 +22,18 @@ final class AlanActivitySummaryCollectionViewCell: CoreCollectionViewCell {
     private var viewModel: AlanActivitySummaryCellViewModel!
 
     override func preferredLayoutAttributesFitting(_ attrs: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
-        setNeedsLayout()
-        layoutIfNeeded()
+        super.preferredLayoutAttributesFitting(attrs)
+        
+        let newAttrs = attrs.copy() as! UICollectionViewLayoutAttributes
 
-        let target = CGSize(
-            width: attrs.size.width,
-            height: UIView.layoutFittingCompressedSize.height
-        )
-        let size = self.systemLayoutSizeFitting(
-            target,
-            withHorizontalFittingPriority: .required,
-            verticalFittingPriority: .fittingSizeLevel
-        )
-        attrs.size = size
-
+        var contentHeight: CGFloat
         if loadingIndicatorView.state == .success {
-            let rect = summaryLabelView.intrinsicContentSize
-            attrs.size.height = rect.height + 24 // top/bottom 패딩 합
+            contentHeight = summaryLabelView.intrinsicContentSize.height + 24 // top/bottom 패딩 합
         } else {
-            let rect = loadingIndicatorView.intrinsicContentSize
-            attrs.size.height = rect.height + 24 // top/bottom 패딩 합
+            contentHeight = loadingIndicatorView.intrinsicContentSize.height + 24 // top/bottom 패딩 합
         }
-
-        return attrs
+        newAttrs.size.height = contentHeight
+        return newAttrs
 
     }
 
