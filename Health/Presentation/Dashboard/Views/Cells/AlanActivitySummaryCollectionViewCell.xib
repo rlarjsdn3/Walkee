@@ -16,19 +16,9 @@
                 <rect key="frame" x="0.0" y="0.0" width="394" height="125"/>
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 <subviews>
-                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="chatBot" translatesAutoresizingMaskIntoConstraints="NO" id="Hr5-ae-uBX">
-                        <rect key="frame" x="12" y="12" width="26" height="26"/>
-                        <constraints>
-                            <constraint firstAttribute="height" constant="26" id="8Qu-Cn-v7P"/>
-                            <constraint firstAttribute="width" constant="26" id="d6l-HQ-hD1"/>
-                        </constraints>
-                    </imageView>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aNK-jK-Xk1">
-                        <rect key="frame" x="50" y="12" width="332" height="101"/>
-                        <fontDescription key="fontDescription" style="UICTFontTextStyleCallout"/>
-                        <nil key="textColor"/>
-                        <nil key="highlightedColor"/>
-                    </label>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="V9T-Hc-DMw" customClass="AISummaryLabel" customModule="Health" customModuleProvider="target">
+                        <rect key="frame" x="12" y="12" width="370" height="101"/>
+                    </view>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Udn-KC-rhh" customClass="AlanLoadingIndicatorView" customModule="Health" customModuleProvider="target">
                         <rect key="frame" x="12" y="12" width="370" height="101"/>
                     </view>
@@ -36,28 +26,21 @@
             </view>
             <viewLayoutGuide key="safeArea" id="ZTg-uK-7eu"/>
             <constraints>
-                <constraint firstItem="aNK-jK-Xk1" firstAttribute="leading" secondItem="Hr5-ae-uBX" secondAttribute="trailing" constant="12" id="7UL-Qq-Tcx"/>
-                <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="Hr5-ae-uBX" secondAttribute="bottom" constant="12" id="A9C-v8-YHf"/>
+                <constraint firstAttribute="bottom" secondItem="V9T-Hc-DMw" secondAttribute="bottom" constant="12" id="4iL-nQ-LvM"/>
                 <constraint firstItem="Udn-KC-rhh" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="12" id="CF0-rA-EUC"/>
-                <constraint firstAttribute="bottom" secondItem="aNK-jK-Xk1" secondAttribute="bottom" constant="12" id="I9y-Lj-IzP"/>
                 <constraint firstItem="Udn-KC-rhh" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="12" id="JZn-Ra-aUe"/>
-                <constraint firstItem="Hr5-ae-uBX" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="12" id="ZaZ-r7-ZYm"/>
-                <constraint firstItem="Hr5-ae-uBX" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="12" id="caz-b1-iuR"/>
-                <constraint firstItem="aNK-jK-Xk1" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="12" id="d0h-8K-0SV"/>
-                <constraint firstAttribute="trailing" secondItem="aNK-jK-Xk1" secondAttribute="trailing" constant="12" id="qpl-Uu-dz2"/>
+                <constraint firstAttribute="trailing" secondItem="V9T-Hc-DMw" secondAttribute="trailing" constant="12" id="Rtv-Jm-yfS"/>
+                <constraint firstItem="V9T-Hc-DMw" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="12" id="Ufv-ql-fb8"/>
+                <constraint firstItem="V9T-Hc-DMw" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="12" id="g7A-YL-26f"/>
                 <constraint firstAttribute="bottom" secondItem="Udn-KC-rhh" secondAttribute="bottom" constant="12" id="vL7-Ev-gOf"/>
                 <constraint firstAttribute="trailing" secondItem="Udn-KC-rhh" secondAttribute="trailing" constant="12" id="xK3-r3-yQ7"/>
             </constraints>
             <size key="customSize" width="394" height="125"/>
             <connections>
-                <outlet property="chatBotImageView" destination="Hr5-ae-uBX" id="sTo-Z8-dti"/>
                 <outlet property="loadingIndicatorView" destination="Udn-KC-rhh" id="qyr-xT-50y"/>
-                <outlet property="summaryLabel" destination="aNK-jK-Xk1" id="VFO-cd-WcQ"/>
+                <outlet property="summaryLabelView" destination="V9T-Hc-DMw" id="54v-5M-xMD"/>
             </connections>
             <point key="canvasLocation" x="401.52671755725191" y="65.845070422535215"/>
         </collectionViewCell>
     </objects>
-    <resources>
-        <image name="chatBot" width="46" height="46"/>
-    </resources>
 </document>

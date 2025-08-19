@@ -13,9 +13,10 @@ final class AISummaryLabel: CoreView {
     private let summaryLabel = UILabel()
     private let containerStackView = UIStackView()
 
-    ///
+    /// 요약 텍스트를 표시하거나 가져옵니다.
     var text: String? {
-        didSet { summaryLabel.text = text }
+        get { summaryLabel.text }
+        set { summaryLabel.text = newValue }
     }
 
     override var intrinsicContentSize: CGSize {
@@ -26,7 +27,9 @@ final class AISummaryLabel: CoreView {
         let text = (summaryLabel.attributedText?.string as NSString?) ??
                    (summaryLabel.text as NSString? ?? "")
         let font = summaryLabel.font ?? UIFont.preferredFont(forTextStyle: .callout)
-        let width = max(0, self.bounds.width - 26) // 왼쪽 아이콘의 고정 너비
+        let width = max(0, self.bounds.width
+                        - 26   // 왼쪽 아이콘의 너비
+                        - 12)  // 스택의 간격(spacing)
 
         let rect = text.boundingRect(
             with: CGSize(width: width, height: .greatestFiniteMagnitude),
@@ -35,7 +38,10 @@ final class AISummaryLabel: CoreView {
             context: nil
         )
 
-        return CGSize(width: width, height: ceil(rect.height) + 2) // 레이블의 상단 패딩
+        return CGSize(
+            width: UIView.noIntrinsicMetric,
+            height: ceil(rect.height) + 2 // top 패딩 합
+        )
     }
 
     override func setupHierarchy() {
@@ -54,6 +60,7 @@ final class AISummaryLabel: CoreView {
         summaryLabel.text = "Hello, World!"
         summaryLabel.font = UIFont.preferredFont(forTextStyle: .callout)
         summaryLabel.textColor = .label
+        summaryLabel.numberOfLines = 0
     }
 
     override func setupConstraints() {
