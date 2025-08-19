@@ -49,10 +49,6 @@ final class CalendarViewController: CoreGradientViewController {
         shouldScrollToCurrentOnAppear = false // 기본값으로 복원
     }
 
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-    }
-
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         scrollManager.handleViewDidLayoutSubviews()
