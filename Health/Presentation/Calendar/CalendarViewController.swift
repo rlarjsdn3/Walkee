@@ -26,7 +26,6 @@ final class CalendarViewController: CoreGradientViewController {
 		configureBackground()
         configureCollectionView()
         observeDataChanges()
-        updateScrollToCurrentButtonVisibility()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -168,6 +167,13 @@ private extension CalendarViewController {
     }
 
     func updateScrollToCurrentButtonVisibility() {
+        // 초기 스크롤이 끝나기 전에는 버튼을 숨긴 상태 유지
+        guard scrollManager.didFinishInitialScroll else {
+            scrollToCurrentButton.alpha = 0
+            scrollToCurrentButton.isHidden = true
+            return
+        }
+
         guard let currentIndexPath = calendarVM.indexOfCurrentMonth() else { return }
 
         let visibleIndexPaths = collectionView.indexPathsForVisibleItems
