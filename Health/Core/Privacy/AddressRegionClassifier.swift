@@ -115,8 +115,6 @@ struct AddressRegionClassifier {
 	/// PrivacyService에서 사용하는 주소 마스킹 처리
 	/// 이 메서드가 주소 마스킹의 메인 진입점입니다.
 	static func findAddressReplacements(in text: String) -> [(NSRange, String)] {
-		print("[AddressClassifier] 입력 텍스트: \(text)")
-		
 		guard let result = detectDetailedAddress(in: text) else {
 			print("[AddressClassifier] 주소를 찾을 수 없음")
 			return []
@@ -146,7 +144,6 @@ struct AddressRegionClassifier {
 				foundProvince = provinceAliases[alias]
 				foundProvinceRange = range
 				originalProvinceText = alias
-				//print("[AddressClassifier] 별칭 매칭: '\(alias)' → '\(foundProvince!)'")
 				break
 			}
 		}
@@ -159,7 +156,6 @@ struct AddressRegionClassifier {
 					foundProvince = db.nameToProvince[key]
 					foundProvinceRange = range
 					originalProvinceText = key
-					//print("[AddressClassifier] JSON 키 매칭: '\(key)' → '\(foundProvince!)'")
 					break
 				}
 			}
@@ -173,7 +169,7 @@ struct AddressRegionClassifier {
 					foundProvince = province
 					foundProvinceRange = range
 					originalProvinceText = province
-					print("🔍 [AddressClassifier] 표준명 매칭: '\(province)'")
+					print("[AddressClassifier] 표준명 매칭: '\(province)'")
 					break
 				}
 			}
