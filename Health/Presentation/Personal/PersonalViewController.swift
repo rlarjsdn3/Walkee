@@ -39,7 +39,7 @@ class PersonalViewController: CoreGradientViewController, Alertable {
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(checkLocationPermissionChange),
-            name: UIApplication.didBecomeActiveNotification,
+            name: UIApplication.willEnterForegroundNotification,
             object: nil
         )
 
