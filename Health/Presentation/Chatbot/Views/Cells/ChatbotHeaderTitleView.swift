@@ -29,10 +29,10 @@ final class ChatbotHeaderTitleView: CoreView {
 	}()
 	
 	private let closeIconView: UIImageView = {
-		let buttonImage = UIImageView(image: UIImage(systemName: "xmark"))
+		let buttonImage = UIImageView(image: UIImage(systemName: "xmark.circle.fill"))
 		buttonImage.translatesAutoresizingMaskIntoConstraints = false
 		buttonImage.contentMode = .scaleAspectFit
-		buttonImage.tintColor = .accent
+		buttonImage.tintColor = .label
 		return buttonImage
 	}()
 	
@@ -40,7 +40,7 @@ final class ChatbotHeaderTitleView: CoreView {
 		let button = UIButton()
 		button.contentHorizontalAlignment = .center
 		button.contentVerticalAlignment = .center
-		button.tintColor = .accent
+		button.tintColor = .label
 		button.addTarget(self, action: #selector(handleCloseButtonTapped), for: .touchUpInside)
 		button.translatesAutoresizingMaskIntoConstraints = false
 		return button
@@ -90,12 +90,12 @@ final class ChatbotHeaderTitleView: CoreView {
 			
 			closeButton.trailingAnchor.constraint(equalTo: guide.trailingAnchor, constant: -16),
 			closeButton.topAnchor.constraint(equalTo: chatbotImageView.topAnchor),
-			closeButton.widthAnchor.constraint(equalToConstant: 32),
-			closeButton.heightAnchor.constraint(equalToConstant: 32),
+			closeButton.widthAnchor.constraint(equalToConstant: 34),
+			closeButton.heightAnchor.constraint(equalToConstant: 34),
 	
 			closeIconView.centerXAnchor.constraint(equalTo: closeButton.centerXAnchor),
 			closeIconView.centerYAnchor.constraint(equalTo: closeButton.centerYAnchor),
-			closeIconView.widthAnchor.constraint(equalToConstant: 28),
+			closeIconView.widthAnchor.constraint(equalToConstant: 32),
 			closeIconView.heightAnchor.constraint(equalTo: closeIconView.widthAnchor),
 			
 			bottomAnchor.constraint(greaterThanOrEqualTo: chatbotImageView.bottomAnchor, constant: 12)

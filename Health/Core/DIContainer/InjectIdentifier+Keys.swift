@@ -128,4 +128,8 @@ extension InjectIdentifier {
 	static var privacyService: InjectIdentifier<PrivacyService> {
 		.by(type: PrivacyService.self)
 	}
+	
+	static var chatbotViewModel: InjectIdentifier<ChatbotViewModel> {
+		InjectIdentifier<ChatbotViewModel>(type: ChatbotViewModel.self)
+	}
 }

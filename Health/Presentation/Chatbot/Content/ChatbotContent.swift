@@ -37,3 +37,13 @@ struct ChatMessage {
 		self.timestamp = Date()
 	}
 }
+
+extension MessageType: CustomStringConvertible {
+	var description: String {
+		switch self {
+		case .user: return "user"
+		case .ai: return "ai"
+		case .loading: return "loading"
+		}
+	}
+}

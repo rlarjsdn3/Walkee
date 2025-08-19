@@ -140,32 +140,65 @@ extension DIContainer {
             return DefaultCalendarStepService()
         }
     }
-
+	
+	/// Alan SSE 레이어 등록 (Client + Service)
+	func registerAlanSSELayerService() {
+		// 1) Client (타입 기반 등록)
+		self.register(type: AlanSSEClientProtocol.self) { _ in
+			AlanSSEClient()
+		}
+		
+		// 2) Service (Client 주입)
+		self.register(type: AlanSSEServiceProtocol.self) { resolver in
+			guard let client: AlanSSEClientProtocol = try? resolver.resolve(
+				type: AlanSSEClientProtocol.self,
+				name: nil
+			) else { fatalError("AlanSSEClientProtocol not registered.") }
+			return AlanSSEService(client: client)
+		}
+	}
+	
+	func registerChatbotViewModel() {
+		self.register(type: ChatbotViewModel.self) { _ in
+			ChatbotViewModel()
+		}
+	}
     /// 모든 서비스와 ViewModel을 의존성 주입 컨테이너에 일괄 등록합니다.
     ///
     /// 이 메서드는 애플리케이션에서 사용하는 모든 의존성을 올바른 순서로 등록합니다.
     /// 의존성 간의 순환 참조를 방지하고 `@Injected` 프로퍼티 래퍼가 올바르게 작동하도록
     /// 등록 순서가 중요합니다.
     ///
+	/// 인프라/독립 서비스 먼저 (Network, Privacy, SSE Client/Service 등)
+	/// 스토리지/플랫폼 (CoreData/HealthKit 등)
+	/// 그 위에 의존하는 도메인 서비스
+	/// ViewModel은 최후 (서비스 다 준비된 뒤)
+	///
     /// ## 등록되는 서비스 및 ViewModel (등록 순서):
     /// 1. `NetworkService` - 네트워크 통신 서비스 (독립적)
     /// 2. `HealthService` - HealthKit 데이터 조회 서비스 (독립적)
     /// 3. `DailyStepViewModel` - 일일 걸음 수 관리 (Core Data 의존)
-	/// 4. `DefaultPrivacyService` - 기본 개인정보 서비스 마스킹 처리(독립적)
+	/// 4. `PrivacyService` - 기본 개인정보 서비스 마스킹 처리(독립적)
     /// 5. `GoalStepCountViewModel` - 목표 걸음 수 관리 (Core Data 의존)
     /// 6. `StepSyncViewModel` - 걸음 수 동기화 (위 모든 서비스에 의존)
 
     func registerAllServices() {
+		// 인프라 계층(독립적) - network, privacy, sse client/service 등
         registerNetworkService()
+		registerPrivacyService()
+		registerAlanSSELayerService()
+		// 플랫폼/스토리지 - CoreData, HealthKit
         registerHealthService()
         registerCoreDataUserService()
+		// 도메인/기능 서비스 - 상단에 있는 서비스에 의존하는 도메인 서비스
         registerPromptRenderService()
-		registerPrivacyService()
         registerPromptBuilderService()
-        registerDailyStepViewModel()
-        registerGoalStepCountViewModel()
-        registerUserInfoViewModel()
         registerStepSyncService()
         registerCalendarStepService()
+		// ViewModels - 서비스가 다 준비된 뒤 마지막에 로드
+		registerDailyStepViewModel()
+		registerGoalStepCountViewModel()
+		registerUserInfoViewModel()
+		registerChatbotViewModel()
     }
 }

@@ -19,7 +19,7 @@ final class LoadingResponseCell: CoreTableViewCell {
 	private let messageLabel: UILabel = {
 		let lb = UILabel()
 		lb.translatesAutoresizingMaskIntoConstraints = false
-		lb.text = ""
+		lb.text = "응답을 생성하고 있습니다.."
 		lb.textColor = .secondaryLabel
 		lb.font = .preferredFont(forTextStyle: .callout)
 		lb.numberOfLines = 0
