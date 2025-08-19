@@ -46,6 +46,7 @@ final class HealthInfoCardCollectionViewCell: CoreCollectionViewCell {
         self.layer.shadowRadius = 5
         self.layer.borderWidth = borderWidth
 
+        statusContainerView.isHidden = true
         statusContainerView.applyCornerStyle(.small)
 
         permissionDeniedView.isHidden = true
@@ -86,10 +87,10 @@ extension HealthInfoCardCollectionViewCell {
 
         switch state {
         case .idle:
-            return // TODO: - 플레이스 홀더 UI 구성하기
+            return
             
         case .loading:
-            return // TODO: - 스켈레톤 UI 구성하기
+            return
             
         case let .success(content):
             let status = viewModel.evaluateGaitStatus(content.value)
