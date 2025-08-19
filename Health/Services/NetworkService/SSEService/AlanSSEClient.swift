@@ -47,14 +47,14 @@ enum AlanSSEClientError: Error, LocalizedError {
 	var errorDescription: String? {
 		switch self {
 		case .badHTTPStatus(let code):   return "SSE HTTP 상태코드 오류: \(code)"
-		case .badContentType(let ct):    return "SSE Content-Type이 올바르지 않음: \(ct)"
+		case .badContentType(let contentType):    return "SSE Content-Type이 올바르지 않음: \(contentType)"
 		}
 	}
 }
 
 private let log = Logger(subsystem: "Health", category: "SSE")
 
-final class AlanSSEClient: NSObject {
+final class AlanSSEClient: NSObject, AlanSSEClientProtocol {
 	private var session: URLSession?
 	private var task: URLSessionDataTask?
 
@@ -62,8 +62,7 @@ final class AlanSSEClient: NSObject {
 	private var continuation: Stream.Continuation?
 
 	private var byteBuffer = Data()
-	private let newline2 = Data("\n\n".utf8)
-	
+
 	private lazy var decoder = JSONDecoder() // 재사용
 
 	func connect(url: URL) -> Stream {
@@ -93,9 +92,6 @@ final class AlanSSEClient: NSObject {
 		req.setValue("text/event-stream", forHTTPHeaderField: "Accept")
 
 		Log.net.info("SSE connect -> \(url.absoluteString, privacy: .public)")
-		if let headers = cfg.httpAdditionalHeaders {
-			Log.net.debug("headers: \(String(describing: headers), privacy: .public)")
-		}
 
 		task = session?.dataTask(with: req)
 		task?.resume()
@@ -112,108 +108,13 @@ final class AlanSSEClient: NSObject {
 		byteBuffer.removeAll(keepingCapacity: false)
 	}
 	
-	private func decodeEvent(_ json: String) throws -> AlanStreamingResponse {
-		if let data = json.data(using: .utf8) {
-			if let dto = try? decoder.decode(AlanStreamingResponse.self, from: data) { return dto }
-		}
-		// '{'type':'...'..}' 패턴이면 한 번만 보정
-		if json.contains("'}") || json.contains("':") {
-			let fixed = json
-				.replacingOccurrences(of: #"'([A-Za-z0-9_]+)'\s*:"#,
-									  with: #""$1":"#,
-									  options: .regularExpression)
-				.replacingOccurrences(of: #":\s*'([^']*)'"#,
-									  with: #": "$1""#,
-									  options: .regularExpression)
-			if let data = fixed.data(using: .utf8),
-			   let dto  = try? decoder.decode(AlanStreamingResponse.self, from: data) {
-				return dto
-			}
-		}
-		throw NSError(domain: "SSE", code: -10, userInfo: [NSLocalizedDescriptionKey:"decode fail"])
-	}
-	/// 서버가 싱글쿼트로 보내는 payload에서 type/speak/content만 안전 추출
-	private func fallbackParsePseudoJSON(_ s: String) -> AlanStreamingResponse? {
-		func match(_ pattern: String) -> String? {
-			let regex = try! NSRegularExpression(pattern: pattern, options: [.dotMatchesLineSeparators])
-			guard let m = regex.firstMatch(in: s, options: [], range: NSRange(location: 0, length: (s as NSString).length)),
-				  m.numberOfRanges >= 2 else { return nil }
-			return (s as NSString).substring(with: m.range(at: 1))
-		}
-
-		guard let typeStr = match(#"type':\s*'([^']+)'"#) else { return nil }
-		
-		// content와 speak 둘 다 시도
-		let rawContent = match(#"content':\s*'(.*)'\s*}\s*}"#)
-		let rawSpeak   = match(#"speak':\s*'(.*)'\s*}\s*}"#)
-
-		// 치환: \n -> 실제 개행
-		func normalize(_ t: String?) -> String? {
-			t?.replacingOccurrences(of: #"\\n"#, with: "\n")
-		}
-
-		let type = AlanStreamingResponse.StreamingType(rawValue: typeStr) ?? .continue
-		let dto  = AlanStreamingResponse(
-			type: type,
-			data: .init(content: normalize(rawContent) ?? normalize(rawSpeak),
-						speak: normalize(rawSpeak))
-		)
-		//Log.sse.info("fallback parsed type=\(type.rawValue, privacy: .public) len=\((dto.data.content ?? "").count, privacy: .public)")
-		return dto
-	}
-	
-	private func coerceSingleQuotedJSON(_ raw: String) -> String {
-		// 1) 키:   '{'type': 'continue', 'data': {...}}'  의 'type', 'data' -> "type", "data"
-		var fixed = raw.replacingOccurrences(
-			of: #"'([A-Za-z0-9_]+)'\s*:"#,
-			with: #""$1":"#,
-			options: .regularExpression
-		)
-		// 2) 값:   ": '...'"  -> ": "..."    (문장 안의 U+2018/2019(‘ ’)는 건드리지 않음)
-		fixed = fixed.replacingOccurrences(
-			of: #":\s*'([^']*)'"#,
-			with: #": "$1""#,
-			options: .regularExpression
-		)
-		return fixed
-	}
-
-	/// 한 개의 SSE data 블록 문자열을 AlanStreamingResponse로 파싱
-	private func decodeSSEJSON(_ jsonString: String) throws -> AlanStreamingResponse {
-		guard jsonString.isEmpty == false else { throw SSEParseError.emptyData }
-
-		// 0) 원본 미리보기 로그
-		let preview = jsonString.prefix(120)
-		log.debug("block json preview=\(String(preview), privacy: .public)")
-
-		// 1) 그대로 디코드 시도
-		if let data = jsonString.data(using: .utf8) {
-			do {
-				let dto = try JSONDecoder().decode(AlanStreamingResponse.self, from: data)
-				return dto
-			} catch {
-				print(error)
-				//log.debug("direct decode failed: \(String(describing: error), privacy: .public)")
-			}
-		}
-
-		// 2) 싱글쿼트 -> 유효 JSON으로 보정 후 재시도
-		let fixed = coerceSingleQuotedJSON(jsonString)
-		//log.debug("fixed json preview=\(String(fixedPreview), privacy: .public)")
-
-		guard let fixedData = fixed.data(using: .utf8) else { throw SSEParseError.badJSON }
-		do {
-			let dto = try JSONDecoder().decode(AlanStreamingResponse.self, from: fixedData)
-			return dto
-		} catch {
-			log.error("decode failed even after fix: \(String(describing: error), privacy: .public)")
-			throw error
-		}
+	deinit {
+		task?.cancel()
+		session?.invalidateAndCancel()
 	}
 }
 
 extension AlanSSEClient: URLSessionDataDelegate {
-
 	//HTTP 상태/헤더 확인
 	func urlSession(_ session: URLSession, dataTask: URLSessionDataTask,
 					didReceive response: URLResponse,
@@ -289,7 +190,7 @@ extension AlanSSEClient: URLSessionDataDelegate {
 			
 			let json = datas.joined(separator: "\n")
 			do {
-				let dto = try decodeEvent(json)
+				let dto = try AlanSSEParser.decodeEvent(json)
 				continuation?.yield(dto)
 				if dto.type == .complete { continuation?.finish() }
 			} catch {
@@ -298,7 +199,7 @@ extension AlanSSEClient: URLSessionDataDelegate {
 			}
 		}
 	}
-
+	
 	func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
 		if error == nil, byteBuffer.isEmpty == false {
 			if let tail = String(data: byteBuffer, encoding: .utf8)
@@ -310,14 +211,17 @@ extension AlanSSEClient: URLSessionDataDelegate {
 				}
 				if datas.isEmpty == false {
 					let json = datas.joined(separator: "\n")
-					if let dto = try? decodeEvent(json) {
+					if let dto = try? AlanSSEParser.decodeEvent(json) {
 						continuation?.yield(dto)
 					}
 				}
 			}
 		}
 		
-		if let error { continuation?.finish(throwing: error) }
-		else { continuation?.finish() }
+		if let error {
+			continuation?.finish(throwing: error)
+		} else {
+			continuation?.finish()
+		}
 	}
 }
