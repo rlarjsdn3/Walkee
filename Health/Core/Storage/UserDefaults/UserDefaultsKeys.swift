@@ -38,7 +38,9 @@ extension UserDefaultsKeys {
         UserDefaultsKey<String?>(
             "AISummary_Date",
             defaultValue: nil
-    
+        )
+    }
+
     var appThemeStyle: UserDefaultsKey<Int> {
         UserDefaultsKey<Int>(
             "appThemeStyle",
