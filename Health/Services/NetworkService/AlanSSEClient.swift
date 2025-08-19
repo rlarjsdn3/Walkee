@@ -300,13 +300,6 @@ extension AlanSSEClient: URLSessionDataDelegate {
 	}
 
 	func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
-		//		if let error {
-		//			Log.net.error("didCompleteWithError: \(String(describing: error), privacy: .public)")
-		//			continuation?.finish(throwing: error)
-		//		} else {
-		//			Log.net.info("server closed without error")
-		//		}
-		//		disconnect()
 		if error == nil, byteBuffer.isEmpty == false {
 			if let tail = String(data: byteBuffer, encoding: .utf8)
 				?? String(data: byteBuffer, encoding: .ascii) {
@@ -326,7 +319,5 @@ extension AlanSSEClient: URLSessionDataDelegate {
 		
 		if let error { continuation?.finish(throwing: error) }
 		else { continuation?.finish() }
-		
-		//disconnect()
 	}
 }
