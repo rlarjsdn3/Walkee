@@ -101,7 +101,6 @@ class AIResponseCell: CoreTableViewCell {
 
 	func configure(with text: String) {
 		if responseTextView.text == text {
-			
 			responseTextView.invalidateIntrinsicContentSize()
 			setNeedsLayout()
 			onContentGrew?()          // 테이블 begin/endUpdates 트리거
@@ -113,7 +112,7 @@ class AIResponseCell: CoreTableViewCell {
 		responseTextView.invalidateIntrinsicContentSize()
 		setNeedsLayout()
 		// 다음 런루프에 contentSize가 업데이트된 뒤 테이블 갱신
-		DispatchQueue.main.async { [weak self] in
+		Task { @MainActor [weak self] in
 			self?.onContentGrew?()
 		}
 	}
@@ -157,7 +156,7 @@ class AIResponseCell: CoreTableViewCell {
 		responseTextView.layoutIfNeeded()
 		
 		// 2) 다음 런루프에서(= contentSize 반영된 뒤) 테이블에게 높이 재계산 요청
-		DispatchQueue.main.async { [weak self] in
+		Task { @MainActor [weak self] in
 			self?.onContentGrew?()
 		}
 	}
