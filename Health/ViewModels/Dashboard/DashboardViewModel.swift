@@ -376,6 +376,7 @@ extension DashboardViewModel {
                     } else {
                         vm.setState(.failure(nil))
                     }
+                    await alanService.resetAgentState()
                 } catch {
                     // 네트워크 통신에 실패하면 '⚠️네트워크 통신에 실패했다'고 표시
                     vm.setState(.failure(error))
