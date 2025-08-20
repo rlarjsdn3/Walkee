@@ -40,6 +40,12 @@ extension UIViewController {
 
 extension UIViewController {
     
+    /// 현재 화면이 아이패드에 대응되는 사이즈 클래스인지 확인합니다.
+    var isPad: Bool {
+        return traitCollection.horizontalSizeClass == .regular
+            && traitCollection.verticalSizeClass == .regular
+    }
+    
     /// 현재 뷰 컨트롤러의 세로/가로 Size Class 조합에 따라 해당 클로저를 실행해 값을 반환합니다.
     ///
     /// - Parameters:

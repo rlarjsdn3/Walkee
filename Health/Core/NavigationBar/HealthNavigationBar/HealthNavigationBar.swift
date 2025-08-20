@@ -7,7 +7,6 @@
 
 import UIKit
 
-/// - Important: 모든 뷰 컨트롤러에서 높이 제약을 44pt로 설정해야 합니다.
 final class HealthNavigationBar: CoreView {
 
     private let titleImageView = UIImageView()
@@ -20,6 +19,8 @@ final class HealthNavigationBar: CoreView {
     private let backContainerView = UIView()
 
     private let trailingBarItemsStackView = UIStackView()
+    
+    private let divider = UIView()
 
     private var chevronLeftImage: UIImage? = {
         var image = UIImage(systemName: "chevron.left")
@@ -29,7 +30,7 @@ final class HealthNavigationBar: CoreView {
             .applyingSymbolConfiguration(config2)
     }()
 
-    private let defaultSymbolConfiguration = UIImage.SymbolConfiguration(pointSize: 24)
+    private let defaultSymbolConfiguration = UIImage.SymbolConfiguration(pointSize: 20)
 
     /// 내비게이션 바의 동작을 위임받을 델리게이트입니다.
     weak var delegate: (any HealthNavigationBarDelegate)?
@@ -40,7 +41,7 @@ final class HealthNavigationBar: CoreView {
     }
 
     /// 기본 제목에 적용할 폰트입니다.
-    var titleFont: UIFont = .systemFont(ofSize: 22, weight: .semibold) {
+    var titleFont: UIFont = .systemFont(ofSize: 20, weight: .semibold) {
         didSet { updateNavigationBarAttributes() }
     }
 
@@ -76,8 +77,13 @@ final class HealthNavigationBar: CoreView {
         didSet { updateNavigationBarAttributes() }
     }
 
-    // 뒤로가기 버튼의 숨김 여부입니다.
+    /// 뒤로가기 버튼의 숨김 여부입니다.
     var isBackButtonHidden: Bool = false {
+        didSet { updateNavigationBarAttributes() }
+    }
+
+    ///
+    var isDividerHidden: Bool = false {
         didSet { updateNavigationBarAttributes() }
     }
 
@@ -135,14 +141,13 @@ final class HealthNavigationBar: CoreView {
     override func setupHierarchy() {
         addSubview(titleContainerView)
         titleContainerView.addSubview(titleStackView)
-        titleStackView.addArrangedSubview(titleImageView)
-        titleStackView.addArrangedSubview(titleLabel)
+        titleStackView.addArrangedSubviews(titleImageView, titleLabel)
 
         addSubview(backContainerView)
-        backContainerView.addSubview(backButton)
-        backContainerView.addSubview(centerTitleLabel)
+        backContainerView.addSubviews(backButton, centerTitleLabel)
 
         addSubview(trailingBarItemsStackView)
+        addSubview(divider)
     }
 
     override func setupAttribute() {
@@ -180,6 +185,11 @@ final class HealthNavigationBar: CoreView {
         trailingBarItemsStackView.spacing = trailingBarButtonItemSpacing
         trailingBarItemsStackView.distribution = .fill
         trailingBarItemsStackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        divider.backgroundColor = .systemGray.withAlphaComponent(0.5)
+        divider.translatesAutoresizingMaskIntoConstraints = false
+
+        isTitleLabelHidden = isPad
     }
 
     override func setupConstraints() {
@@ -212,6 +222,15 @@ final class HealthNavigationBar: CoreView {
             trailingBarItemsStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -18),
             trailingBarItemsStackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -4)
         ])
+        
+        NSLayoutConstraint.activate([
+            divider.leadingAnchor.constraint(equalTo: leadingAnchor),
+            divider.trailingAnchor.constraint(equalTo: trailingAnchor),
+            divider.heightAnchor.constraint(equalToConstant: 0.75)
+        ])
+
+        let bottomConstant: CGFloat = isPad ? 12.5 : 0
+        divider.bottomAnchor.constraint(equalTo: bottomAnchor, constant: bottomConstant).isActive = true
     }
 
     private func updateNavigationBarAttributes() {
@@ -228,6 +247,7 @@ final class HealthNavigationBar: CoreView {
         titleStackView.isHidden = isTitleLabelHidden
         centerTitleLabel.isHidden = isTitleLabelHidden
         backButton.isHidden = isBackButtonHidden
+        divider.isHidden = isDividerHidden
     }
 
     private func configureButtonUpdateHandler(_ button: UIButton) {
@@ -242,6 +262,32 @@ final class HealthNavigationBar: CoreView {
     @objc private func backButtonTapped(_ sender: UIButton) {
         if delegate != nil { delegate?.navigationBar(didTapBackButton: sender) }
         else { firstAvailableViewController?.navigationController?.popViewController(animated: true) }
+    }
+}
+
+extension HealthNavigationBar {
+    
+    /// <#Description#>
+    /// - Parameters:
+    ///   - scrollView: <#scrollView description#>
+    ///   - anchorOffsetY: <#anchorOffsetY description#>
+    func shouldShowTitieLabel(_ scrollView: UIScrollView, greaterThan anchorOffsetY: CGFloat) {
+        let offsetY = scrollView.contentOffset.y + scrollView.contentInset.top
+        // 스크롤 뷰의 컨텐츠 offset.y 값이 기준보다 더 크다면
+        // 제목(title)을 표시하고, 그렇지 않다면 표시하지 않습니다.
+        titleStackView.isHidden = offsetY <= anchorOffsetY
+        centerTitleLabel.isHidden = offsetY <= anchorOffsetY
+    }
+    
+    /// <#Description#>
+    /// - Parameters:
+    ///   - scrollView: <#scrollView description#>
+    ///   - anchorOffsetY: <#anchorOffsetY description#>
+    func shouldShowDivider(_ scrollView: UIScrollView, greaterThan anchorOffsetY: CGFloat) {
+        let offsetY = scrollView.contentOffset.y + scrollView.contentInset.top
+        // 스크롤 뷰의 컨텐츠 offset.y 값이 기준보다 더 크다면
+        // divider를 표시하고, 그렇지 않다면 표시하지 않습니다.
+        divider.isHidden = offsetY <= anchorOffsetY
     }
 }
 

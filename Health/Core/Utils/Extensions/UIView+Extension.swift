@@ -38,6 +38,82 @@ extension UIView {
 
 extension UIView {
     
+    final class GradientView: UIView {
+        private var gradientLayer: CAGradientLayer?
+        
+        private let colors: [UIColor]
+        private let startPoint: CGPoint
+        private let endPoint: CGPoint
+        private let locations: [NSNumber]
+        
+        init(
+            colors: [UIColor],
+            startPoint: CGPoint,
+            endPoint: CGPoint,
+            locations: [NSNumber]
+        ) {
+            self.colors = colors
+            self.startPoint = startPoint
+            self.endPoint = endPoint
+            self.locations = locations
+            
+            super.init(frame: .zero)
+        }
+        
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+        
+        override func layoutSubviews() {
+            super.layoutSubviews()
+            setupGradientLayer()
+        }
+        
+        func setupGradientLayer() {
+            gradientLayer?.removeFromSuperlayer()
+            
+            let gLayer = CAGradientLayer()
+            gLayer.frame = bounds
+            gLayer.colors = colors.map { $0.cgColor }
+            gLayer.startPoint = startPoint
+            gLayer.endPoint = endPoint
+            gLayer.locations = locations
+            self.gradientLayer = gLayer
+            self.layer.insertSublayer(gradientLayer!, at: 0)
+        }
+    }
+    
+    /// <#Description#>
+    /// - Parameters:
+    ///   - colors: <#colors description#>
+    ///   - startPoint: <#startPoint description#>
+    ///   - endPoint: <#endPoint description#>
+    ///   - locations: <#locations description#>
+    func addGradient(
+        colors: [UIColor],
+        startPoint: CGPoint = CGPoint(x: 0.5, y: 0.0),
+        endPoint: CGPoint = CGPoint(x: 0.5, y: 1.0),
+        locations: [NSNumber] = [0.0, 1.0]
+    ) {
+        let gView = GradientView(
+            colors: colors,
+            startPoint: startPoint,
+            endPoint: endPoint,
+            locations: locations
+        )
+        gView.frame = bounds
+        gView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        insertSubview(gView, at: 0)
+    }
+}
+
+extension UIView {
+    
+    /// 현재 화면이 아이패드에 대응되는 사이즈 클래스인지 확인합니다.
+    var isPad: Bool {
+        return traitCollection.horizontalSizeClass == .regular
+            && traitCollection.verticalSizeClass == .regular
+    }
     
     /// 현재 뷰 컨트롤러의 세로/가로 Size Class 조합에 따라 해당 클로저를 실행해 값을 반환합니다.
     ///

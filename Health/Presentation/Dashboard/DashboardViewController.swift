@@ -10,11 +10,10 @@ import UIKit
 
 import TSAlertController
 
-final class DashboardViewController: CoreGradientViewController {
+final class DashboardViewController: HealthNavigationController {
 
     typealias DashboardDiffableDataSource = UICollectionViewDiffableDataSource<DashboardContent.Section, DashboardContent.Item>
 
-    @IBOutlet weak var navigationBar: HealthNavigationBar!
     @IBOutlet weak var dashboardCollectionView: UICollectionView!
     private let refreshControl = UIRefreshControl()
 
@@ -76,9 +75,14 @@ final class DashboardViewController: CoreGradientViewController {
         )
         dashboardCollectionView.refreshControl = refreshControl
 
-        navigationBar.title = "대시보드"
-        navigationBar.titleImage = UIImage(systemName: "chart.xyaxis.line")
-        navigationBar.isTitleLabelHidden = true
+        healthNavigationBar.title = "대시보드"
+        healthNavigationBar.titleImage = UIImage(systemName: "chart.xyaxis.line")
+        healthNavigationBar.isTitleLabelHidden = false
+//        healthNavigationBar.isDividerHidden = true
+        healthNavigationBar.trailingBarButtonItems = [
+            .init(image: .init(systemName: "gear")),
+            .init(image: .init(systemName: "person.crop.circle"))
+        ]
     }
 
     @objc private func refreshHKData() {
@@ -303,11 +307,8 @@ fileprivate extension DashboardViewController {
 extension DashboardViewController: UICollectionViewDelegate {
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let contentInset = scrollView.contentInset
-        let contentOffset = scrollView.contentOffset
-
-        let adjustedOffsetY = contentOffset.y + contentInset.top
-        navigationBar.isTitleLabelHidden = adjustedOffsetY <= 54.0
+        healthNavigationBar.shouldShowTitieLabel(scrollView, greaterThan: 54.0)
+        healthNavigationBar.shouldShowDivider(scrollView, greaterThan: 24.0)
     }
 }
 
