@@ -50,15 +50,8 @@ final class ChatbotViewController: CoreGradientViewController {
 	/// SSE 속성
 	private var sseClient: AlanSSEClient?
 	private var streamingAIIndex: Int?
-	private var lastUIUpdate: CFTimeInterval = CFAbsoluteTimeGetCurrent()
-	private let minUIInterval: CFTimeInterval = 0.03  // 30ms 스로틀
 	private var waitingIndexPath: IndexPath?
 	private var currentWaitingText: String?
-	
-	private var coalesceBuffer = String()
-	private var coalesceTask: Task<Void, Never>?
-	private let coalesceInterval: UInt64 = 25_000_000 // 25ms
-	
 	private var lastRelayout: CFAbsoluteTime = 0
 	private let relayoutMinInterval: CFTimeInterval = 0.05
 	
@@ -654,15 +647,6 @@ final class ChatbotViewController: CoreGradientViewController {
 		} else {
 			tableView.reloadData()
 		}
-	}
-
-	// URL 생성 유틸 — APIEndpoint.askStreaming 재사용
-	private func buildStreamingURL(content: String, clientID: String) throws -> URL {
-		let endpoint = APIEndpoint.askStreaming(content: content, clientID: clientID)
-		var comps = URLComponents(url: endpoint.baseURL.appendingPathComponent(endpoint.path), resolvingAgainstBaseURL: false)
-		comps?.queryItems = endpoint.queryItems
-		guard let url = comps?.url else { throw NetworkError.badURL }
-		return url
 	}
 }
 
