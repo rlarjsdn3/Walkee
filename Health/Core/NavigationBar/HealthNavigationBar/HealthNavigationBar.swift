@@ -71,8 +71,13 @@ final class HealthNavigationBar: CoreView {
         didSet { self.setNeedsLayout() }
     }
 
+    ///
+    var isTitleLabelHidden: Bool = false {
+        didSet { updateNavigationBarAttributes() }
+    }
+
     // 뒤로가기 버튼의 숨김 여부입니다.
-    var isHiddenBackButton: Bool = false {
+    var isBackButtonHidden: Bool = false {
         didSet { updateNavigationBarAttributes() }
     }
 
@@ -220,7 +225,9 @@ final class HealthNavigationBar: CoreView {
             .applyingSymbolConfiguration(preferredTitleImageSymbolConfiguration ?? defaultSymbolConfiguration)?
             .applyingSymbolConfiguration(defaultSymbolConfiguration)
 
-        backButton.isHidden = isHiddenBackButton
+        titleStackView.isHidden = isTitleLabelHidden
+        centerTitleLabel.isHidden = isTitleLabelHidden
+        backButton.isHidden = isBackButtonHidden
     }
 
     private func configureButtonUpdateHandler(_ button: UIButton) {

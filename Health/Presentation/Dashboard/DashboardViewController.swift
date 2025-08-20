@@ -78,13 +78,12 @@ final class DashboardViewController: CoreGradientViewController {
 
         navigationBar.title = "대시보드"
         navigationBar.titleImage = UIImage(systemName: "chart.xyaxis.line")
-        navigationBar.isHidden = viewModel.anchorDate.isEqual(with: .now)
-                                    && !viewModel.cameFromCalendar
+        navigationBar.isTitleLabelHidden = true
     }
 
     @objc private func refreshHKData() {
         // TODO: - 리프레시 시, AI 요약도 함께 리프레시되도록 하기
-        viewModel.loadHKData(includeAISummary: true)
+        viewModel.loadHKData()
 
         Task.delay(for: 1.0) { @MainActor in
             refreshControl.endRefreshing()
@@ -306,9 +305,7 @@ extension DashboardViewController: UICollectionViewDelegate {
         let contentOffset = scrollView.contentOffset
 
         let adjustedOffsetY = contentOffset.y + contentInset.top
-        navigationBar.isHidden = adjustedOffsetY <= 54.0
-                                    && viewModel.anchorDate.isEqual(with: .now)
-                                    && !viewModel.cameFromCalendar
+        navigationBar.isTitleLabelHidden = adjustedOffsetY <= 54.0
     }
 }
 

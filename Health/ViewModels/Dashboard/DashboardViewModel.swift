@@ -16,7 +16,6 @@ final class DashboardViewModel {
     }
 
     let anchorDate: Date
-    let cameFromCalendar: Bool
 
     private(set) var goalRingIDs: [DailyGoalRingCellViewModel.ItemID] = []
     private(set) var goalRingCells: [DailyGoalRingCellViewModel.ItemID: DailyGoalRingCellViewModel] = [:]
@@ -33,6 +32,11 @@ final class DashboardViewModel {
     private(set) var chartsIDs: [DashboardBarChartsCellViewModel.ItemID] = []
     private(set) var chartsCells: [DashboardBarChartsCellViewModel.ItemID: DashboardBarChartsCellViewModel] = [:]
 
+    ///
+    private var shouldShowSummaryAndCharts: Bool {
+        anchorDate.isEqual(with: .now)
+    }
+
     private let alanService = AlanViewModel()
     @Injected private var goalStepService: GoalStepCountViewModel
     @Injected private var coreDataUserService: (any CoreDataUserService)
@@ -40,22 +44,20 @@ final class DashboardViewModel {
     @Injected private var promptBuilderService: (any PromptBuilderService)
 
     ///
-    init(anchorDate: Date = .now, cameFromCalendar: Bool = false) {
+    init(anchorDate: Date = .now) {
         self.anchorDate = anchorDate
-        self.cameFromCalendar = cameFromCalendar
     }
 
 
     // MARK: - Build Layout
 
-    ///
     func buildDashboardCells(for environment: DashboardEnvironment) {
         buildStackCells()
         buildGoalRingCells()
         buildCardCells()
 
         // 대시보드가 오늘자 데이터를 보여준다면
-        if anchorDate.isEqual(with: .now) {
+        if shouldShowSummaryAndCharts {
             buildAlanSummaryCells()
             buildBarChartsCells(for: environment)
         }
@@ -155,12 +157,16 @@ final class DashboardViewModel {
 
 extension DashboardViewModel {
 
-    func loadHKData(includeAISummary: Bool = true) {
+    func loadHKData() {
         loadHKDataForGoalRingCells()
         loadHKDataForStackCells()
-        if includeAISummary { loadAlanAIResponseForSummaryCells() }
         loadHKDataForCardCells()
         loadHKDataForBarChartsCells()
+
+        // 대시보드가 오늘자 데이터를 보여준다면
+        if shouldShowSummaryAndCharts {
+            loadAlanAIResponseForSummaryCells()
+        }
     }
 
     func loadHKDataForGoalRingCells() {
