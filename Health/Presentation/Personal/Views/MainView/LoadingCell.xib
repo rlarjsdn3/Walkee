@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="gTV-IL-0wX" customClass="LoadingCell" customModule="Health" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="230" height="104"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                <rect key="frame" x="0.0" y="0.0" width="230" height="104"/>
+                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ySU-Ip-0Ts" customClass="WalkingLoadingView" customModule="Health" customModuleProvider="target">
+                        <rect key="frame" x="0.0" y="0.0" width="230" height="104"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                </subviews>
+            </view>
+            <viewLayoutGuide key="safeArea" id="ZTg-uK-7eu"/>
+            <constraints>
+                <constraint firstItem="ySU-Ip-0Ts" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="1Md-aX-by8"/>
+                <constraint firstItem="ySU-Ip-0Ts" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="ku8-FH-FG2"/>
+                <constraint firstAttribute="bottom" secondItem="ySU-Ip-0Ts" secondAttribute="bottom" id="oz7-6e-wGt"/>
+                <constraint firstAttribute="trailing" secondItem="ySU-Ip-0Ts" secondAttribute="trailing" id="sJQ-hb-r7m"/>
+            </constraints>
+            <size key="customSize" width="230" height="104"/>
+            <connections>
+                <outlet property="loadingView" destination="ySU-Ip-0Ts" id="XVs-wh-Soa"/>
+            </connections>
+            <point key="canvasLocation" x="195.41984732824426" y="34.507042253521128"/>
+        </collectionViewCell>
+    </objects>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>

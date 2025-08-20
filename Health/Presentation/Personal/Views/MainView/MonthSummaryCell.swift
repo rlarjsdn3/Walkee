@@ -35,8 +35,8 @@ class MonthSummaryCell: CoreCollectionViewCell {
     
     override func setupAttribute() {
         super.setupAttribute()
-        BackgroundHeightUtils.setupShadow(for: self)
-        BackgroundHeightUtils.setupDarkModeBorder(for: monthlyBackgroundView)
+        CustomLightModeBoxConstraint.setupShadow(for: self)
+        CustomLightModeBoxConstraint.setupDarkModeBorder(for: monthlyBackgroundView)
         monthlyBackgroundView.applyCornerStyle(.medium)
         
         //현재 월 가져오기
@@ -51,10 +51,10 @@ class MonthSummaryCell: CoreCollectionViewCell {
     
     override func setupConstraints() {
         super.setupConstraints()
-        BackgroundHeightUtils.updateBackgroundHeight(constraint: backgroundHeight, in: self)
+        CustomLightModeBoxConstraint.updateBackgroundHeight(constraint: backgroundHeight, in: self)
         
         registerForTraitChanges([UITraitHorizontalSizeClass.self]) { (self: Self, _) in
-            BackgroundHeightUtils.updateBackgroundHeight(constraint: self.backgroundHeight, in: self)
+            CustomLightModeBoxConstraint.updateBackgroundHeight(constraint: self.backgroundHeight, in: self)
         }
     }
     

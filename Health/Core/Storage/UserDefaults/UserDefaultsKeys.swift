@@ -48,4 +48,20 @@ extension UserDefaultsKeys {
 
         )
     }
+
+    /// LLM 추천 난이도 배열
+    var llmRecommendedLevels: UserDefaultsKey<[String]?> {
+        UserDefaultsKey<[String]?>(
+            "LLMRecommendedLevels",
+            defaultValue: nil
+        )
+    }
+
+    /// 사용자 정보 해시값
+    var userInfoHash: UserDefaultsKey<String?> {
+        UserDefaultsKey<String?>(
+            "UserInfoHash",
+            defaultValue: nil
+        )
+    }
 }
