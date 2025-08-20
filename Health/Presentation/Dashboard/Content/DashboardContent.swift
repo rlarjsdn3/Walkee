@@ -26,7 +26,7 @@ enum DashboardContent {
 
     enum Item: Hashable, Sendable {
         /// 상단 바 항목
-        case topBar
+        case topBar(DashboardTopBarViewModel.ItemID)
         /// 목표 링 셀
         case goalRing(DailyGoalRingCellViewModel.ItemID)
         /// 건강 정보 스택 셀
@@ -47,7 +47,7 @@ extension DashboardContent.Item {
 
     func dequeueReusableCollectionViewCell(
         collectionView: UICollectionView,
-        topBarCellRegistration: UICollectionView.CellRegistration<DashboardTopBarCollectionViewCell, Void>,
+        topBarCellRegistration: UICollectionView.CellRegistration<DashboardTopBarCollectionViewCell, DashboardTopBarViewModel.ItemID>,
         dailyGoalRingCellRegistration: UICollectionView.CellRegistration<DailyGoalRingCollectionViewCell, DailyGoalRingCellViewModel.ItemID>,
         healthInfoStackCellRegistration: UICollectionView.CellRegistration<HealthInfoStackCollectionViewCell, HealthInfoStackCellViewModel.ItemID>,
         barChartsCellRegistration: UICollectionView.CellRegistration<DashboardBarChartsCollectionViewCell, DashboardBarChartsCellViewModel.ItemID>,
@@ -57,11 +57,11 @@ extension DashboardContent.Item {
         indexPath: IndexPath
     ) -> UICollectionViewCell {
         switch self {
-        case .topBar:
+        case let .topBar(id):
             return collectionView.dequeueConfiguredReusableCell(
                 using: topBarCellRegistration,
                 for: indexPath,
-                item: ()
+                item: id
             )
         case let .goalRing(id):
             return collectionView.dequeueConfiguredReusableCell(
