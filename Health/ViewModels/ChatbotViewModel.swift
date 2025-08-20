@@ -65,8 +65,8 @@ final class ChatbotViewModel {
 						option: .chat
 					)
 					await self._startStreaming(content: prompt, canRetry: true)
-					print("🧾 [Prompt] Alan에게 전달할 최종 프롬프트:")
-					print(prompt)
+					//print("🧾 [Prompt] Alan에게 전달할 최종 프롬프트:")
+					//print(prompt)
 				} catch {
 					onError?("프롬프트 생성 실패: \(error.localizedDescription)")
 				}
