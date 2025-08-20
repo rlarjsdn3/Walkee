@@ -22,7 +22,7 @@ class PersonalViewController: CoreGradientViewController, Alertable {
     private var easyLevelCourses: [WalkingCourse] = []    // "1" 난이도 코스들
     private var mediumLevelCourses: [WalkingCourse] = []  // "2" 난이도 코스들
     private var hardLevelCourses: [WalkingCourse] = []    // "3" 난이도 코스들
-    private var llmRecommendedLevels: [String] = []  //	Alan에게 받아올 난이도(추후 작업 예정)
+    private var llmRecommendedLevels: [String] = []  //	Alan에게 받아온 난이도
     private var currentSortType: String = "코스길이순" //기본 정렬
     private var isLoadingLLMData = false
     private var distanceViewModel = CourseDistanceViewModel()
@@ -32,6 +32,15 @@ class PersonalViewController: CoreGradientViewController, Alertable {
     private var cancellables = Set<AnyCancellable>()
 
     override func initVM() { }
+
+    // 메모리 해제 시 옵저버 제거
+    deinit {
+        NotificationCenter.default.removeObserver(
+            self,
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -60,22 +69,12 @@ class PersonalViewController: CoreGradientViewController, Alertable {
         // 앱이 포그라운드로 돌아올 때마다 권한 상태 확인
         checkLocationPermissionChange()
     }
-
     override func setupAttribute() {
         super.setupAttribute()
         collectionView.backgroundColor = .clear
         applyBackgroundGradient(.midnightBlack)
         collectionView.delegate = self
         collectionView.setCollectionViewLayout(createCollectionViewLayout(), animated: false)
-    }
-
-    // 메모리 해제 시 옵저버 제거
-    deinit {
-        NotificationCenter.default.removeObserver(
-            self,
-            name: UIApplication.willEnterForegroundNotification,
-            object: nil
-        )
     }
 
     private func createCollectionViewLayout() -> UICollectionViewLayout {
@@ -276,11 +275,18 @@ class PersonalViewController: CoreGradientViewController, Alertable {
         allCourses = WalkingCourseService.shared.loadWalkingCourses()
         separateCoursesByDifficulty()
 
-        Task {
-            await llmViewModel.fetchRecommendations()
+        // 캐시된 추천이 있으면 바로 사용
+        if llmViewModel.hasValidRecommendations() {
+            llmRecommendedLevels = llmViewModel.recommendedLevels
+            updateCoursesWithLLMResults()
+            applyDataSnapshot()
+        } else {
+            // 캐시가 없을 때만 새로운 추천 요청
+            Task {
+                await llmViewModel.fetchRecommendations()
+            }
         }
 
-        // 거리 계산을 시작하고 끝날 때까지 기다림
         Task {
             await distanceViewModel.prepareAndCalculateDistances(for: self.courses)
         }
@@ -463,7 +469,6 @@ class PersonalViewController: CoreGradientViewController, Alertable {
         )
     }
 }
-
 
 extension PersonalViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didHighlightItemAt indexPath: IndexPath) { }

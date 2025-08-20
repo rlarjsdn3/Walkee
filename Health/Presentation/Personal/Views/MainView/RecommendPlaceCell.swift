@@ -17,7 +17,8 @@ class RecommendPlaceCell: CoreCollectionViewCell {
     @IBOutlet weak var distanceLabel: UILabel!
     @IBOutlet weak var durationLabel: UILabel!
     @IBOutlet weak var userDistanceLabel: UILabel!
-    
+    @IBOutlet weak var levelLabel: UILabel!
+
     private var currentGPXURL: String?
     private var thumbnailTask: Task<Void, Never>?
     
@@ -48,7 +49,8 @@ class RecommendPlaceCell: CoreCollectionViewCell {
         locationLabel.text = course.sigun
         distanceLabel.text = "\(course.crsDstnc)km"
         durationLabel.text = course.crsTotlRqrmHour.toFormattedDuration()
-        
+        levelLabel.text = course.crsLevel
+
         // 기본 로딩 상태
         courseImage.image = UIImage(systemName: "map")
         courseImage.tintColor = .systemGray3

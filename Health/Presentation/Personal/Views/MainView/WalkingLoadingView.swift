@@ -60,8 +60,6 @@ class WalkingLoadingView: UIView {
 
         // 액티비티 인디케이터 설정
         activityIndicator.color = .systemBlue
-        activityIndicator.dotDiameter = 20
-
     }
 
     func setState(_ state: State) {
