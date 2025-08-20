@@ -27,22 +27,21 @@ final class ChatbotHeaderTitleView: CoreView {
 		label.translatesAutoresizingMaskIntoConstraints = false
 		return label
 	}()
-	
-	private let closeIconView: UIImageView = {
-		let buttonImage = UIImageView(image: UIImage(systemName: "xmark.circle.fill"))
-		buttonImage.translatesAutoresizingMaskIntoConstraints = false
-		buttonImage.contentMode = .scaleAspectFit
-		buttonImage.tintColor = .label
-		return buttonImage
-	}()
-	
+
 	private lazy var closeButton: UIButton = {
-		let button = UIButton()
-		button.contentHorizontalAlignment = .center
-		button.contentVerticalAlignment = .center
-		button.tintColor = .label
-		button.addTarget(self, action: #selector(handleCloseButtonTapped), for: .touchUpInside)
+		var config = UIButton.Configuration.plain()
+		config.image = UIImage(systemName: "xmark.circle.fill")
+		config.baseForegroundColor = .label
+		config.preferredSymbolConfigurationForImage =
+		UIImage.SymbolConfiguration(pointSize: 30, weight: .regular, scale: .default)
+		config.contentInsets = NSDirectionalEdgeInsets(top: 1, leading: 1, bottom: 1, trailing: 1)
+		
+		let button = UIButton(configuration: config, primaryAction: nil)
 		button.translatesAutoresizingMaskIntoConstraints = false
+		button.addTarget(self, action: #selector(handleCloseButtonTapped), for: .touchUpInside)
+		button.imageView?.contentMode = .scaleAspectFit
+		button.clipsToBounds = false
+		button.imageView?.clipsToBounds = false
 		return button
 	}()
 	
@@ -70,7 +69,6 @@ final class ChatbotHeaderTitleView: CoreView {
 		addSubview(chatbotImageView)
 		addSubview(welcomeLabel)
 		addSubview(closeButton)
-		closeButton.addSubview(closeIconView)
 	}
 	
 	override func setupConstraints() {
@@ -90,14 +88,8 @@ final class ChatbotHeaderTitleView: CoreView {
 			
 			closeButton.trailingAnchor.constraint(equalTo: guide.trailingAnchor, constant: -16),
 			closeButton.topAnchor.constraint(equalTo: chatbotImageView.topAnchor),
-			closeButton.widthAnchor.constraint(equalToConstant: 34),
-			closeButton.heightAnchor.constraint(equalToConstant: 34),
-	
-			closeIconView.centerXAnchor.constraint(equalTo: closeButton.centerXAnchor),
-			closeIconView.centerYAnchor.constraint(equalTo: closeButton.centerYAnchor),
-			closeIconView.widthAnchor.constraint(equalToConstant: 32),
-			closeIconView.heightAnchor.constraint(equalTo: closeIconView.widthAnchor),
-			
+			closeButton.widthAnchor.constraint(equalToConstant: 32),
+			closeButton.heightAnchor.constraint(equalToConstant: 32),
 			bottomAnchor.constraint(greaterThanOrEqualTo: chatbotImageView.bottomAnchor, constant: 12)
 		])
 	}
