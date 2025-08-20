@@ -30,7 +30,7 @@ final class CalendarLayoutManager {
             // 월 셀의 높이 계산 (헤더 + 요일 + 날짜 영역)
             let headerHeight: CGFloat = 28
             let weekdayHeight: CGFloat = 20
-            let verticalSpacing: CGFloat = 16 * 2
+            let verticalSpacing: CGFloat = 12 * 2
             let daySize: CGFloat = columnWidth / 7.0
             let numberOfRows: CGFloat = 6 // 고정
             let monthCellHeight = headerHeight + weekdayHeight + verticalSpacing + daySize * numberOfRows
