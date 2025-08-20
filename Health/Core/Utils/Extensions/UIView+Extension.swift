@@ -79,3 +79,19 @@ extension UIView {
         }
     }
 }
+
+extension UIView {
+
+    /// 현재 뷰의 응답자 체인을 따라 올라가며 가장 먼저 찾은 뷰 컨트롤러를 반환합니다.
+    /// - Returns: 뷰와 연결된 첫 번째 `UIViewController` 또는 없을 경우 `nil`
+    var firstAvailableViewController: UIViewController? {
+        var next: UIResponder? = self.next
+        while let responder = next {
+            if responder.isKind(of: UIViewController.self) {
+                return responder as? UIViewController
+            }
+            next = responder.next
+        }
+        return nil
+    }
+}
