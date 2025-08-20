@@ -60,14 +60,8 @@ extension CalendarMonthCell: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CalendarDateCell.id, for: indexPath) as! CalendarDateCell
         let date = datesWithBlank[indexPath.item]
-
-        if date == .distantPast || date > Date() {
-            cell.configure(date: date, currentSteps: nil, goalSteps: nil)
-        } else {
-            let (current, goal) = stepService.steps(for: date)
-            cell.configure(date: date, currentSteps: current, goalSteps: goal)
-        }
-
+        let (current, goal) = stepService.steps(for: date)
+        cell.configure(date: date, currentSteps: current, goalSteps: goal)
         return cell
     }
 }
@@ -75,16 +69,12 @@ extension CalendarMonthCell: UICollectionViewDataSource {
 extension CalendarMonthCell: UICollectionViewDelegate {
 
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        guard let cell = collectionView.cellForItem(at: indexPath) as? CalendarDateCell else {
-            return false
-        }
-        let date = datesWithBlank[indexPath.item]
-        return date != .distantPast && cell.isClickable
+        let cell = collectionView.cellForItem(at: indexPath) as! CalendarDateCell
+        return cell.isSelectable
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let date = datesWithBlank[indexPath.item]
-        guard date != .distantPast, date <= Date() else { return }
         onDateSelected?(date)
     }
 }
