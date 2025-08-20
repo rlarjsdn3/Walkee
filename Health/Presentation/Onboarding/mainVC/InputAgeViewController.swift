@@ -73,7 +73,7 @@ class InputAgeViewController: CoreGradientViewController {
                 continueButtonLeading.isActive = false
                 continueButtonTrailing.isActive = false
                 
-                iPadWidthConstraint = continueButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7)
+                iPadWidthConstraint = continueButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.6)
                 iPadCenterXConstraint = continueButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
                 
                 iPadWidthConstraint?.isActive = true

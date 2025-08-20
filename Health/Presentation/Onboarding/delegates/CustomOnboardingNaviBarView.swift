@@ -48,10 +48,8 @@ class CustomNavigationBarView: UIView {
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            backButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8),
+            backButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             backButton.centerYAnchor.constraint(equalTo: centerYAnchor),
-            backButton.widthAnchor.constraint(equalToConstant: 24),
-            backButton.heightAnchor.constraint(equalToConstant: 24),
             
             progressIndicatorStackView.centerXAnchor.constraint(equalTo: centerXAnchor),
             progressIndicatorStackView.centerYAnchor.constraint(equalTo: centerYAnchor),

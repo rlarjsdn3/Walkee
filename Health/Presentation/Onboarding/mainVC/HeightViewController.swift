@@ -183,7 +183,6 @@ class HeightViewController: CoreGradientViewController {
                 hideError()
                 enableContinueButton()
             } else {
-                showError()
                 disableContinueButton()
             }
         case 3:

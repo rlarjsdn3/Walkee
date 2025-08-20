@@ -20,11 +20,11 @@ class ProgressContainerViewController: CoreGradientViewController {
         customNavigationBar.backButton.alpha = isEnabled ? 1.0 : 0.5
     }
     
-    let customNavigationBar = CustomNavigationBarView(totalPages: 7)
+    let customNavigationBar = CustomNavigationBarView(totalPages: 8)
     private var currentChildVC: UINavigationController?
     
     private var currentStep: Int = 1
-    private let totalSteps: Int = 7
+    private let totalSteps: Int = 8
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,7 +48,7 @@ class ProgressContainerViewController: CoreGradientViewController {
             customNavigationBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             customNavigationBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             customNavigationBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            customNavigationBar.heightAnchor.constraint(equalToConstant: 60)
+            customNavigationBar.heightAnchor.constraint(equalToConstant: 44)
         ])
         customNavigationBar.delegate = self
     }
@@ -99,13 +99,11 @@ extension ProgressContainerViewController: UINavigationControllerDelegate {
         if let index = navigationController.viewControllers.firstIndex(of: viewController) {
             currentStep = min(index + 1, totalSteps)
             updateProgressForCurrentStep()
-            
-            // 첫 번째 뷰 컨트롤러는 뒤로가기 버튼을 숨깁니다.
+
             if index == 0 {
                 setBackButtonHidden(true)
             } else {
                 setBackButtonHidden(false)
-                // 첫 번째 단계를 제외한 모든 단계에서 뒤로가기 버튼을 항상 활성화합니다.
                 setBackButtonEnabled(true)
             }
         }

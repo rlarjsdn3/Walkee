@@ -16,17 +16,31 @@ class HealthLinkViewController: CoreGradientViewController {
     @IBOutlet weak var linkedSwitch: UISwitch!
     @IBOutlet weak var supUserDescriptionLabel: UILabel!
     @IBOutlet weak var linkSettingView: UIView!
+    @IBOutlet weak var linkSettingHeight: NSLayoutConstraint!
+    
     @IBOutlet weak var continueButton: UIButton!
     @IBOutlet weak var continueButtonLeading: NSLayoutConstraint!
     @IBOutlet weak var continueButtonTrailing: NSLayoutConstraint!
     
+    @IBOutlet weak var appleLogo: UIImageView!
+    @IBOutlet weak var appleLogoLeading: NSLayoutConstraint!
+    @IBOutlet weak var linkSwitchTrailing: NSLayoutConstraint!
+    
+    @IBOutlet weak var linkSettingLeading: NSLayoutConstraint!
+    @IBOutlet weak var linkSettingTrailing: NSLayoutConstraint!
+    
     private var iPadWidthConstraint: NSLayoutConstraint?
     private var iPadCenterXConstraint: NSLayoutConstraint?
     
+    private var iPadLinkWidthConstraint: NSLayoutConstraint?
+    private var iPadLinkCenterXConstraint: NSLayoutConstraint?
+    
+    private var originalLinkHeight: CGFloat = 0
+    private var originalAppleLogoLeading: CGFloat = 0
+    private var originalLinkSwitchTrailing: CGFloat = 0
+    
     private let healthService = DefaultHealthService()
     private let progressIndicatorStackView = ProgressIndicatorStackView(totalPages: 4)
-    
-    override func initVM() {}
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,11 +55,18 @@ class HealthLinkViewController: CoreGradientViewController {
         continueButton.backgroundColor = UIColor.accent
         continueButton.setTitleColor(.label, for: .normal)
         continueButton.applyCornerStyle(.medium)
-        
         continueButton.addTarget(self, action: #selector(continueButtonTapped(_:)), for: .touchUpInside)
         
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
         
+        healthAppIcon.image = UIImage(systemName: "heart.fill")
+        appleLogo.image = UIImage(systemName: "applelogo")
+        
+        originalLinkHeight = linkSettingHeight.constant
+        originalAppleLogoLeading = appleLogoLeading.constant
+        originalLinkSwitchTrailing = linkSwitchTrailing.constant
+        
+        setupAttribute()
         checkHealthKitPermissionStatus()
     }
     
@@ -60,17 +81,40 @@ class HealthLinkViewController: CoreGradientViewController {
             continueButtonTrailing?.isActive = false
             
             if iPadWidthConstraint == nil {
-                iPadWidthConstraint = continueButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7)
+                iPadWidthConstraint = continueButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.6)
                 iPadCenterXConstraint = continueButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
                 iPadWidthConstraint?.isActive = true
                 iPadCenterXConstraint?.isActive = true
             }
+
+            linkSettingLeading?.isActive = false
+            linkSettingTrailing?.isActive = false
+            
+            if iPadLinkWidthConstraint == nil {
+                iPadLinkWidthConstraint = linkSettingView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7)
+                iPadLinkCenterXConstraint = linkSettingView.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+                iPadLinkWidthConstraint?.isActive = true
+                iPadLinkCenterXConstraint?.isActive = true
+            }
+            
+            linkSettingHeight.constant = originalLinkHeight * 1.5
+            appleLogoLeading.constant = originalAppleLogoLeading * 2
+            linkSwitchTrailing.constant = originalLinkSwitchTrailing * 2
+            
         } else {
             iPadWidthConstraint?.isActive = false
             iPadCenterXConstraint?.isActive = false
-
             continueButtonLeading?.isActive = true
             continueButtonTrailing?.isActive = true
+
+            iPadLinkWidthConstraint?.isActive = false
+            iPadLinkCenterXConstraint?.isActive = false
+            linkSettingLeading?.isActive = true
+            linkSettingTrailing?.isActive = true
+            
+            linkSettingHeight.constant = originalLinkHeight
+            appleLogoLeading.constant = originalAppleLogoLeading
+            linkSwitchTrailing.constant = originalLinkSwitchTrailing
         }
     }
     
@@ -84,9 +128,10 @@ class HealthLinkViewController: CoreGradientViewController {
     }
     
     override func setupAttribute() {
-        healthAppIcon.image = UIImage(systemName: "heart.fill")
         userDescriptionLabel.text = "사용자 데이터 입력 및 \n건강 앱 정보 가져오기 권한 설정"
-        supUserDescriptionLabel.text = "신체 측정값을 가져와서 걸음 수를 Apple 건강 앱과\n 지속적으로 동기화 할 수 있습니다."
+        supUserDescriptionLabel.text = """
+신체 측정값을 가져와서 걸음 수를 Apple 건강 앱과 지속적으로 동기화 할 수 있습니다.
+"""
         supUserDescriptionLabel.alpha = 0.5
         linkSettingView.backgroundColor = UIColor(named: "boxBgColor")
         linkSettingView.applyCornerStyle(.medium)

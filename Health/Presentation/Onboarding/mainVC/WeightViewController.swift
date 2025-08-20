@@ -19,7 +19,7 @@ class WeightViewController: CoreGradientViewController {
     @IBOutlet weak var continueButtonTrailing: NSLayoutConstraint!
     @IBOutlet weak var continueButtonBottomConstraint: NSLayoutConstraint!
     
-    @IBOutlet weak var weightInputFieldCenterY: NSLayoutConstraint! // centerY 연결
+    @IBOutlet weak var weightInputFieldCenterY: NSLayoutConstraint!
     private var originalCenterY: CGFloat = 0
     
     private var iPadWidthConstraint: NSLayoutConstraint?
@@ -77,7 +77,7 @@ class WeightViewController: CoreGradientViewController {
             continueButtonTrailing?.isActive = false
             
             if iPadWidthConstraint == nil {
-                iPadWidthConstraint = continueButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7)
+                iPadWidthConstraint = continueButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.6)
                 iPadCenterXConstraint = continueButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
                 iPadWidthConstraint?.isActive = true
                 iPadCenterXConstraint?.isActive = true
