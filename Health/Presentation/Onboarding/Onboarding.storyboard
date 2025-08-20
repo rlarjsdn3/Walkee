@@ -217,7 +217,7 @@
                                 </variation>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VUD-Ki-YLx">
-                                <rect key="frame" x="104.33333333333337" y="441.33333333333331" width="66.333333333333314" height="33.666666666666686"/>
+                                <rect key="frame" x="104.33333333333334" y="441.33333333333331" width="66.333333333333343" height="33.666666666666686"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleTitle1"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -323,7 +323,7 @@
                                 </variation>
                             </label>
                             <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="1900" textAlignment="center" adjustsFontSizeToFit="NO" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="hAW-KS-XK4">
-                                <rect key="frame" x="180.66666666666663" y="506.99999999999994" width="79" height="42.333333333333314"/>
+                                <rect key="frame" x="180.66666666666666" y="506.99999999999994" width="78.999999999999972" height="42.333333333333314"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleTitle0"/>
                                 <textInputTraits key="textInputTraits" spellCheckingType="no" keyboardType="numberPad" returnKeyType="done" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
                                 <variation key="heightClass=regular-widthClass=regular">
@@ -430,7 +430,7 @@
                                 </connections>
                             </button>
                             <stackView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" alignment="lastBaseline" translatesAutoresizingMaskIntoConstraints="NO" id="sEg-CQ-STO">
-                                <rect key="frame" x="176.66666666666663" y="506.99999999999994" width="87" height="42.333333333333314"/>
+                                <rect key="frame" x="176.66666666666666" y="506.99999999999994" width="86.999999999999972" height="42.333333333333314"/>
                                 <subviews>
                                     <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="100" textAlignment="center" adjustsFontSizeToFit="NO" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="MBV-gl-LZA">
                                         <rect key="frame" x="0.0" y="0.0" width="57.666666666666664" height="42.333333333333336"/>
@@ -709,8 +709,8 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Niz-4d-1kV">
                                 <rect key="frame" x="20" y="396.33333333333331" width="400" height="68"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Apple 건강 앱 데이터 접근 권한" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7SW-Zw-GlZ">
-                                        <rect key="frame" x="68" y="24.333333333333371" width="256.33333333333331" height="19.333333333333329"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Apple 건강 앱 접근 권한" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7SW-Zw-GlZ">
+                                        <rect key="frame" x="72.000000000000014" y="24" width="242.33333333333337" height="20"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleCallout"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
@@ -719,29 +719,29 @@
                                         </variation>
                                     </label>
                                     <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" verticalHuggingPriority="750" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TLh-RM-cub">
-                                        <rect key="frame" x="341" y="18.666666666666686" width="51" height="31"/>
+                                        <rect key="frame" x="331" y="18.666666666666686" width="51" height="31"/>
                                         <connections>
                                             <action selector="linkAction:" destination="Loh-xd-3Eb" eventType="valueChanged" id="ftt-cV-e2K"/>
                                         </connections>
                                     </switch>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="ZN9-6l-fds">
-                                        <rect key="frame" x="8" y="14" width="40" height="40"/>
+                                        <rect key="frame" x="20" y="18" width="32" height="32"/>
                                         <color key="tintColor" systemColor="systemGrayColor"/>
                                         <constraints>
-                                            <constraint firstAttribute="height" constant="40" id="AVp-iJ-Eke"/>
-                                            <constraint firstAttribute="width" constant="40" id="vVp-wJ-zUV"/>
+                                            <constraint firstAttribute="height" constant="32" id="AVp-iJ-Eke"/>
+                                            <constraint firstAttribute="width" constant="32" id="vVp-wJ-zUV"/>
                                         </constraints>
                                     </imageView>
                                 </subviews>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
-                                    <constraint firstItem="ZN9-6l-fds" firstAttribute="leading" secondItem="Niz-4d-1kV" secondAttribute="leading" constant="8" id="02f-J8-Pqg"/>
+                                    <constraint firstItem="ZN9-6l-fds" firstAttribute="leading" secondItem="Niz-4d-1kV" secondAttribute="leading" constant="20" id="02f-J8-Pqg"/>
                                     <constraint firstItem="7SW-Zw-GlZ" firstAttribute="leading" secondItem="ZN9-6l-fds" secondAttribute="trailing" constant="20" id="7wC-UQ-7eD"/>
                                     <constraint firstItem="7SW-Zw-GlZ" firstAttribute="centerY" secondItem="Niz-4d-1kV" secondAttribute="centerYWithinMargins" id="9j1-ao-iWT"/>
                                     <constraint firstItem="ZN9-6l-fds" firstAttribute="centerY" secondItem="Niz-4d-1kV" secondAttribute="centerY" id="FUy-oe-70e"/>
                                     <constraint firstAttribute="height" constant="68" id="P4C-qO-c7o"/>
-                                    <constraint firstItem="TLh-RM-cub" firstAttribute="leading" secondItem="7SW-Zw-GlZ" secondAttribute="trailing" constant="16.666666666666686" id="aHp-Hw-alH"/>
-                                    <constraint firstAttribute="trailing" secondItem="TLh-RM-cub" secondAttribute="trailing" constant="10" id="kVb-vn-jCr"/>
+                                    <constraint firstItem="TLh-RM-cub" firstAttribute="leading" secondItem="7SW-Zw-GlZ" secondAttribute="trailing" constant="16.670000000000002" id="aHp-Hw-alH"/>
+                                    <constraint firstAttribute="trailing" secondItem="TLh-RM-cub" secondAttribute="trailing" constant="20" id="kVb-vn-jCr"/>
                                     <constraint firstItem="TLh-RM-cub" firstAttribute="centerY" secondItem="Niz-4d-1kV" secondAttribute="centerYWithinMargins" id="upo-ZY-S7P"/>
                                 </constraints>
                             </view>
