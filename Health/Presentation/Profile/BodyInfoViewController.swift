@@ -131,12 +131,16 @@ extension BodyInfoViewController: UITableViewDataSource {
         var content = cell.defaultContentConfiguration()
         content.image = UIImage(systemName: item.iconName)
         content.text = item.title
+        content.textProperties.color = .systemGray
         content.imageProperties.tintColor = .systemGray
-        content.secondaryText = item.detail
-        content.secondaryTextProperties.color = .systemGray
-        
         cell.contentConfiguration = content
-        cell.accessoryType = .none
+        
+        let detailLabel = UILabel()
+        detailLabel.text = item.detail
+        detailLabel.textColor = .label
+        detailLabel.sizeToFit()
+        
+        cell.accessoryView = detailLabel
         cell.selectionStyle = .none
         cell.backgroundColor = UIColor.buttonText.withAlphaComponent(0.1)
         
