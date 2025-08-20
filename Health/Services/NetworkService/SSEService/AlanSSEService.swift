@@ -49,6 +49,13 @@ final class AlanSSEService: AlanSSEServiceProtocol {
 			resolvingAgainstBaseURL: false
 		)
 		comps?.queryItems = endpoint.queryItems
+		
+#if !DEBUG
+		if let url = comps?.url?.absoluteString {
+			//Log.net.info("[AlanSSE][RELEASE] 요청 URL: \(url, privacy: .public)")
+		}
+#endif
+		
 		guard let url = comps?.url else { throw NetworkError.badURL }
 		return url
 	}
