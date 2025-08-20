@@ -192,7 +192,6 @@ final class ChatbotViewController: CoreGradientViewController {
 		viewModel.onActionText = { [weak self] text in
 			guard let self else { return }
 			Task { @MainActor in
-				//Log.ui.info("received action text: '\(text, privacy: .public)'")
 				self.updateWaitingCellText(text)
 			}
 		}
@@ -210,10 +209,15 @@ final class ChatbotViewController: CoreGradientViewController {
 			}
 			
 			guard let idx = self.streamingAIIndex else { return }
-			self.messages[idx].text.append(chunk)
+			let cleanedChunk = FootnoteSanitizer.sanitize(
+				chunk,
+				inFootnote: &self.inFootnote,
+				pendingOpenBracket: &self.pendingOpenBracket
+			)
+			self.messages[idx].text.append(cleanedChunk)
 			
 			if let cell = self.tableView.cellForRow(at: self.indexPathForMessage(at: idx)) as? AIResponseCell {
-				cell.appendText(chunk)
+				cell.appendText(cleanedChunk)
 			}
 		}
 		
@@ -433,18 +437,15 @@ final class ChatbotViewController: CoreGradientViewController {
 	private func sendMessageStreaming() {
 		guard let text = chattingTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines),
 			  !text.isEmpty else { return }
-		//Log.ui.info("send tapped: '\(text, privacy: .public)'")
 		// 사용자 버블
 		messages.append(ChatMessage(text: text, type: .user))
 		chattingTextField.text = ""
 		let userIP = IndexPath(row: messages.count - 1, section: 0)
 		tableView.insertRows(at: [userIP], with: .bottom)
 		scrollToBottomIfNeeded(force: true)
-		
 		// 로딩
 		sendButton.isEnabled = false
 		sendButton.alpha = 0.5
-		
 		// 빈 AI 버블(스트림 대상)
 		messages.append(ChatMessage(text: "", type: .ai))
 		streamingAIIndex = messages.count - 1
@@ -460,165 +461,13 @@ final class ChatbotViewController: CoreGradientViewController {
 			self.tableView.scrollToRow(at: aiIndexPath, at: .top, animated: true)
 		}
 		
-		
 		inFootnote = false
 		pendingOpenBracket = false
-		
-		//  원문 vs 비식별화 로그
-		let masked = PrivacyService.maskSensitiveInfo(in: text)
-		// 강제로 print 출력 (릴리즈 모드에서도 확실히 출력)
-		print("=== 마스킹 디버그 ===")
-		print("[Chatbot] Original: \(text)")
-		print("[Chatbot] Masked  : \(masked)")
-		print("==================")
-		
-		// Log도 출력 (설정에 따라 다를 수 있음)
-		Log.privacy.info("Original: \(text, privacy: .public)")
-		Log.privacy.info("Masked  : \(masked, privacy: .public)")
-		
-		// 조건부 컴파일로 추가 디버그 정보
-#if DEBUG
-		print("[DEBUG] 디버그 모드에서 실행 중")
-		print("[DEBUG] 마스킹 전 길이: \(text.count), 마스킹 후 길이: \(masked.count)")
-#else
-		print("[RELEASE] 릴리즈 모드에서 실행 중")
-		print("[RELEASE] 마스킹 전 길이: \(text.count), 마스킹 후 길이: \(masked.count)")
-#endif
-		
 		// SSE 시작
-		viewModel.startStreamingQuestionWithAutoReset(masked)
+		viewModel.startStreamingQuestionWithAutoReset(text)
 	}
 	
-	// MARK: 각주 [^ number ^] 는 제거하는 메서드
-	private func sanitizeStreamingPiece(_ s: String) -> String {
-		guard s.isEmpty == false else { return s }
-		var out = String()
-		var i = s.startIndex
-		
-		// 이전 조각이 '[' 로 끝났고, 이번 조각이 '^' 로 시작하면 각주 진입
-		if pendingOpenBracket {
-			if s.first == "^" {
-				inFootnote = true
-				pendingOpenBracket = false
-				i = s.index(after: i) // '^' 소비
-			} else {
-				// 각주 아님: 보류했던 '[' 출력
-				out.append("[")
-				pendingOpenBracket = false
-			}
-		}
-		
-		while i < s.endIndex {
-			let ch = s[i]
-			
-			if inFootnote {
-				// 각주 모드: ']' 나올 때까지 모두 버림
-				if ch == "]" { inFootnote = false }
-				i = s.index(after: i)
-				continue
-			}
-			
-			if ch == "[" {
-				let next = s.index(after: i)
-				if next < s.endIndex {
-					if s[next] == "^" {
-						// '[^' 발견 → 각주 모드 진입, 둘 다 소비
-						inFootnote = true
-						i = s.index(after: next)
-						continue
-					} else {
-						// 일반 '['
-						out.append("[")
-						i = next
-						continue
-					}
-				} else {
-					// 조각 끝이 '[' 로 끝남 → 다음 조각에서 판단
-					pendingOpenBracket = true
-					break
-				}
-			}
-			
-			out.append(ch)
-			i = s.index(after: i)
-		}
-		
-		return out
-	}
 	
-	private func stripAllFootnotes(in text: String) -> String {
-		let pattern = #"\[\^[^\]]*\]"#
-		let regex = try? NSRegularExpression(pattern: pattern)
-		let range = NSRange(location: 0, length: (text as NSString).length)
-		let result = regex?.stringByReplacingMatches(in: text, range: range, withTemplate: "") ?? text
-		return result
-	}
-	
-	private func startSSEStreaming(for prompt: String, targetIndexPath: IndexPath) {
-		let url: URL
-		do {
-			url = try buildStreamingURL(content: prompt, clientID: AppConfiguration.clientID)
-		} catch {
-			finishStreamingUI()
-			return
-		}
-		
-		let client = AlanSSEClient()
-		sseClient = client
-		let stream = client.connect(url: url)
-		
-		Task { @MainActor in
-			do {
-				// 라벨 달아서 .complete 때 즉시 탈출
-				streamLoop: for try await event in stream {
-					switch event.type {
-					case .action:
-						// 로딩 셀 문구 갱신 (speak가 우선, 없으면 content)
-						if let speak = event.data.speak ?? event.data.content, !speak.isEmpty {
-							self.updateWaitingCellText(speak)
-							//Log.ui.debug("waiting text -> '\(speak, privacy: .public)'")
-						}
-					case .continue:
-						// 토큰 붙이기
-						guard let aiIndex = self.streamingAIIndex else {
-							// Log.ui.error("streamingAIIndex nil in .continue")
-							continue
-						}
-						let raw = event.data.content ?? ""
-						let piece = sanitizeStreamingPiece(raw)
-						guard piece.isEmpty == false else { continue }
-						
-						if let cell = self.tableView.cellForRow(at: targetIndexPath) as? AIResponseCell {
-							// 보이는 셀: 직접 append (깜빡임 최소화)
-							cell.appendText(piece)
-							self.messages[aiIndex].text += piece
-							
-							self.relayoutRowIfNeeded(targetIndexPath)
-						} else {
-							// 화면 밖: 모델 누적 + 스로틀 리로드
-							self.messages[aiIndex].text += piece
-							let now = CFAbsoluteTimeGetCurrent()
-							if (now - self.lastUIUpdate) >= self.minUIInterval {
-								self.lastUIUpdate = now
-								UIView.performWithoutAnimation {
-									self.tableView.reloadRows(at: [targetIndexPath], with: .none)
-								}
-							}
-						}
-						// 필요시 자동 스크롤
-						self.maintainAIFocusIfNeeded()
-					case .complete:
-
-						break streamLoop
-					}
-				}
-			} catch {
-				print(error)
-			}
-			self.finishStreamingUI()
-		}
-	}
-
 	// MARK: - 실시간 로딩 셀
 	private func updateWaitingCellText(_ text: String) {
 		currentWaitingText = text
@@ -672,7 +521,7 @@ final class ChatbotViewController: CoreGradientViewController {
 	@MainActor
 	private func finalizeAIResponse(cell: AIResponseCell, aiIndex: Int) async {
 		let originalText = messages[aiIndex].text
-		let cleaned = stripAllFootnotes(in: originalText)
+		let cleaned = FootnoteSanitizer.stripAllFootnotes(from: originalText)
 		// 텍스트 업데이트
 		messages[aiIndex].text = cleaned
 		cell.configure(with: cleaned)
