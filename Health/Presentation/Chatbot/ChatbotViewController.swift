@@ -142,6 +142,21 @@ final class ChatbotViewController: CoreGradientViewController {
 		automaticallyAdjustsScrollViewInsets = false
 	}
 	
+	override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+		super.traitCollectionDidChange(previousTraitCollection)
+		
+		chattingInputStackView.layer.borderWidth = BackgroundHeightUtils.calculateBorderWidth(for: traitCollection)
+		
+		if traitCollection.userInterfaceStyle == .dark {
+			chattingInputStackView.layer.borderColor = UIColor.buttonText.cgColor
+			chattingInputStackView.layer.borderWidth = 1
+			chattingInputStackView.layer.shadowOpacity = 0
+		} else {
+			chattingInputStackView.layer.borderColor = UIColor.boxBgLightModeStroke.cgColor
+			BackgroundHeightUtils.setupShadow(for: chattingInputStackView)
+		}
+	}
+	
 	private func observeNetworkStatusChanges() {
 		networkStatusObservationTask = Task {
 			for await isConnected in await NetworkMonitor.shared.networkStatusStream() {
@@ -230,8 +245,16 @@ final class ChatbotViewController: CoreGradientViewController {
 		chattingInputStackView.backgroundColor = .boxBg
 		chattingInputStackView.layer.cornerRadius = 12
 		chattingInputStackView.layer.masksToBounds = true
-		chattingInputStackView.layer.borderColor = UIColor.buttonText.cgColor
-		chattingInputStackView.layer.borderWidth = 1.0
+		chattingInputStackView.layer.borderWidth = BackgroundHeightUtils.calculateBorderWidth(for: traitCollection)
+		
+		if traitCollection.userInterfaceStyle == .dark {
+			chattingInputStackView.layer.borderColor = UIColor.buttonText.cgColor
+			chattingInputStackView.layer.borderWidth = 1
+			chattingInputStackView.layer.shadowOpacity = 0  // 그림자 제거
+		} else {
+			chattingInputStackView.layer.borderColor = UIColor.boxBgLightModeStroke.cgColor
+			BackgroundHeightUtils.setupShadow(for: chattingInputStackView)
+		}
 		
 		chattingTextField.backgroundColor = .clear
 		chattingTextField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 44))
