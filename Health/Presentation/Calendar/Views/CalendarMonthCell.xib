@@ -21,12 +21,12 @@
                         <constraints>
                             <constraint firstAttribute="height" constant="28" id="CgI-Mn-4eP"/>
                         </constraints>
-                        <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
-                        <nil key="textColor"/>
+                        <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
+                        <color key="textColor" systemColor="secondaryLabelColor"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="a17-6b-e69">
-                        <rect key="frame" x="0.0" y="44" width="332" height="20"/>
+                        <rect key="frame" x="0.0" y="40" width="332" height="20"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="일" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bxN-sS-2lS" userLabel="일">
                                 <rect key="frame" x="0.0" y="0.0" width="47.333333333333336" height="20"/>
@@ -76,7 +76,7 @@
                         </constraints>
                     </stackView>
                     <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="Ejp-Gl-eHb">
-                        <rect key="frame" x="0.0" y="80" width="332" height="112"/>
+                        <rect key="frame" x="0.0" y="72" width="332" height="120"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstAttribute="height" priority="999" constant="120" id="HUG-mc-1jW"/>
@@ -94,8 +94,8 @@
                 <constraint firstAttribute="trailing" secondItem="a17-6b-e69" secondAttribute="trailing" id="2cM-uW-Nma"/>
                 <constraint firstItem="Ejp-Gl-eHb" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="3mQ-hZ-5nG"/>
                 <constraint firstAttribute="bottom" secondItem="Ejp-Gl-eHb" secondAttribute="bottom" id="4sQ-nY-vc5"/>
-                <constraint firstItem="a17-6b-e69" firstAttribute="top" secondItem="oh1-q2-x3o" secondAttribute="bottom" constant="16" id="Ekw-jo-Rm2"/>
-                <constraint firstItem="Ejp-Gl-eHb" firstAttribute="top" secondItem="a17-6b-e69" secondAttribute="bottom" constant="16" id="QPS-bV-S9d"/>
+                <constraint firstItem="a17-6b-e69" firstAttribute="top" secondItem="oh1-q2-x3o" secondAttribute="bottom" constant="12" id="Ekw-jo-Rm2"/>
+                <constraint firstItem="Ejp-Gl-eHb" firstAttribute="top" secondItem="a17-6b-e69" secondAttribute="bottom" constant="12" id="QPS-bV-S9d"/>
                 <constraint firstItem="a17-6b-e69" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="bcK-de-cmm"/>
                 <constraint firstItem="oh1-q2-x3o" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="i9E-p3-V0b"/>
                 <constraint firstAttribute="trailing" secondItem="Ejp-Gl-eHb" secondAttribute="trailing" id="mWG-5W-560"/>
