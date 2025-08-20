@@ -15,7 +15,8 @@ final class DashboardViewModel {
         let horizontalClassIsRegular: Bool
     }
 
-    private(set) var anchorDate: Date
+    let anchorDate: Date
+    let cameFromCalendar: Bool
 
     private(set) var goalRingIDs: [DailyGoalRingCellViewModel.ItemID] = []
     private(set) var goalRingCells: [DailyGoalRingCellViewModel.ItemID: DailyGoalRingCellViewModel] = [:]
@@ -39,8 +40,9 @@ final class DashboardViewModel {
     @Injected private var promptBuilderService: (any PromptBuilderService)
 
     ///
-    init(anchorDate: Date = .now) {
+    init(anchorDate: Date = .now, cameFromCalendar: Bool = false) {
         self.anchorDate = anchorDate
+        self.cameFromCalendar = cameFromCalendar
     }
 
 

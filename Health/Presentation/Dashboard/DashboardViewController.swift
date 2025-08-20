@@ -14,8 +14,9 @@ final class DashboardViewController: CoreGradientViewController {
 
     typealias DashboardDiffableDataSource = UICollectionViewDiffableDataSource<DashboardContent.Section, DashboardContent.Item>
 
-    private let refreshControl = UIRefreshControl()
+    @IBOutlet weak var navigationBar: HealthNavigationBar!
     @IBOutlet weak var dashboardCollectionView: UICollectionView!
+    private let refreshControl = UIRefreshControl()
 
     private var dataSource: DashboardDiffableDataSource?
     
@@ -26,11 +27,6 @@ final class DashboardViewController: CoreGradientViewController {
     lazy var viewModel: DashboardViewModel = {
         .init()
     }()
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-    }
 
     override func viewIsAppearing(_ animated: Bool) {
         super.viewIsAppearing(animated)
@@ -56,6 +52,8 @@ final class DashboardViewController: CoreGradientViewController {
     }
 
     override func setupAttribute() {
+        applyBackgroundGradient(.midnightBlack)
+
         refreshControl.addTarget(
             self,
             action: #selector(refreshHKData),
@@ -69,16 +67,19 @@ final class DashboardViewController: CoreGradientViewController {
             animated: false
         )
         dashboardCollectionView.contentInset = UIEdgeInsets(
-            top: 54, left: .zero, // TODO: - 네비게이션 바에 맞게 인셋 값 조정하기
+            top: 8, left: .zero,
             bottom: 32, right: .zero
         )
         dashboardCollectionView.scrollIndicatorInsets =  UIEdgeInsets(
-            top: 46, left: .zero,
+            top: 16, left: .zero,
             bottom: 24, right: .zero
         )
         dashboardCollectionView.refreshControl = refreshControl
 
-        applyBackgroundGradient(.midnightBlack)
+        navigationBar.title = "대시보드"
+        navigationBar.titleImage = UIImage(systemName: "chart.xyaxis.line")
+        navigationBar.isHidden = viewModel.anchorDate.isEqual(with: .now)
+                                    && !viewModel.cameFromCalendar
     }
 
     @objc private func refreshHKData() {
@@ -300,10 +301,14 @@ fileprivate extension DashboardViewController {
 
 extension DashboardViewController: UICollectionViewDelegate {
 
-    func collectionView(
-        _ collectionView: UICollectionView,
-        didHighlightItemAt indexPath: IndexPath
-    ) {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let contentInset = scrollView.contentInset
+        let contentOffset = scrollView.contentOffset
+
+        let adjustedOffsetY = contentOffset.y + contentInset.top
+        navigationBar.isHidden = adjustedOffsetY <= 54.0
+                                    && viewModel.anchorDate.isEqual(with: .now)
+                                    && !viewModel.cameFromCalendar
     }
 }
 

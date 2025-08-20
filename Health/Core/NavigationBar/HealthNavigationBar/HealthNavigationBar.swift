@@ -159,7 +159,7 @@ final class HealthNavigationBar: CoreView {
 
         var config = UIButton.Configuration.plain()
         config.image = chevronLeftImage
-        config.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0)
+        config.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 16)
         backButton.configuration = config
         backButton.translatesAutoresizingMaskIntoConstraints = false
         backButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
