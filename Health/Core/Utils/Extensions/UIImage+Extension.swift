@@ -13,6 +13,8 @@ extension UIImage {
     /// - Parameter width: 새로 조정할 이미지의 너비
     /// - Returns: 크기가 조정된 `UIImage` 또는 실패 시 `nil`
     func resized(width: CGFloat) -> UIImage? {
+        guard width > 0 else { return nil }
+        
         let ratio = width / self.size.width
         let height = self.size.height * ratio
         let newSize = CGSize(width: width, height: height)

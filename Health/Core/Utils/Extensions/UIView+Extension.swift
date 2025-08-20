@@ -87,8 +87,8 @@ extension UIView {
     var firstAvailableViewController: UIViewController? {
         var next: UIResponder? = self.next
         while let responder = next {
-            if responder.isKind(of: UIViewController.self) {
-                return responder as? UIViewController
+            if let vc = responder as? UIViewController {
+                return vc
             }
             next = responder.next
         }

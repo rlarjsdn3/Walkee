@@ -12,15 +12,15 @@ final class HealthNavigationBar: CoreView {
 
     private let titleImageView = UIImageView()
     private let titleLabel = UILabel()
-    private let titleStackiew = UIStackView()
+    private let titleStackView = UIStackView()
     private let titleContainerView = UIView()
-    
+
     private let backButton = UIButton(type: .system)
     private let centerTitleLabel = UILabel()
     private let backContainerView = UIView()
-    
+
     private let trailingBarItemsStackView = UIStackView()
-    
+
     private var chevronLeftImage: UIImage? = {
         var image = UIImage(systemName: "chevron.left")
         let config1 = UIImage.SymbolConfiguration(pointSize: 14, weight: .semibold)
@@ -29,7 +29,7 @@ final class HealthNavigationBar: CoreView {
             .applyingSymbolConfiguration(config2)
     }()
 
-    private let `default` = UIImage.SymbolConfiguration(pointSize: 24)
+    private let defaultSymbolConfiguration = UIImage.SymbolConfiguration(pointSize: 24)
 
     /// 내비게이션 바의 동작을 위임받을 델리게이트입니다.
     weak var delegate: (any HealthNavigationBarDelegate)?
@@ -71,6 +71,11 @@ final class HealthNavigationBar: CoreView {
         didSet { self.setNeedsLayout() }
     }
 
+    // 뒤로가기 버튼의 숨김 여부입니다.
+    var isHiddenBackButton: Bool = false {
+        didSet { updateNavigationBarAttributes() }
+    }
+
     override func layoutSubviews() {
         super.layoutSubviews()
 
@@ -86,15 +91,18 @@ final class HealthNavigationBar: CoreView {
     }
 
     private func layoutNavigationBar(_ vc: UIViewController, nav: UINavigationController?) {
-        guard let index = nav?.viewControllers.firstIndex(of: vc)
-        else { return }
+        // 네비게이션 컨트롤러에 임베드되어 있지 않거나,
+        guard let index = nav?.viewControllers.firstIndex(of: vc) else {
+            showTopMostNavigationBarElements()
+            return
+        }
 
         // 뷰-컨트롤러가 스택 최하단에 위치한다면
         if index == 0 { showTopMostNavigationBarElements() }
         // 뷰-컨트롤러가 스택 최하단이 아닌 다른 곳에 위치한다면
         else { showNestedNavigationBarElements() }
     }
-    
+
     private func layoutTrailingBarButtonItems(_ items: [HealthBarButtonItem]) {
         items.enumerated().forEach { offset, item in
             let button = makeButton(with: item)
@@ -121,14 +129,14 @@ final class HealthNavigationBar: CoreView {
 
     override func setupHierarchy() {
         addSubview(titleContainerView)
-        titleContainerView.addSubview(titleStackiew)
-        titleStackiew.addArrangedSubview(titleImageView)
-        titleStackiew.addArrangedSubview(titleLabel)
-        
+        titleContainerView.addSubview(titleStackView)
+        titleStackView.addArrangedSubview(titleImageView)
+        titleStackView.addArrangedSubview(titleLabel)
+
         addSubview(backContainerView)
         backContainerView.addSubview(backButton)
         backContainerView.addSubview(centerTitleLabel)
- 
+
         addSubview(trailingBarItemsStackView)
     }
 
@@ -137,15 +145,15 @@ final class HealthNavigationBar: CoreView {
 
         titleImageView.image = UIImage(systemName: "swift")
         titleImageView.contentMode = .scaleAspectFit
-        titleImageView.tintColor = .systemMint // TODO: - accent 색상으로 변경
+        titleImageView.tintColor = .accent
 
         titleLabel.text = title
         titleLabel.font = titleFont
         titleLabel.textColor = .label
 
-        titleStackiew.spacing = 8
-        titleStackiew.alignment = .fill
-        titleStackiew.translatesAutoresizingMaskIntoConstraints = false
+        titleStackView.spacing = 8
+        titleStackView.alignment = .fill
+        titleStackView.translatesAutoresizingMaskIntoConstraints = false
 
         titleContainerView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -171,23 +179,23 @@ final class HealthNavigationBar: CoreView {
 
     override func setupConstraints() {
         NSLayoutConstraint.activate([
-            titleStackiew.topAnchor.constraint(equalTo: titleContainerView.topAnchor),
-            titleStackiew.leadingAnchor.constraint(equalTo: titleContainerView.leadingAnchor),
-            titleStackiew.bottomAnchor.constraint(equalTo: titleContainerView.bottomAnchor),
-            
+            titleStackView.topAnchor.constraint(equalTo: titleContainerView.topAnchor),
+            titleStackView.leadingAnchor.constraint(equalTo: titleContainerView.leadingAnchor),
+            titleStackView.bottomAnchor.constraint(equalTo: titleContainerView.bottomAnchor),
+
             titleContainerView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 18),
             titleContainerView.topAnchor.constraint(equalTo: topAnchor, constant: 4),
             titleContainerView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -4),
             titleContainerView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -18)
         ])
-        
+
         NSLayoutConstraint.activate([
             backButton.leadingAnchor.constraint(equalTo: backContainerView.leadingAnchor),
             backButton.centerYAnchor.constraint(equalTo: backContainerView.centerYAnchor),
-            
+
             centerTitleLabel.centerXAnchor.constraint(equalTo: backContainerView.centerXAnchor),
             centerTitleLabel.centerYAnchor.constraint(equalTo: backContainerView.centerYAnchor),
-            
+
             backContainerView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 18),
             backContainerView.topAnchor.constraint(equalTo: topAnchor, constant: 4),
             backContainerView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -4),
@@ -209,8 +217,10 @@ final class HealthNavigationBar: CoreView {
         centerTitleLabel.font = centerTitleFont
 
         titleImageView.image = titleImage?
-            .applyingSymbolConfiguration(preferredTitleImageSymbolConfiguration ?? `default`)?
-            .applyingSymbolConfiguration(`default`)
+            .applyingSymbolConfiguration(preferredTitleImageSymbolConfiguration ?? defaultSymbolConfiguration)?
+            .applyingSymbolConfiguration(defaultSymbolConfiguration)
+
+        backButton.isHidden = isHiddenBackButton
     }
 
     private func configureButtonUpdateHandler(_ button: UIButton) {
@@ -221,7 +231,7 @@ final class HealthNavigationBar: CoreView {
             }
         }
     }
-    
+
     @objc private func backButtonTapped(_ sender: UIButton) {
         if delegate != nil { delegate?.navigationBar(didTapBackButton: sender) }
         else { firstAvailableViewController?.navigationController?.popViewController(animated: true) }
@@ -234,7 +244,7 @@ fileprivate extension HealthNavigationBar {
         titleContainerView.isHidden = false
         backContainerView.isHidden = true
     }
-    
+
     func showNestedNavigationBarElements() {
         titleContainerView.isHidden = true
         backContainerView.isHidden = false
