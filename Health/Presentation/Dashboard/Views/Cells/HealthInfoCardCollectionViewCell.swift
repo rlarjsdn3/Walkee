@@ -24,7 +24,14 @@ final class HealthInfoCardCollectionViewCell: CoreCollectionViewCell {
     private var borderWidth: CGFloat {
         (traitCollection.userInterfaceStyle == .dark) ? 0 : 0.75
     }
-    
+
+    private var defaultFormatter: NumberFormatter = {
+        let nf = NumberFormatter()
+        nf.minimumFractionDigits = 1
+        nf.maximumFractionDigits = 1
+        return nf
+    }()
+
     private var percentageFormatter: NumberFormatter = {
         let nf = NumberFormatter()
         nf.numberStyle = .percent
@@ -97,10 +104,12 @@ extension HealthInfoCardCollectionViewCell {
             statusProgressBarView.currentValue = content.value
             statusProgressBarView.numberFormatter = {
                 switch viewModel.itemID.kind {
-                case .walkingSpeed, .walkingStepLength:
-                    return nil
+                case .walkingSpeed:
+                    return defaultFormatter
                 case .walkingAsymmetryPercentage, .walkingDoubleSupportPercentage:
                     return percentageFormatter
+                default:
+                    return nil
                 }
             }()
             
