@@ -4,7 +4,15 @@ final class CalendarViewController: CoreGradientViewController {
 
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var scrollToCurrentButton: UIButton!
-    
+
+    /// 뷰가 나타날 때 현재 월로 스크롤할지 여부를 결정하는 플래그
+    ///
+    /// 탭 전환 시(`true`)와 화면 내 네비게이션(`false`) 시나리오를 구분하여 적절한 스크롤 동작을 제어합니다.
+    /// `viewWillAppear(_:)`에서 사용된 후 자동으로 `false`로 리셋되어 일회성 동작을 보장합니다.
+    ///
+    /// - Note: 다른 탭에서 달력 탭으로 전환할 때만 `true`로 설정하고, 달력 내 push/pop 시에는 기본값(`false`)을 유지합니다.
+    var shouldScrollToCurrentOnAppear = false
+
     private let calendarVM = CalendarViewModel()
     private lazy var scrollManager = CalendarScrollManager(calendarVM: calendarVM, collectionView: collectionView)
 
@@ -19,30 +27,31 @@ final class CalendarViewController: CoreGradientViewController {
             name: .stepDataDidSync,
             object: nil
         )
+        observeDataChanges()
     }
 
     override func setupAttribute() {
         super.setupAttribute()
 		configureBackground()
         configureCollectionView()
-        observeDataChanges()
+        hideScrollToCurrentButtonImmediately()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        scrollManager.handleViewWillAppear()
+
+        scrollManager.handleViewWillAppear(shouldScrollToCurrentOnAppear)
+
+        if shouldScrollToCurrentOnAppear {
+            hideScrollToCurrentButtonImmediately()
+        }
+
+        shouldScrollToCurrentOnAppear = false // 기본값으로 복원
     }
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         scrollManager.handleViewDidLayoutSubviews()
-    }
-
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        // 메모리 해제를 위한 Task 취소
-        dataChangesTask?.cancel()
-        dataChangesTask = nil
     }
 
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
@@ -55,6 +64,11 @@ final class CalendarViewController: CoreGradientViewController {
         // scrollManager.handleDeviceRotation()을 호출하도록 제한.
         guard viewIfLoaded?.window != nil else { return }
         scrollManager.handleDeviceRotation(coordinator: coordinator)
+    }
+
+    deinit {
+        dataChangesTask?.cancel()
+        dataChangesTask = nil
     }
 
     @IBAction func scrollToCurrentButtonTapped(_ sender: Any) {
@@ -167,13 +181,6 @@ private extension CalendarViewController {
     }
 
     func updateScrollToCurrentButtonVisibility() {
-        // 초기 스크롤이 끝나기 전에는 버튼을 숨긴 상태 유지
-        guard scrollManager.didFinishInitialScroll else {
-            scrollToCurrentButton.alpha = 0
-            scrollToCurrentButton.isHidden = true
-            return
-        }
-
         guard let currentIndexPath = calendarVM.indexOfCurrentMonth() else { return }
 
         let visibleIndexPaths = collectionView.indexPathsForVisibleItems
@@ -200,6 +207,13 @@ private extension CalendarViewController {
                 self?.scrollToCurrentButton.isHidden = true
             }
         }
+	}
+
+    func hideScrollToCurrentButtonImmediately() {
+        guard !scrollToCurrentButton.isHidden else { return }
+
+        scrollToCurrentButton.alpha = 0
+        scrollToCurrentButton.isHidden = true
     }
 
     @objc func reloadCalendar() {
@@ -234,7 +248,11 @@ extension CalendarViewController: UICollectionViewDelegate {
     /// 스크롤 시 무한 스크롤 처리 및 현재 월로 스크롤하는 버튼 표시 여부 업데이트
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         scrollManager.handleScrollForInfiniteLoading(scrollView)
-        updateScrollToCurrentButtonVisibility()
+
+        // 현재 월로 스크롤이 최초 1회 되고 나서부터 실행
+        if scrollManager.isInitialScrollSettled {
+            updateScrollToCurrentButtonVisibility()
+        }
     }
 
     /// 상단바를 탭해서 최상단으로 스크롤하는 동작 방지

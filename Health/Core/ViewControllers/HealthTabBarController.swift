@@ -13,6 +13,7 @@ final class HealthTabBarController: UITabBarController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.delegate = self
         configureTabBarAppearance()
     }
 
@@ -39,5 +40,15 @@ final class HealthTabBarController: UITabBarController {
 
         self.tabBar.frame.size.height = tabHeight
         self.tabBar.frame.origin.y = view.frame.height - tabHeight
+    }
+}
+
+extension HealthTabBarController: UITabBarControllerDelegate {
+    func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
+        if let nav = viewController as? UINavigationController,
+           let calendarVC = nav.viewControllers.first as? CalendarViewController {
+            /// 캘린더 탭이 선택된 경우 현재 월로 스크롤하도록 설정
+            calendarVC.shouldScrollToCurrentOnAppear = true
+        }
     }
 }
