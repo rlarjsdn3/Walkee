@@ -213,56 +213,67 @@ class ProfileViewController: CoreGradientViewController {
     
     @MainActor
     private func presentGrantAlert(for sender: UISwitch) {
-        let alert = UIAlertController(
-            title: "권한 허용을 위해 건강앱으로 이동합니다.",
-            message: """
-    건강 앱에서 다음 경로로 이동하세요:
-    
-    우측 상단 프로필 ▸ 개인정보 보호 ▸ 앱 ▸ Health 
-    (해당 화면에서 이 앱의 데이터 접근 권한을 변경할 수 있어요)
-    """,
+        let alert = TSAlertController(
+            title: "권한 설정 안내",
+            message:
+                """
+                건강 앱에서 권한을 직접 바꿀 수 있어요.
+                경로: 프로필(우측 상단) > 개인정보보호 > 앱 > Health
+                여기에서 이 앱의 데이터 접근 권한을 해제하거나 다시 켤 수 있습니다.
+                """,
             preferredStyle: .alert
         )
+        alert.viewConfiguration.titleAlignment = .center
+        alert.viewConfiguration.messageAlignment = .center
+        alert.viewConfiguration.size.width = .proportional(minimumRatio: 0.9)
         
         // 취소: 사용자가 거부 의사 → OFF
-        alert.addAction(UIAlertAction(title: "취소", style: .cancel) { [weak self] _ in
+        alert.addAction(TSAlertAction(title: "취소", style: .cancel) { [weak self] _ in
             guard let self = self else { return }
             sender.setOn(false, animated: true)
             UserDefaultsWrapper.shared.healthkitLinked = false
             self.updateSectionItemsForHealthSwitch(to: false)
         })
-        
         // 열기: 건강앱 열어주고 돌아오면 권한 재확인
-        alert.addAction(UIAlertAction(title: "열기", style: .default) { [weak self] _ in
+        let action = TSAlertAction(title: "열기", style: .default) { [weak self] _ in
             guard let self = self else { return }
             self.openHealthApp()
             self.startGrantRecheckAfterReturning(switch: sender)
-        })
+        }
+        
+        action.configuration.backgroundColor = .accent
+        action.configuration.titleAttributes = [
+            .font: UIFont.preferredFont(forTextStyle: .headline),
+            .foregroundColor: UIColor.systemBackground
+        ]
+        action.highlightType = .fadeIn
+        alert.addAction(action)
         
         present(alert, animated: true)
     }
     
     private func presentDenyAlert(for sender: UISwitch) {
-        let alert = UIAlertController(
-            title: "권한 해제를 위해 건강앱으로 이동합니다",
-            message: """
-    건강 앱에서 다음 경로로 이동하세요:
-    
-    우측 상단 프로필 ▸ 개인정보 보호 ▸ 앱 ▸ Health 
-    (해당 화면에서 이 앱의 데이터 접근 권한을 변경할 수 있어요)
-    """,
+        let alert = TSAlertController(
+            title: "권한 설정 안내",
+            message:
+                """
+                건강 앱에서 권한을 직접 바꿀 수 있어요.
+                경로: 프로필(우측 상단) > 개인정보보호 > 앱 > Health
+                여기에서 이 앱의 데이터 접근 권한을 해제하거나 다시 켤 수 있습니다.
+                """,
             preferredStyle: .alert
         )
-        
-        alert.addAction(UIAlertAction(title: "취소", style: .cancel) { [weak self] _ in
+        alert.viewConfiguration.titleAlignment = .center
+        alert.viewConfiguration.messageAlignment = .center
+        alert.viewConfiguration.size.width = .proportional(minimumRatio: 0.9)
+        alert.addAction(TSAlertAction(title: "취소", style: .cancel) { [weak self] _ in
             guard let self = self else { return }
             // 취소: 스위치 복구
             sender.setOn(true, animated: true)
             UserDefaultsWrapper.shared.healthkitLinked = true
             self.updateSectionItemsForHealthSwitch(to: true)
         })
-        
-        alert.addAction(UIAlertAction(title: "열기", style: .default) { [weak self] _ in
+        let action = TSAlertAction(title: "열기", style: .default) { [weak self] _ in
             guard let self = self else { return }
             
             // 건강 앱 열기
@@ -270,8 +281,14 @@ class ProfileViewController: CoreGradientViewController {
             
             // 설정에서 돌아오면 권한을 재확인해 스위치 상태 동기화
             self.startGrantRecheckAfterReturning(switch: sender)
-        })
-        
+        }
+        action.configuration.backgroundColor = .accent
+        action.configuration.titleAttributes = [
+            .font: UIFont.preferredFont(forTextStyle: .headline),
+            .foregroundColor: UIColor.systemBackground
+        ]
+        action.highlightType = .fadeIn
+        alert.addAction(action)
         present(alert, animated: true)
     }
     
@@ -390,7 +407,8 @@ extension ProfileViewController: UITableViewDelegate {
                     return version
                 }
                 
-                let bodyString = """
+                let bodyString =
+                                         """
                                          이곳에 내용을 작성해 주세요.
                                          
                                          ================================
@@ -405,7 +423,7 @@ extension ProfileViewController: UITableViewDelegate {
                 
                 self.present(vc, animated: true)
             } else {
-                let alertController = TSAlertController(title: "메일 계정 활성화 필요", message: "Mail 앱에서 사용자의 Email을 계정을 설정해 주세요.", preferredStyle: .alert)
+                let alertController = TSAlertController(title: "메일 계정 활성화가 필요합니다.", message: "Mail 앱에서 사용자의 Email을 계정을 설정해 주세요.", preferredStyle: .alert)
                 let action = TSAlertAction(title: "확인", style: .default) { _ in
                     guard let mailSettingsURL = URL(string: UIApplication.openSettingsURLString + "&&path=MAIL") else { return }
                     
@@ -413,6 +431,13 @@ extension ProfileViewController: UITableViewDelegate {
                         UIApplication.shared.open(mailSettingsURL, options: [:], completionHandler: nil)
                     }
                 }
+                action.configuration.backgroundColor = .accent
+                action.configuration.titleAttributes = [
+                    .font: UIFont.preferredFont(forTextStyle: .headline),
+                    .foregroundColor: UIColor.systemBackground
+                ]
+                action.highlightType = .fadeIn
+                
                 alertController.addAction(action)
                 
                 self.present(alertController, animated: true)
@@ -426,7 +451,6 @@ extension ProfileViewController: UITableViewDelegate {
 extension ProfileViewController: MFMailComposeViewControllerDelegate {
     func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: (any Error)?) {
         switch result {
-            
         case .cancelled:
             showToast(message: "작성 취소")
         case .saved:
@@ -434,7 +458,7 @@ extension ProfileViewController: MFMailComposeViewControllerDelegate {
         case .sent:
             showToast(message: "메일 전송 완료")
         case .failed:
-            showToast(message: "메일 전송 실패")
+            showWarningToast(title: "전송 실패", message: "메일 전송에 실패했습니다.")
         @unknown default:
             break
         }
