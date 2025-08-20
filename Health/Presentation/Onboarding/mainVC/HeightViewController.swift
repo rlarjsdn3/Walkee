@@ -192,7 +192,6 @@ class HeightViewController: CoreGradientViewController {
             } else {
                 showError()
                 disableContinueButton()
-                heightInputField.text = ""
             }
         default:
             showError()

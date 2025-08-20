@@ -194,7 +194,6 @@ class WeightViewController: CoreGradientViewController {
             } else {
                 showError()
                 disableContinueButton()
-                weightInputField.text = ""
             }
         default:
             showError()
