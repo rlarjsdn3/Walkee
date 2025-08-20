@@ -140,7 +140,7 @@ private extension CalendarScrollManager {
     /// 완전히 보이는 셀이 없는 경우, 부분적으로라도 보이는 셀 중에서 선택합니다.
     ///
     /// - Returns: 현재 화면에서 보이는 월 데이터. 유효한 셀이 없는 경우 `nil`
-    private func getLastSeenMonthData() -> CalendarMonthData? {
+    func getLastSeenMonthData() -> CalendarMonthData? {
         guard let collectionView,
               let calendarVM else { return nil }
 
