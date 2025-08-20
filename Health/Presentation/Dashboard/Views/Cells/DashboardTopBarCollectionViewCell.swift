@@ -19,16 +19,7 @@ final class DashboardTopBarCollectionViewCell: CoreCollectionViewCell {
     private var viewModel: DashboardTopBarViewModel!
 
     override func prepareForReuse() {
-        super.prepareForReuse()
         cancellables.removeAll()
-    }
-
-    override func setupAttribute() {
-        super.setupAttribute()
-
-        dateLabel.text = Date.now.formatted(using: .md)
-        weekDayLabel.text = Date.now.formatted(using: .weekday)
-        anchorDateLabel.text = "(\(Date.now.formatted(using: .h_m)) 기준)"
     }
 }
 
