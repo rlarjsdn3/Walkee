@@ -17,6 +17,9 @@ final class DashboardViewModel {
 
     let anchorDate: Date
 
+    private(set) var topIDs: [DashboardTopBarViewModel.ItemID] = []
+    private(set) var topCells: [DashboardTopBarViewModel.ItemID: DashboardTopBarViewModel] = [:]
+
     private(set) var goalRingIDs: [DailyGoalRingCellViewModel.ItemID] = []
     private(set) var goalRingCells: [DailyGoalRingCellViewModel.ItemID: DailyGoalRingCellViewModel] = [:]
 
@@ -52,6 +55,7 @@ final class DashboardViewModel {
     // MARK: - Build Layout
 
     func buildDashboardCells(for environment: DashboardEnvironment) {
+        buildTopBarCell()
         buildStackCells()
         buildGoalRingCells()
         buildCardCells()
@@ -61,6 +65,18 @@ final class DashboardViewModel {
             buildAlanSummaryCells()
             buildBarChartsCells(for: environment)
         }
+    }
+
+    private func buildTopBarCell() {
+        let newIDs = [DashboardTopBarViewModel.ItemID()]
+
+        var newCells: [DashboardTopBarViewModel.ItemID: DashboardTopBarViewModel] = [:]
+        newIDs.forEach { id in
+            newCells.updateValue(DashboardTopBarViewModel(itemID: id), forKey: id)
+        }
+
+        topIDs = newIDs
+        topCells = newCells
     }
 
     private func buildGoalRingCells() {
@@ -158,6 +174,7 @@ final class DashboardViewModel {
 extension DashboardViewModel {
 
     func loadHKData() {
+        loadAnchorDateForTopCell()
         loadHKDataForGoalRingCells()
         loadHKDataForStackCells()
         loadHKDataForCardCells()
@@ -166,6 +183,12 @@ extension DashboardViewModel {
         // 대시보드가 오늘자 데이터를 보여준다면
         if shouldShowSummaryAndCharts {
             loadAlanAIResponseForSummaryCells()
+        }
+    }
+
+    func loadAnchorDateForTopCell() {
+        for (_, vm) in topCells {
+            vm.renewalAnchorDate(.now)
         }
     }
 
@@ -338,8 +361,6 @@ extension DashboardViewModel {
     }
 
     func loadAlanAIResponseForSummaryCells() {
-        // TODO: - 앨런 프롬프트 작성에 필요한 건강 데이터 불러오기
-
         Task {
             for (_, vm) in self.summaryCells {
                 vm.setState(.loading)

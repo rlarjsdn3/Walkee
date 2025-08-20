@@ -34,7 +34,7 @@ final class AlanActivitySummaryCollectionViewCell: CoreCollectionViewCell {
         }
         newAttrs.size.height = contentHeight
         return newAttrs
-
+        // TODO: - 제약만으로 셀의 셀프-사이징이 동작하도록 코드 개선하기
     }
 
     override func setupAttribute() {

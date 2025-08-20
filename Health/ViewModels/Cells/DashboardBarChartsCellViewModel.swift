@@ -11,7 +11,7 @@ import HealthKit
 typealias DashboardChartsContent = DashboardBarChartsCellViewModel.Content
 typealias DashboardChartsContents = [DashboardChartsContent]
 
-final class DashboardBarChartsCellViewModel { // TODO: - Cell에서 처리하고 있는 HKData 페치 로직을 VC의 VM으로 빼보기
+final class DashboardBarChartsCellViewModel {
     
     ///
     struct ItemID: Hashable {

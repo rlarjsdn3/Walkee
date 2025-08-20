@@ -5,6 +5,7 @@
 //  Created by 김건우 on 8/1/25.
 //
 
+import Combine
 import UIKit
 
 final class DashboardTopBarCollectionViewCell: CoreCollectionViewCell {
@@ -13,18 +14,28 @@ final class DashboardTopBarCollectionViewCell: CoreCollectionViewCell {
     @IBOutlet weak var weekDayLabel: UILabel!
     @IBOutlet weak var anchorDateLabel: UILabel!
 
-    override func setupAttribute() {
-        super.setupAttribute()
+    private var cancellables: Set<AnyCancellable> = []
 
-        dateLabel.text = Date.now.formatted(using: .md)
-        weekDayLabel.text = Date.now.formatted(using: .weekday)
-        anchorDateLabel.text = "(\(Date.now.formatted(using: .h_m)) 기준)"
+    private var viewModel: DashboardTopBarViewModel!
+
+    override func prepareForReuse() {
+        cancellables.removeAll()
     }
 }
 
 extension DashboardTopBarCollectionViewCell {
 
-    func update(with date: Date) {
+    func bind(with viewModel: DashboardTopBarViewModel) {
+        self.viewModel = viewModel
+
+        viewModel.statePublisher
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] date in self?.update(with: date) }
+            .store(in: &cancellables)
+    }
+
+    private func update(with date: Date) {
         dateLabel.text = date.formatted(using: .md)
         weekDayLabel.text = date.formatted(using: .weekday)
         anchorDateLabel.text = "(\(date.formatted(using: .h_m)) 기준)"

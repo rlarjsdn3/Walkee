@@ -82,12 +82,8 @@ final class DashboardViewController: CoreGradientViewController {
     }
 
     @objc private func refreshHKData() {
-        // TODO: - 리프레시 시, AI 요약도 함께 리프레시되도록 하기
         viewModel.loadHKData()
-
-        Task.delay(for: 1.0) { @MainActor in
-            refreshControl.endRefreshing()
-        }
+        Task.delay(for: 1.0) { @MainActor in refreshControl.endRefreshing() }
     }
 
 
@@ -158,7 +154,12 @@ fileprivate extension DashboardViewController {
 
     private func appendTopBarSection(to snapshot: inout NSDiffableDataSourceSnapshot<DashboardContent.Section, DashboardContent.Item>) {
         snapshot.appendSections([.top])
-        snapshot.appendItems([.topBar], toSection: .top)
+
+        var items: [DashboardContent.Item] = []
+        viewModel.topIDs.forEach { id in
+            items.append(.topBar(id))
+        }
+        snapshot.appendItems(items, toSection: .top)
     }
 
     private func appendGoalRingSection(to snapshot: inout NSDiffableDataSourceSnapshot<DashboardContent.Section, DashboardContent.Item>) {
@@ -218,9 +219,10 @@ fileprivate extension DashboardViewController {
 
 fileprivate extension DashboardViewController {
 
-    func createTopBarCellRegistration() -> UICollectionView.CellRegistration<DashboardTopBarCollectionViewCell, Void> {
-        UICollectionView.CellRegistration<DashboardTopBarCollectionViewCell, Void>(cellNib: DashboardTopBarCollectionViewCell.nib) { [weak self] cell, indexPath, _ in
-            cell.update(with: self?.viewModel.anchorDate ?? .now)
+    func createTopBarCellRegistration() -> UICollectionView.CellRegistration<DashboardTopBarCollectionViewCell, DashboardTopBarViewModel.ItemID> {
+        UICollectionView.CellRegistration<DashboardTopBarCollectionViewCell, DashboardTopBarViewModel.ItemID>(cellNib: DashboardTopBarCollectionViewCell.nib) { [weak self] cell, indexPath, id in
+            guard let vm = self?.viewModel.topCells[id] else { return }
+            cell.bind(with: vm)
         }
     }
 
