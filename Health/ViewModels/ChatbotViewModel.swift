@@ -14,6 +14,7 @@ import Foundation
 final class ChatbotViewModel {
 	@Injected private var sseService: AlanSSEServiceProtocol
 	@Injected private var networkService: NetworkService
+	@Injected private var promptBuilderService: PromptBuilderService
 	
 	var onActionText: ((String) -> Void)?
 	var onStreamChunk: ((String) -> Void)?
@@ -31,6 +32,46 @@ final class ChatbotViewModel {
 		streamTask = Task { [weak self] in
 			guard let self else { return }
 			await self._startStreaming(content: content, canRetry: autoReset)
+		}
+	}
+	
+	func startPromptChatWithAutoReset(_ rawMessage: String) {
+		streamTask?.cancel()
+		streamTask = Task { [weak self] in
+			guard let self else { return }
+			
+			let masked = PrivacyService.maskSensitiveInfo(in: rawMessage)
+			
+			print("=== 마스킹 디버그 ===")
+			print("[Chatbot] Original: \(rawMessage)")
+			print("[Chatbot] Masked  : \(masked)")
+			print("==================")
+			
+			Log.privacy.info("Original: \(rawMessage, privacy: .public)")
+			Log.privacy.info("Masked  : \(masked, privacy: .public)")
+			
+#if DEBUG
+			// DEBUG 모드: 목 데이터로 테스트 스트리밍
+			startMockStreaming(masked)
+#else
+			// RELEASE 모드: 실제 프롬프트 생성 + SSE 요청
+			streamTask = Task { [weak self] in
+				guard let self else { return }
+				
+				do {
+					let prompt = try await promptBuilderService.makePrompt(
+						message: masked,
+						context: nil,
+						option: .chat
+					)
+					await self._startStreaming(content: prompt, canRetry: true)
+					print("🧾 [Prompt] Alan에게 전달할 최종 프롬프트:")
+					print(prompt)
+				} catch {
+					onError?("프롬프트 생성 실패: \(error.localizedDescription)")
+				}
+			}
+#endif
 		}
 	}
 	

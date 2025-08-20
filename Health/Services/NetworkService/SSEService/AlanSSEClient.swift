@@ -97,7 +97,7 @@ final class AlanSSEClient: NSObject, AlanSSEClientProtocol {
 		request.timeoutInterval = 0
 		request.setValue("text/event-stream", forHTTPHeaderField: "Accept")
 		
-		Log.net.info("SSE connect -> \(url.absoluteString, privacy: .public)")
+		//Log.net.info("SSE connect -> \(url.absoluteString, privacy: .public)")
 		task = session?.dataTask(with: request)
 		task?.resume()
 	}

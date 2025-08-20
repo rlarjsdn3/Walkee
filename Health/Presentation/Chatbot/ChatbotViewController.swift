@@ -457,7 +457,7 @@ final class ChatbotViewController: CoreGradientViewController {
 		inFootnote = false
 		pendingOpenBracket = false
 		// SSE 시작
-		viewModel.startStreamingQuestionWithAutoReset(text)
+		viewModel.startPromptChatWithAutoReset(text)
 	}
 	
 	
