@@ -23,7 +23,6 @@ class PersonalViewController: CoreGradientViewController, Alertable {
     private var llmRecommendedLevels: [String] = []  //	Alan에게 받아올 난이도(추후 작업 예정)
     private var currentSortType: String = "코스길이순" //기본 정렬
     private var networkService = DefaultNetworkService()
-    private var didShowLocationPermissionAlert = false
 
     private var distanceViewModel = CourseDistanceViewModel()
     private var previousLocationPermission = false  // 이전 권한 상태 추적
@@ -33,8 +32,8 @@ class PersonalViewController: CoreGradientViewController, Alertable {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupDataSource()
-        applyInitialSnapshot()
         setupDistanceViewModel()
+        applyInitialSnapshot()
         previousLocationPermission = LocationPermissionService.shared.checkCurrentPermissionStatus()
 
         NotificationCenter.default.addObserver(
@@ -46,21 +45,7 @@ class PersonalViewController: CoreGradientViewController, Alertable {
 
         Task { @MainActor in
             await requestInitialLocationPermission()
-            loadWalkingCourses()
-            await retryDistanceCalculation()
-        }
-    }
-
-    // 뷰모델 설정
-    private func setupDistanceViewModel() {
-        // 거리 업데이트 콜백 설정
-        distanceViewModel.onDistanceUpdated = { [weak self] gpxURL, distanceText in
-            self?.updateCellDistance(gpxURL: gpxURL, distanceText: distanceText)
-        }
-
-        // 전체 오류 콜백 설정
-        distanceViewModel.onAllDistancesError = { [weak self] errorMessage in
-            self?.updateAllCellsWithError(errorMessage)
+            loadInitialCourses()
         }
     }
 
@@ -69,21 +54,6 @@ class PersonalViewController: CoreGradientViewController, Alertable {
         navigationController?.setNavigationBarHidden(true, animated: animated)
         // 앱이 포그라운드로 돌아올 때마다 권한 상태 확인
         checkLocationPermissionChange()
-    }
-
-    // 위치 권한 변경 감지 및 자동 재계산
-    @objc private func checkLocationPermissionChange() {
-        let currentPermission = LocationPermissionService.shared.checkCurrentPermissionStatus()
-
-        // 권한이 새로 허용된 경우
-        if !previousLocationPermission && currentPermission {
-            Task {
-                await retryDistanceCalculation()
-            }
-        }
-
-        // 현재 상태 저장
-        previousLocationPermission = currentPermission
     }
 
     override func setupAttribute() {
@@ -119,10 +89,10 @@ class PersonalViewController: CoreGradientViewController, Alertable {
     private func aiSummaryCellRegistration() -> UICollectionView.CellRegistration<AISummaryCell, Void> {
         UICollectionView.CellRegistration<AISummaryCell, Void>(cellNib: AISummaryCell.nib) { cell, indexPath, _ in
             let itemID = AIMonthlySummaryCellViewModel.ItemID()
-                  let viewModel = AIMonthlySummaryCellViewModel(itemID: itemID)
+            let viewModel = AIMonthlySummaryCellViewModel(itemID: itemID)
 
-                  cell.configure(with: viewModel, promptBuilderService: self.promptBuilderService)
-              }
+            cell.configure(with: viewModel, promptBuilderService: self.promptBuilderService)
+        }
     }
 
     private func createWalkingHeaderRegistration() -> UICollectionView.CellRegistration<WalkingHeaderCell, Void> {
@@ -135,19 +105,8 @@ class PersonalViewController: CoreGradientViewController, Alertable {
         UICollectionView.CellRegistration<WalkingFilterCell, Void>(cellNib: WalkingFilterCell.nib) { cell, indexPath, _ in
             // 필터 선택 시 실행될 클로저 설정
             cell.onFilterSelected = { [weak self] selectedFilter in
-                guard let self = self else { return }
-
-                Task {
-                    // "가까운순" 필터를 선택했을 경우, 권한 확인 로직이 포함된 함수를 호출합니다.
-                    if selectedFilter == "가까운순" {
-                        await self.sortCoursesByDistanceWithPermissionCheck()
-                    } else {
-                        // 그 외 다른 필터는 이전과 같이 바로 정렬 함수를 호출합니다.
-                        await MainActor.run {
-                            self.applySorting(sortType: selectedFilter)
-                        }
-                    }
-                }
+                // 어떤 필터가 눌리든 applySorting 함수를 호출하도록 단순화
+                self?.applySorting(sortType: selectedFilter)
             }
         }
     }
@@ -251,7 +210,7 @@ class PersonalViewController: CoreGradientViewController, Alertable {
             case "3":
                 hardLevelCourses.append(course)
             default:
-                print("알 수 없는 난이도: \(course.crsLevel) - \(course.crsKorNm)")
+              break
             }
         }
 
@@ -262,44 +221,64 @@ class PersonalViewController: CoreGradientViewController, Alertable {
     }
 
     @MainActor
-    private func loadWalkingCourses() {
-        let viewModel = distanceViewModel
+    private func loadInitialCourses() {
+        allCourses = WalkingCourseService.shared.loadWalkingCourses()
+        separateCoursesByDifficulty()
 
+        if easyLevelCourses.count > 5 {
+            courses = Array(easyLevelCourses.prefix(5))
+        } else {
+            courses = easyLevelCourses
+        }
+
+        applySorting(sortType: self.currentSortType)
+
+        // 거리 계산을 시작하고 끝날 때까지 기다림
         Task {
-            allCourses = WalkingCourseService.shared.loadWalkingCourses()
-            separateCoursesByDifficulty()
-
-            if easyLevelCourses.count > 5 {
-                courses = Array(easyLevelCourses.prefix(5))
-            } else {
-                courses = easyLevelCourses
-            }
-
-            await MainActor.run {
-                applySorting(sortType: self.currentSortType)
-            }
-
-            await viewModel.calculateAllCourseDistances(courses: courses)
+            await distanceViewModel.prepareAndCalculateDistances(for: self.courses)
         }
     }
 
-    // 뷰모델 콜백 처리 함수들
-    @MainActor
-    private func updateCellDistance(gpxURL: String, distanceText: String) {
-        guard let indexPath = findIndexPath(for: gpxURL) else { return }
+    // 위치 권한 변경 감지 및 자동 재계산
+    @objc private func checkLocationPermissionChange() {
+        let currentPermission = LocationPermissionService.shared.checkCurrentPermissionStatus()
 
+        // 권한 상태가 '변경'되었다면 무조건 동작
+        if previousLocationPermission != currentPermission {
+            // 현재 상태를 먼저 저장하여 중복 실행 방지
+            previousLocationPermission = currentPermission
+
+            Task { @MainActor in
+                distanceViewModel.clearDistanceCache()
+                applyDataSnapshot()
+                // 거리 계산을 다시 요청합니다. (권한 없으면 "위치 권한 없음"이 캐시에 저장됨)
+                await distanceViewModel.prepareAndCalculateDistances(for: self.courses)
+                // 계산이 끝난 후, 최종 결과("위치 권한 없음")를 표시하기 위해 UI를 다시 갱신합니다.
+                applyDataSnapshot()
+            }
+        }
+    }
+
+    private func updateCellDistance(gpxURL: String, distanceText: String) {
+        // courses 배열에서 해당 gpxURL을 가진 코스의 인덱스를 찾습니다.
+        guard let index = courses.firstIndex(where: { $0.gpxpath == gpxURL }) else { return }
+
+        // 해당 인덱스로 IndexPath를 만듭니다.
+        let indexPath = IndexPath(item: index, section: 3)
+
+        // 현재 화면에 보이는 셀이라면 즉시 업데이트합니다.
         if let cell = collectionView.cellForItem(at: indexPath) as? RecommendPlaceCell {
             cell.updateDistance(distanceText)
         }
     }
 
-    //위치권한이 없을때 모든셀을 "위치권한 없음" 으로 업데이트
-    @MainActor
-    private func updateAllCellsWithError(_ errorMessage: String) {
-        for cell in collectionView.visibleCells {
-            if let recommendCell = cell as? RecommendPlaceCell {
-                recommendCell.updateDistance(errorMessage)
-            }
+    private func setupDistanceViewModel() {
+        distanceViewModel.onCacheNeedsRefresh = { [weak self] in
+            self?.applyDataSnapshot()
+        }
+
+        distanceViewModel.onDistanceUpdated = { [weak self] gpxURL, distanceText in
+            self?.updateCellDistance(gpxURL: gpxURL, distanceText: distanceText)
         }
     }
 
@@ -322,15 +301,19 @@ class PersonalViewController: CoreGradientViewController, Alertable {
         return nil
     }
 
-
     @MainActor
     private func applySorting(sortType: String) {
         currentSortType = sortType
 
         switch sortType {
         case "가까운순":
-            // 가까운순: 일단 플레이스홀더 (나중에 위치 기반 정렬 구현)
-            print("가까운순으로 정렬 (미구현)")
+            //가까운순 정렬: 사용자위치와 추천코스와의 거리가 짧은 순서대로 정렬
+            courses = courses.sorted { course1, course2 in
+                let distance1 = distanceViewModel.getCachedDistance(for: course1.gpxpath) ?? "0km"
+                let distance2 = distanceViewModel.getCachedDistance(for: course2.gpxpath) ?? "0km"
+
+                return distance1.localizedStandardCompare(distance2) == .orderedAscending
+            }
 
         case "코스길이순":
             // 코스길이순: 짧은 거리부터 긴 거리 순으로 정렬
@@ -348,6 +331,7 @@ class PersonalViewController: CoreGradientViewController, Alertable {
         applyDataSnapshot()
     }
 
+    //MARK: - 경고창
     // 권한이 거부되었을 때 설정 앱으로 안내하는 알림창 (한 번만)
     /// 앱 초기 실행 시 위치 권한을 요청하는 함수
     @MainActor
@@ -382,36 +366,6 @@ class PersonalViewController: CoreGradientViewController, Alertable {
 
             }
         )
-    }
-
-    // 거리 재계산 (권한 복구 시)
-    private func retryDistanceCalculation() async {
-        await distanceViewModel.calculateAllCourseDistances(courses: courses)
-    }
-
-    @MainActor
-    private func sortCoursesByDistanceWithPermissionCheck() async {
-        let manager = LocationPermissionService.shared
-
-        // 현재 권한 상태를 다시 확인
-        if manager.checkCurrentPermissionStatus() {
-            // 1. 권한이 이미 허용된 상태일 경우
-
-            // TODO: - 실제 사용자 위치를 가져오는 로직 구현 필요
-            // let userLocation = await LocationService.shared.getCurrentLocation()
-
-            // 위치 정보를 가져온 후, 정렬 적용
-            self.applySorting(sortType: "가까운순")
-
-        } else {
-            // 권한이 거부된 상태일 경우 (.denied)
-            guard !didShowLocationPermissionAlert else {
-                return
-            }
-            self.showPermissionDeniedAlert()
-            // 알림창을 보여준 후, 플래그를 true로 변경
-            self.didShowLocationPermissionAlert = true
-        }
     }
 }
 

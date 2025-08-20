@@ -10,8 +10,7 @@ import UIKit
 
 final class AlanActivitySummaryCollectionViewCell: CoreCollectionViewCell {
 
-    @IBOutlet weak var summaryLabel: UILabel!
-    @IBOutlet weak var chatBotImageView: UIImageView!
+    @IBOutlet weak var summaryLabelView: AISummaryLabel!
     @IBOutlet weak var loadingIndicatorView: AlanLoadingIndicatorView!
     
     private var cancellables: Set<AnyCancellable> = []
@@ -21,6 +20,22 @@ final class AlanActivitySummaryCollectionViewCell: CoreCollectionViewCell {
     }
 
     private var viewModel: AlanActivitySummaryCellViewModel!
+
+    override func preferredLayoutAttributesFitting(_ attrs: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
+        super.preferredLayoutAttributesFitting(attrs)
+        
+        let newAttrs = attrs.copy() as! UICollectionViewLayoutAttributes
+
+        var contentHeight: CGFloat
+        if loadingIndicatorView.state == .success {
+            contentHeight = summaryLabelView.intrinsicContentSize.height + 24 // top/bottom 패딩 합
+        } else {
+            contentHeight = loadingIndicatorView.intrinsicContentSize.height + 24 // top/bottom 패딩 합
+        }
+        newAttrs.size.height = contentHeight
+        return newAttrs
+
+    }
 
     override func setupAttribute() {
         self.backgroundColor = .boxBg
@@ -33,8 +48,7 @@ final class AlanActivitySummaryCollectionViewCell: CoreCollectionViewCell {
         self.layer.shadowRadius = 5
         self.layer.borderWidth = borderWidth
 
-        summaryLabel.isHidden = true
-        chatBotImageView.isHidden = true
+        summaryLabelView.isHidden = true
 
         registerForTraitChanges()
     }
@@ -60,34 +74,32 @@ extension AlanActivitySummaryCollectionViewCell {
 
     // TODO: - 상태 코드 별로 함수로 나누는 리팩토링하기
     private func render(for state: LoadState<AlanContent>) {
-        summaryLabel.isHidden = true
-        chatBotImageView.isHidden = true
+        summaryLabelView.isHidden = true
 
         switch state {
         case .idle:
-            return // TODO: - 플레이스 홀더 UI 구성하기
+            return 
 
         case .loading:
+            loadingIndicatorView.isHidden = false
             loadingIndicatorView.setState(.loading)
             return
 
         case let .success(content):
-            chatBotImageView.isHidden = false
-            summaryLabel.isHidden = false
-            summaryLabel.text = content.message
+            summaryLabelView.isHidden = false
+            summaryLabelView.text = content.message
+            summaryLabelView.invalidateIntrinsicContentSize()
             loadingIndicatorView.setState(.success)
 
         case .failure:
-            summaryLabel.text = nil
-            summaryLabel.isHidden = true
-            chatBotImageView.isHidden = true
+            summaryLabelView.isHidden = true
+            summaryLabelView.text = nil
             loadingIndicatorView.setState(.failed)
             print("🔴 건강 데이터를 불러오는 데 실패함: AlanActivitySummaryCollectionViewCell")
 
         case .denied:
-            summaryLabel.text = nil
-            summaryLabel.isHidden = true
-            chatBotImageView.isHidden = true
+            summaryLabelView.isHidden = true
+            summaryLabelView.text = nil
             loadingIndicatorView.setState(.denied)
             print("🔵 건강 데이터에 접근할 수 있는 권한이 없음: AlanActivitySummaryCollectionViewCell")
         }

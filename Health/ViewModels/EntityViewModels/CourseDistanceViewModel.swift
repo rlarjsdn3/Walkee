@@ -13,75 +13,97 @@ class CourseDistanceViewModel {
 
     // 거리 계산 결과 저장
     private var courseDistances: [String: String] = [:]
-
+    private let locationService = LocationPermissionService.shared
     // 거리 업데이트 콜백
     var onDistanceUpdated: ((String, String) -> Void)?  // (gpxURL, distanceText)
-    var onAllDistancesError: ((String) -> Void)?        // (errorMessage)
+    // 개별 코스 거리가 업데이트될 때마다 호출됩니다.
 
-    // 모든 코스의 거리를 한 번에 계산
-    func calculateAllCourseDistances(courses: [WalkingCourse]) async {
+    // 캐시가 통째로 변경되어 전체 UI를 새로고침해야 할 때 호출됩니다.
+    var onCacheNeedsRefresh: (() -> Void)?
 
-        // 내 위치 한 번만 가져오기
-        guard let myLocation = await LocationPermissionService.shared.getCurrentLocation() else {
-            await MainActor.run {
-                // 모든 코스에 에러 상태를 캐시에 저장
-                let errorMessage = "위치 권한 없음"
-                for course in courses {
-                    courseDistances[course.gpxpath] = errorMessage
-                }
-                onAllDistancesError?(errorMessage)
+    // 거리 계산을 준비하는 메서드
+    func prepareAndCalculateDistances(for courses: [WalkingCourse]) async {
+        // 권한 확인
+        guard locationService.checkCurrentPermissionStatus() else {
+
+            // 권한이 없으면 "위치 권한 없음"을 캐시에 저장하고 즉시 종료
+            for course in courses {
+                courseDistances[course.gpxpath] = "위치 권한 없음"
             }
+            onCacheNeedsRefresh?() // ViewController에 UI 갱신 신호
             return
         }
 
-        // 각 코스별로 거리 계산
-        for course in courses {
-            Task {
-                await calculateSingleCourseDistance(course: course, myLocation: myLocation)
+        clearDistanceCache()
+        onCacheNeedsRefresh?() // "거리측정중..." 표시를 위해 UI 갱신 신호
+
+        guard let myLocation = await getMyLocationWithRetry() else {
+
+            let errorMessage = "위치 신호 오류"
+            for course in courses {
+                courseDistances[course.gpxpath] = errorMessage
+            }
+            onCacheNeedsRefresh?() // ViewController에 UI 갱신 신호
+            return
+        }
+
+        await calculateDistancesConcurrently(for: courses, from: myLocation)
+        onCacheNeedsRefresh?() // 최종 결과를 표시하기 위해 UI 갱신 신호
+    }
+
+    // GPS 웜업 시간을 고려하여, 실패 시 잠시 후 한 번 더 시도하는 함수
+    private func getMyLocationWithRetry() async -> CLLocation? {
+        if let location = await locationService.getCurrentLocation() {
+            return location
+        } else {
+            // 첫 시도 실패 시 1.5초 후 재시도
+            try? await Task.sleep(nanoseconds: 1_500_000_000)
+            return await locationService.getCurrentLocation()
+        }
+    }
+
+    // 여러 코스의 거리를 동시에 계산하는 내부 헬퍼 함수
+    private func calculateDistancesConcurrently(for courses: [WalkingCourse], from myLocation: CLLocation) async {
+        await withTaskGroup(of: Void.self) { group in
+            for course in courses {
+                group.addTask {
+                    await self.calculateSingleCourseDistance(course: course, myLocation: myLocation)
+                }
             }
         }
     }
 
-    // 개별 코스 거리 계산
-
     private func calculateSingleCourseDistance(course: WalkingCourse, myLocation: CLLocation) async {
-        // GPX에서 첫 번째 좌표 가져오기
         guard let firstCoordinate = await WalkingCourseService.shared.getFirstCoordinate(from: course.gpxpath) else {
             updateCourseDistance(gpxURL: course.gpxpath, distanceText: "네트워크 오류")
             return
         }
-
-        // 거리 계산
         let courseLocation = CLLocation(latitude: firstCoordinate.latitude, longitude: firstCoordinate.longitude)
-        let distanceInKm = myLocation.distance(from: courseLocation) / 1000.0
-
-        // 거리 텍스트 포맷팅
-        let distanceText = formatDistance(distanceInKm)
-
-        // 결과 저장 및 UI 업데이트
+        let distanceInMeters = myLocation.distance(from: courseLocation)
+        let distanceText = formatDistance(distanceInMeters)
         updateCourseDistance(gpxURL: course.gpxpath, distanceText: distanceText)
     }
 
-    // 특정 코스의 거리 업데이트
     private func updateCourseDistance(gpxURL: String, distanceText: String) {
-        // 결과 저장
         courseDistances[gpxURL] = distanceText
-
-        // 뷰컨트롤러에 알림
         onDistanceUpdated?(gpxURL, distanceText)
     }
 
-    // 캐시된 거리 가져오기
     func getCachedDistance(for gpxURL: String) -> String? {
         return courseDistances[gpxURL]
     }
 
-    // 거리 포맷팅
-    private func formatDistance(_ distance: Double) -> String {
-        if distance >= 1.0 {
-            return "\(String(format: "%.1f", distance))km"
+    func clearDistanceCache() {
+        courseDistances.removeAll()
+    }
+
+
+    private func formatDistance(_ distance: CLLocationDistance) -> String {
+        if distance >= 1000.0 {
+            let distanceInKm = distance / 1000.0
+            return "\(String(format: "%.1f", distanceInKm))km"
         } else {
-            return "\(Int(distance * 1000))m"
+            return "\(Int(distance))m"
         }
     }
 }
