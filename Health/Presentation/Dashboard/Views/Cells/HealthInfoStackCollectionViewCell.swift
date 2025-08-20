@@ -44,7 +44,7 @@ final class HealthInfoStackCollectionViewCell: CoreCollectionViewCell {
         self.backgroundColor = .boxBg
         self.applyCornerStyle(.medium)
         self.layer.masksToBounds = false
-        self.layer.borderColor = UIColor.separator.cgColor
+        self.layer.borderColor = UIColor.boxBgLightModeStroke.cgColor
         self.layer.shadowColor = UIColor.black.cgColor
         self.layer.shadowOpacity = 0.15
         self.layer.shadowOffset = CGSize(width: 2, height: 2)

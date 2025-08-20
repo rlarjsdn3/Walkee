@@ -17,7 +17,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="q7K-RI-rnj">
-                                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                                <rect key="frame" x="0.0" y="162" width="393" height="690"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="V3N-S7-lxw">
                                     <size key="itemSize" width="128" height="128"/>
@@ -27,18 +27,29 @@
                                 </collectionViewFlowLayout>
                                 <cells/>
                             </collectionView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="VrO-zI-wNG" customClass="HealthNavigationBar" customModule="Health" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="118" width="393" height="44"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="44" id="9cn-kn-Unf"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="q7K-RI-rnj" firstAttribute="top" secondItem="5EZ-qb-Rvc" secondAttribute="top" id="CGa-xG-vdo"/>
+                            <constraint firstItem="q7K-RI-rnj" firstAttribute="top" secondItem="VrO-zI-wNG" secondAttribute="bottom" id="BC2-bs-dKF"/>
                             <constraint firstItem="q7K-RI-rnj" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="EAL-Gw-Mk4"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="q7K-RI-rnj" secondAttribute="trailing" id="FrC-lK-8WA"/>
+                            <constraint firstItem="VrO-zI-wNG" firstAttribute="trailing" secondItem="vDu-zF-Fre" secondAttribute="trailing" id="VLZ-78-uHz"/>
+                            <constraint firstItem="VrO-zI-wNG" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="g4V-00-YFu"/>
+                            <constraint firstItem="VrO-zI-wNG" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" id="guU-jb-IDt"/>
                             <constraint firstAttribute="bottom" secondItem="q7K-RI-rnj" secondAttribute="bottom" id="xKH-7u-HWC"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="dashboardCollectionView" destination="q7K-RI-rnj" id="hDB-Uz-7TY"/>
+                        <outlet property="navigationBar" destination="VrO-zI-wNG" id="KGt-m7-rBz"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ief-a0-LHa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

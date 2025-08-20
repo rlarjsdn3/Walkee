@@ -36,7 +36,7 @@ final class DashboardBarChartsCollectionViewCell: CoreCollectionViewCell {
         chartsContainerView.applyCornerStyle(.medium)
         chartsContainerView.backgroundColor = .boxBg
         chartsContainerView.layer.masksToBounds = false
-        chartsContainerView.layer.borderColor = UIColor.separator.cgColor
+        chartsContainerView.layer.borderColor = UIColor.boxBgLightModeStroke.cgColor
         chartsContainerView.layer.shadowColor = UIColor.black.cgColor
         chartsContainerView.layer.shadowOpacity = 0.15
         chartsContainerView.layer.shadowOffset = CGSize(width: 2, height: 2)

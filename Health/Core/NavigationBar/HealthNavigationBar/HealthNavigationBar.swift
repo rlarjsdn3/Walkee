@@ -71,8 +71,13 @@ final class HealthNavigationBar: CoreView {
         didSet { self.setNeedsLayout() }
     }
 
+    ///
+    var isTitleLabelHidden: Bool = false {
+        didSet { updateNavigationBarAttributes() }
+    }
+
     // 뒤로가기 버튼의 숨김 여부입니다.
-    var isHiddenBackButton: Bool = false {
+    var isBackButtonHidden: Bool = false {
         didSet { updateNavigationBarAttributes() }
     }
 
@@ -159,7 +164,7 @@ final class HealthNavigationBar: CoreView {
 
         var config = UIButton.Configuration.plain()
         config.image = chevronLeftImage
-        config.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0)
+        config.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 16)
         backButton.configuration = config
         backButton.translatesAutoresizingMaskIntoConstraints = false
         backButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
@@ -220,7 +225,9 @@ final class HealthNavigationBar: CoreView {
             .applyingSymbolConfiguration(preferredTitleImageSymbolConfiguration ?? defaultSymbolConfiguration)?
             .applyingSymbolConfiguration(defaultSymbolConfiguration)
 
-        backButton.isHidden = isHiddenBackButton
+        titleStackView.isHidden = isTitleLabelHidden
+        centerTitleLabel.isHidden = isTitleLabelHidden
+        backButton.isHidden = isBackButtonHidden
     }
 
     private func configureButtonUpdateHandler(_ button: UIButton) {

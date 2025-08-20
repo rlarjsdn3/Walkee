@@ -72,7 +72,7 @@ final class AISummaryLabel: CoreView {
         ])
 
         NSLayoutConstraint.activate([
-            imageView.widthAnchor.constraint(equalToConstant: 26),
+            imageView.widthAnchor.constraint(equalToConstant: 20),
             imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, multiplier: 1.0)
         ])
 

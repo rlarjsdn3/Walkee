@@ -15,7 +15,7 @@ final class DashboardViewModel {
         let horizontalClassIsRegular: Bool
     }
 
-    private(set) var anchorDate: Date
+    let anchorDate: Date
 
     private(set) var topIDs: [DashboardTopBarViewModel.ItemID] = []
     private(set) var topCells: [DashboardTopBarViewModel.ItemID: DashboardTopBarViewModel] = [:]
@@ -35,6 +35,11 @@ final class DashboardViewModel {
     private(set) var chartsIDs: [DashboardBarChartsCellViewModel.ItemID] = []
     private(set) var chartsCells: [DashboardBarChartsCellViewModel.ItemID: DashboardBarChartsCellViewModel] = [:]
 
+    ///
+    private var shouldShowSummaryAndCharts: Bool {
+        anchorDate.isEqual(with: .now)
+    }
+
     private let alanService = AlanViewModel()
     @Injected private var goalStepService: GoalStepCountViewModel
     @Injected private var coreDataUserService: (any CoreDataUserService)
@@ -49,7 +54,6 @@ final class DashboardViewModel {
 
     // MARK: - Build Layout
 
-    ///
     func buildDashboardCells(for environment: DashboardEnvironment) {
         buildTopBarCell()
         buildStackCells()
@@ -57,7 +61,7 @@ final class DashboardViewModel {
         buildCardCells()
 
         // 대시보드가 오늘자 데이터를 보여준다면
-        if anchorDate.isEqual(with: .now) {
+        if shouldShowSummaryAndCharts {
             buildAlanSummaryCells()
             buildBarChartsCells(for: environment)
         }
@@ -169,13 +173,17 @@ final class DashboardViewModel {
 
 extension DashboardViewModel {
 
-    func loadHKData(includeAISummary: Bool = true) {
+    func loadHKData() {
         loadAnchorDateForTopCell()
         loadHKDataForGoalRingCells()
         loadHKDataForStackCells()
-        if includeAISummary { loadAlanAIResponseForSummaryCells() }
         loadHKDataForCardCells()
         loadHKDataForBarChartsCells()
+
+        // 대시보드가 오늘자 데이터를 보여준다면
+        if shouldShowSummaryAndCharts {
+            loadAlanAIResponseForSummaryCells()
+        }
     }
 
     func loadAnchorDateForTopCell() {
