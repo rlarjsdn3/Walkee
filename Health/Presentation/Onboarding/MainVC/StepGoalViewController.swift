@@ -15,7 +15,6 @@ class StepGoalViewController: CoreGradientViewController {
     @IBOutlet weak var continueButtonLeading: NSLayoutConstraint!
     @IBOutlet weak var continueButtonTrailing: NSLayoutConstraint!
     @IBOutlet weak var stepGoalView: EditStepGoalView!
-    @IBOutlet weak var stepViewDescription: UILabel!
     @IBOutlet weak var stepGoalLeading: NSLayoutConstraint!
     @IBOutlet weak var stepGoalTrailing: NSLayoutConstraint!
     
@@ -40,12 +39,18 @@ class StepGoalViewController: CoreGradientViewController {
 
         stepGoalView.value = 0
         updateContinueButtonState()
+        updateButtonFont()
         
         if let parentVC = parent as? ProgressContainerViewController {
             parentVC.customNavigationBar.backButton.isHidden = true
         }
     }
 
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        updateButtonFont()
+    }
+    
     
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
@@ -87,7 +92,17 @@ class StepGoalViewController: CoreGradientViewController {
         let isValid = stepGoalView.value > 0
         continueButton.isEnabled = isValid
         continueButton.backgroundColor = isValid ? .accent : .buttonBackground
-        continueButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: isValid ? .bold : .regular)
+        updateButtonFont()
+    }
+    
+    private func updateButtonFont() {
+        if let currentFont = continueButton.titleLabel?.font {
+            if continueButton.isEnabled {
+                continueButton.titleLabel?.font = currentFont.withBoldTrait()
+            } else {
+                continueButton.titleLabel?.font = currentFont.withNormalTrait()
+            }
+        }
     }
     
     @IBAction func buttonAction(_ sender: Any) {

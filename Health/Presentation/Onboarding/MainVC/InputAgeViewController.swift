@@ -49,6 +49,7 @@ class InputAgeViewController: CoreGradientViewController {
         registerForKeyboardNotifications()
         setupTapGestureToDismissKeyboard()
         disableContinueButton()
+        updateButtonFont()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -67,6 +68,11 @@ class InputAgeViewController: CoreGradientViewController {
         super.viewWillLayoutSubviews()
         updateContinueButtonConstraints()
         updateDescriptionTopConstraint()
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        updateButtonFont()
     }
     
     private func updateContinueButtonConstraints() {
@@ -143,7 +149,7 @@ class InputAgeViewController: CoreGradientViewController {
         guard let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double else { return }
         
         ageInputFieldCenterY.constant = originalCenterY
-        continueButtonBottomConstraint.constant = -20
+        continueButtonBottomConstraint.constant = 0
         
         UIView.animate(withDuration: duration) {
             self.view.layoutIfNeeded()
@@ -211,14 +217,24 @@ class InputAgeViewController: CoreGradientViewController {
         continueButton.isEnabled = false
         continueButton.backgroundColor = .buttonBackground
         ageInputField.textColor = .label
-        continueButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .regular)
+        updateButtonFont()
     }
     
     private func enableContinueButton() {
         continueButton.isEnabled = true
         continueButton.backgroundColor = .accent
         ageInputField.textColor = .accent
-        continueButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .bold)
+        updateButtonFont()
+    }
+    
+    private func updateButtonFont() {
+        if let currentFont = continueButton.titleLabel?.font {
+            if continueButton.isEnabled {
+                continueButton.titleLabel?.font = currentFont.withBoldTrait()
+            } else {
+                continueButton.titleLabel?.font = currentFont.withNormalTrait()
+            }
+        }
     }
 
     private func fetchAndDisplayUserInfo() {

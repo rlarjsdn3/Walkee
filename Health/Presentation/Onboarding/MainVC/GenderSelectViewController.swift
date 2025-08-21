@@ -33,7 +33,7 @@ class GenderSelectViewController: CoreGradientViewController {
     private var originalMaleWidth: CGFloat = 0
     private var originalMaleHeight: CGFloat = 0
 
-    private enum Gender: String, CaseIterable {
+    private enum Gender: String {
         case male = "남성"
         case female = "여성"
     }
@@ -48,9 +48,10 @@ class GenderSelectViewController: CoreGradientViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         applyBackgroundGradient(.midnightBlack)
-    
+        
         continueButton.applyCornerStyle(.medium)
         continueButton.addTarget(self, action: #selector(continueButtonTapped), for: .touchUpInside)
+
         updateGenderSelectionUI()
         updateContinueButtonState()
 
@@ -59,10 +60,16 @@ class GenderSelectViewController: CoreGradientViewController {
         originalMaleWidth = maleWidth.constant
         originalMaleHeight = maleHeight.constant
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         loadSavedGender()
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        updateGenderSelectionUI()
+        updateContinueButtonState()
     }
     
     override func viewWillLayoutSubviews() {
@@ -82,7 +89,7 @@ class GenderSelectViewController: CoreGradientViewController {
                 iPadCenterXConstraint?.isActive = true
             }
 
-            let multiplier: CGFloat = 2
+            let multiplier: CGFloat = 1.8
             femaleWidth.constant = originalFemaleWidth * multiplier
             femaleHeight.constant = originalFemaleHeight * multiplier
             maleWidth.constant = originalMaleWidth * multiplier
@@ -137,7 +144,7 @@ class GenderSelectViewController: CoreGradientViewController {
                 userInfo.id = UUID()
                 userInfo.createdAt = Date()
             }
-           
+            
             userInfo.gender = (selectedGender == .male) ? "남성" : "여성"
             CoreDataStack.shared.saveContext()
         } catch {
@@ -170,36 +177,46 @@ class GenderSelectViewController: CoreGradientViewController {
     }
 
     private func updateGenderSelectionUI() {
-        let defaultBG = UIColor.buttonBackground
-        let selectedBG = UIColor.accent
-        
-        let defaultTextColor = UIColor.white
         let selectedTextColor = UIColor.black
-        
-        let isIpad = traitCollection.horizontalSizeClass == .regular &&
-                     traitCollection.verticalSizeClass == .regular
-        
-        let fontMultiplier: CGFloat = isIpad ? 2.0 : 1.0
-        
-        let defaultFont = UIFont.systemFont(ofSize: 18 * fontMultiplier, weight: .regular)
-        let selectedFont = UIFont.systemFont(ofSize: 18 * fontMultiplier, weight: .bold)
-        
-        femaleButton.tintColor = (selectedGender == .female) ? selectedBG : defaultBG
-        maleButton.tintColor = (selectedGender == .male) ? selectedBG : defaultBG
+        let defaultTextColor = UIColor.white
         
         femaleGender.textColor = (selectedGender == .female) ? selectedTextColor : defaultTextColor
-        femaleGender.font = (selectedGender == .female) ? selectedFont : defaultFont
-        
         maleGender.textColor = (selectedGender == .male) ? selectedTextColor : defaultTextColor
-        maleGender.font = (selectedGender == .male) ? selectedFont : defaultFont
+        
+        femaleButton.tintColor = (selectedGender == .female) ? .accent : .buttonBackground
+        maleButton.tintColor = (selectedGender == .male) ? .accent : .buttonBackground
+        
+        if let currentFont = femaleGender.font {
+            femaleGender.font = (selectedGender == .female) ? currentFont.withBoldTrait() : currentFont.withNormalTrait()
+        }
+        if let currentFont = maleGender.font {
+            maleGender.font = (selectedGender == .male) ? currentFont.withBoldTrait() : currentFont.withNormalTrait()
+        }
     }
     
     private func updateContinueButtonState() {
         let isSelected = (selectedGender != nil)
         continueButton.isEnabled = isSelected
         continueButton.backgroundColor = isSelected ? .accent : .buttonBackground
-        continueButton.titleLabel?.font = isSelected
-            ? UIFont.systemFont(ofSize: 18, weight: .bold)
-            : UIFont.systemFont(ofSize: 18, weight: .regular)
+        
+        if let currentFont = continueButton.titleLabel?.font {
+            continueButton.titleLabel?.font = isSelected ? currentFont.withBoldTrait() : currentFont.withNormalTrait()
+        }
+    }
+}
+
+extension UIFont {
+    func withBoldTrait() -> UIFont {
+        guard let descriptor = self.fontDescriptor.withSymbolicTraits(self.fontDescriptor.symbolicTraits.union(.traitBold)) else {
+            return self
+        }
+        return UIFont(descriptor: descriptor, size: 0)
+    }
+
+    func withNormalTrait() -> UIFont {
+        guard let descriptor = self.fontDescriptor.withSymbolicTraits(self.fontDescriptor.symbolicTraits.subtracting(.traitBold)) else {
+            return self
+        }
+        return UIFont(descriptor: descriptor, size: 0)
     }
 }

@@ -62,6 +62,7 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="50" id="R7x-ei-F7n"/>
                                 </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
                                 <color key="tintColor" name="AccentColor"/>
                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                 <state key="normal" title="다음">
@@ -109,24 +110,7 @@
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cZ1-Hk-BtZ" customClass="EditStepGoalView" customModule="Health" customModuleProvider="target">
                                 <rect key="frame" x="20" y="188" width="400" height="630"/>
-                                <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="목표 걸음 수를 설정 해주세요" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DiZ-i3-8js">
-                                        <rect key="frame" x="60" y="32" width="280" height="20.333333333333329"/>
-                                        <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
-                                        <nil key="textColor"/>
-                                        <nil key="highlightedColor"/>
-                                        <variation key="heightClass=regular-widthClass=regular">
-                                            <fontDescription key="fontDescription" style="UICTFontTextStyleTitle0"/>
-                                        </variation>
-                                    </label>
-                                </subviews>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                <constraints>
-                                    <constraint firstItem="DiZ-i3-8js" firstAttribute="centerX" secondItem="cZ1-Hk-BtZ" secondAttribute="centerX" id="4Ui-kE-zLS"/>
-                                    <constraint firstItem="DiZ-i3-8js" firstAttribute="top" secondItem="cZ1-Hk-BtZ" secondAttribute="top" constant="32" id="RBP-GQ-uSm"/>
-                                    <constraint firstItem="DiZ-i3-8js" firstAttribute="leading" secondItem="cZ1-Hk-BtZ" secondAttribute="leading" constant="60" id="rU3-BM-h4G"/>
-                                    <constraint firstAttribute="trailing" secondItem="DiZ-i3-8js" secondAttribute="trailing" constant="60" id="v4r-Gl-Mxz"/>
-                                </constraints>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MkJ-cU-nig">
                                 <rect key="frame" x="20" y="838" width="400" height="50"/>
@@ -134,6 +118,7 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="50" id="3pS-vA-UeY"/>
                                 </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
                                 <color key="tintColor" name="AccentColor"/>
                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                 <state key="normal" title="다음">
@@ -166,7 +151,6 @@
                         <outlet property="stepGoalLeading" destination="mYI-kK-fki" id="RzP-57-xLE"/>
                         <outlet property="stepGoalTrailing" destination="Kt0-Tb-ZWY" id="6go-jD-Sbr"/>
                         <outlet property="stepGoalView" destination="cZ1-Hk-BtZ" id="bJO-LT-YSz"/>
-                        <outlet property="stepViewDescription" destination="DiZ-i3-8js" id="lcP-h7-m3u"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="5SJ-I4-pXT" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -225,7 +209,7 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                                 <variation key="heightClass=regular-widthClass=regular">
-                                    <fontDescription key="fontDescription" type="system" pointSize="50"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="36"/>
                                 </variation>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jVr-0Q-cfk">
@@ -234,7 +218,7 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                                 <variation key="heightClass=regular-widthClass=regular">
-                                    <fontDescription key="fontDescription" type="system" pointSize="50"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="36"/>
                                 </variation>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kfA-li-D6b">
@@ -243,6 +227,7 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="50" id="8ZB-fn-wPh"/>
                                 </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
                                 <color key="tintColor" name="AccentColor"/>
                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                 <state key="normal" title="다음">
@@ -345,6 +330,7 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="50" id="LTV-1o-zTg"/>
                                 </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
                                 <color key="tintColor" name="AccentColor"/>
                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                 <state key="normal" title="다음">
@@ -417,6 +403,7 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="50" id="vhQ-3h-HSJ"/>
                                 </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
                                 <color key="tintColor" name="AccentColor"/>
                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                 <state key="normal" title="다음">
@@ -513,6 +500,7 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="50" id="slJ-ZO-VfC"/>
                                 </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
                                 <color key="tintColor" name="AccentColor"/>
                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                 <state key="normal" title="다음">
@@ -641,6 +629,7 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="50" id="aeE-FA-HuA"/>
                                 </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
                                 <color key="tintColor" name="AccentColor"/>
                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                 <state key="normal" title="다음">
@@ -755,6 +744,7 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="50" id="dSS-ct-RNb"/>
                                 </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
                                 <color key="tintColor" name="AccentColor"/>
                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                 <state key="normal" title="다음">

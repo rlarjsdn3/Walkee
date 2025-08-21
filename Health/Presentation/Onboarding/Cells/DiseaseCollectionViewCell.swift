@@ -21,38 +21,31 @@ class DiseaseCollectionViewCell: CoreCollectionViewCell {
     override func setupAttribute() {
         super.setupAttribute()
         contentView.backgroundColor = .boxBg
-        updateTextColor()
+        updateUIForCurrentState()
     }
     
     override var isSelected: Bool {
         didSet {
-            if isSelected {
-                contentView.backgroundColor = .accent
-                diseaseLabel.textColor = .black
-                diseaseLabel.font = UIFont.systemFont(ofSize: diseaseLabel.font.pointSize, weight: .bold)
-            } else {
-                contentView.backgroundColor = .boxBg
-                updateTextColor()
-                diseaseLabel.font = UIFont.systemFont(ofSize: diseaseLabel.font.pointSize, weight: .regular)
-            }
-        }
-    }
-    
-    private func updateTextColor() {
-        if traitCollection.userInterfaceStyle == .dark {
-            diseaseLabel.textColor = .white
-        } else {
-            diseaseLabel.textColor = UIColor(white: 0.2, alpha: 1)
+            updateUIForCurrentState()
         }
     }
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
-        if !isSelected {
-            updateTextColor()
+        updateUIForCurrentState()
+    }
+    
+    private func updateUIForCurrentState() {
+        let isDarkMode = traitCollection.userInterfaceStyle == .dark
+        
+        if isSelected {
+            contentView.backgroundColor = .accent
+            diseaseLabel.textColor = .black
+            diseaseLabel.font = diseaseLabel.font.withBoldTrait()
+        } else {
+            contentView.backgroundColor = .boxBg
+            diseaseLabel.textColor = isDarkMode ? .white : UIColor(white: 0.2, alpha: 1)
+            diseaseLabel.font = diseaseLabel.font.withNormalTrait()
         }
     }
 }
-
-
-

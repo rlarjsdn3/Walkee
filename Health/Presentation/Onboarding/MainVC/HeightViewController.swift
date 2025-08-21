@@ -22,6 +22,7 @@ class HeightViewController: CoreGradientViewController {
     
     @IBOutlet weak var heightInputFieldCenterY: NSLayoutConstraint!
     private var originalCenterY: CGFloat = 0
+    private var originalDescriptionTop: CGFloat = 0
     
     private var iPadWidthConstraint: NSLayoutConstraint?
     private var iPadCenterXConstraint: NSLayoutConstraint?
@@ -42,7 +43,10 @@ class HeightViewController: CoreGradientViewController {
         errorLabel.textColor = .red
         
         continueButton.applyCornerStyle(.medium)
+        updateButtonFont()
+        
         originalCenterY = heightInputFieldCenterY.constant
+        originalDescriptionTop = descriptionLabelTopConst.constant
         
         registerForKeyboardNotifications()
         setupTapGestureToDismissKeyboard()
@@ -66,14 +70,21 @@ class HeightViewController: CoreGradientViewController {
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         updateContinueButtonConstraints()
-        updateDescriptionLabelConstraint()
+        updateDescriptionTopConstraint()
     }
     
-    private func updateDescriptionLabelConstraint() {
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        updateButtonFont()
+    }
+    
+    private func updateDescriptionTopConstraint() {
         let isLandscape = view.bounds.width > view.bounds.height
-        descriptionLabelTopConst.constant = isLandscape
-            ? descriptionLabelTopConst.constant * 0.5
-            : descriptionLabelTopConst.constant * 1.2
+        if isLandscape {
+            descriptionLabelTopConst.constant = originalDescriptionTop * 0.3
+        } else {
+            descriptionLabelTopConst.constant = originalDescriptionTop * 1.2
+        }
     }
     
     private func updateContinueButtonConstraints() {
@@ -123,7 +134,7 @@ class HeightViewController: CoreGradientViewController {
         let isLandscape = view.bounds.width > view.bounds.height
         let isIphonePortrait = !isIpad && !isLandscape
         
-        if (isIpad && isLandscape) || isIphonePortrait  {
+        if (isIpad && isLandscape) || isIphonePortrait {
             heightInputFieldCenterY.constant = originalCenterY - keyboardFrame.height * 0.5
         }
         
@@ -138,7 +149,7 @@ class HeightViewController: CoreGradientViewController {
         guard let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double else { return }
         
         heightInputFieldCenterY.constant = originalCenterY
-        continueButtonBottomConstraint?.constant = -20
+        continueButtonBottomConstraint?.constant = 0
         
         UIView.animate(withDuration: duration) {
             self.view.layoutIfNeeded()
@@ -158,7 +169,7 @@ class HeightViewController: CoreGradientViewController {
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
-
+    
     @IBAction func continueButtonTapped(_ sender: UIButton) {
         guard continueButton.isEnabled else { return }
         guard let text = heightInputField.text, let heightValue = Double(text) else { return }
@@ -171,7 +182,7 @@ class HeightViewController: CoreGradientViewController {
             print("Failed to save height: \(error)")
         }
     }
-
+    
     @objc private func textFieldDidChange(_ textField: UITextField) {
         validateInput()
     }
@@ -220,15 +231,24 @@ class HeightViewController: CoreGradientViewController {
     private func disableContinueButton() {
         continueButton.isEnabled = false
         continueButton.backgroundColor = .buttonBackground
-        heightInputField.textColor = .label
-        continueButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .regular)
+        updateButtonFont()
     }
     
     private func enableContinueButton() {
         continueButton.isEnabled = true
         continueButton.backgroundColor = .accent
         heightInputField.textColor = .accent
-        continueButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .bold)
+        updateButtonFont()
+    }
+    
+    private func updateButtonFont() {
+        if let currentFont = continueButton.titleLabel?.font {
+            if continueButton.isEnabled {
+                continueButton.titleLabel?.font = currentFont.withBoldTrait()
+            } else {
+                continueButton.titleLabel?.font = currentFont.withNormalTrait()
+            }
+        }
     }
     
     private func fetchUserInfo() {
