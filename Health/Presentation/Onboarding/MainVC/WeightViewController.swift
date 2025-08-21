@@ -18,7 +18,7 @@ class WeightViewController: CoreGradientViewController {
     @IBOutlet weak var continueButtonLeading: NSLayoutConstraint!
     @IBOutlet weak var continueButtonTrailing: NSLayoutConstraint!
     @IBOutlet weak var continueButtonBottomConstraint: NSLayoutConstraint!
-    @IBOutlet weak var descriptionLabelConst: NSLayoutConstraint!
+    @IBOutlet weak var descriptionLabelTopConst: NSLayoutConstraint!
     
     @IBOutlet weak var weightInputFieldCenterY: NSLayoutConstraint!
     private var originalCenterY: CGFloat = 0
@@ -70,9 +70,9 @@ class WeightViewController: CoreGradientViewController {
     
     private func updateDescriptionLabelConstraint() {
         let isLandscape = view.bounds.width > view.bounds.height
-        descriptionLabelConst.constant = isLandscape
-            ? descriptionLabelConst.constant * 0.5
-            : descriptionLabelConst.constant * 1.2
+        descriptionLabelTopConst.constant = isLandscape
+            ? descriptionLabelTopConst.constant * 0.5
+            : descriptionLabelTopConst.constant * 1.2
     }
     
     private func updateContinueButtonConstraints() {

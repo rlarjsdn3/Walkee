@@ -472,7 +472,7 @@
                         <outlet property="continueButtonBottomConstraint" destination="ysO-YW-hKj" id="YmT-Xi-jp4"/>
                         <outlet property="continueButtonLeading" destination="tXx-dA-HG2" id="yFg-cl-HA1"/>
                         <outlet property="continueButtonTrailing" destination="BqN-bC-Hdv" id="LL2-du-RCR"/>
-                        <outlet property="descriptionLabelConst" destination="sNH-V5-MEv" id="NML-IS-k0c"/>
+                        <outlet property="descriptionLabelTopConst" destination="sNH-V5-MEv" id="NML-IS-k0c"/>
                         <outlet property="errorLabel" destination="MFN-Q1-5mt" id="MZJ-0Q-x7J"/>
                         <outlet property="kgLabel" destination="KXo-3b-tnu" id="afD-QL-lUl"/>
                         <outlet property="weightInputField" destination="MBV-gl-LZA" id="sHA-9N-EPQ"/>
@@ -569,7 +569,7 @@
                         <outlet property="continueButtonBottomConstraint" destination="7xh-L0-5ZU" id="hIh-8a-NOd"/>
                         <outlet property="continueButtonLeading" destination="AlN-S0-NgO" id="Zn5-Nk-CIS"/>
                         <outlet property="continueButtonTrailing" destination="bMJ-I4-iRW" id="6ti-kf-rFO"/>
-                        <outlet property="descriptionLabelConst" destination="39R-Ph-wmC" id="sVh-fP-0w7"/>
+                        <outlet property="descriptionLabelTopConst" destination="39R-Ph-wmC" id="sVh-fP-0w7"/>
                         <outlet property="errorLabel" destination="4nP-gH-NA4" id="5yn-TR-ODh"/>
                         <outlet property="heightInputField" destination="6xh-tM-tSN" id="Bqg-9r-Mgi"/>
                         <outlet property="heightInputFieldCenterY" destination="q97-mA-ylZ" id="pxG-jC-3dq"/>

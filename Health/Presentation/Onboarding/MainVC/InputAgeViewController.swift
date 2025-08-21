@@ -22,7 +22,7 @@ class InputAgeViewController: CoreGradientViewController {
     
     @IBOutlet weak var ageInputFieldCenterY: NSLayoutConstraint!
     private var originalCenterY: CGFloat = 0
-    private var originalDescriptionTop: CGFloat = 0   // ✅ 원래 top 값 저장
+    private var originalDescriptionTop: CGFloat = 0   
     
     private var iPadWidthConstraint: NSLayoutConstraint?
     private var iPadCenterXConstraint: NSLayoutConstraint?
@@ -44,7 +44,7 @@ class InputAgeViewController: CoreGradientViewController {
         continueButton.applyCornerStyle(.medium)
         
         originalCenterY = ageInputFieldCenterY.constant
-        originalDescriptionTop = descriptionLabelTopConst.constant  // ✅ 원래 값 저장
+        originalDescriptionTop = descriptionLabelTopConst.constant
         
         registerForKeyboardNotifications()
         setupTapGestureToDismissKeyboard()
@@ -66,7 +66,7 @@ class InputAgeViewController: CoreGradientViewController {
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         updateContinueButtonConstraints()
-        updateDescriptionTopConstraint()  // ✅ orientation에 맞춰 탑 제약 변경
+        updateDescriptionTopConstraint()
     }
     
     private func updateContinueButtonConstraints() {
@@ -94,8 +94,7 @@ class InputAgeViewController: CoreGradientViewController {
             }
         }
     }
-    
-    // ✅ 가로/세로 모드에 따라 descriptionLabelTopConst 조정
+   
     private func updateDescriptionTopConstraint() {
         let isLandscape = view.bounds.width > view.bounds.height
         if isLandscape {
