@@ -28,7 +28,9 @@ extension Alertable where Self: UIViewController {
     func showAlert(
         _ title: String,
         message: String? = nil,
+        primaryTitle: String = "확인",
         onPrimaryAction: @escaping TSAlertActionHandler,
+        cancelTitle: String = "취소",
         onCancelAction: TSAlertActionHandler? = nil
     ) {
         let alert = TSAlertController(
@@ -41,13 +43,15 @@ extension Alertable where Self: UIViewController {
         alert.configuration.exitingTransition = .slideDown
         alert.configuration.headerAnimation = .slideUp
         alert.configuration.buttonGroupAnimation = .slideUp
+        alert.viewConfiguration.titleAlignment = .center
+        alert.viewConfiguration.messageAlignment = .center
         
         sizeClasses(vRhR: {
             alert.viewConfiguration.size.width = .proportional(minimumRatio: 0.33, maximumRatio: 0.33)
         })
 
         let primaryAction = TSAlertAction(
-            title: "확인",
+            title: primaryTitle,
             style: .default,
             handler: onPrimaryAction
         )
@@ -59,7 +63,7 @@ extension Alertable where Self: UIViewController {
 
         if let onCancelAction = onCancelAction {
             let cancelAction = TSAlertAction(
-                title: "취소",
+                title: cancelTitle,
                 style: .cancel,
                 handler: onCancelAction
             )

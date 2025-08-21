@@ -124,10 +124,7 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
     
     override func setupAttribute() {
         userDescriptionLabel.text = "사용자 데이터 입력 및 \n건강 앱 정보 가져오기 권한 설정"
-        supUserDescriptionLabel.text = """
-신체 측정값을 가져와서 걸음 수를 Apple 건강 앱과 지속적으로 동기화 할 수 있습니다.
-"""
-        supUserDescriptionLabel.alpha = 0.5
+        supUserDescriptionLabel.text = "신체 측정값을 가져와서 걸음 수를 Apple 건강 앱과 지속적으로 동기화 할 수 있습니다."
         linkSettingView.backgroundColor = UIColor(named: "boxBgColor")
         linkSettingView.applyCornerStyle(.medium)
         linkSettingView.clipsToBounds = true
@@ -188,13 +185,16 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
             showAlert(
                 "건강 연동 필요",
                 message: """
-건강 연동을 해야 이용할 수 있는 서비스가 포함되어 있습니다.그래도 연동하지 않으시겠습니까?
+건강 연동을 해야 이용할 수 있는 서비스가 포함되어 있습니다. 건강앱 연동하시겠습니까?
 """,
+                primaryTitle: "네",
                 onPrimaryAction: { _ in
                     Task {
                         await self.requestHealthKitAuthorization()
                     }
                 },
+                
+                cancelTitle: "아니오",
                 onCancelAction: { _ in
                     self.performSegue(withIdentifier: "goToGenderInfo", sender: nil)
                 }
