@@ -18,22 +18,22 @@ final class GuideView: UIView {
     ///
     /// 폰트, 색상, 간격, 여백 등 가이드 뷰의 모든 시각적 요소를 커스터마이징할 수 있습니다.
     struct Configuration {
-        let spacing: CGFloat
-        let margins: UIEdgeInsets
         let titleFont: UIFont
         let descriptionFont: UIFont
         let titleColor: UIColor
         let descriptionColor: UIColor
+        let contentSpacing: CGFloat
         let sectionSpacing: CGFloat
+        let margins: UIEdgeInsets
 
         static let `default` = Configuration(
-            spacing: 16,
-            margins: UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8),
             titleFont: .preferredFont(forTextStyle: .headline),
             descriptionFont: .preferredFont(forTextStyle: .body),
             titleColor: .label,
             descriptionColor: .secondaryLabel,
-            sectionSpacing: 4
+            contentSpacing: 4,
+            sectionSpacing: 16,
+            margins: UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
         )
     }
 
@@ -75,7 +75,7 @@ final class GuideView: UIView {
     /// - Parameter sections: 표시할 가이드 섹션 배열
     func configure(with sections: [GuideSection]) {
         self.guideSections = sections
-        refreshSections()
+        refreshSections(with: sections)
     }
 
     /// 현재 표시 중인 모든 가이드 섹션을 제거합니다.
@@ -100,7 +100,7 @@ private extension GuideView {
     func setupStackView() {
         stackView.axis = .vertical
         stackView.alignment = .fill
-        stackView.spacing = configuration.spacing
+        stackView.spacing = configuration.sectionSpacing
         stackView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stackView)
     }
@@ -116,10 +116,10 @@ private extension GuideView {
     }
 
     /// 기존 섹션들을 모두 제거하고 새로운 섹션들을 추가합니다.
-    func refreshSections() {
+    func refreshSections(with sections: [GuideSection]) {
         clearSections()
-        guideSections.forEach { item in
-            addSection(title: item.title, description: item.description)
+        sections.forEach { section in
+            addSection(title: section.title, description: section.description)
         }
     }
 
@@ -133,7 +133,7 @@ private extension GuideView {
 
         let vStack = UIStackView(arrangedSubviews: [titleLabel, descLabel])
         vStack.axis = .vertical
-        vStack.spacing = configuration.sectionSpacing
+        vStack.spacing = configuration.contentSpacing
 
         stackView.addArrangedSubview(vStack)
     }
