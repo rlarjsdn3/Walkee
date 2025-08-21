@@ -5,8 +5,6 @@
 //  Created by 권도현 on 8/1/25.
 //
 
-//TODO: 성별 불러오는 명칭 영어 한글 통일 시키기
-
 import UIKit
 import CoreData
 
@@ -17,16 +15,27 @@ class GenderSelectViewController: CoreGradientViewController {
     @IBOutlet weak var femaleGender: UILabel!
     @IBOutlet weak var maleGender: UILabel!
     
+    @IBOutlet weak var femaleWidth: NSLayoutConstraint!
+    @IBOutlet weak var femaleHeight: NSLayoutConstraint!
+    
+    @IBOutlet weak var maleWidth: NSLayoutConstraint!
+    @IBOutlet weak var maleHeight: NSLayoutConstraint!
+    
     @IBOutlet weak var continueButton: UIButton!
     @IBOutlet weak var continueButtonLeading: NSLayoutConstraint!
     @IBOutlet weak var continueButtonTrailing: NSLayoutConstraint!
 
     private var iPadWidthConstraint: NSLayoutConstraint?
     private var iPadCenterXConstraint: NSLayoutConstraint?
+    
+    private var originalFemaleWidth: CGFloat = 0
+    private var originalFemaleHeight: CGFloat = 0
+    private var originalMaleWidth: CGFloat = 0
+    private var originalMaleHeight: CGFloat = 0
 
-    private enum Gender {
-        case male
-        case female
+    private enum Gender: String, CaseIterable {
+        case male = "남성"
+        case female = "여성"
     }
     
     private var selectedGender: Gender? {
@@ -44,6 +53,11 @@ class GenderSelectViewController: CoreGradientViewController {
         continueButton.addTarget(self, action: #selector(continueButtonTapped), for: .touchUpInside)
         updateGenderSelectionUI()
         updateContinueButtonState()
+
+        originalFemaleWidth = femaleWidth.constant
+        originalFemaleHeight = femaleHeight.constant
+        originalMaleWidth = maleWidth.constant
+        originalMaleHeight = maleHeight.constant
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -67,16 +81,26 @@ class GenderSelectViewController: CoreGradientViewController {
                 iPadWidthConstraint?.isActive = true
                 iPadCenterXConstraint?.isActive = true
             }
+
+            let multiplier: CGFloat = 2
+            femaleWidth.constant = originalFemaleWidth * multiplier
+            femaleHeight.constant = originalFemaleHeight * multiplier
+            maleWidth.constant = originalMaleWidth * multiplier
+            maleHeight.constant = originalMaleHeight * multiplier
+
         } else {
             iPadWidthConstraint?.isActive = false
             iPadCenterXConstraint?.isActive = false
 
             continueButtonLeading?.isActive = true
             continueButtonTrailing?.isActive = true
+            
+            femaleWidth.constant = originalFemaleWidth
+            femaleHeight.constant = originalFemaleHeight
+            maleWidth.constant = originalMaleWidth
+            maleHeight.constant = originalMaleHeight
         }
     }
-
-    override func initVM() {}
     
     override func setupHierarchy() {
         continueButton.translatesAutoresizingMaskIntoConstraints = false
@@ -113,8 +137,8 @@ class GenderSelectViewController: CoreGradientViewController {
                 userInfo.id = UUID()
                 userInfo.createdAt = Date()
             }
-            
-            userInfo.gender = (selectedGender == .male) ? "male" : "female"
+           
+            userInfo.gender = (selectedGender == .male) ? "남성" : "여성"
             CoreDataStack.shared.saveContext()
         } catch {
             print("CoreData 저장 오류: \(error.localizedDescription)")
@@ -132,8 +156,8 @@ class GenderSelectViewController: CoreGradientViewController {
             if let userInfo = try context.fetch(fetchRequest).first,
                let genderString = userInfo.gender {
                 switch genderString {
-                case "male": selectedGender = .male
-                case "female": selectedGender = .female
+                case "남성": selectedGender = .male
+                case "여성": selectedGender = .female
                 default: selectedGender = nil
                 }
             } else {
@@ -152,8 +176,13 @@ class GenderSelectViewController: CoreGradientViewController {
         let defaultTextColor = UIColor.white
         let selectedTextColor = UIColor.black
         
-        let defaultFont = UIFont.systemFont(ofSize: 18, weight: .regular)
-        let selectedFont = UIFont.systemFont(ofSize: 18, weight: .bold)
+        let isIpad = traitCollection.horizontalSizeClass == .regular &&
+                     traitCollection.verticalSizeClass == .regular
+        
+        let fontMultiplier: CGFloat = isIpad ? 2.0 : 1.0
+        
+        let defaultFont = UIFont.systemFont(ofSize: 18 * fontMultiplier, weight: .regular)
+        let selectedFont = UIFont.systemFont(ofSize: 18 * fontMultiplier, weight: .bold)
         
         femaleButton.tintColor = (selectedGender == .female) ? selectedBG : defaultBG
         maleButton.tintColor = (selectedGender == .male) ? selectedBG : defaultBG

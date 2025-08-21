@@ -10,8 +10,6 @@ import HealthKit
 import CoreData
 
 class DiseaseViewController: CoreGradientViewController {
-    
-    @Injected private var stepSyncService: StepSyncService
 
     @IBOutlet weak var descriptionLabel: UILabel!
     @IBOutlet weak var diseaseCollectionView: UICollectionView!
@@ -19,17 +17,25 @@ class DiseaseViewController: CoreGradientViewController {
     
     @IBOutlet weak var continueButtonLeading: NSLayoutConstraint!
     @IBOutlet weak var continueButtonTrailing: NSLayoutConstraint!
+
+    @IBOutlet weak var collectionViewTopConstraint: NSLayoutConstraint!
+    @IBOutlet weak var collectionViewBottomConstraint: NSLayoutConstraint!
+    @IBOutlet weak var collectionViewLeadingConstraint: NSLayoutConstraint!
+    @IBOutlet weak var collectionViewTrailingConstraint: NSLayoutConstraint!
     
     private var iPadWidthConstraint: NSLayoutConstraint?
     private var iPadCenterXConstraint: NSLayoutConstraint?
+    
+    private var iPadCollectionViewCenterX: NSLayoutConstraint?
+    private var iPadCollectionViewCenterY: NSLayoutConstraint?
+    private var iPadCollectionViewWidth: NSLayoutConstraint?
+    private var iPadCollectionViewHeight: NSLayoutConstraint?
     
     private let progressIndicatorStackView = ProgressIndicatorStackView(totalPages: 4)
     private let defaultDiseases: [Disease] = Disease.allCases
     private var userDiseases: [Disease] = []
     private var userInfo: UserInfoEntity?
     private let context = CoreDataStack.shared.persistentContainer.viewContext
-
-    override func initVM() {}
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -53,28 +59,53 @@ class DiseaseViewController: CoreGradientViewController {
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         
-        let isIpad = traitCollection.horizontalSizeClass == .regular &&
-                     traitCollection.verticalSizeClass == .regular
+        let isIpad = traitCollection.userInterfaceIdiom == .pad
         
         if isIpad {
             continueButtonLeading?.isActive = false
             continueButtonTrailing?.isActive = false
-            
             if iPadWidthConstraint == nil {
                 iPadWidthConstraint = continueButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7)
                 iPadCenterXConstraint = continueButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
                 iPadWidthConstraint?.isActive = true
                 iPadCenterXConstraint?.isActive = true
             }
+
+            collectionViewTopConstraint?.isActive = false
+            collectionViewBottomConstraint?.isActive = false
+            collectionViewLeadingConstraint?.isActive = false
+            collectionViewTrailingConstraint?.isActive = false
+
+            if iPadCollectionViewCenterX == nil {
+                iPadCollectionViewCenterX = diseaseCollectionView.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+                iPadCollectionViewCenterY = diseaseCollectionView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+                iPadCollectionViewWidth = diseaseCollectionView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7)
+                iPadCollectionViewHeight = diseaseCollectionView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.475)
+                
+                iPadCollectionViewCenterX?.isActive = true
+                iPadCollectionViewCenterY?.isActive = true
+                iPadCollectionViewWidth?.isActive = true
+                iPadCollectionViewHeight?.isActive = true
+            }
+            
         } else {
             iPadWidthConstraint?.isActive = false
             iPadCenterXConstraint?.isActive = false
-            
             continueButtonLeading?.isActive = true
             continueButtonTrailing?.isActive = true
+            
+            iPadCollectionViewCenterX?.isActive = false
+            iPadCollectionViewCenterY?.isActive = false
+            iPadCollectionViewWidth?.isActive = false
+            iPadCollectionViewHeight?.isActive = false
+            
+            collectionViewTopConstraint?.isActive = true
+            collectionViewBottomConstraint?.isActive = true
+            collectionViewLeadingConstraint?.isActive = true
+            collectionViewTrailingConstraint?.isActive = true
         }
     }
-    
+
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         diseaseCollectionView.collectionViewLayout.invalidateLayout()
@@ -86,11 +117,7 @@ class DiseaseViewController: CoreGradientViewController {
     }
  
     private func updateNavigationBarVisibility() {
-        if traitCollection.userInterfaceIdiom == .pad {
-            navigationController?.setNavigationBarHidden(true, animated: false)
-        } else {
-            navigationController?.setNavigationBarHidden(false, animated: false)
-        }
+        navigationController?.setNavigationBarHidden(traitCollection.userInterfaceIdiom == .pad, animated: false)
     }
 
     private func fetchUserInfo() {
@@ -122,16 +149,15 @@ class DiseaseViewController: CoreGradientViewController {
         descriptionLabel.text = "평소 겪는 지병을 골라주세요."
         descriptionLabel.textColor = .label
     }
-    override func setupConstraints() {}
-
+    
     private func setupCollectionView() {
         diseaseCollectionView.delegate = self
         diseaseCollectionView.dataSource = self
         diseaseCollectionView.allowsMultipleSelection = true
         
         if let layout = diseaseCollectionView.collectionViewLayout as? UICollectionViewFlowLayout {
-            layout.minimumInteritemSpacing = 10
-            layout.minimumLineSpacing = 8
+            layout.minimumInteritemSpacing = 12
+            layout.minimumLineSpacing = 10
             layout.sectionInset = .zero
         }
         diseaseCollectionView.backgroundColor = .clear
@@ -140,57 +166,20 @@ class DiseaseViewController: CoreGradientViewController {
     @IBAction func continueButtonTapped(_ sender: Any) {
         let selectedIndexPaths = diseaseCollectionView.indexPathsForSelectedItems ?? []
         let selectedDiseases = selectedIndexPaths.map { defaultDiseases[$0.item] }
-
-        let context = CoreDataStack.shared.viewContext
-        let today = Date().startOfDay()
-
         userInfo?.diseases = selectedDiseases
-        let goal = GoalStepCountEntity(context: context)
-        goal.id = UUID()
-        goal.effectiveDate = today
-        goal.goalStepCount = 10000
 
         do {
             try context.save()
-            print("질병 정보와 임시 목표 걸음 수 저장 완료")
+            print("질병 정보 저장 완료")
         } catch {
             print("CoreData 저장 실패: \(error.localizedDescription)")
         }
-
-        UserDefaultsWrapper.shared.hasSeenOnboarding = true
-
-        Task {
-            do {
-                try await stepSyncService.syncSteps()
-                print("온보딩 직후 동기화 완료")
-            } catch {
-                print("온보딩 직후 동기화 실패: \(error.localizedDescription)")
-            }
-        }
-
-        if let window = UIApplication.shared.connectedScenes
-                            .compactMap({ $0 as? UIWindowScene })
-                            .flatMap({ $0.windows })
-                            .first(where: { $0.isKeyWindow }) {
-            let storyboard = UIStoryboard(name: "Main", bundle: nil)
-            guard let tabBarController = storyboard.instantiateInitialViewController() as? UITabBarController else {
-                print("Main.storyboard의 초기 뷰컨트롤러가 UITabBarController가 아닙니다.")
-                return
-            }
-
-            window.rootViewController = tabBarController
-            window.makeKeyAndVisible()
-            UIView.transition(with: window,
-                              duration: 0.5,
-                              options: [.transitionCrossDissolve],
-                              animations: nil)
-        }
+        performSegue(withIdentifier: "goToStepGoalInfo", sender: self)
     }
     
     private func updateContinueButtonState() {
         let selectedCount = diseaseCollectionView.indexPathsForSelectedItems?.count ?? 0
         let enabled = selectedCount > 0
-        
         continueButton.isEnabled = enabled
         continueButton.backgroundColor = enabled ? UIColor.accent : UIColor.buttonBackground
         continueButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: enabled ? .bold : .regular)
@@ -206,13 +195,13 @@ extension DiseaseViewController: UICollectionViewDataSource {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "disease", for: indexPath) as? DiseaseCollectionViewCell else {
             return UICollectionViewCell()
         }
-        let disease = defaultDiseases[indexPath.item]
-        cell.diseaseLabel?.text = disease.localizedName
+        cell.diseaseLabel?.text = defaultDiseases[indexPath.item].localizedName
         return cell
     }
 }
 
 extension DiseaseViewController: UICollectionViewDelegateFlowLayout {
+    
     private var noneDiseaseIndex: Int {
         return defaultDiseases.firstIndex(where: { $0 == .none }) ?? defaultDiseases.count - 1
     }
@@ -220,28 +209,51 @@ extension DiseaseViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
-
+        
         guard let flowLayout = collectionViewLayout as? UICollectionViewFlowLayout else { return .zero }
-
+        
         let isIpad = traitCollection.userInterfaceIdiom == .pad
-        let itemsPerRow: CGFloat = 2
-        let spacing = flowLayout.minimumInteritemSpacing
-        let totalSpacing = spacing * (itemsPerRow - 1)
-
-        let availableWidth = collectionView.bounds.width - totalSpacing
-        var width = floor(availableWidth / itemsPerRow)
-   
-        if isIpad {
-            width *= 0.7
+        let isLandscape = view.bounds.width > view.bounds.height
+        
+        var itemsPerRow: CGFloat
+        var rows: CGFloat
+        
+        if isIpad && isLandscape {
+            itemsPerRow = 4
+            rows = 2
+        } else if isIpad {
+            itemsPerRow = 2
+            rows = 4
+        } else {
+            itemsPerRow = 2
+            rows = 1
         }
         
-        let height: CGFloat = isIpad ? width * 0.5 : 80
- 
-        let sideInset = (collectionView.bounds.width - (width * itemsPerRow + totalSpacing)) / 2
-        flowLayout.sectionInset = UIEdgeInsets(top: 0, left: sideInset, bottom: 0, right: sideInset)
-
+        let spacing = flowLayout.minimumInteritemSpacing
+        let lineSpacing = flowLayout.minimumLineSpacing
+        let totalSpacing = spacing * (itemsPerRow - 1)
+        let totalLineSpacing = lineSpacing * (rows - 1)
+        
+        let availableWidth = collectionView.bounds.width - totalSpacing
+        let availableHeight = collectionView.bounds.height - totalLineSpacing
+        
+        let width = floor(availableWidth / itemsPerRow)
+        let height: CGFloat
+        
+        if isIpad {
+            height = floor(availableHeight / rows)
+            
+            let sideInset = max((collectionView.bounds.width - (width * itemsPerRow + totalSpacing)) / 2, 0)
+            flowLayout.sectionInset = UIEdgeInsets(top: 0, left: sideInset, bottom: 0, right: sideInset)
+        } else {
+            height = 80
+            flowLayout.sectionInset = .zero
+        }
+        
         return CGSize(width: width, height: height)
     }
+
+
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if indexPath.item == noneDiseaseIndex {
@@ -263,3 +275,4 @@ extension DiseaseViewController: UICollectionViewDelegateFlowLayout {
         updateContinueButtonState()
     }
 }
+
