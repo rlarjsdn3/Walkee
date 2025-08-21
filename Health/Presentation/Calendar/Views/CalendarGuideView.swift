@@ -43,17 +43,17 @@ final class CalendarGuideView: UIView {
     private func setupStackView() {
         stackView.axis = .vertical
         stackView.alignment = .fill
-        stackView.spacing = 24
+        stackView.spacing = 16
         stackView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stackView)
     }
 
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            stackView.topAnchor.constraint(equalTo: topAnchor, constant: 24),
-            stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-            stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -24)
+            stackView.topAnchor.constraint(equalTo: topAnchor, constant: 16),
+            stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
+            stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+            stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -16)
         ])
     }
 
@@ -85,11 +85,12 @@ final class CalendarGuideView: UIView {
 
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineBreakStrategy = .hangulWordPriority
+        paragraphStyle.lineHeightMultiple = 1.25
 
         let attributedString = NSAttributedString(
             string: text,
             attributes: [
-                .font: UIFont.preferredFont(forTextStyle: .subheadline),
+                .font: UIFont.preferredFont(forTextStyle: .body),
                 .foregroundColor: UIColor.secondaryLabel,
                 .paragraphStyle: paragraphStyle
             ]
