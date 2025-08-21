@@ -2,7 +2,7 @@ import UIKit
 
 import TSAlertController
 
-final class CalendarViewController: HealthNavigationController {
+final class CalendarViewController: HealthNavigationController, Alertable {
 
     @IBOutlet weak var collectionView: UICollectionView!
 
@@ -92,24 +92,8 @@ private extension CalendarViewController {
     }
 
     func showGuideView() {
-        let content = CalendarGuideView()
-
-        let alert = TSAlertController(
-            content,
-            options: [.dismissOnSwipeDown, .interactiveScaleAndDrag],
-            preferredStyle: .floatingSheet
-        )
-
-        let okAction = TSAlertAction(title: "확인")
-        okAction.highlightType = .fadeIn
-        okAction.configuration.backgroundColor = .accent
-        okAction.configuration.titleAttributes = [
-            .font: UIFont.preferredFont(forTextStyle: .headline),
-            .foregroundColor: UIColor.systemBackground
-        ]
-        alert.addAction(okAction)
-
-        present(alert, animated: true)
+        let guideView = CalendarGuideView()
+        showFloatingSheet(guideView, onConfirmAction: { _ in })
     }
 
     func configureBackground() {
