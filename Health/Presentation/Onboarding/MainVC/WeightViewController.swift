@@ -18,13 +18,13 @@ class WeightViewController: CoreGradientViewController {
     @IBOutlet weak var continueButtonLeading: NSLayoutConstraint!
     @IBOutlet weak var continueButtonTrailing: NSLayoutConstraint!
     @IBOutlet weak var continueButtonBottomConstraint: NSLayoutConstraint!
+    @IBOutlet weak var descriptionLabelTopConst: NSLayoutConstraint!
     
-    @IBOutlet weak var weightInputFieldCenterY: NSLayoutConstraint! // centerY 연결
+    @IBOutlet weak var weightInputFieldCenterY: NSLayoutConstraint!
     private var originalCenterY: CGFloat = 0
     
     private var iPadWidthConstraint: NSLayoutConstraint?
     private var iPadCenterXConstraint: NSLayoutConstraint?
-    
     private var userInfo: UserInfoEntity?
     private let context = CoreDataStack.shared.persistentContainer.viewContext
     
@@ -41,7 +41,6 @@ class WeightViewController: CoreGradientViewController {
         errorLabel.textColor = .red
         
         continueButton.applyCornerStyle(.medium)
-        
         originalCenterY = weightInputFieldCenterY.constant
         
         registerForKeyboardNotifications()
@@ -66,6 +65,14 @@ class WeightViewController: CoreGradientViewController {
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         updateContinueButtonConstraints()
+        updateDescriptionLabelConstraint()
+    }
+    
+    private func updateDescriptionLabelConstraint() {
+        let isLandscape = view.bounds.width > view.bounds.height
+        descriptionLabelTopConst.constant = isLandscape
+            ? descriptionLabelTopConst.constant * 0.5
+            : descriptionLabelTopConst.constant * 1.2
     }
     
     private func updateContinueButtonConstraints() {
@@ -194,7 +201,6 @@ class WeightViewController: CoreGradientViewController {
             } else {
                 showError()
                 disableContinueButton()
-                weightInputField.text = ""
             }
         default:
             showError()
