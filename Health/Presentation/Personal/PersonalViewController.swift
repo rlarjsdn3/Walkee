@@ -9,7 +9,6 @@ import CoreLocation
 import Combine
 import TSAlertController
 
-
 class PersonalViewController: CoreGradientViewController, Alertable {
 
     typealias PersonalDiffableDataSource = UICollectionViewDiffableDataSource<PersonalContent.Section, PersonalContent.Item>

@@ -27,45 +27,62 @@
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="25" translatesAutoresizingMaskIntoConstraints="NO" id="5LA-LE-kKA">
                                 <rect key="frame" x="10" y="240.66666666666663" width="486" height="128.33333333333337"/>
                                 <subviews>
-                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="abn-0f-PMW">
+                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" translatesAutoresizingMaskIntoConstraints="NO" id="abn-0f-PMW">
                                         <rect key="frame" x="0.0" y="0.0" width="486" height="83"/>
                                         <subviews>
-                                            <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="50" translatesAutoresizingMaskIntoConstraints="NO" id="rcW-Iu-oaE">
-                                                <rect key="frame" x="0.0" y="0.0" width="486" height="20.333333333333332"/>
+                                            <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="1l5-MY-DQq">
+                                                <rect key="frame" x="0.0" y="0.0" width="486" height="50"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="249" horizontalCompressionResistancePriority="751" text="울산 울주군" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="59X-R2-pzI">
-                                                        <rect key="frame" x="0.0" y="0.0" width="69" height="20.333333333333332"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="69" height="50"/>
                                                         <fontDescription key="fontDescription" style="UICTFontTextStyleSubhead"/>
                                                         <color key="textColor" name="buttonTextColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
-                                                    <stackView opaque="NO" contentMode="scaleToFill" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="4aE-3z-Abs">
-                                                        <rect key="frame" x="394" y="0.0" width="92" height="20.333333333333332"/>
+                                                    <view alpha="0.65000000000000002" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ner-ws-p0x">
+                                                        <rect key="frame" x="374" y="0.0" width="112" height="50"/>
                                                         <subviews>
-                                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="location.fill" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="Juf-Nt-Nwz">
-                                                                <rect key="frame" x="0.0" y="0.99999999999999822" width="20" height="18.666666666666664"/>
-                                                            </imageView>
-                                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="위치 권한 없음." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wwe-T6-htg">
-                                                                <rect key="frame" x="25" y="0.0" width="67" height="20.333333333333332"/>
-                                                                <fontDescription key="fontDescription" style="UICTFontTextStyleCaption2"/>
-                                                                <nil key="textColor"/>
-                                                                <nil key="highlightedColor"/>
-                                                            </label>
+                                                            <stackView opaque="NO" contentMode="scaleToFill" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="4aE-3z-Abs">
+                                                                <rect key="frame" x="10" y="10" width="92" height="30"/>
+                                                                <subviews>
+                                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="location.fill" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="Juf-Nt-Nwz">
+                                                                        <rect key="frame" x="0.0" y="0.99999999999999822" width="20" height="28.333333333333336"/>
+                                                                    </imageView>
+                                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="위치 권한 없음." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wwe-T6-htg">
+                                                                        <rect key="frame" x="25" y="0.0" width="67" height="30"/>
+                                                                        <fontDescription key="fontDescription" style="UICTFontTextStyleCaption2"/>
+                                                                        <nil key="textColor"/>
+                                                                        <nil key="highlightedColor"/>
+                                                                    </label>
+                                                                </subviews>
+                                                            </stackView>
                                                         </subviews>
-                                                    </stackView>
+                                                        <color key="backgroundColor" name="buttonBackground"/>
+                                                        <constraints>
+                                                            <constraint firstItem="4aE-3z-Abs" firstAttribute="top" secondItem="ner-ws-p0x" secondAttribute="top" constant="10" id="3io-Hn-fKL"/>
+                                                            <constraint firstAttribute="bottom" secondItem="4aE-3z-Abs" secondAttribute="bottom" constant="10" id="O2e-jI-TIL"/>
+                                                            <constraint firstAttribute="trailing" secondItem="4aE-3z-Abs" secondAttribute="trailing" constant="10" id="fi8-Du-JoH"/>
+                                                            <constraint firstItem="4aE-3z-Abs" firstAttribute="leading" secondItem="ner-ws-p0x" secondAttribute="leading" constant="10" id="uhw-8i-KSv"/>
+                                                        </constraints>
+                                                    </view>
                                                 </subviews>
+                                                <constraints>
+                                                    <constraint firstItem="ner-ws-p0x" firstAttribute="top" secondItem="1l5-MY-DQq" secondAttribute="top" id="Ndz-bp-75c"/>
+                                                    <constraint firstAttribute="trailing" secondItem="ner-ws-p0x" secondAttribute="trailing" id="cJp-r1-9Fg"/>
+                                                    <constraint firstAttribute="bottom" secondItem="ner-ws-p0x" secondAttribute="bottom" id="xPo-SL-XlU"/>
+                                                </constraints>
                                             </stackView>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="해파랑길 2ㅇㅇㅇㅇㅇ" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="d6n-jr-5VV">
-                                                <rect key="frame" x="0.0" y="25.333333333333339" width="147" height="57.666666666666657"/>
+                                                <rect key="frame" x="0.0" y="50.000000000000028" width="147" height="33"/>
                                                 <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                         </subviews>
                                         <constraints>
-                                            <constraint firstItem="rcW-Iu-oaE" firstAttribute="top" secondItem="abn-0f-PMW" secondAttribute="top" id="4af-bK-czV"/>
-                                            <constraint firstItem="rcW-Iu-oaE" firstAttribute="leading" secondItem="abn-0f-PMW" secondAttribute="leading" id="jhJ-8o-ZkN"/>
-                                            <constraint firstAttribute="trailing" secondItem="rcW-Iu-oaE" secondAttribute="trailing" id="m3W-CE-oKR"/>
+                                            <constraint firstItem="1l5-MY-DQq" firstAttribute="top" secondItem="abn-0f-PMW" secondAttribute="top" id="33K-bg-Zvf"/>
+                                            <constraint firstItem="1l5-MY-DQq" firstAttribute="leading" secondItem="abn-0f-PMW" secondAttribute="leading" id="DKC-dg-jw7"/>
+                                            <constraint firstAttribute="trailing" secondItem="1l5-MY-DQq" secondAttribute="trailing" id="rKe-JW-X5Z"/>
                                         </constraints>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" spacing="15" translatesAutoresizingMaskIntoConstraints="NO" id="9ar-hd-o0N">
@@ -192,6 +209,9 @@
         <image name="timer" catalog="system" width="128" height="123"/>
         <namedColor name="boxBgColor">
             <color red="0.95294117647058818" green="0.95294117647058818" blue="0.95294117647058818" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="buttonBackground">
+            <color red="0.64313725490196083" green="0.64313725490196083" blue="0.64313725490196083" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>
         <namedColor name="buttonTextColor">
             <color red="0.41568627450980394" green="0.41568627450980394" blue="0.41568627450980394" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
