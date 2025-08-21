@@ -185,7 +185,7 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
             showAlert(
                 "건강 연동 필요",
                 message: """
-건강 연동을 해야 이용할 수 있는 서비스가 포함되어 있습니다. 건강앱 연동하시겠습니까?
+건강 연동을 해야 이용할 수 있는 서비스가 포함되어 있습니다. 건강 앱에 연동하시겠습니까?
 """,
                 primaryTitle: "네",
                 onPrimaryAction: { _ in
