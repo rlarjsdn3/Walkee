@@ -87,7 +87,6 @@ class LLMRecommendationViewModel: ObservableObject {
         }
     }
 
-
     /// 추천 캐시 삭제
     func clearRecommendationCache() {
         // UserDefaults에서 추천 데이터 삭제
