@@ -334,7 +334,7 @@
                                 </variation>
                             </textField>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oup-qX-kbR">
-                                <rect key="frame" x="20" y="220.33333333333334" width="400" height="20.333333333333343"/>
+                                <rect key="frame" x="20" y="225.33333333333334" width="400" height="20.333333333333343"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -367,7 +367,7 @@
                             <constraint firstItem="MPF-9L-XvH" firstAttribute="leading" secondItem="vW4-aD-9Ar" secondAttribute="leading" constant="20" id="hgo-YO-caK"/>
                             <constraint firstItem="ycv-JD-noa" firstAttribute="top" secondItem="vW4-aD-9Ar" secondAttribute="top" constant="32" id="jg5-Ao-nOy"/>
                             <constraint firstItem="ycv-JD-noa" firstAttribute="leading" secondItem="vW4-aD-9Ar" secondAttribute="leading" constant="20" id="nQE-ak-gIx"/>
-                            <constraint firstItem="oup-qX-kbR" firstAttribute="top" secondItem="ycv-JD-noa" secondAttribute="bottom" id="pof-lk-Kbt"/>
+                            <constraint firstItem="oup-qX-kbR" firstAttribute="top" secondItem="ycv-JD-noa" secondAttribute="bottom" constant="5" id="pof-lk-Kbt"/>
                             <constraint firstItem="MPF-9L-XvH" firstAttribute="bottom" secondItem="vW4-aD-9Ar" secondAttribute="bottom" id="vq9-hR-4b9"/>
                         </constraints>
                     </view>
@@ -379,6 +379,7 @@
                         <outlet property="continueButtonBottomConstraint" destination="vq9-hR-4b9" id="y9X-60-o9Q"/>
                         <outlet property="continueButtonLeading" destination="hgo-YO-caK" id="JhK-qk-ngM"/>
                         <outlet property="continueButtonTrailing" destination="bCw-YH-uKf" id="tnG-Rk-947"/>
+                        <outlet property="descriptionLabelTopConst" destination="jg5-Ao-nOy" id="K5c-9o-g7X"/>
                         <outlet property="errorLabel" destination="oup-qX-kbR" id="1Pd-ge-OkK"/>
                         <segue destination="3Hs-PQ-OGm" kind="show" identifier="goToWeightInfo" id="jy5-4l-1xB"/>
                     </connections>
@@ -405,7 +406,7 @@
                                 </variation>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" verticalCompressionResistancePriority="1000" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MFN-Q1-5mt">
-                                <rect key="frame" x="20" y="220.33333333333334" width="400" height="20.333333333333343"/>
+                                <rect key="frame" x="20" y="225.33333333333334" width="400" height="20.333333333333343"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -452,7 +453,7 @@
                         <viewLayoutGuide key="safeArea" id="VWS-Gh-Be8"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="MFN-Q1-5mt" firstAttribute="top" secondItem="Ska-x0-2uO" secondAttribute="bottom" id="41D-Wf-7Lr"/>
+                            <constraint firstItem="MFN-Q1-5mt" firstAttribute="top" secondItem="Ska-x0-2uO" secondAttribute="bottom" constant="5" id="41D-Wf-7Lr"/>
                             <constraint firstItem="MFN-Q1-5mt" firstAttribute="leading" secondItem="VWS-Gh-Be8" secondAttribute="leading" constant="20" id="Aze-Oo-nXa"/>
                             <constraint firstItem="VWS-Gh-Be8" firstAttribute="trailing" secondItem="HPM-3I-uRw" secondAttribute="trailing" constant="20" id="BqN-bC-Hdv"/>
                             <constraint firstItem="Ska-x0-2uO" firstAttribute="leading" secondItem="VWS-Gh-Be8" secondAttribute="leading" constant="20" id="D60-hc-Jaa"/>
@@ -471,6 +472,7 @@
                         <outlet property="continueButtonBottomConstraint" destination="ysO-YW-hKj" id="YmT-Xi-jp4"/>
                         <outlet property="continueButtonLeading" destination="tXx-dA-HG2" id="yFg-cl-HA1"/>
                         <outlet property="continueButtonTrailing" destination="BqN-bC-Hdv" id="LL2-du-RCR"/>
+                        <outlet property="descriptionLabelConst" destination="sNH-V5-MEv" id="NML-IS-k0c"/>
                         <outlet property="errorLabel" destination="MFN-Q1-5mt" id="MZJ-0Q-x7J"/>
                         <outlet property="kgLabel" destination="KXo-3b-tnu" id="afD-QL-lUl"/>
                         <outlet property="weightInputField" destination="MBV-gl-LZA" id="sHA-9N-EPQ"/>
@@ -500,7 +502,7 @@
                                 </variation>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4nP-gH-NA4">
-                                <rect key="frame" x="20" y="220.33333333333334" width="400" height="20.333333333333343"/>
+                                <rect key="frame" x="20" y="225.33333333333334" width="400" height="20.333333333333343"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -552,7 +554,7 @@
                             <constraint firstItem="E5s-xP-emC" firstAttribute="bottom" secondItem="rvf-Hr-gyf" secondAttribute="bottom" id="7xh-L0-5ZU"/>
                             <constraint firstItem="Hfb-gN-7Hw" firstAttribute="leading" secondItem="rvf-Hr-gyf" secondAttribute="leading" constant="20" id="8Xg-16-6Q9"/>
                             <constraint firstItem="E5s-xP-emC" firstAttribute="leading" secondItem="rvf-Hr-gyf" secondAttribute="leading" constant="20" id="AlN-S0-NgO"/>
-                            <constraint firstItem="4nP-gH-NA4" firstAttribute="top" secondItem="Hfb-gN-7Hw" secondAttribute="bottom" id="LSA-gd-Ic0"/>
+                            <constraint firstItem="4nP-gH-NA4" firstAttribute="top" secondItem="Hfb-gN-7Hw" secondAttribute="bottom" constant="5" id="LSA-gd-Ic0"/>
                             <constraint firstItem="4nP-gH-NA4" firstAttribute="leading" secondItem="rvf-Hr-gyf" secondAttribute="leading" constant="20" id="T1F-yN-RMw"/>
                             <constraint firstItem="rvf-Hr-gyf" firstAttribute="trailing" secondItem="Hfb-gN-7Hw" secondAttribute="trailing" constant="20" id="ZIS-H8-n7i"/>
                             <constraint firstItem="rvf-Hr-gyf" firstAttribute="trailing" secondItem="E5s-xP-emC" secondAttribute="trailing" constant="20" id="bMJ-I4-iRW"/>
@@ -567,6 +569,7 @@
                         <outlet property="continueButtonBottomConstraint" destination="7xh-L0-5ZU" id="hIh-8a-NOd"/>
                         <outlet property="continueButtonLeading" destination="AlN-S0-NgO" id="Zn5-Nk-CIS"/>
                         <outlet property="continueButtonTrailing" destination="bMJ-I4-iRW" id="6ti-kf-rFO"/>
+                        <outlet property="descriptionLabelConst" destination="39R-Ph-wmC" id="sVh-fP-0w7"/>
                         <outlet property="errorLabel" destination="4nP-gH-NA4" id="5yn-TR-ODh"/>
                         <outlet property="heightInputField" destination="6xh-tM-tSN" id="Bqg-9r-Mgi"/>
                         <outlet property="heightInputFieldCenterY" destination="q97-mA-ylZ" id="pxG-jC-3dq"/>

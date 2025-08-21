@@ -156,8 +156,8 @@ class DiseaseViewController: CoreGradientViewController {
         diseaseCollectionView.allowsMultipleSelection = true
         
         if let layout = diseaseCollectionView.collectionViewLayout as? UICollectionViewFlowLayout {
-            layout.minimumInteritemSpacing = 10
-            layout.minimumLineSpacing = 8
+            layout.minimumInteritemSpacing = 12
+            layout.minimumLineSpacing = 10
             layout.sectionInset = .zero
         }
         diseaseCollectionView.backgroundColor = .clear

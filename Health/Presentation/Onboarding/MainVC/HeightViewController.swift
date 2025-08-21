@@ -18,6 +18,7 @@ class HeightViewController: CoreGradientViewController {
     @IBOutlet weak var continueButtonLeading: NSLayoutConstraint!
     @IBOutlet weak var continueButtonTrailing: NSLayoutConstraint!
     @IBOutlet weak var continueButtonBottomConstraint: NSLayoutConstraint!
+    @IBOutlet weak var descriptionLabelConst: NSLayoutConstraint!
     
     @IBOutlet weak var heightInputFieldCenterY: NSLayoutConstraint!
     private var originalCenterY: CGFloat = 0
@@ -41,7 +42,6 @@ class HeightViewController: CoreGradientViewController {
         errorLabel.textColor = .red
         
         continueButton.applyCornerStyle(.medium)
-        
         originalCenterY = heightInputFieldCenterY.constant
         
         registerForKeyboardNotifications()
@@ -66,6 +66,14 @@ class HeightViewController: CoreGradientViewController {
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         updateContinueButtonConstraints()
+        updateDescriptionLabelConstraint()
+    }
+    
+    private func updateDescriptionLabelConstraint() {
+        let isLandscape = view.bounds.width > view.bounds.height
+        descriptionLabelConst.constant = isLandscape
+            ? descriptionLabelConst.constant * 0.5
+            : descriptionLabelConst.constant * 1.2
     }
     
     private func updateContinueButtonConstraints() {
@@ -151,7 +159,6 @@ class HeightViewController: CoreGradientViewController {
         NotificationCenter.default.removeObserver(self)
     }
 
-    
     @IBAction func continueButtonTapped(_ sender: UIButton) {
         guard continueButton.isEnabled else { return }
         guard let text = heightInputField.text, let heightValue = Double(text) else { return }
@@ -165,7 +172,6 @@ class HeightViewController: CoreGradientViewController {
         }
     }
 
-    
     @objc private func textFieldDidChange(_ textField: UITextField) {
         validateInput()
     }
