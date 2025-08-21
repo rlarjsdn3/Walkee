@@ -51,6 +51,7 @@ Apple 건강앱과 연동해 신체 정보와 성별을 기반으로 맞춤형 �
             ]
         )
         descriptionLabel.attributedText = attributedString
+        descriptionLabel.textColor = .secondaryLabel
 
         if let parentVC = parent as? ProgressContainerViewController {
             parentVC.customNavigationBar.backButton.isHidden = true
