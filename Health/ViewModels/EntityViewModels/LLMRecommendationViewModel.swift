@@ -91,7 +91,7 @@ class LLMRecommendationViewModel: ObservableObject {
     /// 추천 캐시 삭제
     func clearRecommendationCache() {
         // UserDefaults에서 추천 데이터 삭제
-        UserDefaultsWrapper.shared.remove(forKey: \.llmRecommendedLevels)
+        UserDefaultsWrapper.shared.remove(forKey: \.llmRecommendedCourseLevels)
 
         // 메모리에서도 삭제
         recommendedLevels = []
@@ -183,7 +183,7 @@ class LLMRecommendationViewModel: ObservableObject {
 
     /// 캐시된 추천 데이터 로드
     private func loadCachedRecommendations() {
-        if let savedLevels = UserDefaultsWrapper.shared.llmRecommendedLevels {
+        if let savedLevels = UserDefaultsWrapper.shared.llmRecommendedCourseLevels {
             recommendedLevels = savedLevels
             print("캐시 로드됨: \(savedLevels)")
         } else {
@@ -193,7 +193,7 @@ class LLMRecommendationViewModel: ObservableObject {
 
     // 추천 결과 저장
     private func saveRecommendations(_ levels: [String]) {
-        UserDefaultsWrapper.shared.llmRecommendedLevels = levels
+        UserDefaultsWrapper.shared.llmRecommendedCourseLevels = levels
     }
 
     /// 걷기 추천을 위한 프롬프트 컨텍스트 생성
