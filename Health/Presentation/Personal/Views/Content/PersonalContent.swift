@@ -21,6 +21,7 @@ enum PersonalContent {
         case walkingHeader
         case walkingFilter
         case recommendPlace
+        case loading
     }
 
     // 아이템 정의
@@ -31,6 +32,7 @@ enum PersonalContent {
         case walkingHeaderItem
         case walkingFilterItem
         case recommendPlaceItem(WalkingCourse)
+        case loadingItem(WalkingLoadingView.State)
     }
 }
 
@@ -46,6 +48,7 @@ extension PersonalContent.Item {
         walkigHeaderCellRegistration: UICollectionView.CellRegistration<UICollectionViewCell, Void>,
         walkingFilterCellRegistration: UICollectionView.CellRegistration<UICollectionViewCell, Void>,
         recommendPlaceCellRegistration: UICollectionView.CellRegistration<UICollectionViewCell, Void>,
+        loadingCellRegistration: UICollectionView.CellRegistration<UICollectionViewCell, WalkingLoadingView.State>,
         indexPath: IndexPath
     ) -> UICollectionViewCell {
         switch self {
@@ -85,6 +88,12 @@ extension PersonalContent.Item {
                 for: indexPath,
                 item: ()
             )
+        case .loadingItem(let state): // state를 추출
+            return collectionView.dequeueConfiguredReusableCell(
+                using: loadingCellRegistration,
+                for: indexPath,
+                item: state // state를 넣어야 함
+            )
         }
     }
 }
@@ -104,6 +113,8 @@ extension PersonalContent.Section {
         case .recommendPlace:
             // 이 부분을 list 생성자 대신 아래의 수동 레이아웃으로 교체합니다.
             return buildCardListLayout(environment)
+        case .loading: // 추가
+            return buildLoadingLayout(environment)
         }
     }
 
@@ -304,6 +315,30 @@ extension PersonalContent.Section {
             bottom: 20,
             trailing: UICollectionViewConstant.defaultInset
         )
+        return section
+    }
+
+    private func buildLoadingLayout(_ environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
+        let itemSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .estimated(200) // 충분한 높이
+        )
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+
+        let groupSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .estimated(200)
+        )
+        let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
+        
+        let section = NSCollectionLayoutSection(group: group)
+        section.contentInsets = NSDirectionalEdgeInsets(
+            top: 20,
+            leading: UICollectionViewConstant.defaultInset,
+            bottom: 20,
+            trailing: UICollectionViewConstant.defaultInset
+        )
+
         return section
     }
 }

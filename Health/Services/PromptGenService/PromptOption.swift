@@ -10,16 +10,19 @@ import Foundation
 enum PromptOption {
     /// 자유 대화형 프롬프트
     case chat
-    
+
     /// 일일 건강 데이터 요약
     case dailySummary
-    
+
     /// 월간 건강 데이터 요약
     case monthlySummary
+
+    ///사용자 난이도
+    case userLevel
 }
 
 extension PromptOption: CustomStringConvertible {
-    
+
     /// 요청 사항
     var description: String {
         switch self {
@@ -51,6 +54,21 @@ extension PromptOption: CustomStringConvertible {
                    출처는 표시하지 않고, 마크다운 문법과 개행 문자는 사용하지 마세요.
                    250자 이내로만 작성해주세요. 
                    """
+        case .userLevel:
+            return """
+            [사용자 정보]를 분석하여 걷기 코스 난이도를 추천해주세요. 
+                     
+            난이도 기준:
+            - 1: 쉬움 (초보자, 질병이 있거나 신체조건이 좋지 않은 사용자)
+            - 2: 보통 (지병이 없고 일반적인 신체조건을 가진 사용자)  
+            - 3: 어려움 (지병이없고 나이가 20~30대이고 신체조건이 건강한 사용자)
+                     
+            사용자 정보를 바탕으로 1, 2, 3 중에서 적합한 난이도를 하나 또는 여러 개 선택하여 숫자만 답변해주세요. 여러 개를 선택할 경우 쉼표로 구분해주세요. 최대한 다양한 난이도를 추천해주시고 일반적인 신체 조건을 가지고 있다면 1단계와 2단계 둘다 추천해주세요
+                     
+            예시 답변: 1 또는 1,2 또는 2,3 또는 1,2,3
+                     
+            출처 표시, 마크다운 문법, 개행 문자는 사용하지 마세요.
+            """
         }
     }
 }
