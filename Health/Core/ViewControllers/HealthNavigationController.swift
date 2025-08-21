@@ -7,12 +7,8 @@
 
 import UIKit
 
-///
-/// 아이패드에서는 기본적으로 네비게이션 타이틀이 숨김처리되어 있다.
-///
 class HealthNavigationController: CoreGradientViewController {
 
-    ///
     let healthNavigationBar = HealthNavigationBar()
     
     override func viewIsAppearing(_ animated: Bool) {

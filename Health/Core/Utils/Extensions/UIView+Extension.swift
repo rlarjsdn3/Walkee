@@ -83,12 +83,16 @@ extension UIView {
         }
     }
     
-    /// <#Description#>
+    /// 뷰에 그라디언트 배경을 추가합니다.
+    ///
+    /// 지정된 색상 배열과 시작/끝 포인트, 위치 값에 따라
+    /// `GradientView`를 생성하고 현재 뷰의 가장 뒤쪽에 삽입합니다.
+    ///
     /// - Parameters:
-    ///   - colors: <#colors description#>
-    ///   - startPoint: <#startPoint description#>
-    ///   - endPoint: <#endPoint description#>
-    ///   - locations: <#locations description#>
+    ///   - colors: 그라디언트에 사용할 색상 배열. 배열의 순서대로 색이 연결됩니다.
+    ///   - startPoint: 그라디언트 시작 위치. 기본값은 뷰 상단 중앙 `(0.5, 0.0)`입니다.
+    ///   - endPoint: 그라디언트 종료 위치. 기본값은 뷰 하단 중앙 `(0.5, 1.0)`입니다.
+    ///   - locations: 각 색상의 상대적 위치를 나타내는 값 배열. 기본값은 `[0.0, 1.0]`입니다.
     func addGradient(
         colors: [UIColor],
         startPoint: CGPoint = CGPoint(x: 0.5, y: 0.0),

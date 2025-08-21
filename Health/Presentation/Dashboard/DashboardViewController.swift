@@ -5,7 +5,6 @@
 //  Created by 김건우 on 7/28/25.
 //
 
-import HealthKit
 import UIKit
 
 import TSAlertController
@@ -53,36 +52,34 @@ final class DashboardViewController: HealthNavigationController {
     override func setupAttribute() {
         applyBackgroundGradient(.midnightBlack)
 
+        healthNavigationBar.title = "대시보드"
+        healthNavigationBar.titleImage = UIImage(systemName: "chart.xyaxis.line")
+
+        healthNavigationBar.trailingBarButtonItems = [
+            HealthBarButtonItem(image: UIImage(systemName: "square.and.arrow.up.circle.fill"))
+        ]
+        healthNavigationBar.preferredTrailingBarButtonItemSymbolConfiguration = UIImage.SymbolConfiguration(paletteColors: [.systemGray])
+
         refreshControl.addTarget(
             self,
             action: #selector(refreshHKData),
             for: .valueChanged
         )
 
-        dashboardCollectionView.delegate = self
         dashboardCollectionView.backgroundColor = .clear
         dashboardCollectionView.setCollectionViewLayout(
             createCollectionViewLayout(),
             animated: false
         )
         dashboardCollectionView.contentInset = UIEdgeInsets(
-            top: 8, left: .zero,
+            top: 12, left: .zero,
             bottom: 32, right: .zero
         )
         dashboardCollectionView.scrollIndicatorInsets =  UIEdgeInsets(
-            top: 16, left: .zero,
+            top: 20, left: .zero,
             bottom: 24, right: .zero
         )
         dashboardCollectionView.refreshControl = refreshControl
-
-        healthNavigationBar.title = "대시보드"
-        healthNavigationBar.titleImage = UIImage(systemName: "chart.xyaxis.line")
-        healthNavigationBar.isTitleLabelHidden = false
-//        healthNavigationBar.isDividerHidden = true
-        healthNavigationBar.trailingBarButtonItems = [
-            .init(image: .init(systemName: "gear")),
-            .init(image: .init(systemName: "person.crop.circle"))
-        ]
     }
 
     @objc private func refreshHKData() {
@@ -276,7 +273,6 @@ fileprivate extension DashboardViewController {
     }
 
     func createTextCellRegistration() -> UICollectionView.CellRegistration<UICollectionViewListCell, Void> {
-        // TODO: - 셀 콘텐츠 구성하기
         UICollectionView.CellRegistration<UICollectionViewListCell, Void> { cell, indexPath, viewModel in
             var config = cell.defaultContentConfiguration()
             config.text = "Alan AI는 정보 제공시 실수를 할 수 있으니 다시 한번 확인하세요."
@@ -289,7 +285,6 @@ fileprivate extension DashboardViewController {
     }
 
     func createBasicSupplementaryViewRegistration() -> UICollectionView.SupplementaryRegistration<UICollectionViewListCell> {
-        // TODO: - 헤더 콘텐츠 구성하기
         UICollectionView.SupplementaryRegistration(elementKind: UICollectionView.elementKindSectionHeader) { [weak self] supplementaryView, kind, indexPath in
             guard let section = self?.dataSource?.sectionIdentifier(for: indexPath.section)
             else { return }
@@ -301,14 +296,6 @@ fileprivate extension DashboardViewController {
                 detailButton: infoDetailBtn
             )
         }
-    }
-}
-
-extension DashboardViewController: UICollectionViewDelegate {
-
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        healthNavigationBar.shouldShowTitieLabel(scrollView, greaterThan: 54.0)
-        healthNavigationBar.shouldShowDivider(scrollView, greaterThan: 24.0)
     }
 }
 
