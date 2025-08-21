@@ -38,6 +38,86 @@ extension UIView {
 
 extension UIView {
     
+    final class GradientView: UIView {
+        private var gradientLayer: CAGradientLayer?
+        
+        private let colors: [UIColor]
+        private let startPoint: CGPoint
+        private let endPoint: CGPoint
+        private let locations: [NSNumber]
+        
+        init(
+            colors: [UIColor],
+            startPoint: CGPoint,
+            endPoint: CGPoint,
+            locations: [NSNumber]
+        ) {
+            self.colors = colors
+            self.startPoint = startPoint
+            self.endPoint = endPoint
+            self.locations = locations
+            
+            super.init(frame: .zero)
+        }
+        
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+        
+        override func layoutSubviews() {
+            super.layoutSubviews()
+            setupGradientLayer()
+        }
+        
+        func setupGradientLayer() {
+            gradientLayer?.removeFromSuperlayer()
+            
+            let gLayer = CAGradientLayer()
+            gLayer.frame = bounds
+            gLayer.colors = colors.map { $0.cgColor }
+            gLayer.startPoint = startPoint
+            gLayer.endPoint = endPoint
+            gLayer.locations = locations
+            self.gradientLayer = gLayer
+            self.layer.insertSublayer(gradientLayer!, at: 0)
+        }
+    }
+    
+    /// 뷰에 그라디언트 배경을 추가합니다.
+    ///
+    /// 지정된 색상 배열과 시작/끝 포인트, 위치 값에 따라
+    /// `GradientView`를 생성하고 현재 뷰의 가장 뒤쪽에 삽입합니다.
+    ///
+    /// - Parameters:
+    ///   - colors: 그라디언트에 사용할 색상 배열. 배열의 순서대로 색이 연결됩니다.
+    ///   - startPoint: 그라디언트 시작 위치. 기본값은 뷰 상단 중앙 `(0.5, 0.0)`입니다.
+    ///   - endPoint: 그라디언트 종료 위치. 기본값은 뷰 하단 중앙 `(0.5, 1.0)`입니다.
+    ///   - locations: 각 색상의 상대적 위치를 나타내는 값 배열. 기본값은 `[0.0, 1.0]`입니다.
+    func addGradient(
+        colors: [UIColor],
+        startPoint: CGPoint = CGPoint(x: 0.5, y: 0.0),
+        endPoint: CGPoint = CGPoint(x: 0.5, y: 1.0),
+        locations: [NSNumber] = [0.0, 1.0]
+    ) {
+        let gView = GradientView(
+            colors: colors,
+            startPoint: startPoint,
+            endPoint: endPoint,
+            locations: locations
+        )
+        gView.frame = bounds
+        gView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        insertSubview(gView, at: 0)
+    }
+}
+
+extension UIView {
+    
+    /// 현재 화면이 아이패드에 대응되는 사이즈 클래스인지 확인합니다.
+    var isPad: Bool {
+        return traitCollection.horizontalSizeClass == .regular
+            && traitCollection.verticalSizeClass == .regular
+    }
     
     /// 현재 뷰 컨트롤러의 세로/가로 Size Class 조합에 따라 해당 클로저를 실행해 값을 반환합니다.
     ///
