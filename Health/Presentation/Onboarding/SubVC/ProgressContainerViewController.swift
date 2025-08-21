@@ -48,7 +48,7 @@ class ProgressContainerViewController: CoreGradientViewController {
             customNavigationBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             customNavigationBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             customNavigationBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            customNavigationBar.heightAnchor.constraint(equalToConstant: 44)
+            customNavigationBar.heightAnchor.constraint(equalToConstant: 50)
         ])
         customNavigationBar.delegate = self
     }

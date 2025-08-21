@@ -65,7 +65,7 @@ class DiseaseViewController: CoreGradientViewController {
             continueButtonLeading?.isActive = false
             continueButtonTrailing?.isActive = false
             if iPadWidthConstraint == nil {
-                iPadWidthConstraint = continueButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.6)
+                iPadWidthConstraint = continueButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7)
                 iPadCenterXConstraint = continueButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
                 iPadWidthConstraint?.isActive = true
                 iPadCenterXConstraint?.isActive = true
@@ -80,7 +80,7 @@ class DiseaseViewController: CoreGradientViewController {
                 iPadCollectionViewCenterX = diseaseCollectionView.centerXAnchor.constraint(equalTo: view.centerXAnchor)
                 iPadCollectionViewCenterY = diseaseCollectionView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
                 iPadCollectionViewWidth = diseaseCollectionView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7)
-                iPadCollectionViewHeight = diseaseCollectionView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.6)
+                iPadCollectionViewHeight = diseaseCollectionView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.475)
                 
                 iPadCollectionViewCenterX?.isActive = true
                 iPadCollectionViewCenterY?.isActive = true
@@ -215,12 +215,18 @@ extension DiseaseViewController: UICollectionViewDelegateFlowLayout {
         let isIpad = traitCollection.userInterfaceIdiom == .pad
         let isLandscape = view.bounds.width > view.bounds.height
         
-        var itemsPerRow: CGFloat = 2
-        var rows: CGFloat = 1
-
+        var itemsPerRow: CGFloat
+        var rows: CGFloat
+        
         if isIpad && isLandscape {
             itemsPerRow = 4
             rows = 2
+        } else if isIpad {
+            itemsPerRow = 2
+            rows = 4
+        } else {
+            itemsPerRow = 2
+            rows = 1
         }
         
         let spacing = flowLayout.minimumInteritemSpacing
@@ -231,29 +237,23 @@ extension DiseaseViewController: UICollectionViewDelegateFlowLayout {
         let availableWidth = collectionView.bounds.width - totalSpacing
         let availableHeight = collectionView.bounds.height - totalLineSpacing
         
-        var width = floor(availableWidth / itemsPerRow)
-        var height: CGFloat
+        let width = floor(availableWidth / itemsPerRow)
+        let height: CGFloat
         
-        if isIpad && isLandscape {
-            width = width * 0.9
-            height = (availableHeight / rows) * 0.6
-        } else if isIpad {
-            width *= 0.75
-            height = width * 0.6
-        } else {
-            height = 80
-        }
- 
         if isIpad {
+            height = floor(availableHeight / rows)
+            
             let sideInset = max((collectionView.bounds.width - (width * itemsPerRow + totalSpacing)) / 2, 0)
             flowLayout.sectionInset = UIEdgeInsets(top: 0, left: sideInset, bottom: 0, right: sideInset)
         } else {
+            height = 80
             flowLayout.sectionInset = .zero
         }
-
         
         return CGSize(width: width, height: height)
     }
+
+
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if indexPath.item == noneDiseaseIndex {

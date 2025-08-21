@@ -1,5 +1,5 @@
 //
-//  WeightViewController.swift
+//  SelectAgeViewController.swift
 //  Health
 //
 //  Created by 권도현 on 8/4/25.
@@ -8,59 +8,55 @@
 import UIKit
 import CoreData
 
-class WeightViewController: CoreGradientViewController {
-    
-    @IBOutlet weak var weightInputField: UITextField!
+class InputAgeViewController: CoreGradientViewController {
+
+    @IBOutlet weak var ageInputField: UITextField!
     @IBOutlet weak var errorLabel: UILabel!
-    @IBOutlet weak var kgLabel: UILabel!
     @IBOutlet weak var continueButton: UIButton!
     
     @IBOutlet weak var continueButtonLeading: NSLayoutConstraint!
     @IBOutlet weak var continueButtonTrailing: NSLayoutConstraint!
     @IBOutlet weak var continueButtonBottomConstraint: NSLayoutConstraint!
     
-    @IBOutlet weak var weightInputFieldCenterY: NSLayoutConstraint!
+    @IBOutlet weak var ageInputFieldCenterY: NSLayoutConstraint!
     private var originalCenterY: CGFloat = 0
-    
+
     private var iPadWidthConstraint: NSLayoutConstraint?
     private var iPadCenterXConstraint: NSLayoutConstraint?
-    
+    private let keyboardButtonPadding: CGFloat = 20
+
     private var userInfo: UserInfoEntity?
     private let context = CoreDataStack.shared.persistentContainer.viewContext
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
         applyBackgroundGradient(.midnightBlack)
         
-        weightInputField.delegate = self
-        weightInputField.keyboardType = .numberPad
-        weightInputField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        ageInputField.delegate = self
+        ageInputField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         
         errorLabel.isHidden = true
         errorLabel.textColor = .red
-        
         continueButton.applyCornerStyle(.medium)
         
-        originalCenterY = weightInputFieldCenterY.constant
+        originalCenterY = ageInputFieldCenterY.constant
         
         registerForKeyboardNotifications()
         setupTapGestureToDismissKeyboard()
-        
-        fetchUserInfo()
-        if let weight = userInfo?.weight, weight > 0 {
-            weightInputField.text = String(Int(weight))
-            validateInput()
-        } else {
-            disableContinueButton()
-        }
+        disableContinueButton()
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        if weightInputField.text?.isEmpty ?? true {
-            weightInputField.becomeFirstResponder()
+        if ageInputField.text?.isEmpty ?? true {
+            ageInputField.becomeFirstResponder()
         }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        fetchAndDisplayUserInfo()
     }
     
     override func viewWillLayoutSubviews() {
@@ -73,24 +69,27 @@ class WeightViewController: CoreGradientViewController {
                      traitCollection.verticalSizeClass == .regular
         
         if isIpad {
-            continueButtonLeading?.isActive = false
-            continueButtonTrailing?.isActive = false
-            
             if iPadWidthConstraint == nil {
-                iPadWidthConstraint = continueButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.6)
+                continueButtonLeading.isActive = false
+                continueButtonTrailing.isActive = false
+                
+                iPadWidthConstraint = continueButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7)
                 iPadCenterXConstraint = continueButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+                
                 iPadWidthConstraint?.isActive = true
                 iPadCenterXConstraint?.isActive = true
             }
         } else {
-            iPadWidthConstraint?.isActive = false
-            iPadCenterXConstraint?.isActive = false
-            
-            continueButtonLeading?.isActive = true
-            continueButtonTrailing?.isActive = true
+            if let iPadWidthConstraint = iPadWidthConstraint, iPadWidthConstraint.isActive {
+                iPadWidthConstraint.isActive = false
+                iPadCenterXConstraint?.isActive = false
+                
+                continueButtonLeading.isActive = true
+                continueButtonTrailing.isActive = true
+            }
         }
     }
-    
+
     private func registerForKeyboardNotifications() {
         NotificationCenter.default.addObserver(
             self,
@@ -116,10 +115,10 @@ class WeightViewController: CoreGradientViewController {
         let isIphonePortrait = !isIpad && !isLandscape
         
         if (isIpad && isLandscape) || isIphonePortrait {
-            weightInputFieldCenterY.constant = originalCenterY - keyboardFrame.height * 0.5
+            ageInputFieldCenterY.constant = originalCenterY - keyboardFrame.height * 0.5
         }
         
-        continueButtonBottomConstraint?.constant = -(keyboardFrame.height + 20)
+        continueButtonBottomConstraint.constant = -(keyboardFrame.height + keyboardButtonPadding)
         
         UIView.animate(withDuration: duration) {
             self.view.layoutIfNeeded()
@@ -129,14 +128,14 @@ class WeightViewController: CoreGradientViewController {
     @objc private func keyboardWillHide(_ notification: Notification) {
         guard let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double else { return }
         
-        weightInputFieldCenterY.constant = originalCenterY
-        continueButtonBottomConstraint?.constant = -20
+        ageInputFieldCenterY.constant = originalCenterY
+        continueButtonBottomConstraint.constant = -20
         
         UIView.animate(withDuration: duration) {
             self.view.layoutIfNeeded()
         }
     }
-    
+
     private func setupTapGestureToDismissKeyboard() {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tapGesture.cancelsTouchesInView = false
@@ -153,59 +152,40 @@ class WeightViewController: CoreGradientViewController {
     
     @IBAction func continueButtonTapped(_ sender: UIButton) {
         guard continueButton.isEnabled else { return }
-        guard let text = weightInputField.text, let weightValue = Double(text) else { return }
+        guard let text = ageInputField.text, let year = Int16(text) else { return }
         
-        userInfo?.weight = weightValue
+        userInfo?.age = year
         do {
             try context.save()
-            performSegue(withIdentifier: "goToHeightInfo", sender: nil)
+            performSegue(withIdentifier: "goToWeightInfo", sender: nil)
         } catch {
-            print("Failed to save weight: \(error)")
+            print("Failed to save user info: \(error)")
         }
     }
-    
+
     @objc private func textFieldDidChange(_ textField: UITextField) {
         validateInput()
     }
     
     private func validateInput() {
-        guard let text = weightInputField.text, let weight = Int(text) else {
+        guard let text = ageInputField.text, text.count == 4, let year = Int(text) else {
             disableContinueButton()
             hideError()
             return
         }
         
-        switch text.count {
-        case 1:
+        if year < 1900 || year > 2025 {
+            showError(message: "1900 ~ 2025 사이의 값을 입력해주세요.")
+            disableContinueButton()
+        } else {
             hideError()
-            disableContinueButton()
-        case 2:
-            if weight >= 35 {
-                hideError()
-                enableContinueButton()
-            } else {
-                showError()
-                disableContinueButton()
-            }
-        case 3:
-            if weight <= 200 {
-                hideError()
-                enableContinueButton()
-            } else {
-                showError()
-                disableContinueButton()
-            }
-        default:
-            showError()
-            disableContinueButton()
-            weightInputField.text = ""
-            weightInputField.resignFirstResponder()
+            enableContinueButton()
         }
     }
     
-    private func showError(text: String = "35 ~ 200 사이의 값을 입력해주세요.") {
+    private func showError(message: String) {
         errorLabel.isHidden = false
-        errorLabel.text = text
+        errorLabel.text = message
     }
     
     private func hideError() {
@@ -216,44 +196,47 @@ class WeightViewController: CoreGradientViewController {
     private func disableContinueButton() {
         continueButton.isEnabled = false
         continueButton.backgroundColor = .buttonBackground
-        weightInputField.textColor = .label
+        ageInputField.textColor = .label
         continueButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .regular)
     }
     
     private func enableContinueButton() {
         continueButton.isEnabled = true
         continueButton.backgroundColor = .accent
-        weightInputField.textColor = .accent
+        ageInputField.textColor = .accent
         continueButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .bold)
     }
-    
-    private func fetchUserInfo() {
+
+    private func fetchAndDisplayUserInfo() {
         let request: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
         do {
             let results = try context.fetch(request)
-            if let firstUserInfo = results.first {
-                userInfo = firstUserInfo
+            if let first = results.first {
+                self.userInfo = first
+                if first.age != 0 {
+                    ageInputField.text = String(first.age)
+                    validateInput()
+                }
             } else {
-                let newUserInfo = UserInfoEntity(context: context)
-                newUserInfo.id = UUID()
-                newUserInfo.createdAt = Date()
-                userInfo = newUserInfo
+                let newUser = UserInfoEntity(context: context)
+                newUser.id = UUID()
+                newUser.createdAt = Date()
+                self.userInfo = newUser
                 try context.save()
             }
         } catch {
-            print("UserInfo fetch error: \(error)")
+            print("Failed to fetch or create user info: \(error)")
         }
     }
 }
 
-extension WeightViewController: UITextFieldDelegate {
+extension InputAgeViewController: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         let allowedCharacters = CharacterSet.decimalDigits
         if string.rangeOfCharacter(from: allowedCharacters.inverted) != nil { return false }
-        
         let currentText = textField.text ?? ""
         let prospectiveText = (currentText as NSString).replacingCharacters(in: range, with: string)
-        return prospectiveText.count <= 3
+        return prospectiveText.count <= 4
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {

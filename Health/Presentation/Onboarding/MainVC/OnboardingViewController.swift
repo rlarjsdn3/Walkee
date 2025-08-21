@@ -68,7 +68,7 @@ Apple 건강앱과 연동해 신체 정보와 성별을 기반으로 맞춤형 �
             continueButtonTrailing?.isActive = false
 
             if iPadWidthConstraint == nil {
-                iPadWidthConstraint = continueButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.6)
+                iPadWidthConstraint = continueButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7)
                 iPadCenterXConstraint = continueButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
                 iPadWidthConstraint?.isActive = true
                 iPadCenterXConstraint?.isActive = true

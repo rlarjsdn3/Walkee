@@ -51,8 +51,6 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
                                                object: nil)
 
         continueButton.setTitle("다음", for: .normal)
-        continueButton.backgroundColor = UIColor.accent
-        continueButton.setTitleColor(.label, for: .normal)
         continueButton.applyCornerStyle(.medium)
         continueButton.addTarget(self, action: #selector(continueButtonTapped(_:)), for: .touchUpInside)
         
@@ -81,7 +79,7 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
      
             iPadWidthConstraint?.isActive = false
             iPadCenterXConstraint?.isActive = false
-            iPadWidthConstraint = continueButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.6)
+            iPadWidthConstraint = continueButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7)
             iPadCenterXConstraint = continueButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
             iPadWidthConstraint?.isActive = true
             iPadCenterXConstraint?.isActive = true
@@ -90,7 +88,7 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
             linkSettingTrailing?.isActive = false
             iPadLinkWidthConstraint?.isActive = false
             iPadLinkCenterXConstraint?.isActive = false
-            iPadLinkWidthConstraint = linkSettingView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.6)
+            iPadLinkWidthConstraint = linkSettingView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7)
             iPadLinkCenterXConstraint = linkSettingView.centerXAnchor.constraint(equalTo: view.centerXAnchor)
             iPadLinkWidthConstraint?.isActive = true
             iPadLinkCenterXConstraint?.isActive = true
@@ -189,7 +187,9 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
         } else {
             showAlert(
                 "건강 연동 필요",
-                message: "건강 연동을 해야 이용할 수 있는 서비스가 포함되어 있습니다.\n그래도 연동하지 않으시겠습니까?",
+                message: """
+건강 연동을 해야 이용할 수 있는 서비스가 포함되어 있습니다.그래도 연동하지 않으시겠습니까?
+""",
                 onPrimaryAction: { _ in
                     Task {
                         await self.requestHealthKitAuthorization()
