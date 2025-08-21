@@ -18,9 +18,12 @@ class InputAgeViewController: CoreGradientViewController {
     @IBOutlet weak var continueButtonTrailing: NSLayoutConstraint!
     @IBOutlet weak var continueButtonBottomConstraint: NSLayoutConstraint!
     
+    @IBOutlet weak var descriptionLabelTopConst: NSLayoutConstraint!
+    
     @IBOutlet weak var ageInputFieldCenterY: NSLayoutConstraint!
     private var originalCenterY: CGFloat = 0
-
+    private var originalDescriptionTop: CGFloat = 0   
+    
     private var iPadWidthConstraint: NSLayoutConstraint?
     private var iPadCenterXConstraint: NSLayoutConstraint?
     private let keyboardButtonPadding: CGFloat = 20
@@ -41,6 +44,7 @@ class InputAgeViewController: CoreGradientViewController {
         continueButton.applyCornerStyle(.medium)
         
         originalCenterY = ageInputFieldCenterY.constant
+        originalDescriptionTop = descriptionLabelTopConst.constant
         
         registerForKeyboardNotifications()
         setupTapGestureToDismissKeyboard()
@@ -62,6 +66,7 @@ class InputAgeViewController: CoreGradientViewController {
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         updateContinueButtonConstraints()
+        updateDescriptionTopConstraint()
     }
     
     private func updateContinueButtonConstraints() {
@@ -87,6 +92,15 @@ class InputAgeViewController: CoreGradientViewController {
                 continueButtonLeading.isActive = true
                 continueButtonTrailing.isActive = true
             }
+        }
+    }
+   
+    private func updateDescriptionTopConstraint() {
+        let isLandscape = view.bounds.width > view.bounds.height
+        if isLandscape {
+            descriptionLabelTopConst.constant = originalDescriptionTop * 0.3
+        } else {
+            descriptionLabelTopConst.constant = originalDescriptionTop * 1.2
         }
     }
 

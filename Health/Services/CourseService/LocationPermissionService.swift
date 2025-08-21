@@ -52,23 +52,22 @@ class LocationPermissionService: NSObject {
     // 내 현재 위치 가져오기 (메인 함수)
     func getCurrentLocation() async -> CLLocation? {
         guard checkCurrentPermissionStatus() else {
-            print("위치 권한이 없습니다.")
+
             return nil
         }
 
         // 캐시된 위치가 있으면 바로 반환 (빠름!)
         if let cachedLocation = getCachedLocationIfAvailable() {
-            print("캐시된 위치 사용: \(cachedLocation.coordinate)")
+
             return cachedLocation
         }
 
         // 이미 요청 중이면 이전 위치라도 반환
         if locationContinuation != nil {
-            print("이미 위치 요청 중 - 캐시된 위치 반환")
+
             return cachedLocation
         }
 
-        print("새로운 위치 요청")
         return await withCheckedContinuation { continuation in
             locationContinuation = continuation
             locationManager.requestLocation()
@@ -86,22 +85,22 @@ class LocationPermissionService: NSObject {
 
         switch status {
         case .notDetermined:
-            print("위치 권한 요청 중...")
+
             return await withCheckedContinuation { continuation in
                 self.permissionContinuation = continuation
                 locationManager.requestWhenInUseAuthorization()
             }
 
         case .denied, .restricted:
-            print("위치 권한이 거부됨")
+
             return false
 
         case .authorizedWhenInUse, .authorizedAlways:
-            print("위치 권한이 이미 허용됨")
+
             return true
 
         @unknown default:
-            print("알 수 없는 위치 권한 상태")
+           
             return false
         }
     }

@@ -14,8 +14,8 @@ final class CalendarDateCell: CoreCollectionViewCell {
     private let borderLayer = CAShapeLayer()
 
     private var previousInset: CGFloat?
-    private var isBlankCell = false
-    private var isCompletedCell = false
+    private var isBlank = false
+    private var isCompleted = false
 
     private(set) var isSelectable = false
 
@@ -60,8 +60,8 @@ final class CalendarDateCell: CoreCollectionViewCell {
     // 셀 재사용 시 원래 상태 복원 보장
     override func prepareForReuse() {
         super.prepareForReuse()
-        isBlankCell = false
-        isCompletedCell = false
+        isBlank = false
+        isCompleted = false
         isSelectable = false
         contentView.alpha = 1.0
         contentView.transform = .identity
@@ -88,7 +88,7 @@ final class CalendarDateCell: CoreCollectionViewCell {
     func configure(date: Date, currentSteps: Int?, goalSteps: Int?) {
         // 빈 셀 처리
         if date == .distantPast {
-            isBlankCell = true
+            isBlank = true
             isSelectable = false
             configureForBlank()
             return
@@ -105,9 +105,9 @@ final class CalendarDateCell: CoreCollectionViewCell {
         }
 
         isSelectable = true
-        isCompletedCell = current >= goal
+        isCompleted = current >= goal
 
-        if isCompletedCell {
+        if isCompleted {
             circleView.backgroundColor = UIColor.accent
             progressBar.isHidden = true
         } else {
@@ -141,7 +141,7 @@ private extension CalendarDateCell {
     }
 
     func updateBorderLayer() {
-        let shouldShowBorder = traitCollection.userInterfaceStyle == .light && !isBlankCell && !isCompletedCell
+        let shouldShowBorder = traitCollection.userInterfaceStyle == .light && isSelectable && !isCompleted
 
         if shouldShowBorder {
             let borderWidth = bounds.width * 0.08

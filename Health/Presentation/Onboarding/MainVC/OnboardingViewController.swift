@@ -20,8 +20,6 @@ class OnboardingViewController: CoreGradientViewController {
     private var iPadWidthConstraint: NSLayoutConstraint?
     private var iPadCenterXConstraint: NSLayoutConstraint?
 
-    override func initVM() {}
-
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -37,9 +35,23 @@ class OnboardingViewController: CoreGradientViewController {
         appImageView.clipsToBounds = true
 
         titleLabel.text = "환영합니다!"
-        descriptionLabel.text = "사용자에게 더 정확한 운동측정과 맞춤 추천을 제공하기 위해 사용자 입력 정보가 필요합니다."
-        descriptionLabel.numberOfLines = 0
-        descriptionLabel.alpha = 0.7
+
+        let descriptionText = """
+Apple 건강앱과 연동해 신체 정보와 성별을 기반으로 맞춤형 건강 관리를 제공합니다. 달력에서 일별 걸음 목표 달성률을 확인하고 걸음 패턴을 분석합니다. 개인에게 맞는 난이도의 추천 걷기 코스를 얻을 수 있고 챗봇을 통해 다양한 걷기 정보를 얻을 수 있습니다.
+"""
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = 6
+        paragraphStyle.alignment = .center
+
+        let attributedString = NSAttributedString(
+            string: descriptionText,
+            attributes: [
+                .paragraphStyle: paragraphStyle,
+                .foregroundColor: UIColor.white.withAlphaComponent(0.7),
+            ]
+        )
+        descriptionLabel.attributedText = attributedString
+        descriptionLabel.textColor = .secondaryLabel
 
         if let parentVC = parent as? ProgressContainerViewController {
             parentVC.customNavigationBar.backButton.isHidden = true
@@ -75,4 +87,3 @@ class OnboardingViewController: CoreGradientViewController {
         performSegue(withIdentifier: "goToHealthLink", sender: self)
     }
 }
-

@@ -48,4 +48,12 @@ extension UserDefaultsKeys {
 
         )
     }
+
+    /// LLM 추천코스 난이도 배열
+    var llmRecommendedCourseLevels: UserDefaultsKey<[String]?> {
+        UserDefaultsKey<[String]?>(
+            "LLMRecommendedLevels",
+            defaultValue: nil
+        )
+    }
 }

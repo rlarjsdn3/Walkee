@@ -6,6 +6,7 @@
 //
 import UIKit
 import CoreLocation
+import Combine
 import TSAlertController
 
 class PersonalViewController: CoreGradientViewController, Alertable {
@@ -20,19 +21,31 @@ class PersonalViewController: CoreGradientViewController, Alertable {
     private var easyLevelCourses: [WalkingCourse] = []    // "1" 난이도 코스들
     private var mediumLevelCourses: [WalkingCourse] = []  // "2" 난이도 코스들
     private var hardLevelCourses: [WalkingCourse] = []    // "3" 난이도 코스들
-    private var llmRecommendedLevels: [String] = []  //	Alan에게 받아올 난이도(추후 작업 예정)
+    private var llmRecommendedLevels: [String] = []  //	Alan에게 받아온 난이도
     private var currentSortType: String = "코스길이순" //기본 정렬
-    private var networkService = DefaultNetworkService()
-
+    private var isLoadingLLMData = false
     private var distanceViewModel = CourseDistanceViewModel()
     private var previousLocationPermission = false  // 이전 권한 상태 추적
 
+    private var llmViewModel = LLMRecommendationViewModel()
+    private var cancellables = Set<AnyCancellable>()
+
     override func initVM() { }
+
+    // 메모리 해제 시 옵저버 제거
+    deinit {
+        NotificationCenter.default.removeObserver(
+            self,
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupDataSource()
         setupDistanceViewModel()
+        setupLLMViewModel()
         applyInitialSnapshot()
         previousLocationPermission = LocationPermissionService.shared.checkCurrentPermissionStatus()
 
@@ -55,7 +68,6 @@ class PersonalViewController: CoreGradientViewController, Alertable {
         // 앱이 포그라운드로 돌아올 때마다 권한 상태 확인
         checkLocationPermissionChange()
     }
-
     override func setupAttribute() {
         super.setupAttribute()
         collectionView.backgroundColor = .clear
@@ -127,6 +139,12 @@ class PersonalViewController: CoreGradientViewController, Alertable {
         }
     }
 
+    private func createLoadingCellRegistration() -> UICollectionView.CellRegistration<LoadingCell, WalkingLoadingView.State> {
+        UICollectionView.CellRegistration<LoadingCell, WalkingLoadingView.State>(cellNib: LoadingCell.nib) { cell, indexPath, state in
+            cell.configure(with: state)
+        }
+    }
+
     private func setupDataSource() {
         let weekSummaryRegistration = weekSummaryCellRegistration()
         let monthSummaryRegistration = monthSummaryCellRegistration()
@@ -134,6 +152,7 @@ class PersonalViewController: CoreGradientViewController, Alertable {
         let walkingHeaderRegistration = createWalkingHeaderRegistration()
         let walkingFilterRegistration = createWalkingFilterRegistration()
         let recommendPlaceRegistration = createRecommendPlaceCellRegistration()
+        let loadingCellRegistration = createLoadingCellRegistration()
 
         dataSource = PersonalDiffableDataSource(collectionView: collectionView) { collectionView, indexPath, item in
             switch item {
@@ -149,11 +168,14 @@ class PersonalViewController: CoreGradientViewController, Alertable {
                 return collectionView.dequeueConfiguredReusableCell(using: aiSummaryCellRegistration, for: indexPath, item: ())
             case .recommendPlaceItem(let course):
                 return collectionView.dequeueConfiguredReusableCell(using: recommendPlaceRegistration, for: indexPath, item: course)
+            case .loadingItem(let state):
+                return collectionView.dequeueConfiguredReusableCell(using: loadingCellRegistration, for: indexPath, item: state)
             }
         }
     }
 
     // MARK: - Snapshot Methods
+
     // 초기 스냅샷 (데이터 로드 전)
     private func applyInitialSnapshot() {
         var snapshot = NSDiffableDataSourceSnapshot<PersonalContent.Section, PersonalContent.Item>()
@@ -167,6 +189,12 @@ class PersonalViewController: CoreGradientViewController, Alertable {
 
     // 데이터 로드 후 스냅샷
     private func applyDataSnapshot() {
+
+        if isLoadingLLMData {
+            applyLoadingSnapshot()
+            return
+        }
+
         var snapshot = NSDiffableDataSourceSnapshot<PersonalContent.Section, PersonalContent.Item>()
 
         // 모든 섹션 추가
@@ -181,6 +209,123 @@ class PersonalViewController: CoreGradientViewController, Alertable {
 
         dataSource?.apply(snapshot, animatingDifferences: true)
     }
+
+    private func applyLoadingSnapshot(state: WalkingLoadingView.State = .loading) {
+        var snapshot = NSDiffableDataSourceSnapshot<PersonalContent.Section, PersonalContent.Item>()
+
+        // 기본 섹션들 + 로딩 섹션 (recommendPlace는 제외)
+        snapshot.appendSections([.weekSummary, .walkingHeader, .walkingFilter, .loading])
+        snapshot.appendItems([.weekSummaryItem, .monthSummaryItem, .aiSummaryItem], toSection: .weekSummary)
+        snapshot.appendItems([.walkingHeaderItem], toSection: .walkingHeader)
+        snapshot.appendItems([.walkingFilterItem], toSection: .walkingFilter)
+
+        // 하나의 로딩 아이템 추가
+        snapshot.appendItems([.loadingItem(state)], toSection: .loading)
+
+        dataSource?.apply(snapshot, animatingDifferences: true)
+    }
+
+    // MARK: - Setup Methods
+
+    private func setupLLMViewModel() {
+
+        Publishers.CombineLatest(llmViewModel.$isLoading, llmViewModel.$loadingState)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] (isLoading, loadingState) in
+
+                self?.isLoadingLLMData = isLoading
+
+                if isLoading {
+                    // 로딩 중이면 현재 상태에 따라 화면 표시
+                    self?.applyLoadingSnapshot(state: loadingState)
+                } else {
+                    // 로딩 완료면 데이터 화면 표시
+                    self?.applyDataSnapshot()
+                }
+            }
+            .store(in: &cancellables)
+
+        // 추천 결과 관찰
+        llmViewModel.$recommendedLevels
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] levels in
+                print("ViewController에서 받은 추천 난이도: \(levels)")
+                self?.llmRecommendedLevels = levels
+                self?.updateCoursesWithLLMResults()
+            }
+            .store(in: &cancellables)
+    }
+
+    private func setupDistanceViewModel() {
+        distanceViewModel.onCacheNeedsRefresh = { [weak self] in
+            self?.applyDataSnapshot()
+        }
+
+        distanceViewModel.onDistanceUpdated = { [weak self] gpxURL, distanceText in
+            self?.updateCellDistance(gpxURL: gpxURL, distanceText: distanceText)
+        }
+    }
+
+    // MARK: - Course Management
+
+    //전체 코스 데이터 로드
+    @MainActor
+    private func loadInitialCourses() {
+        allCourses = WalkingCourseService.shared.loadWalkingCourses()
+        separateCoursesByDifficulty()
+
+        // 캐시된 추천이 있으면 바로 사용
+        if llmViewModel.hasValidRecommendations() {
+            llmRecommendedLevels = llmViewModel.recommendedLevels
+            updateCoursesWithLLMResults()
+            applyDataSnapshot()
+        } else {
+            // 캐시가 없을 때만 새로운 추천 요청
+            Task {
+                await llmViewModel.fetchRecommendations()
+            }
+        }
+
+        Task {
+            await distanceViewModel.prepareAndCalculateDistances(for: self.courses)
+        }
+    }
+
+    private func updateCoursesWithLLMResults() {
+        var filteredCourses: [WalkingCourse] = []
+
+        for level in llmRecommendedLevels {
+            switch level {
+            case "1":
+                filteredCourses.append(contentsOf: Array(easyLevelCourses.prefix(10)))
+            case "2":
+                filteredCourses.append(contentsOf: Array(mediumLevelCourses.prefix(10)))
+            case "3":
+                filteredCourses.append(contentsOf: Array(hardLevelCourses.prefix(10)))
+            default:
+                break
+            }
+        }
+
+        if filteredCourses.isEmpty {
+            filteredCourses = Array(easyLevelCourses.prefix(10))
+        }
+
+        filteredCourses.shuffle()
+        courses = Array(filteredCourses.prefix(10))
+
+        // 기본 정렬(코스길이순) 적용
+        courses = courses.sorted { course1, course2 in
+            let distance1 = Int(course1.crsDstnc) ?? 0
+            let distance2 = Int(course2.crsDstnc) ?? 0
+            return distance1 < distance2
+        }
+
+        Task {
+            await distanceViewModel.prepareAndCalculateDistances(for: self.courses)
+        }
+    }
+
 
     // 전체 코스를 난이도별로 나누는 메서드
     private func separateCoursesByDifficulty() {
@@ -210,7 +355,7 @@ class PersonalViewController: CoreGradientViewController, Alertable {
             case "3":
                 hardLevelCourses.append(course)
             default:
-              break
+                break
             }
         }
 
@@ -220,24 +365,7 @@ class PersonalViewController: CoreGradientViewController, Alertable {
         hardLevelCourses.shuffle()
     }
 
-    @MainActor
-    private func loadInitialCourses() {
-        allCourses = WalkingCourseService.shared.loadWalkingCourses()
-        separateCoursesByDifficulty()
-
-        if easyLevelCourses.count > 5 {
-            courses = Array(easyLevelCourses.prefix(5))
-        } else {
-            courses = easyLevelCourses
-        }
-
-        applySorting(sortType: self.currentSortType)
-
-        // 거리 계산을 시작하고 끝날 때까지 기다림
-        Task {
-            await distanceViewModel.prepareAndCalculateDistances(for: self.courses)
-        }
-    }
+    // MARK: - Distance Management
 
     // 위치 권한 변경 감지 및 자동 재계산
     @objc private func checkLocationPermissionChange() {
@@ -259,6 +387,7 @@ class PersonalViewController: CoreGradientViewController, Alertable {
         }
     }
 
+    //먼저 계산된 거리부터 보여주는 메서드
     private func updateCellDistance(gpxURL: String, distanceText: String) {
         // courses 배열에서 해당 gpxURL을 가진 코스의 인덱스를 찾습니다.
         guard let index = courses.firstIndex(where: { $0.gpxpath == gpxURL }) else { return }
@@ -272,35 +401,7 @@ class PersonalViewController: CoreGradientViewController, Alertable {
         }
     }
 
-    private func setupDistanceViewModel() {
-        distanceViewModel.onCacheNeedsRefresh = { [weak self] in
-            self?.applyDataSnapshot()
-        }
-
-        distanceViewModel.onDistanceUpdated = { [weak self] gpxURL, distanceText in
-            self?.updateCellDistance(gpxURL: gpxURL, distanceText: distanceText)
-        }
-    }
-
-    // 메모리 해제 시 옵저버 제거
-    deinit {
-        NotificationCenter.default.removeObserver(
-            self,
-            name: UIApplication.willEnterForegroundNotification,
-            object: nil
-        )
-    }
-
-    // GPX URL로 IndexPath 찾기
-    private func findIndexPath(for gpxURL: String) -> IndexPath? {
-        for (index, course) in courses.enumerated() {
-            if course.gpxpath == gpxURL {
-                return IndexPath(item: index, section: 3) // recommendPlace 섹션
-            }
-        }
-        return nil
-    }
-
+    //MARK: - Sorting
     @MainActor
     private func applySorting(sortType: String) {
         currentSortType = sortType
@@ -368,7 +469,6 @@ class PersonalViewController: CoreGradientViewController, Alertable {
         )
     }
 }
-
 
 extension PersonalViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didHighlightItemAt indexPath: IndexPath) { }

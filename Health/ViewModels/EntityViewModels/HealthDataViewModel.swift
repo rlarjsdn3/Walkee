@@ -77,10 +77,7 @@ final class HealthDataViewModel: ObservableObject {
                 let dayName = dayNames[arrayIndex]
                 let dayDescription = dayOffset == 0 ? "오늘" : "\(dayOffset)일전"
 
-                print("\(dayDescription)(\(dayName)요일): \(daySteps.formatted())걸음, \(String(format: "%.1f", dayDistance))km")
-
             } catch {
-                print("\(dayOffset)일전 데이터 가져오기 실패: \(error)")
                 // 실패해도 계속 진행 (해당 날짜는 0으로 남음)
             }
         }
@@ -128,9 +125,6 @@ final class HealthDataViewModel: ObservableObject {
         // 날짜 범위 출력
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-
-        print("이번 달 기간: \(dateFormatter.string(from: thisMonthStart)) ~ \(dateFormatter.string(from: thisMonthEnd))")
-        print("지난 달 기간: \(dateFormatter.string(from: lastMonthStart)) ~ \(dateFormatter.string(from: lastMonthEnd))")
 
         // 더미 데이터 (기본값)
         let dummyThisMonth = (steps: 0, distance: 0.0, calories: 0.0)

@@ -9,7 +9,7 @@ import UIKit
 import MapKit
 
 class RecommendPlaceCell: CoreCollectionViewCell {
-
+    
     @IBOutlet weak var placeBackground: UIView!
     @IBOutlet weak var courseImage: UIImageView!
     @IBOutlet weak var courseNameLabel: UILabel!
@@ -17,27 +17,31 @@ class RecommendPlaceCell: CoreCollectionViewCell {
     @IBOutlet weak var distanceLabel: UILabel!
     @IBOutlet weak var durationLabel: UILabel!
     @IBOutlet weak var userDistanceLabel: UILabel!
+    @IBOutlet weak var levelLabel: UILabel!
 
+    @IBOutlet weak var userBackgroundView: UIView!
     private var currentGPXURL: String?
     private var thumbnailTask: Task<Void, Never>?
-
+    
     override func awakeFromNib() {
         super.awakeFromNib()
+        
     }
-
+    
     override func setupAttribute() {
         super.setupAttribute()
         BackgroundHeightUtils.setupShadow(for: self)
         BackgroundHeightUtils.setupDarkModeBorder(for: placeBackground)
         placeBackground.applyCornerStyle(.medium)
+        userBackgroundView.applyCornerStyle(.medium)
     }
-
+    
     override func prepareForReuse() {
         super.prepareForReuse()
         courseImage.image = nil
         currentGPXURL = nil
-
- 		//이전 Task 취소 (메모리 누수 방지)
+        
+        //이전 Task 취소 (메모리 누수 방지)
         thumbnailTask?.cancel()
     }
 
@@ -48,20 +52,21 @@ class RecommendPlaceCell: CoreCollectionViewCell {
         locationLabel.text = course.sigun
         distanceLabel.text = "\(course.crsDstnc)km"
         durationLabel.text = course.crsTotlRqrmHour.toFormattedDuration()
+        levelLabel.text = getLevelText(from: course.crsLevel)
 
         // 기본 로딩 상태
         courseImage.image = UIImage(systemName: "map")
         courseImage.tintColor = .systemGray3
-
+        
         currentGPXURL = course.gpxpath
         thumbnailTask?.cancel()
-
+        
         // 썸네일만 별도 처리 (거리는 뷰컨트롤러에서 처리)
         thumbnailTask = Task { @MainActor in
             let image = await WalkingCourseService.shared.generateThumbnailAsync(from: course.gpxpath)
-
+            
             guard currentGPXURL == course.gpxpath else { return }
-
+            
             if let image = image {
                 courseImage.image = image
                 courseImage.contentMode = .scaleAspectFill
@@ -71,26 +76,41 @@ class RecommendPlaceCell: CoreCollectionViewCell {
             }
         }
     }
-
+    
     func updateDistance(_ distanceText: String) {
         userDistanceLabel.text = distanceText
-
+        
         if distanceText.contains("km") || distanceText.contains("m") {
             userDistanceLabel.textColor = .systemBlue
         } else {
             userDistanceLabel.textColor = .systemOrange
         }
     }
+
+    // 난이도 변환 함수
+    func getLevelText(from level: String) -> String {
+
+        switch level {
+        case "1":
+            return "쉬움"
+        case "2":
+            return "보통"
+        case "3":
+            return "어려움"
+        default:
+            return "알 수 없음"
+        }
+    }
 }
 
 extension String {
-
+    
     //소요시간 포맷팅
     func toFormattedDuration() -> String {
         let minutes = Int(self)!
         let hours = minutes / 60
         let mins = minutes % 60
-
+        
         if hours > 0 && mins > 0 {
             return "\(hours)시간 \(mins)분"
         } else if hours > 0 {

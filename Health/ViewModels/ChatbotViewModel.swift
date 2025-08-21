@@ -2,7 +2,7 @@
 //  ChatbotViewModel.swift
 //  Health
 //
-//  Created by Nat Kim on 8/19/25.
+//  Created by Seohyun Kim on 8/19/25.
 //
 
 import Foundation
@@ -14,6 +14,7 @@ import Foundation
 final class ChatbotViewModel {
 	@Injected private var sseService: AlanSSEServiceProtocol
 	@Injected private var networkService: NetworkService
+	@Injected private var promptBuilderService: PromptBuilderService
 	
 	var onActionText: ((String) -> Void)?
 	var onStreamChunk: ((String) -> Void)?
@@ -34,9 +35,59 @@ final class ChatbotViewModel {
 		}
 	}
 	
+	func startPromptChatWithAutoReset(_ rawMessage: String) {
+		streamTask?.cancel()
+		streamTask = Task { [weak self] in
+			guard let self else { return }
+			
+			let masked = PrivacyService.maskSensitiveInfo(in: rawMessage)
+			
+			print("=== 마스킹 디버그 ===")
+			print("[Chatbot] Original: \(rawMessage)")
+			print("[Chatbot] Masked  : \(masked)")
+			print("==================")
+			
+			Log.privacy.info("Original: \(rawMessage, privacy: .public)")
+			Log.privacy.info("Masked  : \(masked, privacy: .public)")
+			
+#if DEBUG
+			// DEBUG 모드: 목 데이터로 테스트 스트리밍
+			startMockStreaming(masked)
+#else
+			// RELEASE 모드: 실제 프롬프트 생성 + SSE 요청
+			streamTask = Task { [weak self] in
+				guard let self else { return }
+				
+				do {
+					let prompt = try await promptBuilderService.makePrompt(
+						message: masked,
+						context: nil,
+						option: .chat
+					)
+					await self._startStreaming(content: prompt, canRetry: true)
+					print("🧾 [Prompt] Alan에게 전달할 최종 프롬프트:")
+					print(prompt)
+				} catch {
+					onError?("프롬프트 생성 실패: \(error.localizedDescription)")
+				}
+			}
+#endif
+		}
+	}
+	
 	/// 서버 500 등 복구 가능 오류 시 1회 reset 후 재시도
 	func startStreamingQuestionWithAutoReset(_ content: String) {
 		streamTask?.cancel()
+		
+		let masked = PrivacyService.maskSensitiveInfo(in: content)
+		
+		print("=== 마스킹 디버그 ===")
+		print("[Chatbot] Original: \(content)")
+		print("[Chatbot] Masked  : \(masked)")
+		print("==================")
+		
+		Log.privacy.info("Original: \(content, privacy: .public)")
+		Log.privacy.info("Masked  : \(masked, privacy: .public)")
 #if DEBUG
 		startMockStreaming(content)
 #else
@@ -130,85 +181,3 @@ final class ChatbotViewModel {
 		}
 	}
 }
-
-/*
- func startStreamingQuestion(_ content: String) {
-#if DEBUG
-	 // ── Debug: 로컬 목 JSON을 “한 글자씩” 흘려서 SSE처럼 보이게
-	 Task { @MainActor [weak self] in
-		 guard let self else { return }
-		 defer { self.onStreamCompleted?() }
-		 
-		 struct Mock: Decodable {
-			 struct Action: Decodable { let name: String; let speak: String }
-			 let action: Action
-			 let content: String
-		 }
-		 
-		 do {
-			 guard let url = Bundle.main.url(forResource: "mock_ask_response", withExtension: "json") else {
-				 self.onActionText?("모킹 파일을 찾을 수 없어요.")
-				 return
-			 }
-			 let data = try Data(contentsOf: url)
-			 let mock = try JSONDecoder().decode(Mock.self, from: data)
-			 
-			 if mock.action.speak.isEmpty == false {
-				 self.onActionText?(mock.action.speak)
-			 }
-			 
-			 // 실제 SSE 느낌: 20~40ms 간격으로 한 글자씩
-			 for ch in mock.content {
-				 try await Task.sleep(nanoseconds: 30_000_000)
-				 self.onStreamChunk?(String(ch))
-			 }
-		 } catch {
-			 self.errorMessage = error.localizedDescription
-		 }
-	 }
-	 #else
-	 // ── Release: 실제 SSE
-	 do {
-		 let safe = PrivacyService.maskSensitiveInfo(in: content)
-		 let url = try buildStreamingURL(content: safe, clientID: clientID)
-		 let client = AlanSSEClient()
-		 self.sseClient = client
-		 
-		 let stream = client.connect(url: url)
-		 Task { @MainActor [weak self]  in
-			 guard let self else { return }
-			 defer {
-				 self.sseClient?.disconnect()
-				 self.sseClient = nil
-				 self.onStreamCompleted?()
-			 }
-			 
-			 do {
-				 streamLoop: for try await event in stream {
-					 switch event.type {
-					 case .action:
-						 if let speak = event.data.speak ?? event.data.content, !speak.isEmpty {
-							 self.onActionText?(speak)
-						 }
-					 case .continue:
-						 if let piece = event.data.content, !piece.isEmpty {
-							 self.onStreamChunk?(piece)
-						 }
-					 case .complete:
-						 break streamLoop
-					 }
-				 }
-			 } catch {
-				 self.errorMessage = error.localizedDescription
-			 }
-		 }
-	 } catch {
-		 self.errorMessage = error.localizedDescription
-		 self.onStreamCompleted?()
-	 }
-	 #endif
- }
- 
- 
- 
- */
