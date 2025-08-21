@@ -22,9 +22,11 @@ class WeightViewController: CoreGradientViewController {
     
     @IBOutlet weak var weightInputFieldCenterY: NSLayoutConstraint!
     private var originalCenterY: CGFloat = 0
+    private var originalDescriptionTop: CGFloat = 0
     
     private var iPadWidthConstraint: NSLayoutConstraint?
     private var iPadCenterXConstraint: NSLayoutConstraint?
+    
     private var userInfo: UserInfoEntity?
     private let context = CoreDataStack.shared.persistentContainer.viewContext
     
@@ -41,7 +43,9 @@ class WeightViewController: CoreGradientViewController {
         errorLabel.textColor = .red
         
         continueButton.applyCornerStyle(.medium)
+        
         originalCenterY = weightInputFieldCenterY.constant
+        originalDescriptionTop = descriptionLabelTopConst.constant
         
         registerForKeyboardNotifications()
         setupTapGestureToDismissKeyboard()
@@ -53,6 +57,9 @@ class WeightViewController: CoreGradientViewController {
         } else {
             disableContinueButton()
         }
+        
+        // viewDidLoad에서 폰트 업데이트를 호출
+        updateButtonFont()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -65,14 +72,21 @@ class WeightViewController: CoreGradientViewController {
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         updateContinueButtonConstraints()
-        updateDescriptionLabelConstraint()
+        updateDescriptionTopConstraint()
     }
     
-    private func updateDescriptionLabelConstraint() {
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        updateButtonFont()
+    }
+    
+    private func updateDescriptionTopConstraint() {
         let isLandscape = view.bounds.width > view.bounds.height
-        descriptionLabelTopConst.constant = isLandscape
-            ? descriptionLabelTopConst.constant * 0.5
-            : descriptionLabelTopConst.constant * 1.2
+        if isLandscape {
+            descriptionLabelTopConst.constant = originalDescriptionTop * 0.3
+        } else {
+            descriptionLabelTopConst.constant = originalDescriptionTop * 1.2
+        }
     }
     
     private func updateContinueButtonConstraints() {
@@ -137,7 +151,7 @@ class WeightViewController: CoreGradientViewController {
         guard let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double else { return }
         
         weightInputFieldCenterY.constant = originalCenterY
-        continueButtonBottomConstraint?.constant = -20
+        continueButtonBottomConstraint?.constant = 0
         
         UIView.animate(withDuration: duration) {
             self.view.layoutIfNeeded()
@@ -220,18 +234,28 @@ class WeightViewController: CoreGradientViewController {
         errorLabel.text = ""
     }
     
+    private func updateButtonFont() {
+        if let currentFont = continueButton.titleLabel?.font {
+            if continueButton.isEnabled {
+                continueButton.titleLabel?.font = currentFont.withBoldTrait()
+            } else {
+                continueButton.titleLabel?.font = currentFont.withNormalTrait()
+            }
+        }
+    }
+    
     private func disableContinueButton() {
         continueButton.isEnabled = false
         continueButton.backgroundColor = .buttonBackground
         weightInputField.textColor = .label
-        continueButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .regular)
+        updateButtonFont()
     }
     
     private func enableContinueButton() {
         continueButton.isEnabled = true
         continueButton.backgroundColor = .accent
         weightInputField.textColor = .accent
-        continueButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .bold)
+        updateButtonFont()
     }
     
     private func fetchUserInfo() {

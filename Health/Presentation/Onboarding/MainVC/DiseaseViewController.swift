@@ -45,7 +45,7 @@ class DiseaseViewController: CoreGradientViewController {
         continueButton.setTitle("다음", for: .normal)
         continueButton.applyCornerStyle(.medium)
         continueButton.isEnabled = false
-        continueButton.titleLabel?.numberOfLines = 1
+        updateButtonFont()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -114,6 +114,7 @@ class DiseaseViewController: CoreGradientViewController {
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
         updateNavigationBarVisibility()
+        updateButtonFont()
     }
  
     private func updateNavigationBarVisibility() {
@@ -182,7 +183,17 @@ class DiseaseViewController: CoreGradientViewController {
         let enabled = selectedCount > 0
         continueButton.isEnabled = enabled
         continueButton.backgroundColor = enabled ? UIColor.accent : UIColor.buttonBackground
-        continueButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: enabled ? .bold : .regular)
+        updateButtonFont()
+    }
+    
+    private func updateButtonFont() {
+        if let currentFont = continueButton.titleLabel?.font {
+            if continueButton.isEnabled {
+                continueButton.titleLabel?.font = currentFont.withBoldTrait()
+            } else {
+                continueButton.titleLabel?.font = currentFont.withNormalTrait()
+            }
+        }
     }
 }
 
