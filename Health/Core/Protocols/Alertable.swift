@@ -273,9 +273,11 @@ extension Alertable where Self: UIViewController {
             cancelAction.highlightType = .fadeIn
             alert.addAction(cancelAction)
         }
-
+        
         self.present(alert, animated: true)
     }
+    
+
 
     /// 사용자 정의 뷰를 포함한 액션 시트를 표시합니다.
     ///
