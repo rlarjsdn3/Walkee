@@ -1,5 +1,7 @@
 import UIKit
 
+import TSAlertController
+
 final class CalendarViewController: HealthNavigationController {
 
     @IBOutlet weak var collectionView: UICollectionView!
@@ -70,15 +72,44 @@ final class CalendarViewController: HealthNavigationController {
 private extension CalendarViewController {
 
     func configureNavigationBar() {
+        let guideButton = HealthBarButtonItem(
+            image: UIImage(systemName: "info.circle"),
+            primaryAction: { [weak self] in
+                self?.showGuideView()
+            }
+        )
+
         let scrollToCurrentButton = HealthBarButtonItem(
             image: UIImage(systemName: "clock.arrow.trianglehead.counterclockwise.rotate.90"),
             primaryAction: { [weak self] in
                 self?.scrollManager.scrollToCurrentMonth(animated: true)
-            })
+            }
+        )
 
         healthNavigationBar.title = "캘린더"
         healthNavigationBar.titleImage = UIImage(systemName: "calendar")
-        healthNavigationBar.trailingBarButtonItems = [scrollToCurrentButton]
+        healthNavigationBar.trailingBarButtonItems = [guideButton, scrollToCurrentButton]
+    }
+
+    func showGuideView() {
+        let content = CalendarGuideView()
+
+        let alert = TSAlertController(
+            content,
+            options: [.dismissOnSwipeDown, .interactiveScaleAndDrag],
+            preferredStyle: .floatingSheet
+        )
+
+        let okAction = TSAlertAction(title: "확인")
+        okAction.highlightType = .fadeIn
+        okAction.configuration.backgroundColor = .accent
+        okAction.configuration.titleAttributes = [
+            .font: UIFont.preferredFont(forTextStyle: .headline),
+            .foregroundColor: UIColor.systemBackground
+        ]
+        alert.addAction(okAction)
+
+        present(alert, animated: true)
     }
 
     func configureBackground() {
