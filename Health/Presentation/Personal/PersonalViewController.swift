@@ -9,7 +9,7 @@ import CoreLocation
 import Combine
 import TSAlertController
 
-class PersonalViewController: CoreGradientViewController, Alertable {
+class PersonalViewController: HealthNavigationController, Alertable, UICollectionViewDelegate {
 
     typealias PersonalDiffableDataSource = UICollectionViewDiffableDataSource<PersonalContent.Section, PersonalContent.Item>
 
@@ -64,7 +64,7 @@ class PersonalViewController: CoreGradientViewController, Alertable {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(true, animated: animated)
+//        navigationController?.setNavigationBarHidden(true, animated: animated)
         // 앱이 포그라운드로 돌아올 때마다 권한 상태 확인
         checkLocationPermissionChange()
     }
@@ -125,6 +125,8 @@ class PersonalViewController: CoreGradientViewController, Alertable {
 
     private func createRecommendPlaceCellRegistration() -> UICollectionView.CellRegistration<RecommendPlaceCell, WalkingCourse> {
         UICollectionView.CellRegistration<RecommendPlaceCell, WalkingCourse>(cellNib: RecommendPlaceCell.nib) { [weak self] cell, indexPath, course in
+            cell.delegate = self
+
             // 기본 설정
             cell.configure(with: course)
 
@@ -149,7 +151,6 @@ class PersonalViewController: CoreGradientViewController, Alertable {
         let weekSummaryRegistration = weekSummaryCellRegistration()
         let monthSummaryRegistration = monthSummaryCellRegistration()
         let aiSummaryCellRegistration = aiSummaryCellRegistration()
-        let walkingHeaderRegistration = createWalkingHeaderRegistration()
         let walkingFilterRegistration = createWalkingFilterRegistration()
         let recommendPlaceRegistration = createRecommendPlaceCellRegistration()
         let loadingCellRegistration = createLoadingCellRegistration()
@@ -158,8 +159,6 @@ class PersonalViewController: CoreGradientViewController, Alertable {
             switch item {
             case .weekSummaryItem:
                 return collectionView.dequeueConfiguredReusableCell(using: weekSummaryRegistration, for: indexPath, item: ())
-            case .walkingHeaderItem:
-                return collectionView.dequeueConfiguredReusableCell(using: walkingHeaderRegistration, for: indexPath, item: ())
             case .walkingFilterItem:
                 return collectionView.dequeueConfiguredReusableCell(using: walkingFilterRegistration, for: indexPath, item: ())
             case .monthSummaryItem:
@@ -179,9 +178,8 @@ class PersonalViewController: CoreGradientViewController, Alertable {
     // 초기 스냅샷 (데이터 로드 전)
     private func applyInitialSnapshot() {
         var snapshot = NSDiffableDataSourceSnapshot<PersonalContent.Section, PersonalContent.Item>()
-        snapshot.appendSections([.weekSummary, .walkingHeader, .walkingFilter])
+        snapshot.appendSections([.weekSummary, .walkingFilter])
         snapshot.appendItems([.weekSummaryItem, .monthSummaryItem, .aiSummaryItem], toSection: .weekSummary)
-        snapshot.appendItems([.walkingHeaderItem], toSection: .walkingHeader)
         snapshot.appendItems([.walkingFilterItem], toSection: .walkingFilter)
         // recommendPlace 섹션은 아직 추가하지 않음 (데이터가 없으므로)
         dataSource?.apply(snapshot, animatingDifferences: false)
@@ -198,9 +196,8 @@ class PersonalViewController: CoreGradientViewController, Alertable {
         var snapshot = NSDiffableDataSourceSnapshot<PersonalContent.Section, PersonalContent.Item>()
 
         // 모든 섹션 추가
-        snapshot.appendSections([.weekSummary, .walkingHeader, .walkingFilter, .recommendPlace])
+        snapshot.appendSections([.weekSummary, .walkingFilter, .recommendPlace])
         snapshot.appendItems([.weekSummaryItem, .monthSummaryItem, .aiSummaryItem], toSection: .weekSummary)
-        snapshot.appendItems([.walkingHeaderItem], toSection: .walkingHeader)
         snapshot.appendItems([.walkingFilterItem], toSection: .walkingFilter)
 
         // 실제 코스 데이터 추가
@@ -214,9 +211,8 @@ class PersonalViewController: CoreGradientViewController, Alertable {
         var snapshot = NSDiffableDataSourceSnapshot<PersonalContent.Section, PersonalContent.Item>()
 
         // 기본 섹션들 + 로딩 섹션 (recommendPlace는 제외)
-        snapshot.appendSections([.weekSummary, .walkingHeader, .walkingFilter, .loading])
+        snapshot.appendSections([.weekSummary, .walkingFilter, .loading])
         snapshot.appendItems([.weekSummaryItem, .monthSummaryItem, .aiSummaryItem], toSection: .weekSummary)
-        snapshot.appendItems([.walkingHeaderItem], toSection: .walkingHeader)
         snapshot.appendItems([.walkingFilterItem], toSection: .walkingFilter)
 
         // 하나의 로딩 아이템 추가
@@ -393,7 +389,7 @@ class PersonalViewController: CoreGradientViewController, Alertable {
         guard let index = courses.firstIndex(where: { $0.gpxpath == gpxURL }) else { return }
 
         // 해당 인덱스로 IndexPath를 만듭니다.
-        let indexPath = IndexPath(item: index, section: 3)
+        let indexPath = IndexPath(item: index, section: 2)
 
         // 현재 화면에 보이는 셀이라면 즉시 업데이트합니다.
         if let cell = collectionView.cellForItem(at: indexPath) as? RecommendPlaceCell {
@@ -470,6 +466,20 @@ class PersonalViewController: CoreGradientViewController, Alertable {
     }
 }
 
-extension PersonalViewController: UICollectionViewDelegate {
-    func collectionView(_ collectionView: UICollectionView, didHighlightItemAt indexPath: IndexPath) { }
+extension PersonalViewController: @preconcurrency RecommendPlaceCellDelegate {
+
+    func didTapInfoButton(for course: WalkingCourse) {
+
+        showCourseInfoSheet(for: course)
+    }
+
+    private func showCourseInfoSheet(for course: WalkingCourse) {
+        let courseInfoView = CourseInfoView()
+        courseInfoView.course = course
+
+        showFloatingSheet(
+            courseInfoView,
+            onConfirmAction: { _ in }
+        )
+    }
 }
