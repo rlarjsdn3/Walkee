@@ -151,7 +151,7 @@ final class HealthNavigationBar: CoreView {
         config.title = item.title
         config.image = item.image
         config.preferredSymbolConfigurationForImage = defaultTrailingBarButtonItemSymbolConfiguration
-            .applying(preferredTrailingBarButtonItemSymbolConfiguration ?? defaultTitleImageSymbolConfiguration)
+            .applying(preferredTrailingBarButtonItemSymbolConfiguration ?? defaultTrailingBarButtonItemSymbolConfiguration)
         config.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
 
         let button = UIButton(configuration: config)

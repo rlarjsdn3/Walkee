@@ -3,7 +3,6 @@
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
-        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -18,7 +17,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="2Le-zB-m9C">
-                                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                                <rect key="frame" x="0.0" y="118" width="393" height="734"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="VcW-an-Zd1">
                                     <size key="itemSize" width="128" height="128"/>
@@ -28,24 +27,6 @@
                                 </collectionViewFlowLayout>
                                 <cells/>
                             </collectionView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WDr-t8-Ze0">
-                                <rect key="frame" x="322" y="703" width="56" height="56"/>
-                                <color key="backgroundColor" name="AccentColor"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="56" id="KbM-6h-5cL"/>
-                                    <constraint firstAttribute="width" constant="56" id="MTY-la-jEd"/>
-                                </constraints>
-                                <color key="tintColor" systemColor="labelColor"/>
-                                <buttonConfiguration key="configuration" style="plain" image="arrow.uturn.backward" catalog="system"/>
-                                <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
-                                        <integer key="value" value="28"/>
-                                    </userDefinedRuntimeAttribute>
-                                </userDefinedRuntimeAttributes>
-                                <connections>
-                                    <action selector="scrollToCurrentButtonTapped:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="VHD-kh-qC4"/>
-                                </connections>
-                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Xqh-mz-GXE"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -53,14 +34,11 @@
                             <constraint firstAttribute="bottom" secondItem="2Le-zB-m9C" secondAttribute="bottom" id="2Ql-6p-eNk"/>
                             <constraint firstItem="2Le-zB-m9C" firstAttribute="leading" secondItem="5EZ-qb-Rvc" secondAttribute="leading" id="826-EY-kME"/>
                             <constraint firstAttribute="trailing" secondItem="2Le-zB-m9C" secondAttribute="trailing" id="98L-ox-m3H"/>
-                            <constraint firstAttribute="trailing" secondItem="WDr-t8-Ze0" secondAttribute="trailing" constant="15" id="B3P-NG-VoK"/>
-                            <constraint firstItem="Xqh-mz-GXE" firstAttribute="bottom" secondItem="WDr-t8-Ze0" secondAttribute="bottom" constant="25" id="yat-72-O82"/>
-                            <constraint firstItem="2Le-zB-m9C" firstAttribute="top" secondItem="5EZ-qb-Rvc" secondAttribute="top" id="yyB-sf-Q8c"/>
+                            <constraint firstItem="2Le-zB-m9C" firstAttribute="top" secondItem="Xqh-mz-GXE" secondAttribute="top" id="yyB-sf-Q8c"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="collectionView" destination="2Le-zB-m9C" id="vF1-VD-bDP"/>
-                        <outlet property="scrollToCurrentButton" destination="WDr-t8-Ze0" id="rji-6y-daa"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ief-a0-LHa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -69,13 +47,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="arrow.uturn.backward" catalog="system" width="128" height="113"/>
-        <namedColor name="AccentColor">
-            <color red="1" green="0.79199999570846558" blue="0.15700000524520874" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </namedColor>
-        <systemColor name="labelColor">
-            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-        </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

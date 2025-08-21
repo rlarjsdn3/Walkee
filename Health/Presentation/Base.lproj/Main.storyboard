@@ -68,11 +68,10 @@
         <!--캘린더-->
         <scene sceneID="Zcw-ob-jgq">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="Hb7-NA-4yX" sceneMemberID="viewController">
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" navigationBarHidden="YES" id="Hb7-NA-4yX" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="캘린더" image="calendar" catalog="system" id="VCg-9j-J3e"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="juf-sZ-Zbd">
-                        <rect key="frame" x="0.0" y="118" width="393" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>

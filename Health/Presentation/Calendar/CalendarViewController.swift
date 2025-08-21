@@ -1,9 +1,8 @@
 import UIKit
 
-final class CalendarViewController: CoreGradientViewController {
+final class CalendarViewController: HealthNavigationController {
 
     @IBOutlet weak var collectionView: UICollectionView!
-    @IBOutlet weak var scrollToCurrentButton: UIButton!
 
     /// 뷰가 나타날 때 현재 월로 스크롤할지 여부를 결정하는 플래그
     ///
@@ -32,19 +31,15 @@ final class CalendarViewController: CoreGradientViewController {
 
     override func setupAttribute() {
         super.setupAttribute()
+        configureNavigationBar()
 		configureBackground()
         configureCollectionView()
-        hideScrollToCurrentButtonImmediately()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
         scrollManager.handleViewWillAppear(shouldScrollToCurrentOnAppear)
-
-        if shouldScrollToCurrentOnAppear {
-            hideScrollToCurrentButtonImmediately()
-        }
 
         shouldScrollToCurrentOnAppear = false // 기본값으로 복원
     }
@@ -70,13 +65,21 @@ final class CalendarViewController: CoreGradientViewController {
         dataChangesTask?.cancel()
         dataChangesTask = nil
     }
-
-    @IBAction func scrollToCurrentButtonTapped(_ sender: Any) {
-        scrollManager.scrollToCurrentMonth(animated: true)
-    }
 }
 
 private extension CalendarViewController {
+
+    func configureNavigationBar() {
+        let scrollToCurrentButton = HealthBarButtonItem(
+            image: UIImage(systemName: "clock.arrow.trianglehead.counterclockwise.rotate.90"),
+            primaryAction: { [weak self] in
+                self?.scrollManager.scrollToCurrentMonth(animated: true)
+            })
+
+        healthNavigationBar.title = "캘린더"
+        healthNavigationBar.titleImage = UIImage(systemName: "calendar")
+        healthNavigationBar.trailingBarButtonItems = [scrollToCurrentButton]
+    }
 
     func configureBackground() {
         applyBackgroundGradient(.midnightBlack)
@@ -180,42 +183,6 @@ private extension CalendarViewController {
         navigationController?.pushViewController(dashboardVC, animated: true)
     }
 
-    func updateScrollToCurrentButtonVisibility() {
-        guard let currentIndexPath = calendarVM.indexOfCurrentMonth() else { return }
-
-        let visibleIndexPaths = collectionView.indexPathsForVisibleItems
-        let shouldShow = !visibleIndexPaths.contains(currentIndexPath)
-
-        // 현재 상태와 바뀌어야 될 상태가 같으면 아무것도 하지 않음
-        guard scrollToCurrentButton.isHidden == shouldShow else { return }
-
-        updateButtonState(shouldShow: shouldShow)
-    }
-
-    func updateButtonState(shouldShow: Bool) {
-        if shouldShow {
-            scrollToCurrentButton.alpha = 0
-            scrollToCurrentButton.isHidden = false
-
-            UIView.animate(withDuration: 0.25) { [weak self] in
-                self?.scrollToCurrentButton.alpha = 1
-            }
-        } else {
-            UIView.animate(withDuration: 0.25) { [weak self] in
-                self?.scrollToCurrentButton.alpha = 0
-            } completion: { [weak self] _ in
-                self?.scrollToCurrentButton.isHidden = true
-            }
-        }
-	}
-
-    func hideScrollToCurrentButtonImmediately() {
-        guard !scrollToCurrentButton.isHidden else { return }
-
-        scrollToCurrentButton.alpha = 0
-        scrollToCurrentButton.isHidden = true
-    }
-
     @objc func reloadCalendar() {
         collectionView.reloadData()
     }
@@ -245,14 +212,9 @@ extension CalendarViewController: UICollectionViewDataSource {
 
 extension CalendarViewController: UICollectionViewDelegate {
 
-    /// 스크롤 시 무한 스크롤 처리 및 현재 월로 스크롤하는 버튼 표시 여부 업데이트
+    /// 스크롤 시 무한 스크롤 처리
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         scrollManager.handleScrollForInfiniteLoading(scrollView)
-
-        // 현재 월로 스크롤이 최초 1회 되고 나서부터 실행
-        if scrollManager.isInitialScrollSettled {
-            updateScrollToCurrentButtonVisibility()
-        }
     }
 
     /// 상단바를 탭해서 최상단으로 스크롤하는 동작 방지
