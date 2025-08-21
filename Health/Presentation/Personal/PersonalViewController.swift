@@ -298,21 +298,22 @@ class PersonalViewController: CoreGradientViewController, Alertable {
         for level in llmRecommendedLevels {
             switch level {
             case "1":
-                filteredCourses.append(contentsOf: Array(easyLevelCourses.prefix(5)))
+                filteredCourses.append(contentsOf: Array(easyLevelCourses.prefix(10)))
             case "2":
-                filteredCourses.append(contentsOf: Array(mediumLevelCourses.prefix(5)))
+                filteredCourses.append(contentsOf: Array(mediumLevelCourses.prefix(10)))
             case "3":
-                filteredCourses.append(contentsOf: Array(hardLevelCourses.prefix(5)))
+                filteredCourses.append(contentsOf: Array(hardLevelCourses.prefix(10)))
             default:
                 break
             }
         }
 
         if filteredCourses.isEmpty {
-            filteredCourses = Array(easyLevelCourses.prefix(5))
+            filteredCourses = Array(easyLevelCourses.prefix(10))
         }
 
-        courses = Array(filteredCourses.prefix(5))
+        filteredCourses.shuffle()
+        courses = Array(filteredCourses.prefix(10))
 
         // 기본 정렬(코스길이순) 적용
         courses = courses.sorted { course1, course2 in

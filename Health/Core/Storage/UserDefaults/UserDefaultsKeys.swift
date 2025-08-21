@@ -49,7 +49,7 @@ extension UserDefaultsKeys {
         )
     }
 
-    /// LLM 추천 난이도 배열
+    /// LLM 추천코스 난이도 배열
     var llmRecommendedLevels: UserDefaultsKey<[String]?> {
         UserDefaultsKey<[String]?>(
             "LLMRecommendedLevels",

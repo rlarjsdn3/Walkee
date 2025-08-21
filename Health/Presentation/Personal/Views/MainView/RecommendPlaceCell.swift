@@ -49,7 +49,7 @@ class RecommendPlaceCell: CoreCollectionViewCell {
         locationLabel.text = course.sigun
         distanceLabel.text = "\(course.crsDstnc)km"
         durationLabel.text = course.crsTotlRqrmHour.toFormattedDuration()
-        levelLabel.text = course.crsLevel
+        levelLabel.text = getLevelText(from: course.crsLevel)
 
         // 기본 로딩 상태
         courseImage.image = UIImage(systemName: "map")
@@ -81,6 +81,21 @@ class RecommendPlaceCell: CoreCollectionViewCell {
             userDistanceLabel.textColor = .systemBlue
         } else {
             userDistanceLabel.textColor = .systemOrange
+        }
+    }
+
+    // 난이도 변환 함수
+    func getLevelText(from level: String) -> String {
+
+        switch level {
+        case "1":
+            return "쉬움"
+        case "2":
+            return "보통"
+        case "3":
+            return "어려움"
+        default:
+            return "알 수 없음"
         }
     }
 }

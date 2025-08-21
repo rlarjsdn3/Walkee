@@ -49,7 +49,7 @@ class WalkingLoadingView: UIView {
         ])
 
         // 레이블 설정
-        messageLabel.font = .preferredFont(forTextStyle: .caption1)
+        messageLabel.font = .preferredFont(forTextStyle: .headline)
         messageLabel.textColor = .secondaryLabel
         messageLabel.numberOfLines = 0
         messageLabel.textAlignment = .center
