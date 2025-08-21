@@ -19,11 +19,13 @@ class RecommendPlaceCell: CoreCollectionViewCell {
     @IBOutlet weak var userDistanceLabel: UILabel!
     @IBOutlet weak var levelLabel: UILabel!
 
+    @IBOutlet weak var userBackgroundView: UIView!
     private var currentGPXURL: String?
     private var thumbnailTask: Task<Void, Never>?
     
     override func awakeFromNib() {
         super.awakeFromNib()
+        
     }
     
     override func setupAttribute() {
@@ -31,6 +33,7 @@ class RecommendPlaceCell: CoreCollectionViewCell {
         CustomLightModeBoxConstraint.setupShadow(for: self)
         CustomLightModeBoxConstraint.setupDarkModeBorder(for: placeBackground)
         placeBackground.applyCornerStyle(.medium)
+        userBackgroundView.applyCornerStyle(.medium)
     }
     
     override func prepareForReuse() {
@@ -41,7 +44,7 @@ class RecommendPlaceCell: CoreCollectionViewCell {
         //이전 Task 취소 (메모리 누수 방지)
         thumbnailTask?.cancel()
     }
-    
+
     // API에서 받은 실제 데이터로 설정
     func configure(with course: WalkingCourse) {
         // 기본 텍스트 설정
