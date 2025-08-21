@@ -66,25 +66,25 @@ final class CalendarScrollManager {
               let indexPath = calendarVM.indexOfCurrentMonth() else {
             return
         }
-        collectionView.scrollToItem(at: indexPath, at: .top, animated: animated)
+        collectionView.scrollToItem(at: indexPath, at: .centeredVertically, animated: animated)
     }
 
     /// 화면 회전 시 스크롤 위치를 처리합니다.
+    ///
+    /// 회전 전에 마지막으로 보았던 월의 정보를 저장하고,
+    /// 회전 완료 후 동일한 월로 스크롤하여 사용자가 보고 있던 위치를 복원합니다.
+    ///
+    /// - Parameter coordinator: 화면 회전 트랜지션을 조정하는 코디네이터
     func handleDeviceRotation(coordinator: UIViewControllerTransitionCoordinator) {
-        // 회전 전 현재 화면 최상단에 보이는 월을 기억
-        let currentTopMonthIndexPath = findTopMostVisibleIndexPath()
+        let lastSeenMonthData = getLastSeenMonthData()
 
-        // 화면 회전과 동시에 레이아웃 변경 및 위치 복원
-        coordinator.animate(alongsideTransition: { context in
-            guard let collectionView = self.collectionView else { return }
+        coordinator.animate(alongsideTransition: { [weak self] _ in
+            guard let self,
+                  let collectionView = self.collectionView,
+                  let calendarVM = self.calendarVM else { return }
 
-            let newLayout = CalendarLayoutManager.createMainLayout()
-            collectionView.setCollectionViewLayout(newLayout, animated: false)
-            collectionView.layoutIfNeeded()
-
-            // 기억해둔 월로 스크롤하여 위치 복원
-            if let indexPath = currentTopMonthIndexPath {
-                collectionView.scrollToItem(at: indexPath, at: .top, animated: false)
+            DispatchQueue.main.async {
+                self.scrollToSpecificMonth(lastSeenMonthData, in: collectionView, with: calendarVM)
             }
         })
     }
@@ -132,88 +132,76 @@ private extension CalendarScrollManager {
         let indexPath: IndexPath
         let frame: CGRect
         let monthData: CalendarMonthData
-
-        /// 화면 상단으로부터의 거리를 계산합니다.
-        func distanceFromScreenTop(_ screenArea: CGRect) -> CGFloat {
-            return abs(frame.minY - screenArea.minY)
-        }
     }
 
-    /// 현재 화면에서 가장 위에 보이는 월의 IndexPath를 찾습니다.
+    /// 현재 화면에서 마지막으로 보인 월 데이터를 반환합니다.
     ///
-    /// **문제점**: `indexPathsForVisibleItems`가 때로 화면에 보이지 않는 잘못된 셀(예: 0번)을 포함
-    /// **해결책**: 실제 화면 영역과 교집합이 있는 셀만 필터링 후 최상단 선택
+    /// 화면에 완전히 보이는 셀 중에서 가장 상단 좌측에 위치한 셀의 월 데이터를 반환합니다.
+    /// 완전히 보이는 셀이 없는 경우, 부분적으로라도 보이는 셀 중에서 선택합니다.
     ///
-    /// - Returns: 화면 최상단 월의 IndexPath, 없으면 nil
-    private func findTopMostVisibleIndexPath() -> IndexPath? {
-        guard let collectionView, let calendarVM else { return nil }
+    /// - Returns: 현재 화면에서 보이는 월 데이터. 유효한 셀이 없는 경우 `nil`
+    func getLastSeenMonthData() -> CalendarMonthData? {
+        guard let collectionView,
+              let calendarVM else { return nil }
 
-        // 현재 사용자가 보고 있는 화면 영역 계산
-        let currentScreenArea = CGRect(
+        let screenArea = CGRect(
             x: 0,
             y: collectionView.contentOffset.y,
             width: collectionView.bounds.width,
             height: collectionView.bounds.height
         )
 
-        // CollectionView가 제공하는 "보이는 셀" 목록 가져오기
-        // 주의: 이 목록에는 실제로는 화면에 보이지 않는 잘못된 셀이 포함될 수 있음
-        let potentiallyVisibleIndexPaths = collectionView.indexPathsForVisibleItems
+        // 현재 보이는 indexPath들
+        let indexPaths = collectionView.indexPathsForVisibleItems
 
-        // 실제로 화면에 보이는 유효한 셀들만 걸러내기
-        let actuallyVisibleCells = potentiallyVisibleIndexPaths.compactMap { indexPath -> VisibleCell? in
+        // 실제로 보이는 셀 + 월 데이터 추출
+        let visibleCells: [VisibleCell] = indexPaths.compactMap { indexPath in
+            guard indexPath.item >= 0 && indexPath.item < calendarVM.monthsCount,
+                  let cell = collectionView.cellForItem(at: indexPath),
+                  let monthData = calendarVM.month(at: indexPath.item) else { return nil }
 
-            // 기본 유효성 검사
-            guard indexPath.item >= 0 && indexPath.item < calendarVM.monthsCount else {
-                // 인덱스가 데이터 범위를 벗어나면 무시
-                return nil
-            }
-            guard let cell = collectionView.cellForItem(at: indexPath) else {
-                // 실제 셀이 존재하지 않으면 무시
-                return nil
-            }
-            guard let monthData = calendarVM.month(at: indexPath.item) else {
-                // 월 데이터가 없으면 무시
-                return nil
-            }
+            let overlap = screenArea.intersection(cell.frame)
+            guard !overlap.isEmpty else { return nil }
 
-            // 실제 화면에 보이는지 확인
-            let cellFrame = cell.frame
-            let overlappingArea = currentScreenArea.intersection(cellFrame)
-
-            if overlappingArea.isEmpty {
-                // 셀이 화면과 전혀 겹치지 않으면 제외 (예: 0번 셀)
-                return nil
-            }
-
-            return VisibleCell(
-                indexPath: indexPath,
-                frame: cellFrame,
-                monthData: monthData
-            )
+            return VisibleCell(indexPath: indexPath, frame: cell.frame, monthData: monthData)
         }
 
-        // 유효한 셀들 중에서 화면 최상단에 가장 가까운 셀 찾기
-        let topMostVisibleCell = actuallyVisibleCells.min { cell1, cell2 in
-            // 각 셀이 화면 상단에서 얼마나 떨어져 있는지 계산
-            let distance1 = cell1.distanceFromScreenTop(currentScreenArea)
-            let distance2 = cell2.distanceFromScreenTop(currentScreenArea)
+        let fullyVisibleCells = visibleCells.filter { screenArea.contains($0.frame) }
+        let topCell = fullyVisibleCells.min(by: isHigherOrMoreLeft)
 
-            // 거리가 더 짧은(화면 상단에 더 가까운) 셀을 선택
-            return distance1 < distance2
+        return topCell?.monthData ?? visibleCells.min(by: isHigherOrMoreLeft)?.monthData
+    }
+
+    /// 두 셀 중 더 높은 위치에 있거나 같은 높이에서 더 왼쪽에 있는 셀을 판단합니다.
+    func isHigherOrMoreLeft(lhs: VisibleCell, rhs: VisibleCell) -> Bool {
+        if lhs.frame.minY != rhs.frame.minY {
+            return lhs.frame.minY < rhs.frame.minY
         }
+        return lhs.frame.minX < rhs.frame.minX
+    }
 
-        // 찾은 셀의 IndexPath 반환
-        if let topCell = topMostVisibleCell {
-            return topCell.indexPath
+    /// 지정된 월 데이터에 해당하는 위치로 스크롤합니다.
+    ///
+    /// 주어진 월 데이터와 일치하는 월을 찾아 해당 위치로 스크롤합니다.
+    /// 일치하는 월을 찾을 수 없는 경우 현재 월로 스크롤하여 fallback을 제공합니다.
+    ///
+    /// - Parameters:
+    ///   - monthData: 스크롤할 대상 월 데이터
+    ///   - collectionView: 스크롤을 수행할 컬렉션뷰
+    ///   - calendarVM: 월 데이터를 제공하는 뷰모델
+    func scrollToSpecificMonth(
+        _ monthData: CalendarMonthData?,
+        in collectionView: UICollectionView,
+        with calendarVM: CalendarViewModel
+    ) {
+        if let monthData,
+           let index = calendarVM.months.firstIndex(where: { $0.year == monthData.year && $0.month == monthData.month }) {
+            // 기억해둔 월로 스크롤하여 위치 복원
+            let indexPath = IndexPath(item: index, section: 0)
+            collectionView.scrollToItem(at: indexPath, at: .centeredVertically, animated: false)
+        } else {
+            // 기억해둔 월이 없거나 잘못된 경우 현재 월로 이동 (fallback)
+            scrollToCurrentMonth()
         }
-
-        // Fallback - 위 방법이 실패하면 화면 상단 중앙 지점에서 직접 찾기
-        let screenTopCenterPoint = CGPoint(
-            x: currentScreenArea.midX,
-            y: currentScreenArea.minY + 50 // 화면 상단에서 50pt 아래 (여백 고려)
-        )
-
-        return collectionView.indexPathForItem(at: screenTopCenterPoint)
     }
 }
