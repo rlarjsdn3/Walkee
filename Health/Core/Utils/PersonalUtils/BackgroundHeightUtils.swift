@@ -9,7 +9,7 @@ import UIKit
 
 /// 기기와 방향에 따른 백그라운드 높이 계산 유틸리티
 @MainActor
-final class CustomLightModeBoxConstraint {
+final class BackgroundHeightUtils {
     
     /// 기기와 방향에 따른 백그라운드 높이를 계산합니다
     static func calculateBackgroundHeight() -> CGFloat {

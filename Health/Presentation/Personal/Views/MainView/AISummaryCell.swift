@@ -27,9 +27,9 @@ class AISummaryCell: CoreCollectionViewCell {
     
     override func setupAttribute() {
         super.setupAttribute()
-        CustomLightModeBoxConstraint.setupShadow(for: self)
+        BackgroundHeightUtils.setupShadow(for: self)
         summaryBackgroundView.applyCornerStyle(.medium)
-        CustomLightModeBoxConstraint.setupDarkModeBorder(for: summaryBackgroundView)
+        BackgroundHeightUtils.setupDarkModeBorder(for: summaryBackgroundView)
         
         aiSummaryLabel.textAlignment = .center
         aiSummaryLabel.numberOfLines = 0
@@ -50,10 +50,10 @@ class AISummaryCell: CoreCollectionViewCell {
     
     override func setupConstraints() {
         super.setupConstraints()
-        CustomLightModeBoxConstraint.updateBackgroundHeight(constraint: backgroundHeight, in: self)
+        BackgroundHeightUtils.updateBackgroundHeight(constraint: backgroundHeight, in: self)
         
         registerForTraitChanges([UITraitHorizontalSizeClass.self]) { (self: Self, _) in
-            CustomLightModeBoxConstraint.updateBackgroundHeight(constraint: self.backgroundHeight, in: self)
+            BackgroundHeightUtils.updateBackgroundHeight(constraint: self.backgroundHeight, in: self)
         }
     }
     

@@ -30,8 +30,8 @@ class RecommendPlaceCell: CoreCollectionViewCell {
     
     override func setupAttribute() {
         super.setupAttribute()
-        CustomLightModeBoxConstraint.setupShadow(for: self)
-        CustomLightModeBoxConstraint.setupDarkModeBorder(for: placeBackground)
+        BackgroundHeightUtils.setupShadow(for: self)
+        BackgroundHeightUtils.setupDarkModeBorder(for: placeBackground)
         placeBackground.applyCornerStyle(.medium)
         userBackgroundView.applyCornerStyle(.medium)
     }
