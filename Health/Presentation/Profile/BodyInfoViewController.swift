@@ -224,7 +224,7 @@ extension BodyInfoViewController: UITableViewDelegate {
                 on: self,
                 buildView: {
                     let v = EditBirthdayView()
-                    v.setDefaultYear(currentYear)
+                    v.setDefaultYear(defaultYear)
                     return v
                 },
                 onConfirm: { [weak self] view in
