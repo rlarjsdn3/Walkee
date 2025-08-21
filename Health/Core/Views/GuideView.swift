@@ -75,15 +75,12 @@ final class GuideView: UIView {
     /// - Parameter sections: 표시할 가이드 섹션 배열
     func configure(with sections: [GuideSection]) {
         self.guideSections = sections
-        refreshSections(with: sections)
-    }
 
-    /// 현재 표시 중인 모든 가이드 섹션을 제거합니다.
-    ///
-    /// 이 메서드를 호출하면 화면에서 모든 섹션이 사라지고 빈 상태가 됩니다.
-    func clearSections() {
-        guideSections.removeAll()
         stackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+
+        guideSections.forEach { section in
+            addSection(title: section.title, description: section.description)
+        }
     }
 }
 
@@ -113,14 +110,6 @@ private extension GuideView {
             stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -configuration.margins.right),
             stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -configuration.margins.bottom)
         ])
-    }
-
-    /// 기존 섹션들을 모두 제거하고 새로운 섹션들을 추가합니다.
-    func refreshSections(with sections: [GuideSection]) {
-        clearSections()
-        sections.forEach { section in
-            addSection(title: section.title, description: section.description)
-        }
     }
 
     /// 개별 섹션을 스택 뷰에 추가합니다.
