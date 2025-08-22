@@ -337,6 +337,67 @@ extension Alertable where Self: UIViewController {
 
         self.present(alert, animated: true)
     }
+    
+    func showActionSheetForProfile(
+        buildView: () -> UIView,
+        heightRatio: CGFloat = 0.4,
+        widthRatio: CGFloat = 0.9,
+        iPadLandscapeHeightRatio: CGFloat = 0.4,
+        iPadLandscapeWidthRatio: CGFloat = 0.8,
+        onConfirm: ((UIView) -> Void)? = nil
+    ) {
+        let contentView = buildView()
+        
+        let alert = TSAlertController(
+            contentView,
+            options: [.interactiveScaleAndDrag, .dismissOnTapOutside],
+            preferredStyle: .actionSheet
+        )
+        
+        alert.configuration.prefersGrabberVisible = false
+        alert.configuration.enteringTransition = .slideUp
+        alert.configuration.exitingTransition = .slideDown
+        alert.configuration.headerAnimation = .slideUp
+        alert.configuration.buttonGroupAnimation = .slideUp
+        alert.viewConfiguration.spacing.keyboardSpacing = 100
+                
+        let isPad = (traitCollection.userInterfaceIdiom == .pad)
+
+        let isLandscape: Bool = {
+            if let iface = view.window?.windowScene?.interfaceOrientation {
+                return iface.isLandscape
+            }
+            if UIDevice.current.orientation.isValidInterfaceOrientation {
+                return UIDevice.current.orientation.isLandscape
+            }
+            // 최후 폴백
+            return UIScreen.main.bounds.width > UIScreen.main.bounds.height
+        }()
+
+        let isPadLandscape = isPad && isLandscape
+
+        let appliedHeightRatio = isPadLandscape ? iPadLandscapeHeightRatio : heightRatio
+        let appliedWidthRatio  = isPadLandscape ? iPadLandscapeWidthRatio : widthRatio
+        
+        alert.viewConfiguration.size.width  = .proportional(minimumRatio: appliedWidthRatio,
+                                                            maximumRatio: appliedWidthRatio)
+        alert.viewConfiguration.size.height = .proportional(minimumRatio: appliedHeightRatio,
+                                                            maximumRatio: appliedHeightRatio)
+        
+        let confirmAction = TSAlertAction(title: "확인", style: .default) { _ in
+            onConfirm?(contentView)
+        }
+        confirmAction.configuration.backgroundColor = .accent
+        confirmAction.configuration.titleAttributes = [
+            .font: UIFont.preferredFont(forTextStyle: .headline),
+            .foregroundColor: UIColor.systemBackground
+        ]
+        confirmAction.highlightType = .fadeIn
+        alert.addAction(confirmAction)
+        
+        
+        self.present(alert, animated: true)
+    }
 }
 
 

@@ -90,6 +90,47 @@ class BodyInfoViewController: CoreGradientViewController {
         fetchUserInfoAndSetupUI()
     }
     
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        guard let alert = profileSheet else { return }
+
+        // 원하는 비율 재계산
+        let padLand = isPadLandscapeNow()
+        let baseH: CGFloat = 0.33
+        let baseW: CGFloat = 0.9
+        let landH: CGFloat = 0.25
+        let landW: CGFloat = 0.6
+        let h = padLand ? landH : baseH
+        let w = padLand ? landW : baseW
+
+        alert.viewConfiguration.size.width  = .proportional(minimumRatio: w, maximumRatio: w)
+        alert.viewConfiguration.size.height = .proportional(minimumRatio: h, maximumRatio: h)
+
+        // 컨텐츠 높이 제약 업데이트
+        profileSheetHeightConstraint?.constant = view.bounds.height * h
+
+        alert.view.layoutIfNeeded()
+    }
+    
+    private func isPadLandscapeNow() -> Bool {
+        let isPad = traitCollection.userInterfaceIdiom == .pad
+        let iface = view.window?.windowScene?.interfaceOrientation
+        return isPad && (iface?.isLandscape == true)
+    }
+    
+    private func updateDiseaseText(with diseases: [Disease]) {
+        guard let diseaseIndex = items.firstIndex(where: { $0.title == "질병" }) else { return }
+        
+        if diseases.isEmpty {
+            items[diseaseIndex].detail = "-"
+        } else if diseases.first == Disease.none {
+            items[diseaseIndex].detail = "없음"
+        } else if diseases.count > 1 {
+            items[diseaseIndex].detail = "\(diseases.count)개"
+        }
+    }
+    
     private func fetchUserInfoAndSetupUI() {
         userVM.fetchUsers()
         currentUser = userVM.users.first
@@ -115,6 +156,14 @@ class BodyInfoViewController: CoreGradientViewController {
             
             if items.indices.contains(3), u.height > 0 {
                 items[3].detail = "\(Int(u.height))cm"
+            }
+            
+            if items.indices.contains(4) {
+                if let diseases = u.diseases {
+                    updateDiseaseText(with: diseases)
+                } else {
+                    items[4].detail = "-"
+                }
             }
         }
         
@@ -322,6 +371,38 @@ extension BodyInfoViewController: UITableViewDelegate {
                     }
                     self.fetchUserInfoAndSetupUI()
                 }
+            )
+        case "질병":
+            showActionSheetForProfile(
+                buildView: {
+                let v = EditDiseaseView()
+                    if let currentDisease = self.currentUser?.diseases as? [Disease] {
+                        v.setSelectedDiseases(currentDisease)
+                    }
+                    return v
+                },
+                heightRatio: 0.6,
+                widthRatio: 0.9,
+                iPadLandscapeHeightRatio: 0.45,
+                iPadLandscapeWidthRatio: 0.8,
+                onConfirm: { [weak self] view in
+                guard let self, let v = view as? EditDiseaseView else { return }
+                    
+                    let selectedDiseases = v.getSelectedDiseases()
+                    let u = self.currentUser
+                    
+                    self.userVM.saveUser(
+                        age: u?.age ?? 0,
+                        gender: u?.gender ?? "",
+                        height: u?.height ?? 0,
+                        weight: u?.weight ?? 0,
+                        diseases: selectedDiseases
+                    )
+                    
+                    self.updateDiseaseText(with: selectedDiseases)
+                    self.fetchUserInfoAndSetupUI()
+            }
+            )
         default:
             break
         }

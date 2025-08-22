@@ -16,7 +16,14 @@ struct ProfileCellModel {
     var switchState: Bool = UserDefaultsWrapper.shared.healthkitLinked
 }
 
-class ProfileViewController: CoreGradientViewController {
+
+// TODO: - 건강 권한 끌때는 얼럿 없애기
+// 다 꺼져있을때만 스위치 OFF -> ON으로 할때 ALERT
+// 하나라도 켜져있으면 ALERT 없이 스위치만 변경
+// 알림에선 확인 -> 설정
+//        취소 -> 스위치 원상복구
+
+class ProfileViewController: CoreGradientViewController, Alertable {
     
     @IBOutlet weak var tableView: UITableView!
     
