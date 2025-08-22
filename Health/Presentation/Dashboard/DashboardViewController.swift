@@ -29,30 +29,36 @@ final class DashboardViewController: HealthNavigationController, Alertable {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        loadData()
         registerNotification()
     }
 
     override func viewIsAppearing(_ animated: Bool) {
         super.viewIsAppearing(animated)
 
-        // TODO: - 다른 메서드로 빼서 코드 정돈하기
-        if !hasBuiltLayout {
-            let vSizeClass = traitCollection.verticalSizeClass
-            let hSizeClass = traitCollection.horizontalSizeClass
-            let env = DashboardViewModel.DashboardEnvironment(
-                vericalClassIsRegular: vSizeClass == .regular,
-                horizontalClassIsRegular: hSizeClass == .regular
-            )
-            viewModel.buildDashboardCells(for: env)
-            hasBuiltLayout = true
-        }
-        
-        if !hasLoadedData {
-            viewModel.loadHKData()
-            setupDataSource()
-            applySnapshot()
-            hasLoadedData = true
-        }
+        buildLayout()
+        setupDataSource()
+        applySnapshot()
+    }
+
+    private func buildLayout() {
+        guard !hasBuiltLayout else { return }
+
+        let vSizeClass = traitCollection.verticalSizeClass
+        let hSizeClass = traitCollection.horizontalSizeClass
+        let env = DashboardViewModel.DashboardEnvironment(
+            vericalClassIsRegular: vSizeClass == .regular,
+            horizontalClassIsRegular: hSizeClass == .regular
+        )
+        viewModel.buildDashboardCells(for: env)
+        hasBuiltLayout = true
+    }
+
+    private func loadData() {
+        guard !hasLoadedData else { return }
+
+        viewModel.loadHKData()
+        hasLoadedData = true
     }
 
     override func setupAttribute() {
@@ -309,6 +315,17 @@ fileprivate extension DashboardViewController {
                 basicSupplementaryView: &reusableSupplementaryView,
                 detailButton: infoDetailBtn
             )
+        }
+    }
+}
+
+fileprivate extension DashboardViewController {
+
+    func makeScreenShotToShare()-> UIImage? {
+        let bounds = self.view.bounds
+        let renderer = UIGraphicsImageRenderer(bounds: bounds)
+        return renderer.image { context in
+            self.view.drawHierarchy(in: bounds, afterScreenUpdates: true)
         }
     }
 }
