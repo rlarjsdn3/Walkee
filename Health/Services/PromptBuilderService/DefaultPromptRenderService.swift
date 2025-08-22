@@ -27,7 +27,7 @@ final class DefaultPromptRenderService: PromptRenderService {
         다음은 한 사용자의 건강 데이터입니다. 일부 민감 정보는 비식별화 또는 마스킹 처리되었습니다.
 
         [메타데이터]
-        - 날짜: \(context.date.formatted(using: .yyyymd))
+        - 날짜: \(context.date.formatted(using: .yyyymd) + " " + context.date.formatted(using: .hm))
         - 로케일: \(context.userLocale.identifier)
 
         [사용자 정보]
@@ -36,10 +36,10 @@ final class DefaultPromptRenderService: PromptRenderService {
         - 체중: \(context.descriptor.obfuscatedWeight)
         - 신장: \(context.descriptor.obfuscatedHeight)
         - 질병: \(context.descriptor.diseases?.description ?? "정보 없음")
-        - 목표 걷기 수: \(context.descriptor.goalStepCount)
+        - 목표 걸음 수: \(context.descriptor.goalStepCount)
 
         [금일 활동]
-        - 오늘 걷기 수: \(context.descriptor.stepCount.map { "\($0)보" } ?? "정보 없음")
+        - 오늘 걸음 수: \(context.descriptor.stepCount.map { "\($0)보" } ?? "정보 없음")
         - 걸은 거리: \(context.descriptor.distanceWalkingRunning.map { "\($0)km" } ?? "정보 없음")
         - 활동 에너지: \(context.descriptor.activeEnergyBurned.map { "\($0)kcal" } ?? "정보 없음")
         - 휴식 에너지: \(context.descriptor.basalEnergyBurned.map { "\($0)kcal" } ?? "정보 없음")

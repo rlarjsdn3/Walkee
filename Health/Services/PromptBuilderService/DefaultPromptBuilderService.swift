@@ -8,7 +8,8 @@
 import HealthKit
 
 final class DefaultPromptBuilderService: PromptBuilderService {
-    
+
+    private let goalStepViewModel = GoalStepCountViewModel(context: CoreDataStack.shared.viewContext)
     @Injected private var userService: (any CoreDataUserService)
     @Injected private var healthService: (any HealthService)
     @Injected private var promptTemplateRenderService: (any PromptRenderService)
@@ -32,7 +33,7 @@ final class DefaultPromptBuilderService: PromptBuilderService {
         } else {
             // 사용자 나이 및 생년월일 정보 가져오기
             let userInfo = try userService.fetchUserInfo()
-            let goalStepCount = latestGoalStepCount(from: userInfo) ?? 0
+            let goalStepCount = latestGoalStepCount()
 
             // 사용자 건강 정보 가져오기
             let startOfMonth = Date.now.startOfMonth() ?? .now
@@ -46,7 +47,6 @@ final class DefaultPromptBuilderService: PromptBuilderService {
             async let doubleSupportPercentage = try? fetchHKData(.walkingDoubleSupportPercentage, options: .discreteAverage, unit: .percent())
             async let asymmetryPercentage = try? fetchHKData(.walkingAsymmetryPercentage, options: .discreteAverage, unit: .percent())
             async let thisMonthStepCounts = try? healthService.fetchStatisticsCollection(for: .stepCount, from: startOfMonth, to: endOfMonth, options: .cumulativeSum, interval: .init(day: 1), unit: .count())
-            // TODO: - HealthService에서 가져오는 QuantityType과 HKUnit을 쉽게 일치시킬 방안 강구하기
 
             let descriptor = PromptDescriptor(
                 age: Int(userInfo.age),
@@ -94,17 +94,9 @@ fileprivate extension DefaultPromptBuilderService {
         ).value
     }
 
-    func latestGoalStepCount(from userInfo: UserInfoEntity) -> Int? {
-        guard let set = userInfo.goalStepCount as? Set<GoalStepCountEntity> else { return nil }
-
-        // 유효 시작된 것만 필터 → 가장 늦은 effectiveDate를 선택
-        let candidate = set
-            .max {
-                let l = $0.effectiveDate ?? .distantPast
-                let r = $1.effectiveDate ?? .distantPast
-                return l < r
-            }
-
-        return candidate.map { Int($0.goalStepCount) }
+    func latestGoalStepCount(for date: Date = .distantFuture) -> Int {
+        guard let goalStepCount = goalStepViewModel.goalStepCount(for: date)
+        else { fatalError("🔴 목표 걸음 수를 로드할 수 없음 (PromptBuilderSevice)") }
+        return Int(goalStepCount)
     }
 }
