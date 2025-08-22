@@ -55,6 +55,7 @@ final class CalendarViewController: HealthNavigationController, Alertable {
     }
 
     override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
         // 뷰 컨트롤러가 완전히 제거될 때
         if isMovingFromParent || isBeingDismissed {
             dataManager.stopObserving()
