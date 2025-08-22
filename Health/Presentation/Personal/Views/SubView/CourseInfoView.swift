@@ -67,9 +67,9 @@ final class CourseInfoView: UIView {
         let messageLabel = UILabel()
         messageLabel.font = UIFont.preferredFont(forTextStyle: .footnote)
         messageLabel.textColor = .warningSymbol
-        messageLabel.text = "코스난이도는 사용자의 신체정보를 바탕으로 추천됩니다"
+        messageLabel.text = "코스난이도는 사용자의 신체정보를 바탕으로 추천됩니다."
         messageLabel.textAlignment = .center
-        messageLabel.numberOfLines = 1
+        messageLabel.numberOfLines = 0
         stackView.addArrangedSubview(messageLabel)
      }
 

@@ -52,7 +52,6 @@ class WalkingCourseService {
         }
     }
 
-
     // GPX URL에서 썸네일 생성 (캐시 적용)
     func generateThumbnailAsync(from gpxURL: String) async -> UIImage? {
         // 캐시 확인
@@ -115,21 +114,30 @@ class WalkingCourseService {
             return coordinates
         }
 
+        // 첫 번째 트랙만 추출
+           var targetContent = xmlString
+           if let firstTrackStart = xmlString.range(of: "<trk>") {
+               let afterFirstTrack = String(xmlString[firstTrackStart.upperBound...])
+               if let firstTrackEnd = afterFirstTrack.range(of: "</trk>") {
+                   targetContent = String(afterFirstTrack[..<firstTrackEnd.lowerBound])
+               }
+           }
+
         let pattern = "<trkpt lat=\"([^\"]+)\" lon=\"([^\"]+)\""
 
         do {
             let regex = try NSRegularExpression(pattern: pattern)
-            let nsrange = NSRange(xmlString.startIndex..<xmlString.endIndex, in: xmlString)
+            let nsrange = NSRange(targetContent.startIndex..<targetContent.endIndex, in: targetContent)
 
-            regex.enumerateMatches(in: xmlString, options: [], range: nsrange) { match, _, _ in
+            regex.enumerateMatches(in: targetContent, options: [], range: nsrange) { match, _, _ in
                 guard let match = match,
-                      let latRange = Range(match.range(at: 1), in: xmlString),
-                      let lonRange = Range(match.range(at: 2), in: xmlString) else {
+                      let latRange = Range(match.range(at: 1), in: targetContent),
+                      let lonRange = Range(match.range(at: 2), in: targetContent) else {
                     return
                 }
 
-                let latString = String(xmlString[latRange])
-                let lonString = String(xmlString[lonRange])
+                let latString = String(targetContent[latRange])
+                let lonString = String(targetContent[lonRange])
 
                 if let lat = Double(latString), let lon = Double(lonString) {
                     coordinates.append(CLLocationCoordinate2D(latitude: lat, longitude: lon))
@@ -209,11 +217,41 @@ class WalkingCourseService {
             let startPoint = snapshot.point(for: startCoord)
             let endPoint = snapshot.point(for: endCoord)
 
+            // 배경 원 그리기
             context.setFillColor(UIColor.systemGreen.cgColor)
             context.fillEllipse(in: CGRect(x: startPoint.x - 6, y: startPoint.y - 6, width: 12, height: 12))
 
             context.setFillColor(UIColor.systemRed.cgColor)
             context.fillEllipse(in: CGRect(x: endPoint.x - 6, y: endPoint.y - 6, width: 12, height: 12))
+
+            // S, E 텍스트 그리기
+            let font = UIFont.preferredFont(forTextStyle: .caption2)
+            let textAttributes: [NSAttributedString.Key: Any] = [
+                .font: font,
+                .foregroundColor: UIColor.white
+            ]
+
+            // S 텍스트
+            let sText = "S"
+            let sSize = sText.size(withAttributes: textAttributes)
+            let sRect = CGRect(
+                x: startPoint.x - sSize.width / 2,
+                y: startPoint.y - sSize.height / 2,
+                width: sSize.width,
+                height: sSize.height
+            )
+            sText.draw(in: sRect, withAttributes: textAttributes)
+
+            // E 텍스트
+            let eText = "E"
+            let eSize = eText.size(withAttributes: textAttributes)
+            let eRect = CGRect(
+                x: endPoint.x - eSize.width / 2,
+                y: endPoint.y - eSize.height / 2,
+                width: eSize.width,
+                height: eSize.height
+            )
+            eText.draw(in: eRect, withAttributes: textAttributes)
         }
 
         let finalImage = UIGraphicsGetImageFromCurrentImageContext()

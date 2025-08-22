@@ -127,7 +127,6 @@ extension LocationPermissionService: CLLocationManagerDelegate {
         Task { @MainActor in
             guard let location = locations.last else { return }
 
-            // ✅ '보안 구역' 안에서 안전하게 물건을 만지는 중
             self.cachedLocation = location
             self.lastLocationTime = Date()
             self.locationContinuation?.resume(returning: location)
