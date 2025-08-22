@@ -355,6 +355,8 @@ fileprivate extension Alertable {
         var config = TSAlertController.ViewConfiguration()
         config.titleAlignment = .center
         config.messageAlignment = .center
+        config.margin.contentTop = 17.5
+        config.spacing.titleMessageSpacing = 7.5
         return config
     }
 }

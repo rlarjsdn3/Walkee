@@ -26,6 +26,12 @@ final class DashboardViewController: HealthNavigationController, Alertable {
         .init()
     }()
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        registerNotification()
+    }
+
     override func viewIsAppearing(_ animated: Bool) {
         super.viewIsAppearing(animated)
 
@@ -55,7 +61,7 @@ final class DashboardViewController: HealthNavigationController, Alertable {
         healthNavigationBar.title = "대시보드"
         healthNavigationBar.titleImage = UIImage(systemName: "chart.xyaxis.line")
         healthNavigationBar.trailingBarButtonItems = [
-            HealthBarButtonItem(image: UIImage(systemName: "square.and.arrow.up.circle.fill"))
+            HealthBarButtonItem(image: UIImage(systemName: "square.and.arrow.up"))
         ]
 
         refreshControl.addTarget(
@@ -78,6 +84,16 @@ final class DashboardViewController: HealthNavigationController, Alertable {
             bottom: 24, right: .zero
         )
         dashboardCollectionView.refreshControl = refreshControl
+    }
+
+    private func registerNotification() {
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(refreshHKData),
+            name: .didUpdateGoalStepCount,
+            object: nil
+        )
     }
 
     @objc private func refreshHKData() {
