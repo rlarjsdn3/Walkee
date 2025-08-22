@@ -22,10 +22,14 @@ final class BubbleViewCell: CoreTableViewCell {
 	@IBOutlet weak var labelLeadingConstraint: NSLayoutConstraint!
 	@IBOutlet weak var labelTrailingConstraint: NSLayoutConstraint!
 	
+	private var appearanceChangeRegistration: UITraitChangeRegistration?
+	
 	override func awakeFromNib() {
 		super.awakeFromNib()
 		MainActor.assumeIsolated {
 			setupAttribute()
+			applyBubbleStyle()
+			registerTraitObservers()
 		}
 	}
 	
@@ -61,8 +65,9 @@ final class BubbleViewCell: CoreTableViewCell {
 	override func prepareForReuse() {
 		super.prepareForReuse()
 		promptMsgLabel.text = nil
+		applyBubbleStyle()
 	}
-	
+
 	override func systemLayoutSizeFitting(
 		_ targetSize: CGSize,
 		withHorizontalFittingPriority horizontalFittingPriority: UILayoutPriority,
@@ -78,6 +83,17 @@ final class BubbleViewCell: CoreTableViewCell {
 		)
 	}
 	
+	@available(iOS 17.0, *)
+	private func registerTraitObservers() {
+		appearanceChangeRegistration = registerForTraitChanges(
+			[UITraitUserInterfaceStyle.self]
+		) { (cell: BubbleViewCell, previous: UITraitCollection) in
+			if cell.traitCollection.hasDifferentColorAppearance(comparedTo: previous) {
+				cell.applyBubbleStyle()
+			}
+		}
+	}
+
 	/// 사용자 메시지로 셀 구성
 	/// - Parameter text: 사용자가 입력한 메시지 텍스트
 	func configure(with text: String) {
@@ -103,6 +119,17 @@ final class BubbleViewCell: CoreTableViewCell {
 			.layerMinXMaxYCorner,
 			.layerMaxXMaxYCorner
 		]
+	}
+	
+	private func applyBubbleStyle() {
+		if traitCollection.userInterfaceStyle == .light {
+			bubbleView.layer.borderWidth = 1
+			bubbleView.layer.borderColor = UIColor.boxBgLightModeStroke.cgColor
+			bubbleView.layer.shadowOpacity = 0
+		} else {
+			bubbleView.layer.borderWidth = 0
+			bubbleView.layer.borderColor = nil
+		}
 	}
 	
 	/// 컨텐츠 기반 폭(constant) 설정
