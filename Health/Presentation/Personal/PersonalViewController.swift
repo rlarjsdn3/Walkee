@@ -64,16 +64,36 @@ class PersonalViewController: HealthNavigationController, Alertable, UICollectio
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-//        navigationController?.setNavigationBarHidden(true, animated: animated)
         // 앱이 포그라운드로 돌아올 때마다 권한 상태 확인
         checkLocationPermissionChange()
     }
+
     override func setupAttribute() {
-        super.setupAttribute()
-        collectionView.backgroundColor = .clear
         applyBackgroundGradient(.midnightBlack)
+        healthNavigationBar.title = "맞춤케어"
+        healthNavigationBar.titleImage = UIImage(systemName: "figure.walk.motion")
+        let originalImage = UIImage(named: "chatBot")
+        let chatBotImage = originalImage?.resized(width: 32)
+
+        healthNavigationBar.trailingBarButtonItems = [
+            HealthBarButtonItem(
+                image: chatBotImage,
+                primaryAction: { [weak self] in
+                    self?.navigateToChatbot()
+                }
+            )
+        ]
+
+        collectionView.backgroundColor = .clear
         collectionView.delegate = self
         collectionView.setCollectionViewLayout(createCollectionViewLayout(), animated: false)
+    }
+
+    private func navigateToChatbot() {
+        let storyboard = UIStoryboard(name: "Chatbot", bundle: nil)
+        if let chatbotVC = storyboard.instantiateInitialViewController() {
+            present(chatbotVC, animated: true)
+        }
     }
 
     private func createCollectionViewLayout() -> UICollectionViewLayout {

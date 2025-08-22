@@ -17,38 +17,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="440" height="956"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lkv-Oj-vEc">
-                                <rect key="frame" x="392" y="64" width="32" height="32"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="32" id="VLc-2Z-4jP"/>
-                                    <constraint firstAttribute="height" constant="32" id="msg-xq-mfy"/>
-                                </constraints>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" image="chatBot"/>
-                                <connections>
-                                    <segue destination="TMJ-Di-afv" kind="presentation" id="I7K-7B-6H5"/>
-                                </connections>
-                            </button>
-                            <stackView opaque="NO" contentMode="scaleToFill" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="9cF-px-nXb">
-                                <rect key="frame" x="16" y="64" width="72.666666666666671" height="26.333333333333329"/>
-                                <subviews>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="figure.walk.motion" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="oSs-xd-DgQ">
-                                        <rect key="frame" x="0.0" y="-0.3333333333333357" width="24.333333333333332" height="27.666666666666668"/>
-                                    </imageView>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="251" text="분석" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TgL-Eb-pro">
-                                        <rect key="frame" x="34.333333333333329" y="0.0" width="38.333333333333329" height="26.333333333333332"/>
-                                        <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
-                                        <nil key="textColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                </subviews>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="26.329999999999998" id="9am-oR-WnU"/>
-                                    <constraint firstAttribute="width" constant="72.670000000000002" id="CiG-Ug-d2h"/>
-                                </constraints>
-                            </stackView>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="tnC-dL-fb0">
-                                <rect key="frame" x="0.0" y="179" width="440" height="709"/>
+                                <rect key="frame" x="0.0" y="124" width="440" height="832"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="x2E-v0-yix">
                                     <size key="itemSize" width="128" height="128"/>
@@ -72,14 +42,10 @@
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="tnC-dL-fb0" firstAttribute="bottom" secondItem="vDu-zF-Fre" secondAttribute="bottom" id="2Dr-64-sU9"/>
-                            <constraint firstItem="lkv-Oj-vEc" firstAttribute="top" secondItem="5EZ-qb-Rvc" secondAttribute="top" constant="64" id="6QM-5u-w6F"/>
-                            <constraint firstAttribute="trailing" secondItem="lkv-Oj-vEc" secondAttribute="trailing" constant="16" id="AiK-L4-ftQ"/>
                             <constraint firstItem="tnC-dL-fb0" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="DZ7-Z7-AdO"/>
-                            <constraint firstItem="9cF-px-nXb" firstAttribute="leading" secondItem="5EZ-qb-Rvc" secondAttribute="leading" constant="16" id="UVI-MB-elJ"/>
+                            <constraint firstItem="tnC-dL-fb0" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" id="HcP-87-E2G"/>
+                            <constraint firstAttribute="bottom" secondItem="tnC-dL-fb0" secondAttribute="bottom" id="ZRr-pg-Wgv"/>
                             <constraint firstItem="tnC-dL-fb0" firstAttribute="trailing" secondItem="vDu-zF-Fre" secondAttribute="trailing" id="bxk-wg-wau"/>
-                            <constraint firstItem="9cF-px-nXb" firstAttribute="top" secondItem="5EZ-qb-Rvc" secondAttribute="top" constant="64" id="hqj-LM-m16"/>
-                            <constraint firstItem="tnC-dL-fb0" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" constant="55" id="vGx-jD-5CO"/>
                         </constraints>
                     </view>
                     <connections>
@@ -90,18 +56,8 @@
             </objects>
             <point key="canvasLocation" x="1071.818181818182" y="-10.0418410041841"/>
         </scene>
-        <!--Chatbot-->
-        <scene sceneID="S0M-tj-xcp">
-            <objects>
-                <viewControllerPlaceholder storyboardIdentifier="Chatbot" storyboardName="Chatbot" id="TMJ-Di-afv" sceneMemberID="viewController"/>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="Vni-zR-lyW" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="1830" y="-253"/>
-        </scene>
     </scenes>
     <resources>
-        <image name="chatBot" width="46" height="46"/>
-        <image name="figure.walk.motion" catalog="system" width="128" height="113"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

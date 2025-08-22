@@ -160,9 +160,9 @@ extension PersonalContent.Section {
         let section = NSCollectionLayoutSection(group: group)
         section.interGroupSpacing = 10
         section.contentInsets = NSDirectionalEdgeInsets(
-            top: 0,
+            top: 20,
             leading: horizontalInset,
-            bottom: 16,
+            bottom: 20,
             trailing: horizontalInset
         )
 
