@@ -10,7 +10,7 @@
 		A686BBAC2E457D47003784EC /* app-debug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = A686BBAB2E457D47003784EC /* app-debug.xcconfig */; };
 		A686BBAE2E457D52003784EC /* app-release.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = A686BBAD2E457D52003784EC /* app-release.xcconfig */; };
 		C76CA76E2E3AE2110040EF75 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = C76CA76D2E3AE2110040EF75 /* FirebaseAnalyticsCore */; };
-		C7DC8D422E4640E400DC0E68 /* TSAlertController in Frameworks */ = {isa = PBXBuildFile; productRef = C7DC8D412E4640E400DC0E68 /* TSAlertController */; };
+		C7B61A862E584558006A1897 /* TSAlertController in Frameworks */ = {isa = PBXBuildFile; productRef = C7B61A852E584558006A1897 /* TSAlertController */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,7 +61,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C7DC8D422E4640E400DC0E68 /* TSAlertController in Frameworks */,
+				C7B61A862E584558006A1897 /* TSAlertController in Frameworks */,
 				C76CA76E2E3AE2110040EF75 /* FirebaseAnalyticsCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -125,7 +125,7 @@
 			name = Health;
 			packageProductDependencies = (
 				C76CA76D2E3AE2110040EF75 /* FirebaseAnalyticsCore */,
-				C7DC8D412E4640E400DC0E68 /* TSAlertController */,
+				C7B61A852E584558006A1897 /* TSAlertController */,
 			);
 			productName = Health;
 			productReference = C76490972E3790170062054D /* Health.app */;
@@ -185,7 +185,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				C76CA76B2E3AE1F70040EF75 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
-				C7DC8D402E4640E400DC0E68 /* XCRemoteSwiftPackageReference "TSAlertController-iOS" */,
+				C7B61A842E5844D8006A1897 /* XCRemoteSwiftPackageReference "TSAlertController-iOS" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C76490982E3790170062054D /* Products */;
@@ -260,6 +260,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UIRequiresFullScreen = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -299,6 +300,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UIRequiresFullScreen = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -527,12 +529,12 @@
 				minimumVersion = 12.0.0;
 			};
 		};
-		C7DC8D402E4640E400DC0E68 /* XCRemoteSwiftPackageReference "TSAlertController-iOS" */ = {
+		C7B61A842E5844D8006A1897 /* XCRemoteSwiftPackageReference "TSAlertController-iOS" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/rlarjsdn3/TSAlertController-iOS.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.1.0;
+				minimumVersion = 1.1.1;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -543,9 +545,9 @@
 			package = C76CA76B2E3AE1F70040EF75 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAnalyticsCore;
 		};
-		C7DC8D412E4640E400DC0E68 /* TSAlertController */ = {
+		C7B61A852E584558006A1897 /* TSAlertController */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = C7DC8D402E4640E400DC0E68 /* XCRemoteSwiftPackageReference "TSAlertController-iOS" */;
+			package = C7B61A842E5844D8006A1897 /* XCRemoteSwiftPackageReference "TSAlertController-iOS" */;
 			productName = TSAlertController;
 		};
 /* End XCSwiftPackageProductDependency section */

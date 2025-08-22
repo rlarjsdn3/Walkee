@@ -48,13 +48,8 @@ extension Alertable where Self: UIViewController {
             preferredStyle: .alert
         )
 
-        alert.configuration = configuration != nil
-        ? configuration!
-        : defaultAlertConfiguration
-
-        alert.viewConfiguration = viewConfiguration != nil
-        ? viewConfiguration!
-        : defaultAlertViewConfiguration
+        alert.configuration = configuration ?? defaultAlertConfiguration
+        alert.viewConfiguration = viewConfiguration ?? defaultAlertViewConfiguration
 
         sizeClasses(vRhR: {
             alert.viewConfiguration.size.width = .flexible(minimum: 300, maximum: 300)
@@ -117,13 +112,8 @@ extension Alertable where Self: UIViewController {
             preferredStyle: .alert
         )
 
-        alert.configuration = configuration != nil
-        ? configuration!
-        : defaultAlertConfiguration
-
-        alert.viewConfiguration = viewConfiguration != nil
-        ? viewConfiguration!
-        : defaultAlertViewConfiguration
+        alert.configuration = configuration ?? defaultAlertConfiguration
+        alert.viewConfiguration = viewConfiguration ?? defaultAlertViewConfiguration
 
         sizeClasses(vRhR: {
             alert.viewConfiguration.size.width = .flexible(minimum: 300, maximum: 300)
@@ -355,8 +345,6 @@ fileprivate extension Alertable {
         var config = TSAlertController.ViewConfiguration()
         config.titleAlignment = .center
         config.messageAlignment = .center
-        config.margin.contentTop = 17.5
-        config.spacing.titleMessageSpacing = 7.5
         return config
     }
 }
