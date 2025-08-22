@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1AD10B902E586BA1004739F1 /* Markdown in Frameworks */ = {isa = PBXBuildFile; productRef = 1AD10B8F2E586BA1004739F1 /* Markdown */; };
 		A686BBAC2E457D47003784EC /* app-debug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = A686BBAB2E457D47003784EC /* app-debug.xcconfig */; };
 		A686BBAE2E457D52003784EC /* app-release.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = A686BBAD2E457D52003784EC /* app-release.xcconfig */; };
 		C76CA76E2E3AE2110040EF75 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = C76CA76D2E3AE2110040EF75 /* FirebaseAnalyticsCore */; };
@@ -61,6 +62,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1AD10B902E586BA1004739F1 /* Markdown in Frameworks */,
 				C7DC8D422E4640E400DC0E68 /* TSAlertController in Frameworks */,
 				C76CA76E2E3AE2110040EF75 /* FirebaseAnalyticsCore in Frameworks */,
 			);
@@ -126,6 +128,7 @@
 			packageProductDependencies = (
 				C76CA76D2E3AE2110040EF75 /* FirebaseAnalyticsCore */,
 				C7DC8D412E4640E400DC0E68 /* TSAlertController */,
+				1AD10B8F2E586BA1004739F1 /* Markdown */,
 			);
 			productName = Health;
 			productReference = C76490972E3790170062054D /* Health.app */;
@@ -186,6 +189,7 @@
 			packageReferences = (
 				C76CA76B2E3AE1F70040EF75 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				C7DC8D402E4640E400DC0E68 /* XCRemoteSwiftPackageReference "TSAlertController-iOS" */,
+				1AD10B8E2E586BA1004739F1 /* XCRemoteSwiftPackageReference "swift-markdown" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C76490982E3790170062054D /* Products */;
@@ -252,7 +256,7 @@
 				CODE_SIGN_ENTITLEMENTS = Health/Health.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 4DQM269FVB;
+				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Health/Resources/Info.plist;
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "걷기 및 활동 데이터를 분석하여 AI가 맞춤 건강 정보를 제공합니다. 일일 걸음 수, 이동 거리, 활동 에너지를 바탕으로 건강 상태를 파악하고 개인화된 추천을 받기 위해 사용자의 건강 데이터 접근이 필요합니다.";
@@ -291,7 +295,7 @@
 				CODE_SIGN_ENTITLEMENTS = Health/Health.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 4DQM269FVB;
+				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Health/Resources/Info.plist;
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "걷기 및 활동 데이터를 분석하여 AI가 맞춤 건강 정보를 제공합니다. 일일 걸음 수, 이동 거리, 활동 에너지를 바탕으로 건강 상태를 파악하고 개인화된 추천을 받기 위해 사용자의 건강 데이터 접근이 필요합니다.";
@@ -519,6 +523,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		1AD10B8E2E586BA1004739F1 /* XCRemoteSwiftPackageReference "swift-markdown" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/swiftlang/swift-markdown.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.6.0;
+			};
+		};
 		C76CA76B2E3AE1F70040EF75 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
@@ -538,6 +550,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		1AD10B8F2E586BA1004739F1 /* Markdown */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1AD10B8E2E586BA1004739F1 /* XCRemoteSwiftPackageReference "swift-markdown" */;
+			productName = Markdown;
+		};
 		C76CA76D2E3AE2110040EF75 /* FirebaseAnalyticsCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = C76CA76B2E3AE1F70040EF75 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
