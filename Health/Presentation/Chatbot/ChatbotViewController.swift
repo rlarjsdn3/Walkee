@@ -60,7 +60,7 @@ final class ChatbotViewController: CoreGradientViewController {
 	private var pendingOpenBracket = false
 	
 	private var isRelayoutInProgress = false
-
+	
 	// MARK: - Lifecycle
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -81,6 +81,12 @@ final class ChatbotViewController: CoreGradientViewController {
 	override func viewWillDisappear(_ animated: Bool) {
 		super.viewWillDisappear(animated)
 		navigationController?.setNavigationBarHidden(false, animated: animated)
+		
+		let closing = isMovingToParent || isBeingDismissed
+		Log.ui.info("ChatbotVC closing=\(closing, privacy: .public)")
+		guard closing else { return }
+		Log.ui.info("Closing detected -> reset session")
+		viewModel.resetSessionOnExit()
 	}
 	
 	/// 화면이 사라질 때 메모리 정리(Actor 격리 안전 영역)
@@ -192,32 +198,100 @@ final class ChatbotViewController: CoreGradientViewController {
 		// 스트림 청크
 		viewModel.onStreamChunk = { [weak self] chunk in
 			guard let self else { return }
-			
 			if self.streamingAIIndex == nil {
-				let message = ChatMessage(text: "", type: .ai)
-				self.streamingAIIndex = self.messages.count
-				self.messages.append(message)
-				let ip = self.indexPathForMessage(at: self.streamingAIIndex!)
-				self.tableView.insertRows(at: [ip], with: .fade)
+				// 로딩 셀이 있던 자리(= messages.count)에서 AI 셀로 교체
+				let insertRow = self.messages.count
+				self.messages.append(ChatMessage(text: "", type: .ai))
+				self.streamingAIIndex = self.messages.count - 1
+				let aiIP = IndexPath(row: insertRow, section: 0)
+				
+				self.tableView.performBatchUpdates({
+					if let waitIP = self.waitingIndexPath {
+						self.tableView.deleteRows(at: [waitIP], with: .fade)
+						self.waitingIndexPath = nil
+						self.isWaitingResponse = false
+					}
+					self.tableView.insertRows(at: [aiIP], with: .fade)
+				})
+				
+				if let cell = self.tableView.cellForRow(at: aiIP) as? AIResponseCell {
+					cell.configure(with: "", isFinal: false)
+				}
 			}
 			
 			guard let idx = self.streamingAIIndex else { return }
-			let cleanedChunk = FootnoteSanitizer.sanitize(
+			let cleaned = FootnoteSanitizer.sanitize(
 				chunk,
 				inFootnote: &self.inFootnote,
 				pendingOpenBracket: &self.pendingOpenBracket
 			)
-			self.messages[idx].text.append(cleanedChunk)
+			self.messages[idx].text.append(cleaned)
 			
-			if let cell = self.tableView.cellForRow(at: self.indexPathForMessage(at: idx)) as? AIResponseCell {
-				cell.appendText(cleanedChunk)
+			let ip = self.indexPathForMessage(at: idx)
+			if let cell = self.tableView.cellForRow(at: ip) as? AIResponseCell {
+				cell.appendText(cleaned)
+			} else {
+				// 화면 밖이면 레이아웃만 갱신
+				UIView.performWithoutAnimation {
+					self.tableView.reloadRows(at: [ip], with: .none)
+				}
 			}
+//			if self.streamingAIIndex == nil {
+//				let message = ChatMessage(text: "", type: .ai)
+//				self.streamingAIIndex = self.messages.count
+//				self.messages.append(message)
+//				let ip = self.indexPathForMessage(at: self.streamingAIIndex!)
+//				self.tableView.insertRows(at: [ip], with: .fade)
+//				
+//				// seed 렌더링: 셀 등장 시점에만 가볍게 한 번
+//				if let cell = self.tableView.cellForRow(at: ip) as? AIResponseCell {
+//					cell.configure(with: "", isFinal: false)
+//					// 타자기 효과
+//					// cell.setTypewriterEnabled(true)
+//				}
+//			}
+//			
+//			guard let idx = self.streamingAIIndex else { return }
+//			let cleanedChunk = FootnoteSanitizer.sanitize(
+//				chunk,
+//				inFootnote: &self.inFootnote,
+//				pendingOpenBracket: &self.pendingOpenBracket
+//			)
+//			self.messages[idx].text.append(cleanedChunk)
+//
+//			let ip = self.indexPathForMessage(at: idx)
+//			if let cell = self.tableView.cellForRow(at: ip) as? AIResponseCell {
+//				cell.appendText(cleanedChunk)
+//			}
 		}
 		
-		viewModel.onStreamCompleted = { [weak self] in
-			self?.finishStreamingUI()
+		viewModel.onStreamCompleted = { [weak self] finalText in
+			guard let self else { return }
+			
+			guard let idx = self.streamingAIIndex, idx < self.messages.count else {
+				self.cleanupStreamingState()
+				return
+			}
+			
+			// 1. messages 배열의 해당 AI 메시지를 최종 텍스트로 업데이트
+			let cleaned = FootnoteSanitizer.stripAllFootnotes(from: finalText)
+			self.messages[idx].text = cleaned
+			
+			// 2. 해당 셀에 최종 렌더링 지시
+			let ip = self.indexPathForMessage(at: idx)
+			if let cell = self.tableView.cellForRow(at: ip) as? AIResponseCell {
+				cell.configure(with: cleaned, isFinal: true)
+				self.relayoutRowIfNeeded(ip)
+			} else {
+				// 셀이 화면 밖이면 reload
+				UIView.performWithoutAnimation {
+					self.tableView.reloadRows(at: [ip], with: .none)
+				}
+			}
+			
+			// 3. UI 상태 정리
+			self.cleanupStreamingState()
 		}
-		
 		viewModel.onError = { [weak self] errorText in
 			guard let self else { return }
 			// 에러 처리: 로딩 셀에 에러 메시지 표시 후 상태 정리
@@ -440,19 +514,19 @@ final class ChatbotViewController: CoreGradientViewController {
 		sendButton.isEnabled = false
 		sendButton.alpha = 0.5
 		// 빈 AI 버블(스트림 대상)
-		messages.append(ChatMessage(text: "", type: .ai))
-		streamingAIIndex = messages.count - 1
-		focusLatestAIHead = true
-		let aiIndexPath = indexPathForMessage(at: streamingAIIndex!)
-		tableView.insertRows(at: [aiIndexPath], with: .bottom)
+//		messages.append(ChatMessage(text: "", type: .ai))
+//		streamingAIIndex = messages.count - 1
+//		focusLatestAIHead = true
+//		let aiIndexPath = indexPathForMessage(at: streamingAIIndex!)
+//		tableView.insertRows(at: [aiIndexPath], with: .bottom)
 		
 		showWaitingCell()
 		
 		// 응답 시작 부분이 보이도록 상단 고정
-		Task { @MainActor in
-			try? await Task.sleep(for: .milliseconds(60))
-			self.tableView.scrollToRow(at: aiIndexPath, at: .top, animated: true)
-		}
+//		Task { @MainActor in
+//			try? await Task.sleep(for: .milliseconds(60))
+//			self.tableView.scrollToRow(at: aiIndexPath, at: .top, animated: true)
+//		}
 		
 		inFootnote = false
 		pendingOpenBracket = false
@@ -689,7 +763,10 @@ extension ChatbotViewController: UITableViewDataSource, UITableViewDelegate {
 				return UITableViewCell()
 			}
 			
-			cell.configure(with: message.text)
+			let isStreamingRow = (streamingAIIndex == messageIndex)
+			//cell.configure(with: message.text)
+			// 🔹 재사용 시에도 seed만 (이미 appendText가 실시간 추가)
+			cell.configure(with: message.text, isFinal: !isStreamingRow)
 			
 			cell.onContentGrew = { [weak self] in
 				guard let self = self else { return }
@@ -729,23 +806,24 @@ extension ChatbotViewController: UITableViewDataSource, UITableViewDelegate {
 		}
 		
 		let idx = min(indexPath.row, max(messages.count - 1, 0))
-		if idx >= 0 && idx < messages.count {
-			let message = messages[idx]
-			let result: CGFloat
-			switch message.type {
-			case .ai:
-				result = 120
-				// AI 메시지의 경우 텍스트 길이에 따라 더 정확한 추정
-				if message.text.count > 200 {
-					let estimatedResult = max(200, CGFloat(message.text.count) * 0.5) // 대략적인 계산
-					return estimatedResult
-				}
-			case .user: result = 60
-			case .loading: result = 80
+		guard idx >= 0 && idx < messages.count else { return 60 }
+		let message = messages[idx]
+		
+		switch message.type {
+		case .ai:
+			if message.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+				return 44   // 또는 36~52 사이로 팀 규격에 맞춰 조정
 			}
-			return result
+			// 텍스트 길이에 따른 기존 로직
+			if message.text.count > 200 {
+				return max(200, CGFloat(message.text.count) * 0.5)
+			}
+			return 120
+		case .user:
+			return 60
+		case .loading:
+			return 80
 		}
-		return 60
 	}
 	
 	func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
