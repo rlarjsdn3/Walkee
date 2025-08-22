@@ -161,8 +161,10 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
             await MainActor.run {
                 if hasAnyPermission {
                     linkedSwitch.isOn = true
+                    UserDefaultsWrapper.shared.healthkitLinked = true
                 } else {
                     linkedSwitch.isOn = false
+                    UserDefaultsWrapper.shared.healthkitLinked = false
                 }
             }
         }
@@ -188,9 +190,10 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
             await MainActor.run {
                 if granted {
                     linkedSwitch.isOn = true
+                    UserDefaultsWrapper.shared.healthkitLinked = true
                 } else {
                     linkedSwitch.isOn = false
-                    UserDefaultsWrapper.shared.hasSeenOnboarding = false
+                    UserDefaultsWrapper.shared.healthkitLinked = false
                   
                     showAlert(
                         "권한 설정",
@@ -210,7 +213,7 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
         } catch {
             await MainActor.run {
                 linkedSwitch.isOn = false
-                UserDefaultsWrapper.shared.hasSeenOnboarding = false
+                UserDefaultsWrapper.shared.healthkitLinked = false
                 showAlert(
                     "오류",
                     message: "HealthKit 권한 요청 중 오류가 발생했습니다.\n\(error.localizedDescription)",
