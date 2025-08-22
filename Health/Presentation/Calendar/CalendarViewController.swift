@@ -1,6 +1,8 @@
 import UIKit
 
-final class CalendarViewController: HealthNavigationController {
+import TSAlertController
+
+final class CalendarViewController: HealthNavigationController, Alertable {
 
     @IBOutlet weak var collectionView: UICollectionView!
 
@@ -70,15 +72,43 @@ final class CalendarViewController: HealthNavigationController {
 private extension CalendarViewController {
 
     func configureNavigationBar() {
+        let guideButton = HealthBarButtonItem(
+            image: UIImage(systemName: "info.circle"),
+            primaryAction: { [weak self] in
+                self?.showGuideView()
+            }
+        )
+
         let scrollToCurrentButton = HealthBarButtonItem(
             image: UIImage(systemName: "clock.arrow.trianglehead.counterclockwise.rotate.90"),
             primaryAction: { [weak self] in
                 self?.scrollManager.scrollToCurrentMonth(animated: true)
-            })
+            }
+        )
 
         healthNavigationBar.title = "캘린더"
         healthNavigationBar.titleImage = UIImage(systemName: "calendar")
-        healthNavigationBar.trailingBarButtonItems = [scrollToCurrentButton]
+        healthNavigationBar.trailingBarButtonItems = [guideButton, scrollToCurrentButton]
+    }
+
+    func showGuideView() {
+        let sections = [
+            GuideSection(
+                title: "걸음 수 확인",
+                description: "각 날짜 원에서 목표 대비 진행률을 확인할 수 있으며, 달성 시 색상으로 강조됩니다."
+            ),
+            GuideSection(
+                title: "대시보드 이동",
+                description: "데이터가 있는 날짜를 선택해서 열리는 대시보드를 통해 상세 정보를 확인할 수 있습니다."
+            ),
+            GuideSection(
+                title: "데이터 출처",
+                description: "걸음 수는 건강 앱과 동기화되며, 연동이 꺼져 있으면 표시되지 않습니다."
+            )
+        ]
+        let guideView = GuideView.create(with: sections)
+
+        showFloatingSheet(guideView) { _ in }
     }
 
     func configureBackground() {
