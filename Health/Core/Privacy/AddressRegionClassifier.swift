@@ -217,41 +217,81 @@ struct AddressRegionClassifier {
 		text: String,
 		provinceRange: Range<String.Index>
 	) -> Range<String.Index> {
-		let startIndex = provinceRange.lowerBound
-		var endIndex = text.endIndex
 		
-		// 시/도 뒤에서부터 탐색
-		let afterProvince = text[provinceRange.upperBound...]
-		print("[AddressClassifier] 시/도 뒤 텍스트: '\(afterProvince)'")
+		// 주소가 아닌 후행 수식어(보존)
+		let postModifiers: Set<String> = ["근처","쪽","주변","인근","부근","가까운","에서","으로","로"]
+		// 상세주소 토큰(여기까지만 주소로 인정)
+		let detailSuffixes: [String] = ["동","로","길","번지","호","아파트","빌딩","타워","단지","테라스","오피스텔","상가","센터","층"]
+		// POI 접미사(주소 아님, 보존)
+		let poiSuffixes: [String] = ["역","공원","병원","학교","시장","터미널","정류장","도서관","체육관"]
 		
-		// 1. PromptFilteringKeywords로 질문 시작 지점 찾기 (최우선)
-		let questionKeywords = PromptFilteringKeywords.getPromptIntentionKeywords()
-		for keyword in questionKeywords {
-			if let keywordRange = afterProvince.range(of: keyword) {
-				let potentialEnd = keywordRange.lowerBound
-				if potentialEnd < endIndex {
-					endIndex = potentialEnd
-					//print("[AddressClassifier] 질문 키워드로 종료: '\(keyword)'")
-					break
-				}
+		// 시/도 뒤에서부터 보수적으로 확장
+		var end = provinceRange.upperBound
+		
+		// 시/군/구/상세 토큰 판별을 위해 사전 로드
+		let db = DistrictDB.shared
+		let districts = db.nameToProvince
+			.filter { $0.value == detectProvince(in: text) }
+			.map { $0.key } // 해당 시/도의 시군구/하위 지명 후보
+			.sorted { $0.count > $1.count }
+		
+		// 공백 단위로 한 어절씩 전진하면서 경계를 확장
+		var i = end
+		let after = text[end...]
+		var scanner = after.startIndex
+		
+		func takeWord() -> Range<String.Index>? {
+			// leading spaces 건너뜀
+			while scanner < after.endIndex, after[scanner].isWhitespace { scanner = after.index(after: scanner) }
+			guard scanner < after.endIndex else { return nil }
+			var j = scanner
+			// 다음 공백 전까지
+			while j < after.endIndex, !after[j].isWhitespace { j = after.index(after: j) }
+			let range = scanner..<j
+			scanner = j
+			return range
+		}
+		
+		var lastAcceptedEnd: String.Index = end
+		
+		// 1) 시/군/구가 바로 따라오면 포함
+		if let wordRange = takeWord() {
+			let word = String(after[wordRange])
+			let hasPOI = poiSuffixes.contains { word.hasSuffix($0) }
+			let isPost = postModifiers.contains(word)
+			let isDistrict = districts.contains(where: { word == $0 })
+			let isDetail = detailSuffixes.contains(where: { word.hasSuffix($0) })
+			
+			if hasPOI || isPost {
+				// POI/수식어 만나면 주소 확장 중단 (시/도만)
+				return provinceRange.lowerBound..<lastAcceptedEnd
+			} else if isDistrict || isDetail {
+				lastAcceptedEnd = wordRange.upperBound
+			} else {
+				// 주소가 아닌 일반 명사 → 확장 중단
+				return provinceRange.lowerBound..<lastAcceptedEnd
+			}
+		} else {
+			return provinceRange // 시/도만 존재
+		}
+		
+		// 2) 이후로는 상세주소 토큰이 이어지는 동안만 확장
+		while let wordRange = takeWord() {
+			let word = String(after[wordRange])
+			let hasPOI = poiSuffixes.contains { word.hasSuffix($0) }
+			let isPost = postModifiers.contains(word)
+			let isDetail = detailSuffixes.contains { word.hasSuffix($0) }
+			
+			if hasPOI || isPost { break }      // 보존해야 하는 어휘 → 확장 종료
+			if isDetail {
+				lastAcceptedEnd = wordRange.upperBound // 상세주소 토큰이면 확장
+			} else {
+				break // 그 외 일반 어휘면 종료
 			}
 		}
 		
-		// 2. 주소 끝 키워드로 추가 확인 (질문 키워드가 없을 때만)
-		if endIndex == text.endIndex {
-			let addressEndKeywords = PromptFilteringKeywords.getAddressTerminationKeywords()
-			for keyword in addressEndKeywords {
-				if let keywordRange = afterProvince.range(of: keyword) {
-					let potentialEnd = keywordRange.upperBound
-					if potentialEnd < endIndex {
-						endIndex = potentialEnd
-						//print("[AddressClassifier] 주소 끝 키워드로 확장: '\(keyword)'")
-					}
-				}
-			}
-		}
-		
-		return startIndex..<endIndex
+		end = lastAcceptedEnd
+		return provinceRange.lowerBound..<end
 	}
 	
 	/// 마스킹된 주소 문자열 생성 (질문 의도에 따른 차등 마스킹)
