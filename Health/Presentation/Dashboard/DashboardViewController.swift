@@ -61,7 +61,7 @@ final class DashboardViewController: HealthNavigationController, Alertable {
         healthNavigationBar.title = "대시보드"
         healthNavigationBar.titleImage = UIImage(systemName: "chart.xyaxis.line")
         healthNavigationBar.trailingBarButtonItems = [
-            HealthBarButtonItem(image: UIImage(systemName: "square.and.arrow.up.circle.fill"))
+            HealthBarButtonItem(image: UIImage(systemName: "square.and.arrow.up"))
         ]
 
         refreshControl.addTarget(
