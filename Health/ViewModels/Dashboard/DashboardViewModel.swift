@@ -427,11 +427,8 @@ extension DashboardViewModel {
     func fetchCoreDataUser() -> (age: Int, goalStep: Int) {
         // ⚠️ 사용자 및 목표 걸음 수가 제대로 등록되어 있으면 않으면 크래시
         let user = try! coreDataUserService.fetchUserInfo()
-//        let goalStepCount = goalStepService.goalStepCount(for: anchorDate.endOfDay())!
-//        return (Int(user.age), Int(goalStepCount))
-
-        // 🍓 온보딩 화면에서 '목표 걸음 수'를 입력 받기 전까지 임시 값 반환
-        return (Int(user.age), 10_000)
+        let goalStepCount = goalStepService.goalStepCount(for: anchorDate.endOfDay())!
+        return (Int(user.age), Int(goalStepCount))
     }
 }
 
@@ -501,13 +498,5 @@ fileprivate extension DashboardViewModel {
         case .monthsBack:
             return Calendar.current.date(byAdding: .month, value: value, to: date)
         }
-    }
-}
-
-
-fileprivate extension Array {
-
-    func prefix(maxLength convertToArrayImmediately: Int) -> [Element] {
-        Array(prefix(maxLength: convertToArrayImmediately))
     }
 }
