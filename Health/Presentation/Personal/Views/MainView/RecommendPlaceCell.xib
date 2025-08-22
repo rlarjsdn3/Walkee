@@ -171,12 +171,19 @@
                                     <constraint firstItem="9ar-hd-o0N" firstAttribute="leading" secondItem="5LA-LE-kKA" secondAttribute="leading" id="cjg-ai-oLb"/>
                                 </constraints>
                             </stackView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CzL-G7-iQS" customClass="InfoDetailButton" customModule="Health" customModuleProvider="target">
+                                <rect key="frame" x="431" y="5" width="75" height="34.333333333333336"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Button"/>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" name="boxBgColor"/>
                         <constraints>
+                            <constraint firstAttribute="trailing" secondItem="CzL-G7-iQS" secondAttribute="trailing" id="8ey-RY-e79"/>
                             <constraint firstItem="Coa-gn-qKb" firstAttribute="height" secondItem="5LA-LE-kKA" secondAttribute="height" multiplier="1.8" id="L3s-Sz-529"/>
                             <constraint firstItem="5LA-LE-kKA" firstAttribute="top" secondItem="Coa-gn-qKb" secondAttribute="bottom" constant="10" id="NGX-b3-OB0"/>
                             <constraint firstAttribute="bottom" secondItem="5LA-LE-kKA" secondAttribute="bottom" constant="10" id="XB9-Qb-6mg"/>
+                            <constraint firstItem="CzL-G7-iQS" firstAttribute="top" secondItem="MzM-wC-y0u" secondAttribute="top" constant="5" id="XJr-ek-Qgi"/>
                             <constraint firstItem="Coa-gn-qKb" firstAttribute="top" secondItem="MzM-wC-y0u" secondAttribute="top" id="ZW3-eD-K78"/>
                             <constraint firstItem="Coa-gn-qKb" firstAttribute="leading" secondItem="MzM-wC-y0u" secondAttribute="leading" id="kCI-75-YPz"/>
                             <constraint firstAttribute="trailing" secondItem="Coa-gn-qKb" secondAttribute="trailing" id="qdS-q1-kub"/>
@@ -199,6 +206,7 @@
                 <outlet property="courseNameLabel" destination="d6n-jr-5VV" id="lyN-hV-J5Q"/>
                 <outlet property="distanceLabel" destination="vqH-Y3-HTf" id="vjo-hp-8CX"/>
                 <outlet property="durationLabel" destination="K1g-4l-9EY" id="SkA-ay-F5b"/>
+                <outlet property="infoButton" destination="CzL-G7-iQS" id="hPU-0h-Ug7"/>
                 <outlet property="levelLabel" destination="aR8-eQ-5SL" id="0V2-1w-JnX"/>
                 <outlet property="locationLabel" destination="59X-R2-pzI" id="UB4-kN-TL0"/>
                 <outlet property="placeBackground" destination="MzM-wC-y0u" id="1MY-1d-4vM"/>

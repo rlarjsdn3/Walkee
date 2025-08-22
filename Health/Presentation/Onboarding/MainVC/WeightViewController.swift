@@ -42,6 +42,27 @@ class WeightViewController: CoreGradientViewController {
         errorLabel.isHidden = true
         errorLabel.textColor = .red
         
+        var config = UIButton.Configuration.filled()
+        config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+            var out = incoming
+            out.font = UIFont.preferredFont(forTextStyle: .headline)
+            return out
+        }
+        config.baseBackgroundColor = .accent
+        config.baseForegroundColor = .systemBackground
+        var container = AttributeContainer()
+        container.font = UIFont.preferredFont(forTextStyle: .headline)
+        config.attributedTitle = AttributedString("다음", attributes: container)
+            
+        continueButton.configurationUpdateHandler = { [weak self] button in
+            switch button.state
+            {
+            case .highlighted:
+                self?.continueButton.alpha = 0.75
+            default: self?.continueButton.alpha = 1.0
+            }
+        }
+        continueButton.configuration = config
         continueButton.applyCornerStyle(.medium)
         
         originalCenterY = weightInputFieldCenterY.constant
@@ -57,9 +78,6 @@ class WeightViewController: CoreGradientViewController {
         } else {
             disableContinueButton()
         }
-        
-        // viewDidLoad에서 폰트 업데이트를 호출
-        updateButtonFont()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -73,11 +91,6 @@ class WeightViewController: CoreGradientViewController {
         super.viewWillLayoutSubviews()
         updateContinueButtonConstraints()
         updateDescriptionTopConstraint()
-    }
-    
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        updateButtonFont()
     }
     
     private func updateDescriptionTopConstraint() {
@@ -239,28 +252,17 @@ class WeightViewController: CoreGradientViewController {
         errorLabel.text = ""
     }
     
-    private func updateButtonFont() {
-        if let currentFont = continueButton.titleLabel?.font {
-            if continueButton.isEnabled {
-                continueButton.titleLabel?.font = currentFont.withBoldTrait()
-            } else {
-                continueButton.titleLabel?.font = currentFont.withNormalTrait()
-            }
-        }
-    }
     
     private func disableContinueButton() {
         continueButton.isEnabled = false
         continueButton.backgroundColor = .buttonBackground
         weightInputField.textColor = .label
-        updateButtonFont()
     }
     
     private func enableContinueButton() {
         continueButton.isEnabled = true
         continueButton.backgroundColor = .accent
         weightInputField.textColor = .accent
-        updateButtonFont()
     }
     
     private func fetchUserInfo() {

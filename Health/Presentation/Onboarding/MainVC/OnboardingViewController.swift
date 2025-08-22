@@ -24,10 +24,33 @@ class OnboardingViewController: CoreGradientViewController {
         super.viewDidLoad()
         
         applyBackgroundGradient(.midnightBlack)
-
-        continueButton.applyCornerStyle(.medium)
+        
+        var config = UIButton.Configuration.filled()
+        config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+            var out = incoming
+            out.font = UIFont.preferredFont(forTextStyle: .headline)
+            return out
+        }
+        config.baseBackgroundColor = .accent
+        config.baseForegroundColor = .systemBackground
+        var container = AttributeContainer()
+        container.font = UIFont.preferredFont(forTextStyle: .headline)
+        config.attributedTitle = AttributedString("다음", attributes: container)
+            
+        continueButton.configurationUpdateHandler = { [weak self] button in
+            switch button.state
+            {
+            case .highlighted:
+                self?.continueButton.alpha = 0.75
+            default: self?.continueButton.alpha = 1.0
+            }
+        }
+        
+        continueButton.configuration = config
         continueButton.isEnabled = true
         continueButton.addTarget(self, action: #selector(buttonAction(_:)), for: .touchUpInside)
+        continueButton.applyCornerStyle(.medium)
+        continueButton.translatesAutoresizingMaskIntoConstraints = false
 
         appImageView.image = UIImage(named: "appIconAny")
         appImageView.contentMode = .scaleAspectFit

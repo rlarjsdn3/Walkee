@@ -396,8 +396,11 @@ extension ProfileViewController: UITableViewDelegate {
                     guard let self, let v = view as? EditStepGoalView else { return }
                     self.goalVM.saveGoalStepCount(goalStepCount: Int32(v.value), effectiveDate: Date())
                     self.currentGoalCache = v.value
+                    NotificationCenter.default.post(name: .didUpdateGoalStepCount, object: nil)
+                    print(v.value)
                 }
             )
+
         case "화면 모드 설정":
             showActionSheetForProfile(
                 buildView: {

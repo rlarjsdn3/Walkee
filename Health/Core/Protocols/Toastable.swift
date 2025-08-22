@@ -81,18 +81,12 @@ extension Toastable where Self: UIViewController {
         toastContainer.clipsToBounds = true
         toastContainer.layer.cornerRadius = 12
         
-        let lightBackgroundColor = UIColor.systemYellow.withAlphaComponent(0.3)
-        let darkBackgroundColor = UIColor.systemYellow.withAlphaComponent(0.5)
-        
-        let isLight = traitCollection.userInterfaceStyle == .light
-        
-        let backgroundColor = (isLight ? lightBackgroundColor : darkBackgroundColor)
-        toastContainer.backgroundColor = backgroundColor
+        toastContainer.backgroundColor = .toastWarningBg
         
         let iconView = UIImageView()
         let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .medium)
         iconView.image = UIImage(systemName: "exclamationmark.triangle.fill", withConfiguration: config)
-        iconView.tintColor = .systemYellow
+        iconView.tintColor = .warningSymbol
 
         let titleLabel = UILabel()
         titleLabel.text = title

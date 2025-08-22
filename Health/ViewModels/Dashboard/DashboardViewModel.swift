@@ -40,6 +40,8 @@ final class DashboardViewModel {
         anchorDate.isEqual(with: .now)
     }
 
+    @AppStorage(\.healthkitLinked) var hasHealthKitLinked: Bool
+
     private let alanService = AlanViewModel()
     @Injected private var goalStepService: GoalStepCountViewModel
     @Injected private var coreDataUserService: (any CoreDataUserService)
@@ -200,7 +202,7 @@ extension DashboardViewModel {
                 vm.setState(.loading)
 
                 // 루프 진입 직후, 해당 특정 데이터에 대한 읽기 권한이 있는지 먼저 확인
-                guard await healthService.checkHasReadPermission(for: .stepCount) else {
+                guard await checkHKHasAnyReadPermission(typeIdentifier: .stepCount) else {
                     vm.setState(.denied)  // 건강 데이터에 대한 읽기 권한이 없다면 '⚠️읽기 권한이 없다'고 표시
                     continue
                 }
@@ -239,7 +241,7 @@ extension DashboardViewModel {
                 vm.setState(.loading)
 
                 // 루프 진입 직후, 해당 특정 데이터에 대한 읽기 권한이 있는지 먼저 확인
-                guard await healthService.checkHasReadPermission(for: id.kind.quantityTypeIdentifier) else {
+                guard await checkHKHasAnyReadPermission(typeIdentifier: id.kind.quantityTypeIdentifier) else {
                     vm.setState(.denied)  // 건강 데이터에 대한 읽기 권한이 없다면 '⚠️읽기 권한이 없다'고 표시
                     continue
                 }
@@ -308,7 +310,7 @@ extension DashboardViewModel {
                 }
 
                 // 루프 진입 직후, 해당 특정 데이터에 대한 읽기 권한이 있는지 먼저 확인
-                guard await healthService.checkHasReadPermission(for: .stepCount) else {
+                guard await checkHKHasAnyReadPermission(typeIdentifier: .stepCount) else {
                     vm.setState(.denied)  // 건강 데이터에 대한 읽기 권한이 없다면 '⚠️읽기 권한이 없다'고 표시
                     continue
                 }
@@ -366,7 +368,7 @@ extension DashboardViewModel {
                 vm.setState(.loading)
                 do {
                     // 루프 진입 직후, 모든 건강 데이터에 대해 하나라도 읽기 권한이 있는지 먼저 확인
-                    guard await healthService.checkHasAnyReadPermission() else {
+                    guard await checkHKHasAnyReadPermission() else {
                         vm.setState(.denied)  // 건강 데이터에 대한 읽기 권한이 없다면 '⚠️읽기 권한이 없다'고 표시
                         continue
                     }
@@ -391,7 +393,7 @@ extension DashboardViewModel {
                 vm.setState(.loading)
 
                 // 루프 진입 직후, 해당 특정 데이터에 대한 읽기 권한이 있는지 먼저 확인
-                guard await healthService.checkHasReadPermission(for: id.kind.quantityTypeIdentifier) else {
+                guard await checkHKHasAnyReadPermission(typeIdentifier: id.kind.quantityTypeIdentifier) else {
                     vm.setState(.denied)  // 해당 데이터에 대한 읽기 권한이 없다면 '⚠️읽기 권한이 없다'고 표시
                     continue
                 }
@@ -489,6 +491,15 @@ extension DashboardViewModel {
 
 
 fileprivate extension DashboardViewModel {
+
+    ///
+    func checkHKHasAnyReadPermission(typeIdentifier quantityTypeIdentifier: HKQuantityTypeIdentifier? = nil) async -> Bool {
+        let hasReadPermission: Bool = await quantityTypeIdentifier != nil
+        ? healthService.checkHasReadPermission(for: quantityTypeIdentifier!)
+        : healthService.checkHasAnyReadPermission()
+
+        return hasReadPermission && hasHealthKitLinked
+    }
 
     ///
     func adding(byKind kind: BarChartsBackKind, value: Int, to date: Date) -> Date? {

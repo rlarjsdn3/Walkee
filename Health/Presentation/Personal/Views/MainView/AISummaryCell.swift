@@ -9,17 +9,18 @@ import UIKit
 import Combine
 
 class AISummaryCell: CoreCollectionViewCell {
-    
-    @IBOutlet weak var aiSummaryLabel: UILabel!
+
     @IBOutlet weak var summaryBackgroundView: UIView!
     @IBOutlet weak var backgroundHeight: NSLayoutConstraint!
     
     private let loadingIndicatorView = AlanLoadingIndicatorView()
     private var viewModel: AIMonthlySummaryCellViewModel?
     private var cancellables = Set<AnyCancellable>()
-    
+    private let aiSummaryLabel = AISummaryLabel()
+
     override func awakeFromNib() {
         super.awakeFromNib()
+        setupAISummaryLabel()
         Task { @MainActor in
             setupLoadingIndicator()
         }
@@ -30,12 +31,21 @@ class AISummaryCell: CoreCollectionViewCell {
         BackgroundHeightUtils.setupShadow(for: self)
         summaryBackgroundView.applyCornerStyle(.medium)
         BackgroundHeightUtils.setupDarkModeBorder(for: summaryBackgroundView)
-        
-        aiSummaryLabel.textAlignment = .center
-        aiSummaryLabel.numberOfLines = 0
-        aiSummaryLabel.isHidden = true
     }
-    
+
+    private func setupAISummaryLabel() {
+        summaryBackgroundView.addSubview(aiSummaryLabel)
+        aiSummaryLabel.translatesAutoresizingMaskIntoConstraints = false
+        aiSummaryLabel.isHidden = true
+
+        NSLayoutConstraint.activate([
+            aiSummaryLabel.topAnchor.constraint(equalTo: summaryBackgroundView.topAnchor, constant: 10),
+            aiSummaryLabel.leadingAnchor.constraint(equalTo: summaryBackgroundView.leadingAnchor, constant: 10),
+            aiSummaryLabel.trailingAnchor.constraint(equalTo: summaryBackgroundView.trailingAnchor, constant: -10),
+            aiSummaryLabel.bottomAnchor.constraint(equalTo: summaryBackgroundView.bottomAnchor, constant: 10)
+        ])
+    }
+
     private func setupLoadingIndicator() {
         summaryBackgroundView.addSubview(loadingIndicatorView)
         loadingIndicatorView.translatesAutoresizingMaskIntoConstraints = false
