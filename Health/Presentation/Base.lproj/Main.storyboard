@@ -106,11 +106,10 @@
         <!--맞춤케어-->
         <scene sceneID="YV6-VK-fr7">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="T61-hQ-pv5" sceneMemberID="viewController">
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" navigationBarHidden="YES" id="T61-hQ-pv5" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="맞춤케어" image="stethoscope.circle.fill" catalog="system" id="h6D-rQ-GWm"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="TiV-xV-KqH">
-                        <rect key="frame" x="0.0" y="118" width="393" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>

@@ -18,7 +18,6 @@ enum PersonalContent {
     // 섹션 정의
     enum Section: Hashable {
         case weekSummary
-        case walkingHeader
         case walkingFilter
         case recommendPlace
         case loading
@@ -29,7 +28,6 @@ enum PersonalContent {
         case weekSummaryItem
         case monthSummaryItem
         case aiSummaryItem
-        case walkingHeaderItem
         case walkingFilterItem
         case recommendPlaceItem(WalkingCourse)
         case loadingItem(WalkingLoadingView.State)
@@ -45,7 +43,6 @@ extension PersonalContent.Item {
         weekSummaryCellRegistration: UICollectionView.CellRegistration<UICollectionViewCell, Void>,
         monthSummaryItemRegistration: UICollectionView.CellRegistration<UICollectionViewCell, Void>,
         aiSummaryItemRegistration: UICollectionView.CellRegistration<UICollectionViewCell, Void>,
-        walkigHeaderCellRegistration: UICollectionView.CellRegistration<UICollectionViewCell, Void>,
         walkingFilterCellRegistration: UICollectionView.CellRegistration<UICollectionViewCell, Void>,
         recommendPlaceCellRegistration: UICollectionView.CellRegistration<UICollectionViewCell, Void>,
         loadingCellRegistration: UICollectionView.CellRegistration<UICollectionViewCell, WalkingLoadingView.State>,
@@ -67,12 +64,6 @@ extension PersonalContent.Item {
         case.aiSummaryItem:
             return collectionView.dequeueConfiguredReusableCell(
                 using: weekSummaryCellRegistration,
-                for: indexPath,
-                item: ()
-            )
-        case.walkingHeaderItem:
-            return collectionView.dequeueConfiguredReusableCell(
-                using: walkigHeaderCellRegistration,
                 for: indexPath,
                 item: ()
             )
@@ -106,8 +97,6 @@ extension PersonalContent.Section {
         switch self {
         case .weekSummary:
             return weekSummaryLayout(environment)
-        case .walkingHeader:
-            return buildHeaderLayout(environment)
         case .walkingFilter:
             return buildFilterLayout(environment)
         case .recommendPlace:
@@ -171,9 +160,9 @@ extension PersonalContent.Section {
         let section = NSCollectionLayoutSection(group: group)
         section.interGroupSpacing = 10
         section.contentInsets = NSDirectionalEdgeInsets(
-            top: 0,
+            top: 20,
             leading: horizontalInset,
-            bottom: 16,
+            bottom: 20,
             trailing: horizontalInset
         )
 
@@ -189,46 +178,43 @@ extension PersonalContent.Section {
         return section
     }
 
-    private func buildHeaderLayout(_ environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
-        let itemSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(80)
-        )
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-
-        let groupSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(80)
-        )
-        let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
-
-        let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = NSDirectionalEdgeInsets(
-            top: 0,
-            leading: UICollectionViewConstant.defaultInset,
-            bottom: 0,
-            trailing: 0
-        )
-        return section
-    }
+//    private func buildHeaderLayout(_ environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
+//        let itemSize = NSCollectionLayoutSize(
+//            widthDimension: .fractionalWidth(1.0),
+//            heightDimension: .estimated(80)
+//        )
+//        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+//
+//        let groupSize = NSCollectionLayoutSize(
+//            widthDimension: .fractionalWidth(1.0),
+//            heightDimension: .estimated(80)
+//        )
+//        let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
+//
+//        let section = NSCollectionLayoutSection(group: group)
+//        section.contentInsets = NSDirectionalEdgeInsets(
+//            top: 0,
+//            leading: UICollectionViewConstant.defaultInset,
+//            bottom: 0,
+//            trailing: 0
+//        )
+//        return section
+//    }
 
     //필터 버튼 레이아웃
     private func buildFilterLayout(_ environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
 
-        let containerWidth = environment.container.effectiveContentSize.width
-        let buttonWidth: CGFloat = 100
         let buttonHeight: CGFloat = 30
 
-        // 버튼 아이템 설정
+        // 아이템이 전체 너비를 차지하도록 설정
         let itemSize = NSCollectionLayoutSize(
-            widthDimension: .estimated(buttonWidth),
+            widthDimension: .fractionalWidth(1.0),  // 전체 너비 차지
             heightDimension: .absolute(buttonHeight)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
-        // 그룹 설정
         let groupSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),  // 전체 너비 사용
+            widthDimension: .fractionalWidth(1.0),
             heightDimension: .absolute(buttonHeight)
         )
 
@@ -238,13 +224,8 @@ extension PersonalContent.Section {
         )
 
         let section = NSCollectionLayoutSection(group: group)
-
-        // 오른쪽 정렬: leading을 크게 설정해서 버튼을 오른쪽으로 밀기
         section.contentInsets = NSDirectionalEdgeInsets(
-            top: -10,
-            leading: containerWidth - buttonWidth - 16,
-            bottom: 0,
-            trailing: 16  // 오른쪽 여백
+            top: 0, leading: 16, bottom: 0, trailing: 16
         )
 
         return section
