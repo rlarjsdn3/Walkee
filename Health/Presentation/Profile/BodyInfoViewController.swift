@@ -220,8 +220,7 @@ extension BodyInfoViewController: UITableViewDelegate {
                 return (cellYear ?? 0) > 0 ? cellYear! : currentYear
             }()
             
-            presentSheet(
-                on: self,
+            showActionSheetForProfile(
                 buildView: {
                     let v = EditBirthdayView()
                     v.setDefaultYear(defaultYear)
