@@ -70,7 +70,6 @@ final class EditGenderView: CoreView {
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
-        
         if traitCollection.preferredContentSizeCategory != previousTraitCollection?.preferredContentSizeCategory {
             setNeedsLayout()
         }
@@ -79,11 +78,11 @@ final class EditGenderView: CoreView {
     private func createGenderButton(for gender: Gender) -> UIButton {
         let button = UIButton(type: .system)
         button.setTitle(gender.rawValue, for: .normal)
-        button.setTitleColor(.white, for: .normal)
+        button.setTitleColor(.systemBackground, for: .normal)
         button.backgroundColor = .buttonBackground
         button.titleLabel?.font = UIDevice.current.userInterfaceIdiom == .pad
         ? .preferredFont(forTextStyle: .largeTitle)
-        : .preferredFont(forTextStyle: .body)
+        : .systemFont(ofSize: 18, weight: .bold)
         button.titleLabel?.adjustsFontForContentSizeCategory = true
         button.clipsToBounds = true
         button.layer.cornerRadius = buttonSize / 2
