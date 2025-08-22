@@ -22,7 +22,7 @@
     {
       "identity" : "firebase-ios-sdk",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/firebase/firebase-ios-sdk",
+      "location" : "https://github.com/firebase/firebase-ios-sdk.git",
       "state" : {
         "revision" : "4e62da1e5e6baf61674d3f5ae23d6d60c19f9c4a",
         "version" : "12.0.0"
@@ -132,8 +132,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/rlarjsdn3/TSAlertController-iOS.git",
       "state" : {
-        "revision" : "3031dde0223e7438e28940de37343076ae5d2129",
-        "version" : "1.1.0"
+        "revision" : "9ed3123bff6c54a0956f2d6e3b8ae0a060eb9b29",
+        "version" : "1.1.1"
       }
     }
   ],
