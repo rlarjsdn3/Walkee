@@ -147,13 +147,13 @@ extension MapViewController: MKMapViewDelegate {
 
         let mainStackView = UIStackView()
         mainStackView.axis = .vertical
-        mainStackView.spacing = 16
+        mainStackView.spacing = 20
         mainStackView.translatesAutoresizingMaskIntoConstraints = false
 
         // 제목 추가
         let titleLabel = UILabel()
-        titleLabel.text = "경로 안내"
-        titleLabel.font = .systemFont(ofSize: 18, weight: .semibold)
+        titleLabel.text = "이동 방법을 선택해주세요"
+        titleLabel.font = .preferredFont(forTextStyle: .headline)
         titleLabel.textAlignment = .center
         titleLabel.textColor = .label
 
@@ -166,7 +166,7 @@ extension MapViewController: MKMapViewDelegate {
         // 도보 버튼 배경
         let walkingBackgroundView = UIView()
         walkingBackgroundView.backgroundColor = .boxBg
-        walkingBackgroundView.layer.cornerRadius = 12
+        walkingBackgroundView.layer.cornerRadius = 16
 
         let walkingButton = createDirectionButton(title: "도보", systemImage: "figure.walk", mode: MKLaunchOptionsDirectionsModeWalking)
         walkingBackgroundView.addSubview(walkingButton)
@@ -174,7 +174,7 @@ extension MapViewController: MKMapViewDelegate {
         // 자동차 버튼 배경
         let drivingBackgroundView = UIView()
         drivingBackgroundView.backgroundColor = .boxBg
-        drivingBackgroundView.layer.cornerRadius = 12
+        drivingBackgroundView.layer.cornerRadius = 16
 
         let drivingButton = createDirectionButton(title: "자동차", systemImage: "car.fill", mode: MKLaunchOptionsDirectionsModeDriving)
         drivingBackgroundView.addSubview(drivingButton)
