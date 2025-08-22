@@ -9,7 +9,7 @@ import UIKit
 
 import TSAlertController
 
-final class DashboardViewController: HealthNavigationController {
+final class DashboardViewController: HealthNavigationController, Alertable {
 
     typealias DashboardDiffableDataSource = UICollectionViewDiffableDataSource<DashboardContent.Section, DashboardContent.Item>
 
@@ -54,11 +54,9 @@ final class DashboardViewController: HealthNavigationController {
 
         healthNavigationBar.title = "대시보드"
         healthNavigationBar.titleImage = UIImage(systemName: "chart.xyaxis.line")
-
         healthNavigationBar.trailingBarButtonItems = [
             HealthBarButtonItem(image: UIImage(systemName: "square.and.arrow.up.circle.fill"))
         ]
-        healthNavigationBar.preferredTrailingBarButtonItemSymbolConfiguration = UIImage.SymbolConfiguration(paletteColors: [.systemGray])
 
         refreshControl.addTarget(
             self,
@@ -268,7 +266,7 @@ fileprivate extension DashboardViewController {
     func createHealthInfoCardCellRegistration() -> UICollectionView.CellRegistration<HealthInfoCardCollectionViewCell, HealthInfoCardCellViewModel.ItemID> {
         UICollectionView.CellRegistration<HealthInfoCardCollectionViewCell, HealthInfoCardCellViewModel.ItemID>(cellNib: HealthInfoCardCollectionViewCell.nib) { [weak self] cell, indexPath, id in
             guard let vm = self?.viewModel.cardCells[id] else { return }
-            cell.bind(with: vm) // TODO: - 실제 CoreData에서 가져오기
+            cell.bind(with: vm)
         }
     }
 
@@ -290,7 +288,7 @@ fileprivate extension DashboardViewController {
             else { return }
 
             var reusableSupplementaryView = supplementaryView
-            let infoDetailBtn = InfoDetailButton(touchHandler: { [weak self] _ in self?.showWalkingBalanceAnaysisDescriptionsAlert() })
+            let infoDetailBtn = InfoDetailButton(touchHandler: { [weak self] _ in self?.showWalkingBalanceGuideSheet() })
             section.setContentConfiguration(
                 basicSupplementaryView: &reusableSupplementaryView,
                 detailButton: infoDetailBtn
@@ -301,34 +299,27 @@ fileprivate extension DashboardViewController {
 
 fileprivate extension DashboardViewController {
 
-    func showWalkingBalanceAnaysisDescriptionsAlert() {
-        let descsView = HeaderDescriptionsView()
-        descsView.descriptions = [
-            WalkingBalanceAnaysisString.stepLength,
-            WalkingBalanceAnaysisString.walkingSpeed,
-            WalkingBalanceAnaysisString.walkingAsymmetryPercentage,
-            WalkingBalanceAnaysisString.doubleSupportPercentage
+    func showWalkingBalanceGuideSheet() {
+        let sections = [
+            GuideSection(
+                title: "보행 속도",
+                description: WalkingBalanceAnaysisString.walkingSpeed
+            ),
+            GuideSection(
+                title: "보행 보폭",
+                description: WalkingBalanceAnaysisString.stepLength
+            ),
+            GuideSection(
+                title: "보행 비대칭성",
+                description: WalkingBalanceAnaysisString.walkingAsymmetryPercentage
+            ),
+            GuideSection(
+                title: "이중 지지 시간",
+                description: WalkingBalanceAnaysisString.doubleSupportPercentage
+            ),
         ]
+        let guideView = GuideView.create(with: sections)
 
-        let alert = TSAlertController(
-            descsView,
-            options: [.dismissOnSwipeDown, .interactiveScaleAndDrag],
-            preferredStyle: .floatingSheet
-        )
-
-        if traitCollection.verticalSizeClass == .regular
-            && traitCollection.horizontalSizeClass == .regular {
-            alert.preferredStyle = .alert
-            alert.viewConfiguration.size.width = .proportional(minimumRatio: 0.66, maximumRatio: 0.66)
-        }
-
-        let okAction = TSAlertAction(title: "확인")
-        okAction.highlightType = .fadeIn
-        okAction.configuration.backgroundColor = .accent
-        okAction.configuration.titleAttributes = [.font: UIFont.preferredFont(forTextStyle: .headline),
-                                                  .foregroundColor: UIColor.systemBackground]
-        alert.addAction(okAction)
-
-        present(alert, animated: true)
+        showFloatingSheet(guideView) { _ in }
     }
 }
