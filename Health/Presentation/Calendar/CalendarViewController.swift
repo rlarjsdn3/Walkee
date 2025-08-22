@@ -15,20 +15,13 @@ final class CalendarViewController: HealthNavigationController, Alertable {
     var shouldScrollToCurrentOnAppear = false
 
     private let calendarVM = CalendarViewModel()
+    private lazy var dataManager = CalendarDataManager(calendarVM: calendarVM, collectionView: collectionView)
     private lazy var scrollManager = CalendarScrollManager(calendarVM: calendarVM, collectionView: collectionView)
-
-    /// 데이터 변경 이벤트 구독을 위한 Task
-    private var dataChangesTask: Task<Void, Never>?
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(reloadCalendar),
-            name: .stepDataDidSync,
-            object: nil
-        )
-        observeDataChanges()
+        setupNotifications()
+        dataManager.startObserving()
     }
 
     override func setupAttribute() {
@@ -40,9 +33,7 @@ final class CalendarViewController: HealthNavigationController, Alertable {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-
         scrollManager.handleViewWillAppear(shouldScrollToCurrentOnAppear)
-
         shouldScrollToCurrentOnAppear = false // 기본값으로 복원
     }
 
@@ -64,12 +55,22 @@ final class CalendarViewController: HealthNavigationController, Alertable {
     }
 
     deinit {
-        dataChangesTask?.cancel()
-        dataChangesTask = nil
+        MainActor.assumeIsolated {
+            dataManager.stopObserving()
+        }
     }
 }
 
 private extension CalendarViewController {
+
+    func setupNotifications() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(reloadCalendar),
+            name: .stepDataDidSync,
+            object: nil
+        )
+    }
 
     func configureNavigationBar() {
         let guideButton = HealthBarButtonItem(
@@ -125,81 +126,6 @@ private extension CalendarViewController {
         )
     }
 
-    // 뷰모델에서 전달받은 데이터 변경사항을 UI에 반영
-    /// - Parameter changes: 변경 유형 (상단삽입, 하단삽입, 전체리로드)
-    func handleDataChanges(_ changes: CalendarDataChanges) {
-        switch changes {
-            case .topInsert(let indexPaths):
-                handleTopInsert(indexPaths: indexPaths)
-            case .bottomInsert(let indexPaths):
-                handleBottomInsert(indexPaths: indexPaths)
-            case .reload:
-                collectionView.reloadData()
-        }
-    }
-
-    /// 상단에 새로운 월 데이터 삽입 시 UI 업데이트 및 스크롤 위치 보정
-    /// - Parameter indexPaths: 삽입할 아이템들의 IndexPath 배열
-    func handleTopInsert(indexPaths: [IndexPath]) {
-        // 현재 화면에 보이는 첫 번째 아이템의 위치 저장 (스크롤 위치 보정용)
-        guard let firstVisible = collectionView.indexPathsForVisibleItems.min() else {
-            // 보이는 아이템이 없으면 단순히 리로드
-            collectionView.reloadData()
-            return
-        }
-
-        // 데이터 정합성 확인
-        let expectedItemCount = collectionView.numberOfItems(inSection: 0) + indexPaths.count
-        guard expectedItemCount == calendarVM.monthsCount else {
-            // 데이터 불일치 시 전체 리로드
-            collectionView.reloadData()
-            return
-        }
-
-        UIView.performWithoutAnimation {
-            collectionView.performBatchUpdates {
-                collectionView.insertItems(at: indexPaths)
-            } completion: { _ in
-                // 기존에 보던 아이템이 새로 삽입된 아이템 수만큼 뒤로 밀린 새 위치 계산
-                let shifted = IndexPath(
-                    item: firstVisible.item + indexPaths.count,
-                    section: firstVisible.section
-                )
-
-                // 계산된 위치가 유효한지 확인 후 스크롤
-                if shifted.item < self.collectionView.numberOfItems(inSection: shifted.section) {
-                    self.collectionView.scrollToItem(at: shifted, at: .top, animated: false)
-                }
-            }
-        }
-    }
-
-    /// 하단에 새로운 월 데이터 삽입 시 UI 업데이트
-    /// - Parameter indexPaths: 삽입할 아이템들의 IndexPath 배열
-    /// - Note: 하단 삽입은 현재 스크롤 위치에 영향을 주지 않으므로 별도 보정 불필요
-    func handleBottomInsert(indexPaths: [IndexPath]) {
-        collectionView.performBatchUpdates {
-            collectionView.insertItems(at: indexPaths)
-        }
-    }
-
-    /// Observable 패턴으로 데이터 변경 이벤트 구독
-    func observeDataChanges() {
-        dataChangesTask = Task { [weak self] in
-            guard let self else { return }
-
-            for await changes in self.calendarVM.dataChanges {
-                // Task가 취소되었는지 확인
-                guard !Task.isCancelled else { break }
-
-                // 메인 액터에서 UI 업데이트 실행
-                await MainActor.run {
-                    self.handleDataChanges(changes)
-                }
-            }
-        }
-    }
-
     func navigationToDashboard(with date: Date) {
         let dashboardVC = DashboardViewController.instantiateInitialViewController(name: "Dashboard")
         dashboardVC.viewModel = DashboardViewModel(anchorDate: date)
@@ -214,7 +140,7 @@ private extension CalendarViewController {
     }
 
     @objc func reloadCalendar() {
-        collectionView.reloadData()
+        dataManager.reloadData()
     }
 }
 
