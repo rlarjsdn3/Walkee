@@ -1,5 +1,5 @@
 {
-  "originHash" : "cf8c58789abcf8270dfd34fc79e1784bdfb7d9e7a54d65f3b582303d803ccaf7",
+  "originHash" : "42ddec3f83c977c37cfbfbb0576e7fb18523976aefb49ac459182ea5d6a76a6c",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -150,8 +150,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/rlarjsdn3/TSAlertController-iOS.git",
       "state" : {
-        "revision" : "3031dde0223e7438e28940de37343076ae5d2129",
-        "version" : "1.1.0"
+        "revision" : "9ed3123bff6c54a0956f2d6e3b8ae0a060eb9b29",
+        "version" : "1.1.1"
       }
     }
   ],
