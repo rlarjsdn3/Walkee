@@ -188,33 +188,41 @@ class HeightViewController: CoreGradientViewController {
     }
     
     private func validateInput() {
-        guard let text = heightInputField.text, let height = Int(text) else {
+        guard let text = heightInputField.text,
+              !text.isEmpty else {
             disableContinueButton()
             hideError()
             return
         }
-        
-        switch text.count {
-        case 1,2:
-            if height >= 100 {
-                hideError()
-                enableContinueButton()
-            } else {
-                disableContinueButton()
-            }
-        case 3:
-            if height <= 230 {
-                hideError()
-                enableContinueButton()
-            } else {
-                showError()
-                disableContinueButton()
-            }
-        default:
-            showError()
+
+        if text.count == 1, text.hasPrefix("0") {
             disableContinueButton()
             heightInputField.text = ""
-            heightInputField.resignFirstResponder()
+            return
+        }
+        
+        if let height = Int(text) {
+            switch text.count {
+            case 1,2:
+                disableContinueButton()
+                hideError()
+                
+            case 3:
+                if (100...230).contains(height) {
+                    enableContinueButton()
+                    hideError()
+                } else {
+                    disableContinueButton()
+                    showError()
+                }
+                
+            default:
+                disableContinueButton()
+                showError()
+            }
+        } else {
+            disableContinueButton()
+            showError()
         }
     }
     
@@ -231,6 +239,7 @@ class HeightViewController: CoreGradientViewController {
     private func disableContinueButton() {
         continueButton.isEnabled = false
         continueButton.backgroundColor = .buttonBackground
+        heightInputField.textColor = .label
         updateButtonFont()
     }
     
