@@ -103,7 +103,7 @@ class BodyInfoViewController: CoreGradientViewController {
                 let age = Int(u.age)
                 if age > 0 {
                     let year = Calendar.current.component(.year, from: Date()) - age
-                    items[1].detail = "\(year)"
+                    items[1].detail = "\(year)년"
                 } else {
                     items[1].detail = "-"
                 }
@@ -194,12 +194,25 @@ extension BodyInfoViewController: UITableViewDelegate {
                 }
         case "태어난 해":
             let currentYear = Calendar.current.component(.year, from: Date())
-            let cellYear: Int? = {
+            
+            let defaultYear: Int = {
+                let context = CoreDataStack.shared.viewContext
+                let request: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
+                
+                do {
+                    if let userInfo = try context.fetch(request).first, userInfo.age > 0 {
+                        let calculatedYear = currentYear - Int(userInfo.age)
+                        return calculatedYear
+                    }
+                } catch {
+                    print("Core Data fetch 실패: \(error)")
+                }
+                
+                // Core Data에서 가져오지 못한 경우, 기존 cell의 값을 사용하거나 현재년도 사용
                 let digits = items[indexPath.row].detail.filter(\.isNumber)
-                let y = Int(digits)
-                return (y ?? 0) > 0 ? y : nil
+                let cellYear = Int(digits)
+                return (cellYear ?? 0) > 0 ? cellYear! : currentYear
             }()
-            let defaultYear = cellYear ?? currentYear
             
             presentSheet(
                 on: self,
@@ -213,7 +226,6 @@ extension BodyInfoViewController: UITableViewDelegate {
                     let selectedYear = v.getSelectedYear()
                     let age = currentYear - selectedYear
                     let u = self.currentUser
-                    
                     self.userVM.saveUser(
                         id: u?.id,
                         age: Int16(age),
@@ -225,11 +237,23 @@ extension BodyInfoViewController: UITableViewDelegate {
                     )
                     
                     if self.items.indices.contains(indexPath.row) {
-                        self.items[indexPath.row].detail = "\(selectedYear)"
+                        // Core Data에서 나이를 다시 가져와서 태어난 년도 계산하여 detail에 설정
+                        let context = CoreDataStack.shared.viewContext
+                        let request: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
+                        
+                        do {
+                            if let userInfo = try context.fetch(request).first, userInfo.age > 0 {
+                                let birthYear = currentYear - Int(userInfo.age)
+                                self.items[indexPath.row].detail = "\(birthYear)년"
+                            } else {
+                                self.items[indexPath.row].detail = "\(selectedYear)년"
+                            }
+                        } catch {
+                            print("Core Data fetch 실패: \(error)")
+                            self.items[indexPath.row].detail = "\(selectedYear)년"
+                        }
                     }
                     self.fetchUserInfoAndSetupUI()
-                    
-                    
                 }
         case "체중":
             let userWeight = currentUser?.weight ?? 0

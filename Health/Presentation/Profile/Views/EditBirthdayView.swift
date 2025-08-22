@@ -79,30 +79,6 @@ class EditBirthdayView: CoreView {
     func getSelectedYear() -> Int {
         return selectedYear
     }
-    
-    func updateYear() {
-            let context = CoreDataStack.shared.viewContext
-            let request: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
-            
-            do {
-                if let userInfo = try context.fetch(request).first, userInfo.age > 0 {
-                    let currentYear = Calendar.current.component(.year, from: Date())
-                    let calculatedYear = currentYear - Int(userInfo.age)
-                    setDefaultYear(calculatedYear)
-                }
-            } catch {
-                print("Core Data fetch 실패: \(error)")
-            }
-        }
-    
-    // MARK: - updateYear 사용 예제
-    /*
-    let birthdayView = EditBirthdayView()
-    birthdayView.updateYear()
-    print("생년: \(birthdayView.getSelectedYear())")
-    */
-    
-    
 }
 
 extension EditBirthdayView: UIPickerViewDataSource, UIPickerViewDelegate {
