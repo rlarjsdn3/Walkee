@@ -122,7 +122,7 @@ class RecommendPlaceCell: CoreCollectionViewCell {
         // 기존 configuration을 가져와서 색상만 변경
         if var config = infoButton.configuration {
             config.image = UIImage(systemName: "info.circle.fill")?
-                .applyingSymbolConfiguration(.init(paletteColors: [.segSelected]))
+                .applyingSymbolConfiguration(.init(paletteColors: [.info]))
             infoButton.configuration = config
         }
     }

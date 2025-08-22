@@ -39,10 +39,10 @@ class AISummaryCell: CoreCollectionViewCell {
         aiSummaryLabel.isHidden = true
 
         NSLayoutConstraint.activate([
-            aiSummaryLabel.topAnchor.constraint(equalTo: summaryBackgroundView.topAnchor, constant: 16),
-            aiSummaryLabel.leadingAnchor.constraint(equalTo: summaryBackgroundView.leadingAnchor, constant: 16),
-            aiSummaryLabel.trailingAnchor.constraint(equalTo: summaryBackgroundView.trailingAnchor, constant: -16),
-            aiSummaryLabel.bottomAnchor.constraint(equalTo: summaryBackgroundView.bottomAnchor, constant: -16)
+            aiSummaryLabel.topAnchor.constraint(equalTo: summaryBackgroundView.topAnchor, constant: 10),
+            aiSummaryLabel.leadingAnchor.constraint(equalTo: summaryBackgroundView.leadingAnchor, constant: 10),
+            aiSummaryLabel.trailingAnchor.constraint(equalTo: summaryBackgroundView.trailingAnchor, constant: -10),
+            aiSummaryLabel.bottomAnchor.constraint(equalTo: summaryBackgroundView.bottomAnchor, constant: 10)
         ])
     }
 

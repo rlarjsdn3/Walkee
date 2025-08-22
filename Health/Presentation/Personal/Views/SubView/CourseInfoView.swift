@@ -26,7 +26,7 @@ final class CourseInfoView: UIView {
     }
 
     private func commonInit() {
-        backgroundColor = .systemBackground
+        backgroundColor = .clear
 
         addSubview(stackView)
         stackView.axis = .vertical
@@ -83,9 +83,19 @@ final class CourseInfoView: UIView {
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
         let contentLabel = UILabel()
-        contentLabel.font = UIFont.preferredFont(forTextStyle: .body)
-        contentLabel.textColor = .secondaryLabel
-        contentLabel.text = content
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineBreakStrategy = .hangulWordPriority
+
+        let attributedString = NSAttributedString(
+            string: content,
+            attributes: [
+                .font: UIFont.preferredFont(forTextStyle: .body),
+                .foregroundColor: UIColor.secondaryLabel,
+                .paragraphStyle: paragraphStyle
+            ]
+        )
+
+        contentLabel.attributedText = attributedString
         contentLabel.numberOfLines = 0
         contentLabel.translatesAutoresizingMaskIntoConstraints = false
 
