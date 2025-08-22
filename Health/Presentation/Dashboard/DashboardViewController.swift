@@ -67,7 +67,13 @@ final class DashboardViewController: HealthNavigationController, Alertable {
         healthNavigationBar.title = "대시보드"
         healthNavigationBar.titleImage = UIImage(systemName: "chart.xyaxis.line")
         healthNavigationBar.trailingBarButtonItems = [
-            HealthBarButtonItem(image: UIImage(systemName: "square.and.arrow.up"))
+            HealthBarButtonItem(
+                image: UIImage(systemName: "square.and.arrow.up"),
+                primaryAction: { [weak self] in
+                    // TODO: - 스크린샷 생성 실패 시, 경고 얼럿 띄우기
+                    self?.presentGoalRingShareSheet()
+                    // TODO: - 일부 데이터 접근 불가 시, 경고 얼럿 띄우기
+                })
         ]
 
         refreshControl.addTarget(
@@ -275,11 +281,8 @@ fileprivate extension DashboardViewController {
                 guard var snapshot = self?.dataSource?.snapshot() else { return }
 
                 snapshot.reconfigureItems([.alanSummary(id)])
-                self?.dashboardCollectionView.performBatchUpdates {
-                    self?.dataSource?.apply(snapshot, animatingDifferences: true)
-                } completion: { _ in
-                    self?.dashboardCollectionView.collectionViewLayout.invalidateLayout()
-                }
+                self?.dataSource?.apply(snapshot, animatingDifferences: true)
+                self?.dashboardCollectionView.collectionViewLayout.invalidateLayout()
             }
             cell.bind(with: vm)
         }
@@ -321,12 +324,99 @@ fileprivate extension DashboardViewController {
 
 fileprivate extension DashboardViewController {
 
-    func makeScreenShotToShare()-> UIImage? {
-        let bounds = self.view.bounds
-        let renderer = UIGraphicsImageRenderer(bounds: bounds)
-        return renderer.image { context in
-            self.view.drawHierarchy(in: bounds, afterScreenUpdates: true)
+    // TODO: - 코드 다시 한번 검토하기
+
+    func presentGoalRingShareSheet() {
+        let image = snapshotFirstTwoSections(in: dashboardCollectionView)
+        let avc = UIActivityViewController(activityItems: [image], applicationActivities: nil)
+
+        // TODO: - 액티비티 컨트롤러 더 풍부하게 작성하기
+
+        if let pop = avc.popoverPresentationController {
+            pop.sourceView = view
+            pop.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 1, height: 1)
+            pop.permittedArrowDirections = []
         }
+        present(avc, animated: true)
+    }
+
+    func sectionRect(in collectionView: UICollectionView, section: Int) -> CGRect {
+        collectionView.layoutIfNeeded()
+        let layout = collectionView.collectionViewLayout
+
+        var union = CGRect.null
+        print("CGRect.null:", union)
+        let itemCount = collectionView.numberOfItems(inSection: section)
+
+        for item in 0..<itemCount {
+            let indexPath = IndexPath(item: item, section: section)
+            if let attr = layout.layoutAttributesForItem(at: indexPath) {
+                print("Attr.frame:", attr.frame)
+                union = union.union(attr.frame)
+                print("Union:", union)
+            }
+        }
+        print("Final Union: ", union)
+        return union
+    }
+
+    func snapshot(of rect: CGRect, in collectionView: UICollectionView, scale: CGFloat = UIScreen.main.scale) -> UIImage {
+        collectionView.layoutIfNeeded()
+
+//        let renderFormat = UIGraphicsImageRendererFormat.default()
+//        renderFormat.scale = scale
+        let renderer = UIGraphicsImageRenderer(size: rect.size/*, format: renderFormat*/)
+//        → 새로 만든 캔버스는 항상 (0,0)부터 시작하고, 크기는 rect.size.
+//        즉, “출력 이미지 좌표계”는 (0,0)~(200,300) 범위임.
+
+        let originalOffset = collectionView.contentOffset
+        defer {
+            collectionView.backgroundColor = .clear
+            collectionView.setContentOffset(originalOffset, animated: false)
+            collectionView.layoutIfNeeded()
+        }
+
+        let image = renderer.image { context in
+            context.cgContext.translateBy(x: -rect.origin.x, y: -rect.origin.y)
+//            rect = 우리가 캡처하고 싶은 컬렉션 뷰 내부의 영역
+//            예: rect.origin = (16, 0), rect.size = (200, 300)
+
+//            •    translateBy(x: -16, y: -0)
+//        → 즉, 전체 그림을 왼쪽으로 16만큼 당김.
+//        그러면 원래 (16,0)에 있던 픽셀이 출력 캔버스의 (0,0)에 딱 맞게 옵니다.
+            let viewportHeight = collectionView.bounds.height
+
+            var tileMinY = rect.minY
+            while tileMinY < rect.maxY {
+                let tileHeight = min(viewportHeight, rect.maxY - tileMinY)
+                let targetOffset = CGPoint(x: rect.minX, y: tileMinY)
+                collectionView.setContentOffset(CGPoint(x: 0, y: targetOffset.y), animated: false)
+                collectionView.layoutIfNeeded()
+
+                collectionView.backgroundColor = .systemBackground // TODO: - 그라디언트 색상으로 바꾸기
+                collectionView.layer.render(in: context.cgContext)
+
+                tileMinY += tileHeight
+            }
+        }
+
+        return image
+    }
+
+    func snapshotFirstTwoSections(
+        in collectionView: UICollectionView,
+        extraInsets: UIEdgeInsets = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
+    ) -> UIImage {
+        let s0 = sectionRect(in: collectionView, section: 0)
+        let s1 = sectionRect(in: collectionView, section: 1)
+        var union = s0.union(s1)
+        union.origin.x -= extraInsets.left
+        union.origin.y -= extraInsets.top
+        union.size.width  += (extraInsets.left + extraInsets.right)
+        union.size.height += (extraInsets.top  + extraInsets.bottom)
+        print("FFFFFFF Union:", union)
+
+        return snapshot(of: union, in: collectionView)
     }
 }
 
