@@ -42,10 +42,29 @@ class DiseaseViewController: CoreGradientViewController {
         applyBackgroundGradient(.midnightBlack)
         setupCollectionView()
         
-        continueButton.setTitle("다음", for: .normal)
+        var config = UIButton.Configuration.filled()
+        config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+            var out = incoming
+            out.font = UIFont.preferredFont(forTextStyle: .headline)
+            return out
+        }
+        config.baseBackgroundColor = .accent
+        config.baseForegroundColor = .systemBackground
+        var container = AttributeContainer()
+        container.font = UIFont.preferredFont(forTextStyle: .headline)
+        config.attributedTitle = AttributedString("다음", attributes: container)
+            
+        continueButton.configurationUpdateHandler = { [weak self] button in
+            switch button.state
+            {
+            case .highlighted:
+                self?.continueButton.alpha = 0.75
+            default: self?.continueButton.alpha = 1.0
+            }
+        }
+        continueButton.configuration = config
         continueButton.applyCornerStyle(.medium)
         continueButton.isEnabled = false
-        updateButtonFont()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -114,7 +133,6 @@ class DiseaseViewController: CoreGradientViewController {
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
         updateNavigationBarVisibility()
-        updateButtonFont()
     }
  
     private func updateNavigationBarVisibility() {
@@ -183,17 +201,6 @@ class DiseaseViewController: CoreGradientViewController {
         let enabled = selectedCount > 0
         continueButton.isEnabled = enabled
         continueButton.backgroundColor = enabled ? UIColor.accent : UIColor.buttonBackground
-        updateButtonFont()
-    }
-    
-    private func updateButtonFont() {
-        if let currentFont = continueButton.titleLabel?.font {
-            if continueButton.isEnabled {
-                continueButton.titleLabel?.font = currentFont.withBoldTrait()
-            } else {
-                continueButton.titleLabel?.font = currentFont.withNormalTrait()
-            }
-        }
     }
 }
 

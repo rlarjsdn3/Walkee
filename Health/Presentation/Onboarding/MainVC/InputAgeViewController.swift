@@ -34,6 +34,28 @@ class InputAgeViewController: CoreGradientViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        var config = UIButton.Configuration.filled()
+        config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+            var out = incoming
+            out.font = UIFont.preferredFont(forTextStyle: .headline)
+            return out
+        }
+        config.baseBackgroundColor = .accent
+        config.baseForegroundColor = .systemBackground
+        var container = AttributeContainer()
+        container.font = UIFont.preferredFont(forTextStyle: .headline)
+        config.attributedTitle = AttributedString("다음", attributes: container)
+            
+        continueButton.configurationUpdateHandler = { [weak self] button in
+            switch button.state
+            {
+            case .highlighted:
+                self?.continueButton.alpha = 0.75
+            default: self?.continueButton.alpha = 1.0
+            }
+        }
+        
+        continueButton.configuration = config
         applyBackgroundGradient(.midnightBlack)
         
         ageInputField.delegate = self
@@ -49,7 +71,6 @@ class InputAgeViewController: CoreGradientViewController {
         registerForKeyboardNotifications()
         setupTapGestureToDismissKeyboard()
         disableContinueButton()
-        updateButtonFont()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -68,11 +89,6 @@ class InputAgeViewController: CoreGradientViewController {
         super.viewWillLayoutSubviews()
         updateContinueButtonConstraints()
         updateDescriptionTopConstraint()
-    }
-    
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        updateButtonFont()
     }
     
     private func updateContinueButtonConstraints() {
@@ -188,24 +204,47 @@ class InputAgeViewController: CoreGradientViewController {
     }
     
     private func validateInput() {
-        guard let text = ageInputField.text, text.count == 4, let year = Int(text) else {
+        guard let text = ageInputField.text,
+              !text.isEmpty else {
             disableContinueButton()
             hideError()
             return
         }
-        
-        if year < 1900 || year > 2025 {
-            showError(message: "1900 ~ 2025 사이의 값을 입력해주세요.")
+
+        if text.count == 1, text.hasPrefix("0") {
             disableContinueButton()
+          ageInputField.text = ""
+            return
+        }
+        
+        if let year = Int(text) {
+            switch text.count {
+            case 1,2,3:
+                disableContinueButton()
+                hideError()
+                
+            case 4:
+                if (1900...2025).contains(year) {
+                    enableContinueButton()
+                    hideError()
+                } else {
+                    disableContinueButton()
+                    showError()
+                }
+                
+            default:
+                disableContinueButton()
+                showError()
+            }
         } else {
-            hideError()
-            enableContinueButton()
+            disableContinueButton()
+            showError()
         }
     }
     
-    private func showError(message: String) {
+    private func showError(text: String = "1900 ~ 2025 사이의 값을 입력해주세요.") {
         errorLabel.isHidden = false
-        errorLabel.text = message
+        errorLabel.text = text
     }
     
     private func hideError() {
@@ -217,24 +256,12 @@ class InputAgeViewController: CoreGradientViewController {
         continueButton.isEnabled = false
         continueButton.backgroundColor = .buttonBackground
         ageInputField.textColor = .label
-        updateButtonFont()
     }
     
     private func enableContinueButton() {
         continueButton.isEnabled = true
         continueButton.backgroundColor = .accent
         ageInputField.textColor = .accent
-        updateButtonFont()
-    }
-    
-    private func updateButtonFont() {
-        if let currentFont = continueButton.titleLabel?.font {
-            if continueButton.isEnabled {
-                continueButton.titleLabel?.font = currentFont.withBoldTrait()
-            } else {
-                continueButton.titleLabel?.font = currentFont.withNormalTrait()
-            }
-        }
     }
 
     private func fetchAndDisplayUserInfo() {

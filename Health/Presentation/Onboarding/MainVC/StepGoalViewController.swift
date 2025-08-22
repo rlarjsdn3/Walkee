@@ -39,7 +39,6 @@ class StepGoalViewController: CoreGradientViewController {
 
         stepGoalView.value = 0
         updateContinueButtonState()
-        updateButtonFont()
         
         if let parentVC = parent as? ProgressContainerViewController {
             parentVC.customNavigationBar.backButton.isHidden = true
@@ -48,7 +47,6 @@ class StepGoalViewController: CoreGradientViewController {
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
-        updateButtonFont()
     }
     
     
@@ -90,19 +88,29 @@ class StepGoalViewController: CoreGradientViewController {
     
     @objc private func updateContinueButtonState() {
         let isValid = stepGoalView.value > 0
-        continueButton.isEnabled = isValid
-        continueButton.backgroundColor = isValid ? .accent : .buttonBackground
-        updateButtonFont()
-    }
-    
-    private func updateButtonFont() {
-        if let currentFont = continueButton.titleLabel?.font {
-            if continueButton.isEnabled {
-                continueButton.titleLabel?.font = currentFont.withBoldTrait()
-            } else {
-                continueButton.titleLabel?.font = currentFont.withNormalTrait()
+        var config = UIButton.Configuration.filled()
+        config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+            var out = incoming
+            out.font = UIFont.preferredFont(forTextStyle: .headline)
+            return out
+        }
+        config.baseBackgroundColor = .accent
+        config.baseForegroundColor = .systemBackground
+        var container = AttributeContainer()
+        container.font = UIFont.preferredFont(forTextStyle: .headline)
+        config.attributedTitle = AttributedString("다음", attributes: container)
+            
+        continueButton.configurationUpdateHandler = { [weak self] button in
+            switch button.state
+            {
+            case .highlighted:
+                self?.continueButton.alpha = 0.75
+            default: self?.continueButton.alpha = 1.0
             }
         }
+        continueButton.configuration = config
+        continueButton.isEnabled = isValid
+        continueButton.backgroundColor = isValid ? .accent : .buttonBackground
     }
     
     @IBAction func buttonAction(_ sender: Any) {
