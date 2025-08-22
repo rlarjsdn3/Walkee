@@ -26,6 +26,12 @@ final class DashboardViewController: HealthNavigationController {
         .init()
     }()
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        registerNotification()
+    }
+
     override func viewIsAppearing(_ animated: Bool) {
         super.viewIsAppearing(animated)
 
@@ -80,6 +86,16 @@ final class DashboardViewController: HealthNavigationController {
             bottom: 24, right: .zero
         )
         dashboardCollectionView.refreshControl = refreshControl
+    }
+
+    private func registerNotification() {
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(refreshHKData),
+            name: .didUpdateGoalStepCount,
+            object: nil
+        )
     }
 
     @objc private func refreshHKData() {
