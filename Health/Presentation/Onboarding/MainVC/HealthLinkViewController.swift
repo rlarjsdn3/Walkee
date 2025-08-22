@@ -50,7 +50,28 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
                                                name: UIApplication.willEnterForegroundNotification,
                                                object: nil)
 
-        continueButton.setTitle("다음", for: .normal)
+        var config = UIButton.Configuration.filled()
+        config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+            var out = incoming
+            out.font = UIFont.preferredFont(forTextStyle: .headline)
+            return out
+        }
+        config.baseBackgroundColor = .accent
+        config.baseForegroundColor = .systemBackground
+        var container = AttributeContainer()
+        container.font = UIFont.preferredFont(forTextStyle: .headline)
+        config.attributedTitle = AttributedString("다음", attributes: container)
+            
+        continueButton.configurationUpdateHandler = { [weak self] button in
+            switch button.state
+            {
+            case .highlighted:
+                self?.continueButton.alpha = 0.75
+            default: self?.continueButton.alpha = 1.0
+            }
+        }
+        
+        continueButton.configuration = config
         continueButton.applyCornerStyle(.medium)
         continueButton.addTarget(self, action: #selector(continueButtonTapped(_:)), for: .touchUpInside)
         
@@ -138,21 +159,28 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
         Task {
             let hasAnyPermission = await healthService.checkHasAnyReadPermission()
             await MainActor.run {
-                let storedLinked = UserDefaultsWrapper.shared.hasSeenOnboarding
                 if hasAnyPermission {
                     linkedSwitch.isOn = true
-                    UserDefaultsWrapper.shared.hasSeenOnboarding = true
                 } else {
                     linkedSwitch.isOn = false
-                    if storedLinked {
-                        showAlert("권한 부족",
-                                  message: "건강 앱 권한이 변경되어 연동이 해제되었습니다. 설정에서 다시 권한을 허용해주세요.") { _ in }
-                        UserDefaultsWrapper.shared.hasSeenOnboarding = false
-                    }
                 }
             }
         }
     }
+    
+    private func openHealthApp() {
+        let healthURL = URL(string: "x-apple-health://")!
+        UIApplication.shared.open(healthURL, options: [:])
+    }
+    
+    /*
+     
+    - 사용자가 건강 권한을 받는 시트에서 모두 비허용 시, “건강 권한 비허용 시, 앱 사용에 지장을 줄 수 있다”는 경고와 함께 1️⃣설정 화면으로 이동할지 2️⃣계속 온보딩을 진행할지 묻는 알림창 띄우는 로직으로 변경
+    
+    - 사용자가 아무런 데이터를 허용하지 않고, 다시 스위치를 Off → On으로 변경 시, “설정 화면으로 이동해서 허용해야 한다”는 알림과 함께 1️⃣설정 화면으로 이동할지 2️⃣계속 온보딩을 진행할지 묻는 알림창 띄우기
+     
+     - 기존로직과 혼동하지말것 ⚠️
+     */
     
     private func requestHealthKitAuthorization() async {
         do {
@@ -160,46 +188,43 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
             await MainActor.run {
                 if granted {
                     linkedSwitch.isOn = true
-                    UserDefaultsWrapper.shared.hasSeenOnboarding = true
                 } else {
                     linkedSwitch.isOn = false
                     UserDefaultsWrapper.shared.hasSeenOnboarding = false
-                    showAlert("권한 부족",
-                              message: "모든 권한을 허용해야 연동이 가능합니다. 설정 화면에서 권한을 다시 설정해주세요.",
-                              onPrimaryAction: { _ in self.openAppSettings() })
+                  
+                    showAlert(
+                        "권한 설정",
+                        message: "건강앱 연동없이 앱 실행시, 일부기능이 제한될 수 있습니다. 설정화면으로 이동하시겠습니까?",
+                        primaryTitle: "설정으로 이동",
+                        onPrimaryAction: { _ in
+                            // 오후 회의 이후 어느경로로 이동하는지 정하는거로
+//                            self.openAppSettings()
+                            self.openHealthApp()
+                        },
+                        cancelTitle: "취소",
+                        onCancelAction: { _ in
+                        }
+                    )
                 }
             }
         } catch {
             await MainActor.run {
                 linkedSwitch.isOn = false
                 UserDefaultsWrapper.shared.hasSeenOnboarding = false
-                showAlert("오류", message: "HealthKit 권한 요청 중 오류가 발생했습니다.\n\(error.localizedDescription)") { _ in }
+                showAlert(
+                    "오류",
+                    message: "HealthKit 권한 요청 중 오류가 발생했습니다.\n\(error.localizedDescription)",
+                    primaryTitle: "확인",
+                    onPrimaryAction: { _ in },
+                    onCancelAction: nil
+                )
             }
         }
     }
+
     
     @IBAction private func continueButtonTapped(_ sender: Any) {
-        if linkedSwitch.isOn {
             performSegue(withIdentifier: "goToGenderInfo", sender: nil)
-        } else {
-            showAlert(
-                "건강 연동 필요",
-                message: """
-건강 연동을 해야 이용할 수 있는 서비스가 포함되어 있습니다. 건강 앱에 연동하시겠습니까?
-""",
-                primaryTitle: "네",
-                onPrimaryAction: { _ in
-                    Task {
-                        await self.requestHealthKitAuthorization()
-                    }
-                },
-                
-                cancelTitle: "아니오",
-                onCancelAction: { _ in
-                    self.performSegue(withIdentifier: "goToGenderInfo", sender: nil)
-                }
-            )
-        }
     }
 
 
@@ -208,9 +233,6 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
             Task {
                 await requestHealthKitAuthorization()
             }
-        } else {
-            UserDefaultsWrapper.shared.hasSeenOnboarding = false
-            showAlert("연동 해제", message: "Apple 건강 앱 연동이 해제되었습니다.") { _ in }
         }
     }
     

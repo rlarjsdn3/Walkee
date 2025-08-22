@@ -42,8 +42,28 @@ class HeightViewController: CoreGradientViewController {
         errorLabel.isHidden = true
         errorLabel.textColor = .red
         
+        var config = UIButton.Configuration.filled()
+        config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+            var out = incoming
+            out.font = UIFont.preferredFont(forTextStyle: .headline)
+            return out
+        }
+        config.baseBackgroundColor = .accent
+        config.baseForegroundColor = .systemBackground
+        var container = AttributeContainer()
+        container.font = UIFont.preferredFont(forTextStyle: .headline)
+        config.attributedTitle = AttributedString("다음", attributes: container)
+            
+        continueButton.configurationUpdateHandler = { [weak self] button in
+            switch button.state
+            {
+            case .highlighted:
+                self?.continueButton.alpha = 0.75
+            default: self?.continueButton.alpha = 1.0
+            }
+        }
+        continueButton.configuration = config
         continueButton.applyCornerStyle(.medium)
-        updateButtonFont()
         
         originalCenterY = heightInputFieldCenterY.constant
         originalDescriptionTop = descriptionLabelTopConst.constant
@@ -71,11 +91,6 @@ class HeightViewController: CoreGradientViewController {
         super.viewWillLayoutSubviews()
         updateContinueButtonConstraints()
         updateDescriptionTopConstraint()
-    }
-    
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        updateButtonFont()
     }
     
     private func updateDescriptionTopConstraint() {
@@ -240,24 +255,12 @@ class HeightViewController: CoreGradientViewController {
         continueButton.isEnabled = false
         continueButton.backgroundColor = .buttonBackground
         heightInputField.textColor = .label
-        updateButtonFont()
     }
     
     private func enableContinueButton() {
         continueButton.isEnabled = true
         continueButton.backgroundColor = .accent
         heightInputField.textColor = .accent
-        updateButtonFont()
-    }
-    
-    private func updateButtonFont() {
-        if let currentFont = continueButton.titleLabel?.font {
-            if continueButton.isEnabled {
-                continueButton.titleLabel?.font = currentFont.withBoldTrait()
-            } else {
-                continueButton.titleLabel?.font = currentFont.withNormalTrait()
-            }
-        }
     }
     
     private func fetchUserInfo() {
