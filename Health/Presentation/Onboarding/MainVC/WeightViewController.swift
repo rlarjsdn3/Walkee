@@ -190,40 +190,45 @@ class WeightViewController: CoreGradientViewController {
     }
     
     private func validateInput() {
-        guard let text = weightInputField.text, let weight = Int(text) else {
+        guard let text = weightInputField.text,
+              !text.isEmpty else {
             disableContinueButton()
             hideError()
             return
         }
-        
-        switch text.count {
-        case 1:
-            hideError()
-            disableContinueButton()
-        case 2:
-            if weight >= 35 {
-                hideError()
-                enableContinueButton()
-            } else {
-                showError()
-                disableContinueButton()
-            }
-        case 3:
-            if weight <= 200 {
-                hideError()
-                enableContinueButton()
-            } else {
-                showError()
-                disableContinueButton()
-            }
-        default:
-            showError()
+
+        if text.count == 1, text.hasPrefix("0") {
             disableContinueButton()
             weightInputField.text = ""
-            weightInputField.resignFirstResponder()
+            return
+        }
+        
+        if let weight = Int(text) {
+            switch text.count {
+            case 1:
+                disableContinueButton()
+                hideError()
+                
+            case 2, 3:
+                if (35...200).contains(weight) {
+                    enableContinueButton()
+                    hideError()
+                } else {
+                    disableContinueButton()
+                    showError()
+                }
+                
+            default:
+                disableContinueButton()
+                showError()
+            }
+        } else {
+            disableContinueButton()
+            showError()
         }
     }
-    
+
+
     private func showError(text: String = "35 ~ 200 사이의 값을 입력해주세요.") {
         errorLabel.isHidden = false
         errorLabel.text = text
