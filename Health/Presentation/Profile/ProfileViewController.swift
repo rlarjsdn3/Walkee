@@ -28,8 +28,9 @@ class ProfileViewController: CoreGradientViewController, Alertable {
     @IBOutlet weak var tableView: UITableView!
     
     @Injected private var healthService: HealthService
-    @Injected(.goalStepCountViewModel) private var goalVM: GoalStepCountViewModel
-    
+    @Injected(.dailyStepViewModel) private var dailyStepVM: DailyStepViewModel
+    @Injected(.goalStepCountViewModel) private var goalStepCountVM: GoalStepCountViewModel
+
     private var currentGoalCache: Int = 0
     
     private var grantRecheckObserver: NSObjectProtocol?
@@ -95,7 +96,7 @@ class ProfileViewController: CoreGradientViewController, Alertable {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         startForegroundGrantSync()
-        let latest = goalVM.goalStepCount(for: Date()).map(Int.init) ?? 0
+        let latest = goalStepCountVM.goalStepCount(for: Date()).map(Int.init) ?? 0
         currentGoalCache = latest
     }
     
@@ -380,9 +381,9 @@ extension ProfileViewController: UITableViewDelegate {
         case "신체 정보":
             performSegue(withIdentifier: "bodyInfo", sender: nil)
         case "목표 걸음 설정":
-            let goalStep = goalVM.goalStepCount(for: Date()).map(Int.init) ?? 0
+            let goalStep = goalStepCountVM.goalStepCount(for: Date()).map(Int.init) ?? 0
             currentGoalCache = goalStep
-            print("goalstep:\(goalStep)")
+            print("[ProfileViewController] 현재 목표 걸음 수: \(goalStep)")
             showActionSheetForProfile(
                 buildView: {
                     let v = EditStepGoalView()
@@ -394,10 +395,14 @@ extension ProfileViewController: UITableViewDelegate {
                 },
                 onConfirm: { [weak self] view in
                     guard let self, let v = view as? EditStepGoalView else { return }
-                    self.goalVM.saveGoalStepCount(goalStepCount: Int32(v.value), effectiveDate: Date())
+
+                    self.dailyStepVM.upsertDailyStep(goalStepCount: v.value)
+                    self.goalStepCountVM.saveGoalStepCount(goalStepCount: Int32(v.value), effectiveDate: Date())
                     self.currentGoalCache = v.value
+
                     NotificationCenter.default.post(name: .didUpdateGoalStepCount, object: nil)
-                    print(v.value)
+
+                    print("[ProfileViewController] 변경된 목표 걸음 수: \(v.value)")
                 }
             )
 

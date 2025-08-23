@@ -54,7 +54,7 @@ final class DefaultStepSyncService: StepSyncService {
 
             // 동기화 완료 알림 발송 (메인 스레드에서 실행)
             await MainActor.run {
-                NotificationCenter.default.post(name: .stepDataDidSync, object: nil)
+                NotificationCenter.default.post(name: .didSyncStepData, object: nil)
             }
 
             print("[StepSyncService] 동기화 완료: \(statistics.count)개의 날짜 처리됨")
@@ -156,13 +156,4 @@ private extension DefaultStepSyncService {
             )
         }
     }
-}
-
-extension Notification.Name {
-
-    /// 걸음 수 데이터 동기화가 완료되었을 때 발송되는 알림
-    ///
-    /// 이 알림은 `DefaultStepSyncService.syncSteps()` 메서드가 성공적으로 완료된 후
-    /// 메인 스레드에서 발송됩니다. UI를 업데이트하거나 추가 작업을 트리거하는 데 사용할 수 있습니다.
-	static let stepDataDidSync = Notification.Name("stepDataDidSync")
 }
