@@ -19,5 +19,8 @@ enum Log {
 	static let ui  = Logger(subsystem: subsystem, category: "UI")
 	// 개인정보 처리
 	static let privacy = Logger(subsystem: subsystem, category: "privacy")
+	// 채팅 관련 로그
 	static let chat = Logger(subsystem: subsystem, category: "chat")
+	// CoreMotion 관련 로그 - foreground 때 업데이트 되는 실시간 걸음 수 확인 위함
+	static let motion = Logger(subsystem: subsystem, category: "motion")
 }

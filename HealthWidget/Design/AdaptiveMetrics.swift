@@ -2,7 +2,7 @@
 //  AdaptiveMetrics.swift
 //  Health
 //
-//  Created by Nat Kim on 8/24/25.
+//  Created by Seohyun Kim on 8/24/25.
 //
 
 import SwiftUI

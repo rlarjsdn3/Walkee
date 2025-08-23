@@ -2,7 +2,7 @@
 //  SharedStore.swift
 //  Health
 //
-//  Created by Nat Kim on 8/23/25.
+//  Created by Seohyun Kim on 8/23/25.
 //
 
 import Foundation

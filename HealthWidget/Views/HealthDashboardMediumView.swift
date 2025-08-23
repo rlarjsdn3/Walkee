@@ -2,7 +2,7 @@
 //  HealthDashboardMediumView.swift
 //  Health
 //
-//  Created by Nat Kim on 8/23/25.
+//  Created by Seohyun Kim on 8/23/25.
 //
 
 import SwiftUI
@@ -67,7 +67,7 @@ struct HealthDashboardMediumView: View {
 						.frame(width: dividerW, height: M.dividerHeight)
 
 					ZStack {
-						rightContent(M: M, snapShot: snapShot)
+						rightContent(metric: M, snapShot: snapShot)
 							.fixedSize(horizontal: true, vertical: true)
 							.background(
 								GeometryReader { g in
@@ -135,37 +135,37 @@ struct HealthDashboardMediumView: View {
 		}
 	}
 
-	private func rightContent(M: AdaptiveMetrics, snapShot: HealthDashboardSnapshot) -> some View {
-		VStack(alignment: .center, spacing: max(4, M.iconTextSpacing * 0.8)) {
+	private func rightContent(metric: AdaptiveMetrics, snapShot: HealthDashboardSnapshot) -> some View {
+		VStack(alignment: .center, spacing: max(4, metric.iconTextSpacing * 0.8)) {
 			Text("오늘 걸음 수")
-				.font(.system(size: M.todayTitleSize, weight: .semibold))
+				.font(.system(size: metric.todayTitleSize, weight: .semibold))
 				.foregroundStyle(.secondary)
 				.lineLimit(1)
 				.minimumScaleFactor(0.9)
 				.multilineTextAlignment(.center)
 
 			Text(snapShot.stepsTodayText)
-				.font(.system(size: M.todayStepSize, weight: .heavy))
+				.font(.system(size: metric.todayStepSize, weight: .heavy))
 				.monospacedDigit()
-				.foregroundStyle(.teal)
+				.foregroundStyle(.accent)
 				.lineLimit(1)
 				.minimumScaleFactor(0.7)
 				.multilineTextAlignment(.center)
 
-			HStack(spacing: max(2, M.iconTextSpacing * 0.6)) {
+			HStack(spacing: max(2, metric.iconTextSpacing * 0.6)) {
 				Text("주 평균")
-					.font(.system(size: M.weeklyLabelSize, weight: .semibold))
+					.font(.system(size: metric.weeklyLabelSize, weight: .semibold))
 					.foregroundStyle(.secondary)
 					.lineLimit(1).minimumScaleFactor(0.9)
 
 				Text(snapShot.weeklyAvgText)
-					.font(.system(size: M.weeklyNumberSize, weight: .bold))
+					.font(.system(size: metric.weeklyNumberSize, weight: .bold))
 					.monospacedDigit()
 					.foregroundStyle(.primary)
 					.lineLimit(1).minimumScaleFactor(0.85)
 
 				Text("걸음")
-					.font(.system(size: M.weeklyLabelSize, weight: .semibold))
+					.font(.system(size: metric.weeklyLabelSize, weight: .semibold))
 					.foregroundStyle(.secondary)
 					.lineLimit(1).minimumScaleFactor(0.9)
 					.background(
@@ -191,7 +191,7 @@ struct HealthDashboardMediumView: View {
 				.resizable().scaledToFit()
 				.frame(width: M.symbolSize, height: M.symbolSize)
 				.symbolRenderingMode(.palette)
-				.foregroundStyle(.white, .teal)
+				.foregroundStyle(.white, .accent)
 
 			Text(title)
 				.font(.system(size: M.titleFontSize, weight: .heavy))

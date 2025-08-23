@@ -2,7 +2,7 @@
 //  HealthDashboardSnapshot.swift
 //  Health
 //
-//  Created by Nat Kim on 8/23/25.
+//  Created by Seohyun Kim on 8/23/25.
 //
 
 import Foundation
@@ -51,6 +51,15 @@ extension HealthDashboardSnapshot {
 
 // 미리보기/대체 데이터
 extension HealthDashboardSnapshot {
+	static let empty = HealthDashboardSnapshot(
+		stepsToday: 0,
+		goalSteps: 0,
+		distanceKm: 0,
+		exerciseMinute: 0,
+		activeKcal: 0,
+		weeklyAvgSteps: 0
+	)
+	
 	static let previewMock = HealthDashboardSnapshot(
 		stepsToday: 5_000,
 		goalSteps: 7_000,

@@ -10,7 +10,6 @@
 		1A231D992E5989F600A8B452 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A231D982E5989F600A8B452 /* WidgetKit.framework */; };
 		1A231D9B2E5989F600A8B452 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A231D9A2E5989F600A8B452 /* SwiftUI.framework */; };
 		1A2320C22E59B95E00A8B452 /* HealthWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 1A231D972E5989F600A8B452 /* HealthWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		1AD10B902E586BA1004739F1 /* Markdown in Frameworks */ = {isa = PBXBuildFile; productRef = 1AD10B8F2E586BA1004739F1 /* Markdown */; };
 		A686BBAC2E457D47003784EC /* app-debug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = A686BBAB2E457D47003784EC /* app-debug.xcconfig */; };
 		A686BBAE2E457D52003784EC /* app-release.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = A686BBAD2E457D52003784EC /* app-release.xcconfig */; };
 		C76CA76E2E3AE2110040EF75 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = C76CA76D2E3AE2110040EF75 /* FirebaseAnalyticsCore */; };
@@ -64,23 +63,7 @@
 		1A231DA62E5989F700A8B452 /* Exceptions for "HealthWidget" folder in "HealthWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				AppIntent.swift,
 				Info.plist,
-			);
-			target = 1A231D962E5989F600A8B452 /* HealthWidgetExtension */;
-		};
-		1A231DAD2E598B8C00A8B452 /* Exceptions for "Health" folder in "HealthWidgetExtension" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Core/Shared/DashboardSnapshotStore.swift,
-				Core/Shared/HealthDashboardSnapshot.swift,
-				Core/Shared/SharedStore.swift,
-				"Core/Shared/SharedStore+Dashboard.swift",
-				Core/Shared/WidgetBridge.swift,
-				Core/Shared/WidgetIDs.swift,
-				"Core/Utils/Extensions/UILabel+Extension.swift",
-				"Core/Utils/Extensions/UIView+Extension.swift",
-				Services/WidgetSync/ForegroundMotionAggregator.swift,
 			);
 			target = 1A231D962E5989F600A8B452 /* HealthWidgetExtension */;
 		};
@@ -199,7 +182,6 @@
 				1A231D932E5989F600A8B452 /* Sources */,
 				1A231D942E5989F600A8B452 /* Frameworks */,
 				1A231D952E5989F600A8B452 /* Resources */,
-				1A7AF3732E5BF4E500C6A3D4 /*  */,
 			);
 			buildRules = (
 			);
