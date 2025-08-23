@@ -342,7 +342,6 @@ class PersonalViewController: HealthNavigationController, Alertable, UICollectio
         }
     }
 
-
     // 전체 코스를 난이도별로 나누는 메서드
     private func separateCoursesByDifficulty() {
         // 배열들 초기화
@@ -380,6 +379,32 @@ class PersonalViewController: HealthNavigationController, Alertable, UICollectio
         mediumLevelCourses.shuffle()
         hardLevelCourses.shuffle()
     }
+
+    //코스 경로 디테일 뷰로 넘어가는 메서드
+    private func showFullScreenMap(for course: WalkingCourse) {
+        Task {
+            do {
+                guard let url = URL(string: course.gpxpath) else { return }
+                let (data, _) = try await URLSession.shared.data(from: url)
+                let coordinates = WalkingCourseService.shared.parseGPXCoordinates(from: data)
+
+                await MainActor.run {
+                    let storyboard = UIStoryboard(name: "DetailCourse", bundle: nil)
+                    let mapVC = storyboard.instantiateViewController(withIdentifier: "DetailCourse") as! MapViewController
+                    mapVC.courseCoordinates = coordinates
+                    mapVC.courseInfo = course
+
+
+                    let navController = UINavigationController(rootViewController: mapVC)
+                    navController.modalPresentationStyle = .fullScreen
+                    present(navController, animated: true)
+                }
+            } catch {
+                print("GPX 데이터 로드 실패: \(error)")
+            }
+        }
+    }
+
 
     // MARK: - Distance Management
 
@@ -491,6 +516,10 @@ extension PersonalViewController: @preconcurrency RecommendPlaceCellDelegate {
     func didTapInfoButton(for course: WalkingCourse) {
 
         showCourseInfoSheet(for: course)
+    }
+
+    func didTapCell(for course: WalkingCourse) {
+        showFullScreenMap(for: course)
     }
 
     private func showCourseInfoSheet(for course: WalkingCourse) {
