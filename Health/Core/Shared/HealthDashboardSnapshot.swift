@@ -37,3 +37,26 @@ struct HealthDashboardSnapshot: Codable, Sendable, Equatable {
 		self.weeklyAvgSteps = weeklyAvgSteps
 	}
 }
+
+
+extension HealthDashboardSnapshot {
+	// 표시용 포맷
+	var stepsTodayText: String { stepsToday.formatted(.number.grouping(.automatic)) }
+	var goalStepsText: String { goalSteps.formatted(.number.grouping(.automatic)) }
+	var weeklyAvgText: String { weeklyAvgSteps.formatted(.number.grouping(.automatic)) }
+	var distanceText: String { distanceKm.formatted(.number.precision(.fractionLength(0...1))) }
+	var exerciseMinuteText: String { exerciseMinute.formatted(.number) }
+	var activeKcalText: String { activeKcal.formatted(.number) }
+}
+
+// 미리보기/대체 데이터
+extension HealthDashboardSnapshot {
+	static let previewMock = HealthDashboardSnapshot(
+		stepsToday: 5_000,
+		goalSteps: 7_000,
+		distanceKm: 3.0,
+		exerciseMinute: 70,
+		activeKcal: 300,
+		weeklyAvgSteps: 1_952
+	)
+}

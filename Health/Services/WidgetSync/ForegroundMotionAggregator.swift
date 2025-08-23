@@ -50,7 +50,7 @@ final class ForegroundMotionAggregator {
 			)
 
 			// App Group 저장 → 위젯 갱신
-			SharedStore.save(merged)
+			SharedStore.saveCodable(merged, forKey: SharedStore.Key.dashboardSnapshotV1)
 			WidgetBridge.reloadAll()
 		}
 	}

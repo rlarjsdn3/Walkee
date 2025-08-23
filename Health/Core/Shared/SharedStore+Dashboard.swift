@@ -9,10 +9,10 @@ import Foundation
 
 extension SharedStore {
 	static func saveDashboard(_ snap: HealthDashboardSnapshot) {
-		save(snap, for: \.dashboardSnapshotDataV1)
+		saveCodable(snap, forKey: Key.dashboardSnapshotV1)
 	}
-	
+
 	static func loadDashboard() -> HealthDashboardSnapshot? {
-		load(HealthDashboardSnapshot.self, for: \.dashboardSnapshotDataV1)
+		loadCodable(HealthDashboardSnapshot.self, forKey: Key.dashboardSnapshotV1)
 	}
 }

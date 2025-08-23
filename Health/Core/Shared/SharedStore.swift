@@ -8,22 +8,32 @@
 import Foundation
 
 enum SharedStore {
-	private static let storage = UserDefaultsWrapper(suitName: "group.com.seohyun.walking")
+	private static let suiteID = "group.com.seohyun.walking"
 	
-	private static let snapshotKey = "dashboard.snapshot"
-	
-	static func save<T: Codable>(_ value: T, for keyPath: KeyPath<UserDefaultsKeys, UserDefaultsKey<Data?>>) {
-		guard let data = try? JSONEncoder().encode(value) else { return }
-		storage.set(forKey: keyPath, value: data)
+	private static var ud: UserDefaults {
+		guard let u = UserDefaults(suiteName: suiteID) else {
+			fatalError("App Group not configured: \(suiteID)")
+		}
+		return u
 	}
 	
-	static func load<T: Codable>(_ type: T.Type, for keyPath: KeyPath<UserDefaultsKeys, UserDefaultsKey<Data?>>) -> T? {
-		let data: Data? = storage.get(forKey: keyPath)
-		guard let data else { return nil }
+	enum Key {
+		/// 대시보드/위젯 스냅샷(버전 명시)
+		static let dashboardSnapshotV1 = "dashboard.snapshot.v1"
+	}
+	
+	// MARK: - Codable 저장/로드
+	static func saveCodable<T: Codable>(_ value: T, forKey key: String) {
+		guard let data = try? JSONEncoder().encode(value) else { return }
+		ud.set(data, forKey: key)
+	}
+	
+	static func loadCodable<T: Codable>(_ type: T.Type, forKey key: String) -> T? {
+		guard let data = ud.data(forKey: key) else { return nil }
 		return try? JSONDecoder().decode(T.self, from: data)
 	}
 	
-	static func remove(for keyPath: KeyPath<UserDefaultsKeys, UserDefaultsKey<Data?>>) {
-		storage.remove(forKey: keyPath)
+	static func remove(_ key: String) {
+		ud.removeObject(forKey: key)
 	}
 }

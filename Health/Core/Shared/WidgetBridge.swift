@@ -10,6 +10,7 @@ import WidgetKit
 
 enum WidgetBridge {
 	static func reloadAll() {
-		
+		//WidgetCenter.shared.reloadAllTimelines()
+		WidgetCenter.shared.reloadTimelines(ofKind: "HealthWideget")
 	}
 }
