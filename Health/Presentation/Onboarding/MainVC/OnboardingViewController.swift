@@ -155,7 +155,6 @@ class OnboardingViewController: CoreGradientViewController, UIScrollViewDelegate
                 container.alignment = .center
                 container.spacing = 20
                 container.translatesAutoresizingMaskIntoConstraints = false
-                container.setCustomSpacing(80, after: subtitleLabel)
                 
                 page.addSubview(container)
                 
