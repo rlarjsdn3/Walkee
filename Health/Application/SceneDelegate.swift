@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import WidgetKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -15,7 +16,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     @Injected private var stepSyncService: (any StepSyncService)
     
     private var hkSharingAutorizationStatus: Bool = false
-
+	private var motionAgg: ForegroundMotionAggregator?
+	
     func scene(_ scene: UIScene,
                willConnectTo session: UISceneSession,
                options connectionOptions: UIScene.ConnectionOptions) {
@@ -36,15 +38,42 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func sceneDidDisconnect(_ scene: UIScene) {
     }
 
-    func sceneDidBecomeActive(_ scene: UIScene) {
-    }
+	func sceneDidBecomeActive(_ scene: UIScene) {
+		Task {
+			do {
+				// 1) 권한 보장 (없으면 요청)
+				if await !healthService.checkHasAnyReadPermission() {
+					let granted = try await healthService.requestAuthorization()
+					guard granted else {
+						print("🔴 Health permission not granted")
+						return
+					}
+				}
+				
+				// 2) 스냅샷 생성 → App Group 저장 → 위젯 리로드
+				let snap = try await DefaultDashboardSnapshotProvider().makeSnapshot(for: .now)
+				DashboardSnapshotStore.saveAndNotify(snap)
+				print("🟢 widget snapshot saved: steps=\(snap.stepsToday)")
+			} catch {
+				print("🔴 makeSnapshot error:", error)
+			}
+		}
+	}
 
     func sceneWillResignActive(_ scene: UIScene) {
+		motionAgg?.stop()
+		motionAgg = nil
     }
 
     func sceneWillEnterForeground(_ scene: UIScene) {
         if UserDefaultsWrapper.shared.hasSeenOnboarding {
             syncSteps()
+			Task {
+				do {
+					let snap = try await DefaultDashboardSnapshotProvider().makeSnapshot(for: .now)
+					DashboardSnapshotStore.saveAndNotify(snap)
+				} catch { /* log */ }
+			}
         }
         
         refreshHKSharingAuthorizationStatus()
@@ -84,6 +113,12 @@ private extension SceneDelegate {
         Task {
             do {
                 try await stepSyncService.syncSteps()
+				do {
+					let snap = try await DefaultDashboardSnapshotProvider().makeSnapshot(for: .now)
+					DashboardSnapshotStore.saveAndNotify(snap)
+				} catch {
+					print("🔴 Widget snapshot update failed:", error)
+				}
             } catch {
                 print("걸음 데이터 동기화 실패: \(error.localizedDescription)")
             }

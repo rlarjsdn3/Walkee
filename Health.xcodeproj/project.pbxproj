@@ -72,10 +72,12 @@
 		1A231DAD2E598B8C00A8B452 /* Exceptions for "Health" folder in "HealthWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Core/Shared/DashboardSnapshotStore.swift,
 				Core/Shared/HealthDashboardSnapshot.swift,
 				Core/Shared/SharedStore.swift,
 				"Core/Shared/SharedStore+Dashboard.swift",
 				Core/Shared/WidgetBridge.swift,
+				Core/Shared/WidgetIDs.swift,
 				"Core/Utils/Extensions/UILabel+Extension.swift",
 				"Core/Utils/Extensions/UIView+Extension.swift",
 				Services/WidgetSync/ForegroundMotionAggregator.swift,
@@ -660,7 +662,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 4DQM269FVB;
+				DEVELOPMENT_TEAM = 2P5FNS3JAJ;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
@@ -681,7 +683,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 4DQM269FVB;
+				DEVELOPMENT_TEAM = 2P5FNS3JAJ;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;

@@ -490,6 +490,18 @@ extension DashboardViewModel {
 }
 
 extension DashboardViewModel {
+	/// 위젯 스냅샷 생성 + 저장 + 리로드
+	func updateWidgetSnapshot() {
+		Task {
+			do {
+				let snap = try await DefaultDashboardSnapshotProvider().makeSnapshot(for: .now)
+				DashboardSnapshotStore.saveAndNotify(snap)
+			} catch {
+				print("Widget snapshot update failed:", error)
+			}
+		}
+	}
+}
 
     func checkHKHasAnyReadPermission(typeIdentifier quantityTypeIdentifier: HKQuantityTypeIdentifier? = nil) async -> Bool {
         let hasReadPermission: Bool = await quantityTypeIdentifier != nil
