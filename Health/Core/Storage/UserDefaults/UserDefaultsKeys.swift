@@ -56,4 +56,12 @@ extension UserDefaultsKeys {
             defaultValue: nil
         )
     }
+	
+	/// 위젯/대시보드 공용 스냅샷(Data 직렬화)
+	var dashboardSnapshotDataV1: UserDefaultsKey<Data?> {
+		UserDefaultsKey<Data?>(
+			"dashboard.snapshot.v1",
+			defaultValue: nil
+		)
+	}
 }
