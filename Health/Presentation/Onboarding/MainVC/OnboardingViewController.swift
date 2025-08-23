@@ -21,11 +21,9 @@ class OnboardingViewController: CoreGradientViewController, UIScrollViewDelegate
     private let pageControl = UIPageControl()
     private var pages: [UIView] = []
     
-    // 페이지 뷰 참조
-    private let firstPageView = UIView()   // 1번째 페이지
-    private let secondPageView = UIView()  // 2번째 페이지
-    private let thirdPageView = UIView()   // 3번째 페이지
-    private let fourthPageView = UIView()  // 4번째 페이지
+    private let firstPageView = UIView()
+    private let secondPageView = UIView()
+    private let thirdPageView = UIView()
     
     private var currentPage: Int {
         let pageWidth = scrollView.bounds.width
@@ -46,7 +44,6 @@ class OnboardingViewController: CoreGradientViewController, UIScrollViewDelegate
         pageControl.currentPage = 0
     }
     
-    //ScrollView + StackView
     private func setupScrollView() {
         scrollView.isPagingEnabled = true
         scrollView.showsHorizontalScrollIndicator = false
@@ -65,7 +62,6 @@ class OnboardingViewController: CoreGradientViewController, UIScrollViewDelegate
         stack.axis = .horizontal
         stack.alignment = .fill
         stack.distribution = .fill
-        stack.spacing = 0
         scrollView.addSubview(stack)
         stack.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
@@ -77,9 +73,8 @@ class OnboardingViewController: CoreGradientViewController, UIScrollViewDelegate
         ])
     }
     
-    //Pages
     private func setupPages() {
-        pages = [firstPageView, secondPageView, thirdPageView, fourthPageView]
+        pages = [firstPageView, secondPageView, thirdPageView]
         
         pages.forEach { page in
             page.translatesAutoresizingMaskIntoConstraints = false
@@ -87,14 +82,31 @@ class OnboardingViewController: CoreGradientViewController, UIScrollViewDelegate
             page.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor).isActive = true
         }
         
-        // 모든 페이지 중앙 정렬 구성
-        configureCentralPage(firstPageView, imageName: "star.fill", title: "환영합니다!", description: "Apple 건강앱과 연동해 맞춤형 건강 관리 가능")
-        configureCentralPage(secondPageView, imageName: "heart.fill", title: "건강 정보 확인", description: "건강 앱과 연동하여 일일 걸음 수, 심박수 등을 확인할 수 있어요.")
-        configureCentralPage(thirdPageView, imageName: "star.fill", title: "맞춤형 코스 추천", description: "이미지를 중앙에 두고 텍스트도 중앙 정렬")
-        configureCentralPage(fourthPageView, imageName: "figure.walk", title: "목표 달성", description: "이미지를 중앙에 두고 텍스트도 중앙 정렬")
+        configureCentralPage(firstPageView,
+                             imageName: "chart.bar.fill",
+                             title: "대시보드",
+                             subtitle: "일일 걸음 및 건강 요약",
+                             description: "당신의 걸음, 하루하루가 건강으로 이어집니다. 일일 걸음 수와 보행 패턴을 한눈에 확인하고, AI가 요약해주는 맞춤 건강 인사이트를 만나보세요.")
+        
+        configureCentralPage(secondPageView,
+                             imageName: "calendar",
+                             title: "캘린더",
+                             subtitle: "목표 달성 현황 & 기록",
+                             description: "캘린더에서 일일 목표 달성 현황과 액티비티 링을 확인하고, 과거의 걸음과 보행 건강 데이터를 쉽게 돌아볼 수 있어요.")
+        
+        configureCentralPage(thirdPageView,
+                             imageName: "message.fill",
+                             title: "맞춤케어",
+                             subtitle: "개인화 코스 & 챗봇",
+                             description: "나에게 꼭 맞는 걷기 루틴. 건강 앱 데이터 기반 사용자에게 난이도별로 맞춤 코스 추천과 분석은 물론, 걷기·러닝에 특화된 챗봇과 함께 건강한 습관을 만들어보세요.")
     }
     
-    private func configureCentralPage(_ page: UIView, imageName: String, title: String, description: String) {
+    private func configureCentralPage(_ page: UIView,
+                                      imageName: String,
+                                      title: String,
+                                      subtitle: String,
+                                      description: String) {
+        
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFit
@@ -104,46 +116,67 @@ class OnboardingViewController: CoreGradientViewController, UIScrollViewDelegate
         let titleLabel = UILabel()
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.text = title
-        titleLabel.textAlignment = .center
         titleLabel.numberOfLines = 0
+        
+        let subtitleLabel = UILabel()
+        subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
+        subtitleLabel.text = subtitle
+        subtitleLabel.font = UIFont.systemFont(ofSize: 18, weight: .medium)
+        subtitleLabel.textColor = .secondaryLabel
+        subtitleLabel.numberOfLines = 0
         
         let descriptionLabel = UILabel()
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         descriptionLabel.text = description
-        descriptionLabel.font = .preferredFont(forTextStyle: .body)
+        descriptionLabel.font = .preferredFont(forTextStyle: .caption1)
         descriptionLabel.numberOfLines = 0
-        descriptionLabel.textAlignment = .center
         
         page.addSubview(imageView)
         page.addSubview(titleLabel)
+        page.addSubview(subtitleLabel)
         page.addSubview(descriptionLabel)
         
-        // iPad/iPhone에 따라 폰트 크기 조절
-        let titleFont: UIFont
-        if traitCollection.horizontalSizeClass == .regular && traitCollection.verticalSizeClass == .regular {
-            titleFont = UIFont.boldSystemFont(ofSize: 50)
+        // 아이폰 / 아이패드 정렬 분기
+        let isIpad = traitCollection.horizontalSizeClass == .regular &&
+        traitCollection.verticalSizeClass == .regular
+        
+        if isIpad {
+            titleLabel.textAlignment = .center
+            subtitleLabel.textAlignment = .center
+            descriptionLabel.textAlignment = .center
         } else {
-            titleFont = UIFont.boldSystemFont(ofSize: 16)
+            titleLabel.textAlignment = .left
+            subtitleLabel.textAlignment = .left
+            descriptionLabel.textAlignment = .center
         }
+        
+        // Title Font
+        let titleFont: UIFont = isIpad
+        ? UIFont.systemFont(ofSize: 50, weight: .black)
+        : UIFont.systemFont(ofSize: 36, weight: .black)
         titleLabel.font = titleFont
         
         NSLayoutConstraint.activate([
-            imageView.centerXAnchor.constraint(equalTo: page.centerXAnchor),
-            imageView.centerYAnchor.constraint(equalTo: page.centerYAnchor, constant: -60),
-            imageView.widthAnchor.constraint(equalToConstant: 240),
-            imageView.heightAnchor.constraint(equalToConstant: 240),
-            
-            titleLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20),
+            // 타이틀 → 부제목 → 이미지 → 설명 순서
+            titleLabel.topAnchor.constraint(equalTo: page.topAnchor, constant: 60),
             titleLabel.leadingAnchor.constraint(equalTo: page.leadingAnchor, constant: 20),
             titleLabel.trailingAnchor.constraint(equalTo: page.trailingAnchor, constant: -20),
             
-            descriptionLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 12),
+            subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
+            subtitleLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            subtitleLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
+            
+            imageView.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 40),
+            imageView.centerXAnchor.constraint(equalTo: page.centerXAnchor),
+            imageView.widthAnchor.constraint(equalToConstant: 240),
+            imageView.heightAnchor.constraint(equalToConstant: 240),
+            
+            descriptionLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20),
             descriptionLabel.leadingAnchor.constraint(equalTo: page.leadingAnchor, constant: 20),
             descriptionLabel.trailingAnchor.constraint(equalTo: page.trailingAnchor, constant: -20)
         ])
     }
     
-    //Page Control
     private func setupPageControl() {
         pageControl.numberOfPages = pages.count
         pageControl.currentPage = 0
@@ -158,12 +191,10 @@ class OnboardingViewController: CoreGradientViewController, UIScrollViewDelegate
         ])
     }
     
-    //ScrollView Delegate
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let page = currentPage
         pageControl.currentPage = page
         
-        // 버튼 활성화/비활성 색상 처리
         if page == pages.count - 1 {
             continueButton.isEnabled = true
             continueButton.backgroundColor = .accent
@@ -173,7 +204,6 @@ class OnboardingViewController: CoreGradientViewController, UIScrollViewDelegate
         }
     }
     
-    //Continue Button
     private func setupContinueButton() {
         applyBackgroundGradient(.midnightBlack)
         
@@ -205,7 +235,6 @@ class OnboardingViewController: CoreGradientViewController, UIScrollViewDelegate
         continueButton.applyCornerStyle(.medium)
     }
     
-    //Layout
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         
