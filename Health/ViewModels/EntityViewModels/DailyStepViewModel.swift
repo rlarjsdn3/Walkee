@@ -82,9 +82,9 @@ final class DailyStepViewModel: ObservableObject {
     ///   - stepCount: 해당 날짜의 걸음 수
     ///   - goalStepCount: 해당 날짜에 유효한 목표 걸음 수 스냅샷
     func upsertDailyStep(
-        for date: Date,
-        stepCount: Int32,
-        goalStepCount: Int32
+        for date: Date = Date(),
+        stepCount: Int? = nil,
+        goalStepCount: Int? = nil
     ) {
         let normalizedDate = date.startOfDay()
 
@@ -99,10 +99,16 @@ final class DailyStepViewModel: ObservableObject {
             if existing == nil {
                 entity.id = UUID()
                 entity.date = normalizedDate
+                entity.stepCount = Int32(stepCount ?? 0)
+                entity.goalStepCount = Int32(goalStepCount ?? 0)
+            } else {
+                if let stepCount {
+                    entity.stepCount = Int32(stepCount)
+                }
+                if let goalStepCount {
+                    entity.goalStepCount = Int32(goalStepCount)
+                }
             }
-
-            entity.stepCount = stepCount
-            entity.goalStepCount = goalStepCount
 
             try context.save()
             fetchAllDailySteps()

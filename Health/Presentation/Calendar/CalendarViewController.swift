@@ -72,6 +72,13 @@ private extension CalendarViewController {
             name: .didSyncStepData,
             object: nil
         )
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(reloadCalendar),
+            name: .didUpdateGoalStepCount,
+            object: nil
+        )
     }
 
     func configureNavigationBar() {
