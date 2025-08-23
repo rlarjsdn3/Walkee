@@ -82,23 +82,31 @@ class OnboardingViewController: CoreGradientViewController, UIScrollViewDelegate
             page.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor).isActive = true
         }
         
+        reconfigurePages()
+    }
+
+    private func reconfigurePages() {
+        [firstPageView, secondPageView, thirdPageView].forEach { page in
+            page.subviews.forEach { $0.removeFromSuperview() }
+        }
+        
         configureCentralPage(firstPageView,
-                             imageName: "chart.bar.fill",
+                             imageName: "dashboardIcon",
                              title: "대시보드",
                              subtitle: "일일 걸음 및 건강 요약",
                              description: "당신의 걸음, 하루하루가 건강으로 이어집니다. 일일 걸음 수와 보행 패턴을 한눈에 확인하고, AI가 요약해주는 맞춤 건강 인사이트를 만나보세요.")
         
         configureCentralPage(secondPageView,
-                             imageName: "calendar",
+                             imageName: "calandarIcon",
                              title: "캘린더",
                              subtitle: "목표 달성 현황 & 기록",
                              description: "캘린더에서 일일 목표 달성 현황과 액티비티 링을 확인하고, 과거의 걸음과 보행 건강 데이터를 쉽게 돌아볼 수 있어요.")
         
         configureCentralPage(thirdPageView,
-                             imageName: "message.fill",
+                             imageName: "chatbotIcon",
                              title: "맞춤케어",
                              subtitle: "개인화 코스 & 챗봇",
-                             description: "나에게 꼭 맞는 걷기 루틴. 건강 앱 데이터 기반 사용자에게 난이도별로 맞춤 코스 추천과 분석은 물론, 걷기·러닝에 특화된 챗봇과 함께 건강한 습관을 만들어보세요.")
+                             description: "건강 앱 데이터 기반 사용자에게 난이도별로 맞춤 코스 추천과 분석은 물론, 걷기·러닝에 특화된 챗봇과 함께 건강한 습관을 만들어보세요!")
     }
     
     private func configureCentralPage(_ page: UIView,
@@ -110,8 +118,7 @@ class OnboardingViewController: CoreGradientViewController, UIScrollViewDelegate
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFit
-        imageView.tintColor = .systemPink
-        imageView.image = UIImage(systemName: imageName)
+        imageView.image = UIImage(named: imageName)
         
         let titleLabel = UILabel()
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -128,53 +135,95 @@ class OnboardingViewController: CoreGradientViewController, UIScrollViewDelegate
         let descriptionLabel = UILabel()
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         descriptionLabel.text = description
-        descriptionLabel.font = .preferredFont(forTextStyle: .caption1)
         descriptionLabel.numberOfLines = 0
+        descriptionLabel.textAlignment = .center
         
-        page.addSubview(imageView)
-        page.addSubview(titleLabel)
-        page.addSubview(subtitleLabel)
-        page.addSubview(descriptionLabel)
-        
-        // 아이폰 / 아이패드 정렬 분기
-        let isIpad = traitCollection.horizontalSizeClass == .regular &&
-        traitCollection.verticalSizeClass == .regular
+        // 아이패드 제약
+        let isIpad = traitCollection.userInterfaceIdiom == .pad
         
         if isIpad {
             titleLabel.textAlignment = .center
             subtitleLabel.textAlignment = .center
             descriptionLabel.textAlignment = .center
+            descriptionLabel.font = UIFont.systemFont(ofSize: 16, weight: .regular)
+            titleLabel.font = UIFont.systemFont(ofSize: 50, weight: .black)
+            
+            let isPortrait = UIScreen.main.bounds.height > UIScreen.main.bounds.width
+            if isPortrait {
+                let container = UIStackView(arrangedSubviews: [titleLabel, subtitleLabel, imageView, descriptionLabel])
+                container.axis = .vertical
+                container.alignment = .center
+                container.spacing = 20
+                container.translatesAutoresizingMaskIntoConstraints = false
+                container.setCustomSpacing(80, after: subtitleLabel)
+                
+                page.addSubview(container)
+                
+                NSLayoutConstraint.activate([
+                    container.centerYAnchor.constraint(equalTo: page.centerYAnchor),
+                    container.leadingAnchor.constraint(equalTo: page.leadingAnchor, constant: 120),
+                    container.trailingAnchor.constraint(equalTo: page.trailingAnchor, constant: -120),
+                    
+                    imageView.widthAnchor.constraint(equalToConstant: 240),
+                    imageView.heightAnchor.constraint(equalToConstant: 240)
+                ])
+            } else {
+                page.addSubview(imageView)
+                page.addSubview(titleLabel)
+                page.addSubview(subtitleLabel)
+                page.addSubview(descriptionLabel)
+                
+                NSLayoutConstraint.activate([
+                    titleLabel.topAnchor.constraint(equalTo: page.topAnchor, constant: 60),
+                    titleLabel.leadingAnchor.constraint(equalTo: page.leadingAnchor, constant: 20),
+                    titleLabel.trailingAnchor.constraint(equalTo: page.trailingAnchor, constant: -20),
+                    
+                    subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
+                    subtitleLabel.leadingAnchor.constraint(equalTo: page.leadingAnchor, constant: 20),
+                    subtitleLabel.trailingAnchor.constraint(equalTo: page.trailingAnchor, constant: -20),
+                    
+                    imageView.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 40),
+                    imageView.centerXAnchor.constraint(equalTo: page.centerXAnchor),
+                    imageView.widthAnchor.constraint(equalToConstant: 240),
+                    imageView.heightAnchor.constraint(equalToConstant: 240),
+                    
+                    descriptionLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20),
+                    descriptionLabel.leadingAnchor.constraint(equalTo: page.leadingAnchor, constant: 20),
+                    descriptionLabel.trailingAnchor.constraint(equalTo: page.trailingAnchor, constant: -20)
+                ])
+            }
+        // 아이폰 제약
         } else {
             titleLabel.textAlignment = .left
             subtitleLabel.textAlignment = .left
             descriptionLabel.textAlignment = .center
+            descriptionLabel.font = .preferredFont(forTextStyle: .caption1)
+            titleLabel.font = UIFont.systemFont(ofSize: 36, weight: .black)
+            
+            page.addSubview(imageView)
+            page.addSubview(titleLabel)
+            page.addSubview(subtitleLabel)
+            page.addSubview(descriptionLabel)
+            
+            NSLayoutConstraint.activate([
+                titleLabel.topAnchor.constraint(equalTo: page.topAnchor, constant: 60),
+                titleLabel.leadingAnchor.constraint(equalTo: page.leadingAnchor, constant: 20),
+                titleLabel.trailingAnchor.constraint(equalTo: page.trailingAnchor, constant: -20),
+                
+                subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
+                subtitleLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+                subtitleLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
+                
+                imageView.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 40),
+                imageView.centerXAnchor.constraint(equalTo: page.centerXAnchor),
+                imageView.widthAnchor.constraint(equalToConstant: 240),
+                imageView.heightAnchor.constraint(equalToConstant: 240),
+                
+                descriptionLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20),
+                descriptionLabel.leadingAnchor.constraint(equalTo: page.leadingAnchor, constant: 20),
+                descriptionLabel.trailingAnchor.constraint(equalTo: page.trailingAnchor, constant: -20)
+            ])
         }
-        
-        // Title Font
-        let titleFont: UIFont = isIpad
-        ? UIFont.systemFont(ofSize: 50, weight: .black)
-        : UIFont.systemFont(ofSize: 36, weight: .black)
-        titleLabel.font = titleFont
-        
-        NSLayoutConstraint.activate([
-            // 타이틀 → 부제목 → 이미지 → 설명 순서
-            titleLabel.topAnchor.constraint(equalTo: page.topAnchor, constant: 60),
-            titleLabel.leadingAnchor.constraint(equalTo: page.leadingAnchor, constant: 20),
-            titleLabel.trailingAnchor.constraint(equalTo: page.trailingAnchor, constant: -20),
-            
-            subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
-            subtitleLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
-            subtitleLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
-            
-            imageView.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 40),
-            imageView.centerXAnchor.constraint(equalTo: page.centerXAnchor),
-            imageView.widthAnchor.constraint(equalToConstant: 240),
-            imageView.heightAnchor.constraint(equalToConstant: 240),
-            
-            descriptionLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20),
-            descriptionLabel.leadingAnchor.constraint(equalTo: page.leadingAnchor, constant: 20),
-            descriptionLabel.trailingAnchor.constraint(equalTo: page.trailingAnchor, constant: -20)
-        ])
     }
     
     private func setupPageControl() {
@@ -238,8 +287,7 @@ class OnboardingViewController: CoreGradientViewController, UIScrollViewDelegate
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         
-        let isIpad = traitCollection.horizontalSizeClass == .regular &&
-        traitCollection.verticalSizeClass == .regular
+        let isIpad = traitCollection.userInterfaceIdiom == .pad
         
         if isIpad {
             continueButtonLeading?.isActive = false
@@ -263,6 +311,7 @@ class OnboardingViewController: CoreGradientViewController, UIScrollViewDelegate
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         let page = currentPage
         coordinator.animate(alongsideTransition: { _ in
+            self.reconfigurePages()
             self.scrollView.layoutIfNeeded()
             let offsetX = CGFloat(page) * size.width
             self.scrollView.setContentOffset(CGPoint(x: offsetX, y: 0), animated: false)
