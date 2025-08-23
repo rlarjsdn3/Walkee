@@ -100,13 +100,13 @@ class OnboardingViewController: CoreGradientViewController, UIScrollViewDelegate
                              imageName: "calandarIcon",
                              title: "캘린더",
                              subtitle: "목표 달성 현황 & 기록",
-                             description: "캘린더에서 일일 목표 달성 현황과 액티비티 링을 확인하고, 과거의 걸음과 보행 건강 데이터를 쉽게 돌아볼 수 있어요.")
+                             description: "캘린더에서 일일 목표 달성 현황과 액티비티 링을 확인하고, 달력에서 과거의 걸음과 보행 건강 데이터를 쉽게 돌아볼 수 있어요.")
         
         configureCentralPage(thirdPageView,
                              imageName: "chatbotIcon",
                              title: "맞춤케어",
                              subtitle: "개인화 코스 & 챗봇",
-                             description: "건강 앱 데이터 기반 사용자에게 난이도별로 맞춤 코스 추천과 분석은 물론, 걷기·러닝에 특화된 챗봇과 함께 건강한 습관을 만들어보세요!")
+                             description: "건강 앱 데이터 기반 사용자에게 난이도별 맞춤 걸음코스 추천과 분석은 물론, 걷기·러닝에 특화된 챗봇과 함께 건강한 습관을 만들어보세요!")
     }
     
     private func configureCentralPage(_ page: UIView,
@@ -153,7 +153,7 @@ class OnboardingViewController: CoreGradientViewController, UIScrollViewDelegate
                 let container = UIStackView(arrangedSubviews: [titleLabel, subtitleLabel, imageView, descriptionLabel])
                 container.axis = .vertical
                 container.alignment = .center
-                container.spacing = 20
+                container.spacing = 4
                 container.translatesAutoresizingMaskIntoConstraints = false
                 
                 page.addSubview(container)
@@ -174,21 +174,21 @@ class OnboardingViewController: CoreGradientViewController, UIScrollViewDelegate
                 
                 NSLayoutConstraint.activate([
                     titleLabel.topAnchor.constraint(equalTo: page.topAnchor, constant: 60),
-                    titleLabel.leadingAnchor.constraint(equalTo: page.leadingAnchor, constant: 20),
-                    titleLabel.trailingAnchor.constraint(equalTo: page.trailingAnchor, constant: -20),
+                    titleLabel.leadingAnchor.constraint(equalTo: page.leadingAnchor, constant: 12),
+                    titleLabel.trailingAnchor.constraint(equalTo: page.trailingAnchor, constant: -12),
                     
                     subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
-                    subtitleLabel.leadingAnchor.constraint(equalTo: page.leadingAnchor, constant: 20),
-                    subtitleLabel.trailingAnchor.constraint(equalTo: page.trailingAnchor, constant: -20),
+                    subtitleLabel.leadingAnchor.constraint(equalTo: page.leadingAnchor, constant: 12),
+                    subtitleLabel.trailingAnchor.constraint(equalTo: page.trailingAnchor, constant: -12),
                     
                     imageView.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 40),
                     imageView.centerXAnchor.constraint(equalTo: page.centerXAnchor),
                     imageView.widthAnchor.constraint(equalToConstant: 240),
                     imageView.heightAnchor.constraint(equalToConstant: 240),
                     
-                    descriptionLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20),
-                    descriptionLabel.leadingAnchor.constraint(equalTo: page.leadingAnchor, constant: 20),
-                    descriptionLabel.trailingAnchor.constraint(equalTo: page.trailingAnchor, constant: -20)
+                    descriptionLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 12),
+                    descriptionLabel.leadingAnchor.constraint(equalTo: page.leadingAnchor, constant: 12),
+                    descriptionLabel.trailingAnchor.constraint(equalTo: page.trailingAnchor, constant: -12)
                 ])
             }
         // 아이폰 제약
