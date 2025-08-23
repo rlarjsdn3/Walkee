@@ -69,7 +69,7 @@ private extension CalendarViewController {
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(reloadCalendar),
-            name: .stepDataDidSync,
+            name: .didSyncStepData,
             object: nil
         )
     }

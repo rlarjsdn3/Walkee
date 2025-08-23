@@ -11,7 +11,13 @@ extension Notification.Name {
 
     /// 프로필 화면에서 `목표 걸음 수` 데이터가 갱신되었음을 알리는 알림 이름입니다.
     static let didUpdateGoalStepCount = Notification.Name("didUpdateGoalStepCount")
-    
+
+    /// 걸음 수 데이터 동기화가 완료되었을 때 발송되는 알림
+    ///
+    /// 이 알림은 `DefaultStepSyncService.syncSteps()` 메서드가 성공적으로 완료된 후
+    /// 메인 스레드에서 발송됩니다. UI를 업데이트하거나 추가 작업을 트리거하는 데 사용할 수 있습니다.
+    static let didSyncStepData = Notification.Name("didSyncStepData")
+
     /// HealthKit 권한 상태가 변경되었음을 알리는 알림 이름입니다.
     ///
     /// `userInfo[.status]` 값이 `true`라면 필요한 데이터 읽기가 하나라도 허용된 상태를 의미합니다.
