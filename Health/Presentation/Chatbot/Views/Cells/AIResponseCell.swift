@@ -23,6 +23,8 @@ class AIResponseCell: CoreTableViewCell {
 	@MainActor var onContentGrew: (() -> Void)?          // 높이 증가 알림용
 	// MARK: KVO
 	private var contentSizeObs: NSKeyValueObservation?
+	private var chunkQueue: [NSAttributedString] = []
+	private var plainBuffer: String = ""
 	
 	override func setupAttribute() {
 		super.setupAttribute()
@@ -49,6 +51,19 @@ class AIResponseCell: CoreTableViewCell {
 		responseTextView.setContentHuggingPriority(.defaultLow, for: .vertical)
 		responseTextView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
 		responseTextView.setContentHuggingPriority(.defaultLow, for: .horizontal)
+		
+		responseTextView.dataDetectorTypes = []
+		responseTextView.isUserInteractionEnabled = true
+		responseTextView.isSelectable = true
+		
+		let accentColor = UIColor.accent // .accent 컬러 사용
+		let linkFont = UIFont.boldSystemFont(ofSize: UIFont.preferredFont(forTextStyle: .body).pointSize)
+		
+		responseTextView.linkTextAttributes = [
+			.foregroundColor: accentColor, // 링크 색상을 accentColor로 설정
+			.font: linkFont, // 링크 폰트를 볼드로 설정
+			.underlineStyle: NSUnderlineStyle.single.rawValue // 필요하다면 밑줄 유지 (제거하려면 .none으로 변경)
+		]
 	}
 	
 	override func setupConstraints() {
@@ -68,9 +83,7 @@ class AIResponseCell: CoreTableViewCell {
 		super.traitCollectionDidChange(previous)
 		// 회전/다이내믹 타입 변경 시 최대 너비 재계산
 		setupWidthConstraints()
-		Task { @MainActor [weak self] in
-			self?.onContentGrew?()
-		}
+		Task { @MainActor [weak self] in self?.onContentGrew?() }
 	}
 
 	override func prepareForReuse() {
@@ -78,52 +91,77 @@ class AIResponseCell: CoreTableViewCell {
 		// 이전 작업 마무리
 		typeTask?.cancel()
 		typeTask = nil
-		charQueue.removeAll(keepingCapacity: false)
+		//charQueue.removeAll(keepingCapacity: false)
+		chunkQueue.removeAll()
 		typewriterEnabled = false
 		
 		// KVO 해제
 		contentSizeObs?.invalidate()
 		contentSizeObs = nil
 		
-		responseTextView.text = nil
+		//responseTextView.text = nil
+		responseTextView.attributedText = nil
+		plainBuffer = ""
 	}
 	
 	private func setupWidthConstraints() {
 		// 디바이스별 최대 너비 설정
 		let maxTextWidth = ChatbotWidthCalculator.maxContentWidth(for: .aiResponseText)
-		
 		// Width 제약을 lessThanOrEqualTo로 설정 (고정값 아님)
 		textViewWidthConstraint.constant = maxTextWidth
-		
 		// Trailing 제약 우선순위 낮게 설정
 		textViewTrailingConstraint.priority = UILayoutPriority(750)
 	}
-
+	
+	// MARK: - Public API (컨트롤러가 호출)
+	
+	/// 컨트롤러는 기존처럼 호출
+	/// - during streaming: 셀 재사용 초기 바인딩 시, 비어 있으면 seed만 함(덮어씌우지 않음)
+	/// - on complete: 동일 API로 호출되더라도 내부에서 "최종 렌더링"으로 교체
 	func configure(with text: String) {
-		if responseTextView.text == text {
-			responseTextView.invalidateIntrinsicContentSize()
-			setNeedsLayout()
-			onContentGrew?()          // 테이블 begin/endUpdates 트리거
+		configure(with: text, isFinal: true) // 완료시 경로. (cellForRow 초기 진입에도 안전함)
+	}
+	
+	/// 필요시 명시적으로 스트리밍 중 초기 seed만 하고 싶다면 isFinal=false로도 호출 가능(컨트롤러 수정 불필요)
+	func configure(with text: String, isFinal: Bool) {
+		// 이미 같은 버퍼면 레이아웃만 틱
+		if plainBuffer == text {
+			relayoutAfterUpdate()
 			return
 		}
 		
-		responseTextView.text = text
-		
-		responseTextView.invalidateIntrinsicContentSize()
-		setNeedsLayout()
-		// 다음 런루프에 contentSize가 업데이트된 뒤 테이블 갱신
-		Task { @MainActor [weak self] in
-			self?.onContentGrew?()
+		// 스트리밍 중 초기 셀 바인딩(예: cellForRow에서 공백 -> 현재 누적 텍스트)
+		if !isFinal {
+			// 초기 진입에서만 seed: 이미 렌더된 내용이 있으면 건드리지 않음
+			if (responseTextView.attributedText?.length ?? 0) == 0 {
+				plainBuffer = text
+				let seeded = ChatMarkdownRenderer.renderChunk(text, trait: traitCollection)
+				responseTextView.attributedText = seeded
+				relayoutAfterUpdate()
+			} else {
+				// 이미 appendText로 실시간 갱신 중이면 무시
+			}
+			return
 		}
+		
+		// 최종 렌더링(complete 시점, 또는 표준 configure 경로)
+		plainBuffer = text
+		let rendered = ChatMarkdownRenderer.renderFinalMarkdown(text, trait: traitCollection)
+		responseTextView.attributedText = rendered
+		relayoutAfterUpdate()
 	}
-	
+
 	// 스트리밍 "조각"이 올 때 호출 — 타자기 모드면 글자 단위로, 아니면 즉시 추가
 	func appendText(_ piece: String) {
 		guard piece.isEmpty == false else { return }
+		plainBuffer.append(piece)
+		
+		let chunkAttr = ChatMarkdownRenderer.renderChunk(piece, trait: traitCollection)
+		
 		if typewriterEnabled {
-			enqueueTypewriter(piece)
+			enqueueChunkForTypewriter(chunkAttr)
 		} else {
-			appendImmediate(piece)
+			appendAttributedImmediately(chunkAttr)
 		}
 	}
 	
@@ -135,14 +173,66 @@ class AIResponseCell: CoreTableViewCell {
 			typeTask?.cancel()
 			typeTask = nil
 			// 2) 남은 큐를 즉시 붙여서 절대 유실되지 않게
-			if charQueue.isEmpty == false {
-				let remaining = charQueue.joined()
-				charQueue.removeAll(keepingCapacity: false)
-				appendImmediate(remaining)
+			if !chunkQueue.isEmpty {
+				let merged = NSMutableAttributedString()
+				chunkQueue.forEach { merged.append($0) }
+				chunkQueue.removeAll()
+				appendAttributedImmediately(merged)
 			}
 		}
 	}
-
+	
+	// MARK: - Markdown 처리
+	// MARK: - 내부 구현
+	private func appendAttributedImmediately(_ piece: NSAttributedString) {
+		let current = NSMutableAttributedString(attributedString: responseTextView.attributedText ?? NSAttributedString())
+		current.append(piece)
+		responseTextView.attributedText = current
+		relayoutAfterUpdate()
+	}
+	
+	private func enqueueChunkForTypewriter(_ piece: NSAttributedString) {
+		// 청크를 글자 단위로 나누되, 속성 유지를 위해 NSAttributedString 분해
+		chunkQueue.append(piece)
+		guard typeTask == nil else { return }
+		
+		typeTask = Task { [weak self] in
+			guard let self else { return }
+			while !Task.isCancelled {
+				if self.chunkQueue.isEmpty {
+					break
+				}
+				// 큐에서 하나 꺼내 문자 단위로 append
+				let next = self.chunkQueue.removeFirst()
+				self.typewriterAppend(next)
+				try? await Task.sleep(nanoseconds: self.charDelayNanos)
+			}
+			await MainActor.run { self.typeTask = nil }
+		}
+	}
+	
+	@MainActor
+	private func typewriterAppend(_ attr: NSAttributedString) {
+		// 문자(유니코드 스칼라) 단위로 순차 추가
+		attr.enumerateAttributes(in: NSRange(location: 0, length: attr.length), options: []) { attrs, range, _ in
+			let substring = (attr.string as NSString).substring(with: range)
+			for scalar in substring.unicodeScalars {
+				let s = String(scalar)
+				let ns = NSAttributedString(string: s, attributes: attrs)
+				appendAttributedImmediately(ns)
+			}
+		}
+	}
+	
+	private func relayoutAfterUpdate() {
+		responseTextView.invalidateIntrinsicContentSize()
+		responseTextView.layoutManager.allowsNonContiguousLayout = false
+		responseTextView.setNeedsLayout()
+		responseTextView.layoutIfNeeded()
+		
+		Task { @MainActor [weak self] in self?.onContentGrew?() }
+	}
+	
 	// MARK: - 타자기 구현
 	private func appendImmediate(_ piece: String) {
 		let currentText = responseTextView.text ?? ""

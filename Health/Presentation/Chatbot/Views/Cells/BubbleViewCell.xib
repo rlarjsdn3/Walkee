@@ -23,11 +23,10 @@
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="252" verticalCompressionResistancePriority="1000" text="Label" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="z0W-Mf-eny">
                                 <rect key="frame" x="16" y="12" width="172" height="60"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
-                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
-                        <color key="backgroundColor" name="appChatBotBubbleColor"/>
+                        <color key="backgroundColor" name="boxBgColor"/>
                         <constraints>
                             <constraint firstAttribute="bottom" secondItem="z0W-Mf-eny" secondAttribute="bottom" constant="12" id="5I8-Ef-CcY"/>
                             <constraint firstAttribute="height" relation="greaterThanOrEqual" priority="999" constant="44" id="5R5-06-dY1"/>
@@ -63,8 +62,8 @@
         </tableViewCell>
     </objects>
     <resources>
-        <namedColor name="appChatBotBubbleColor">
-            <color red="0.19215686274509805" green="0.19607843137254902" blue="0.25490196078431371" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        <namedColor name="boxBgColor">
+            <color red="0.95294117647058818" green="0.95294117647058818" blue="0.95294117647058818" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
     </resources>
 </document>

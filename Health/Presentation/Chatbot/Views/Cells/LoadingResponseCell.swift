@@ -102,7 +102,6 @@ final class LoadingResponseCell: CoreTableViewCell {
 	override func setupAttribute() {
 		super.setupAttribute()
 		selectionStyle = .none
-		//messageLabel.backgroundColor = UIColor.systemYellow.withAlphaComponent(0.1)
 		backgroundColor = .clear
 		contentView.backgroundColor = .clear
 		isAccessibilityElement = true
