@@ -19,10 +19,10 @@ class InputAgeViewController: CoreGradientViewController {
     @IBOutlet weak var continueButtonBottomConstraint: NSLayoutConstraint!
     
     @IBOutlet weak var descriptionLabelTopConst: NSLayoutConstraint!
-    
     @IBOutlet weak var ageInputFieldCenterY: NSLayoutConstraint!
+    
     private var originalCenterY: CGFloat = 0
-    private var originalDescriptionTop: CGFloat = 0   
+    private var originalDescriptionTop: CGFloat = 0
     
     private var iPadWidthConstraint: NSLayoutConstraint?
     private var iPadCenterXConstraint: NSLayoutConstraint?
@@ -34,36 +34,9 @@ class InputAgeViewController: CoreGradientViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        var config = UIButton.Configuration.filled()
-        config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
-            var out = incoming
-            out.font = UIFont.preferredFont(forTextStyle: .headline)
-            return out
-        }
-        config.baseBackgroundColor = .accent
-        config.baseForegroundColor = .systemBackground
-        var container = AttributeContainer()
-        container.font = UIFont.preferredFont(forTextStyle: .headline)
-        config.attributedTitle = AttributedString("다음", attributes: container)
-            
-        continueButton.configurationUpdateHandler = { [weak self] button in
-            switch button.state
-            {
-            case .highlighted:
-                self?.continueButton.alpha = 0.75
-            default: self?.continueButton.alpha = 1.0
-            }
-        }
-        
-        continueButton.configuration = config
-        applyBackgroundGradient(.midnightBlack)
-        
-        ageInputField.delegate = self
-        ageInputField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
-        
-        errorLabel.isHidden = true
-        errorLabel.textColor = .red
-        continueButton.applyCornerStyle(.medium)
+        setupContinueButton()
+        setupTextField()
+        setupUIValues()
         
         originalCenterY = ageInputFieldCenterY.constant
         originalDescriptionTop = descriptionLabelTopConst.constant
@@ -91,6 +64,42 @@ class InputAgeViewController: CoreGradientViewController {
         updateDescriptionTopConstraint()
     }
     
+    private func setupContinueButton() {
+        applyBackgroundGradient(.midnightBlack)
+        
+        var config = UIButton.Configuration.filled()
+        config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+            var out = incoming
+            out.font = UIFont.preferredFont(forTextStyle: .headline)
+            return out
+        }
+        config.baseBackgroundColor = .accent
+        config.baseForegroundColor = .systemBackground
+        var container = AttributeContainer()
+        container.font = UIFont.preferredFont(forTextStyle: .headline)
+        config.attributedTitle = AttributedString("다음", attributes: container)
+        
+        continueButton.configurationUpdateHandler = { [weak self] button in
+            self?.continueButton.alpha = (button.state == .highlighted) ? 0.75 : 1.0
+        }
+        
+        continueButton.configuration = config
+        continueButton.applyCornerStyle(.medium)
+    }
+    
+    private func setupTextField() {
+        ageInputField.delegate = self
+        ageInputField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        
+        errorLabel.isHidden = true
+        errorLabel.textColor = .red
+    }
+    
+    private func setupUIValues() {
+        originalCenterY = ageInputFieldCenterY.constant
+        originalDescriptionTop = descriptionLabelTopConst.constant
+    }
+    
     private func updateContinueButtonConstraints() {
         let isIpad = traitCollection.horizontalSizeClass == .regular &&
                      traitCollection.verticalSizeClass == .regular
@@ -110,7 +119,6 @@ class InputAgeViewController: CoreGradientViewController {
             if let iPadWidthConstraint = iPadWidthConstraint, iPadWidthConstraint.isActive {
                 iPadWidthConstraint.isActive = false
                 iPadCenterXConstraint?.isActive = false
-                
                 continueButtonLeading.isActive = true
                 continueButtonTrailing.isActive = true
             }
@@ -119,13 +127,9 @@ class InputAgeViewController: CoreGradientViewController {
    
     private func updateDescriptionTopConstraint() {
         let isLandscape = view.bounds.width > view.bounds.height
-        if isLandscape {
-            descriptionLabelTopConst.constant = originalDescriptionTop * 0.3
-        } else {
-            descriptionLabelTopConst.constant = originalDescriptionTop * 1.2
-        }
+        descriptionLabelTopConst.constant = isLandscape ? originalDescriptionTop * 0.3 : originalDescriptionTop * 1.2
     }
-
+    
     private func registerForKeyboardNotifications() {
         NotificationCenter.default.addObserver(
             self,
@@ -156,9 +160,7 @@ class InputAgeViewController: CoreGradientViewController {
         
         continueButtonBottomConstraint.constant = -(keyboardFrame.height + keyboardButtonPadding)
         
-        UIView.animate(withDuration: duration) {
-            self.view.layoutIfNeeded()
-        }
+        UIView.animate(withDuration: duration) { self.view.layoutIfNeeded() }
     }
     
     @objc private func keyboardWillHide(_ notification: Notification) {
@@ -167,9 +169,7 @@ class InputAgeViewController: CoreGradientViewController {
         ageInputFieldCenterY.constant = originalCenterY
         continueButtonBottomConstraint.constant = 0
         
-        UIView.animate(withDuration: duration) {
-            self.view.layoutIfNeeded()
-        }
+        UIView.animate(withDuration: duration) { self.view.layoutIfNeeded() }
     }
 
     private func setupTapGestureToDismissKeyboard() {
@@ -188,11 +188,16 @@ class InputAgeViewController: CoreGradientViewController {
     
     @IBAction func continueButtonTapped(_ sender: UIButton) {
         guard continueButton.isEnabled else { return }
-        guard let text = ageInputField.text, let year = Int16(text) else { return }
+        guard let text = ageInputField.text, let birthYear = Int16(text) else { return }
         
-        userInfo?.age = year
+        // 현재 연도에서 계산하여 age 저장
+        let currentYear = Calendar.current.component(.year, from: Date())
+        let age = Int16(currentYear - Int(birthYear))
+        userInfo?.age = age
+        
         do {
             try context.save()
+            print("💾 저장된 나이: \(userInfo?.age ?? 0)") // 저장된 값 출력
             performSegue(withIdentifier: "goToWeightInfo", sender: nil)
         } catch {
             print("Failed to save user info: \(error)")
@@ -213,7 +218,7 @@ class InputAgeViewController: CoreGradientViewController {
 
         if text.count == 1, text.hasPrefix("0") {
             disableContinueButton()
-          ageInputField.text = ""
+            ageInputField.text = ""
             return
         }
         
@@ -222,7 +227,6 @@ class InputAgeViewController: CoreGradientViewController {
             case 1,2,3:
                 disableContinueButton()
                 hideError()
-                
             case 4:
                 if (1900...2025).contains(year) {
                     enableContinueButton()
@@ -231,7 +235,6 @@ class InputAgeViewController: CoreGradientViewController {
                     disableContinueButton()
                     showError()
                 }
-                
             default:
                 disableContinueButton()
                 showError()
@@ -271,7 +274,9 @@ class InputAgeViewController: CoreGradientViewController {
             if let first = results.first {
                 self.userInfo = first
                 if first.age != 0 {
-                    ageInputField.text = String(first.age)
+                    let currentYear = Calendar.current.component(.year, from: Date())
+                    let birthYear = currentYear - Int(first.age)
+                    ageInputField.text = String(birthYear)
                     validateInput()
                 }
             } else {
