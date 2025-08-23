@@ -94,6 +94,13 @@ final class DashboardViewController: HealthNavigationController, Alertable {
             name: .didUpdateGoalStepCount,
             object: nil
         )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(refreshHKData),
+            name: .didChangeHKSharingAuthorizationStatus,
+            object: nil
+        )
     }
 
     @objc private func refreshHKData() {
