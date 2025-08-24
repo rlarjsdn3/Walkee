@@ -65,7 +65,7 @@ class RecommendPlaceCell: CoreCollectionViewCell {
         distanceLabel.text = "\(course.crsDstnc)km"
         durationLabel.text = course.crsTotlRqrmHour.toFormattedDuration()
         // 난이도 텍스트와 이미지 색상 동시 설정
-        let levelInfo = getLevelText(from: course.crsLevel)
+        let levelInfo = getLevelInfo(from: course.crsLevel)
         levelLabel.text = levelInfo.text
         levelImage.tintColor = levelInfo.color
 
@@ -112,7 +112,7 @@ class RecommendPlaceCell: CoreCollectionViewCell {
     }
 
     // 난이도 변환 함수
-    func getLevelText(from level: String) -> (text: String, color: UIColor) {
+    func getLevelInfo(from level: String) -> (text: String, color: UIColor) {
         switch level {
         case "1":
             return ("쉬움", .systemYellow) // 쉬움: 노란색
