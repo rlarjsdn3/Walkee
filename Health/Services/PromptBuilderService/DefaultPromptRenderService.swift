@@ -32,7 +32,7 @@ final class DefaultPromptRenderService: PromptRenderService {
 
         [사용자 정보]
         - 성별: \(context.descriptor.gender)
-        - 생년월일: \(context.descriptor.obfuscatedAge)
+        - 나이: \(context.descriptor.obfuscatedAge)
         - 체중: \(context.descriptor.obfuscatedWeight)
         - 신장: \(context.descriptor.obfuscatedHeight)
         - 질병: \(context.descriptor.diseases?.description ?? "정보 없음")
