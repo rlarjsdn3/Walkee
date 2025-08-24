@@ -23,9 +23,10 @@ class RecommendPlaceCell: CoreCollectionViewCell {
     @IBOutlet weak var durationLabel: UILabel!
     @IBOutlet weak var userDistanceLabel: UILabel!
     @IBOutlet weak var levelLabel: UILabel!
-
+    @IBOutlet weak var levelImage: UIImageView!
     @IBOutlet weak var infoButton: InfoDetailButton!
     @IBOutlet weak var userBackgroundView: UIView!
+
     private var currentGPXURL: String?
     private var thumbnailTask: Task<Void, Never>?
     weak var delegate: RecommendPlaceCellDelegate?
@@ -47,9 +48,8 @@ class RecommendPlaceCell: CoreCollectionViewCell {
 
     override func prepareForReuse() {
         super.prepareForReuse()
-        courseImage.image = nil
         currentGPXURL = nil
-        delegate = nil          // 추가
+        delegate = nil
         currentCourse = nil
 
         //이전 Task 취소 (메모리 누수 방지)
@@ -64,7 +64,19 @@ class RecommendPlaceCell: CoreCollectionViewCell {
         locationLabel.text = course.sigun
         distanceLabel.text = "\(course.crsDstnc)km"
         durationLabel.text = course.crsTotlRqrmHour.toFormattedDuration()
-        levelLabel.text = getLevelText(from: course.crsLevel)
+        // 난이도 텍스트와 이미지 색상 동시 설정
+        let levelInfo = getLevelText(from: course.crsLevel)
+        levelLabel.text = levelInfo.text
+        levelImage.tintColor = levelInfo.color
+
+        currentGPXURL = course.gpxpath
+        thumbnailTask?.cancel()
+
+        // 캐시 먼저 확인
+        if let cachedImage = WalkingCourseService.shared.getCachedThumbnail(for: course.gpxpath) {
+            courseImage.image = cachedImage
+            return
+        }
 
         // 기본 로딩 상태
         courseImage.image = UIImage(systemName: "map")
@@ -100,17 +112,16 @@ class RecommendPlaceCell: CoreCollectionViewCell {
     }
 
     // 난이도 변환 함수
-    func getLevelText(from level: String) -> String {
-
+    func getLevelText(from level: String) -> (text: String, color: UIColor) {
         switch level {
         case "1":
-            return "쉬움"
+            return ("쉬움", .systemYellow) // 쉬움: 노란색
         case "2":
-            return "보통"
+            return ("보통", .systemOrange) // 보통: 주황색
         case "3":
-            return "어려움"
+            return ("어려움", .systemRed)   // 어려움: 빨간색
         default:
-            return "알 수 없음"
+            return ("알 수 없음", .systemGray) // 그 외: 회색
         }
     }
 
@@ -123,7 +134,7 @@ class RecommendPlaceCell: CoreCollectionViewCell {
         // 기존 configuration을 가져와서 색상만 변경
         if var config = infoButton.configuration {
             config.image = UIImage(systemName: "info.circle.fill")?
-                .applyingSymbolConfiguration(.init(paletteColors: [.info]))
+                .applyingSymbolConfiguration(.init(paletteColors: [.darkGray]))
             infoButton.configuration = config
         }
     }

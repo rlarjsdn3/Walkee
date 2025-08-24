@@ -207,6 +207,7 @@
                 <outlet property="distanceLabel" destination="vqH-Y3-HTf" id="vjo-hp-8CX"/>
                 <outlet property="durationLabel" destination="K1g-4l-9EY" id="SkA-ay-F5b"/>
                 <outlet property="infoButton" destination="CzL-G7-iQS" id="hPU-0h-Ug7"/>
+                <outlet property="levelImage" destination="9gA-Ma-LIY" id="bfy-ET-KaD"/>
                 <outlet property="levelLabel" destination="aR8-eQ-5SL" id="0V2-1w-JnX"/>
                 <outlet property="locationLabel" destination="59X-R2-pzI" id="UB4-kN-TL0"/>
                 <outlet property="placeBackground" destination="MzM-wC-y0u" id="1MY-1d-4vM"/>
