@@ -55,7 +55,7 @@ final class ForegroundMotionAggregator {
 		}
 	}
 
-	/// 전경 이탈/일시정지 시 호출
+	/// 포어그라운드 이탈 / 일시정지 시 호출
 	func stop() {
 		guard isRunning else { return }
 		pedometer.stopUpdates()
@@ -63,7 +63,7 @@ final class ForegroundMotionAggregator {
 		accumulatedSteps = 0
 	}
 
-	/// (선택) 백그라운드 HK 재계산 이후, 새 HK 스냅샷을 받아 베이스를 갈아끼울 때 사용
+	/// (옵션) 백그라운드 HK 재계산 이후, 새 HK 스냅샷을 받아 베이스를 갈아끼울 때 사용
 	func resetBase(with todaySnapshot: HealthDashboardSnapshot) {
 		baseSnapshot = todaySnapshot
 		accumulatedSteps = 0

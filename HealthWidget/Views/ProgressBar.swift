@@ -1,3 +1,11 @@
+//
+//  ProgressBar.swift
+//  Health
+//
+//  Created by Seohyun Kim on 8/25/25.
+//
+import SwiftUI
+
 struct ProgressBar: View {
 	let progress: Double
 	let height: CGFloat
@@ -15,3 +23,17 @@ struct ProgressBar: View {
 		.frame(height: height)
 	}
 }
+
+#if DEBUG
+struct ProgressBar_Previews: PreviewProvider {
+	static var previews: some View {
+		VStack(spacing: 12) {
+			ProgressBar(progress: 0.25, height: 8, fill: .accent)
+			ProgressBar(progress: 0.6, height: 10, fill: .teal)
+			ProgressBar(progress: 1.0, height: 12, fill: .green)
+		}
+		.padding()
+		.previewLayout(.sizeThatFits)
+	}
+}
+#endif

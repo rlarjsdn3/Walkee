@@ -32,7 +32,7 @@ struct AdaptiveMetrics {
 	var symbolSize: CGFloat       { clamp(W * 0.050, min: 14, max: 28) }
 	var iconTextSpacing: CGFloat  { clamp(W * 0.022, min: 6,  max: 14) }
 
-	// ✅ 행 간격 고정 10pt
+	// 행 간격 고정 10pt
 	var metricRowSpacing: CGFloat { 10 }  // 요구사항 고정값
 
 	// 좌측 열 폰트 — 값이 라벨보다 큼

@@ -49,7 +49,7 @@ extension HealthDashboardSnapshot {
 	var activeKcalText: String { activeKcal.formatted(.number) }
 }
 
-// 미리보기/대체 데이터
+// 미리보기 mock data / 값이 없을 때의 데이터
 extension HealthDashboardSnapshot {
 	static let empty = HealthDashboardSnapshot(
 		stepsToday: 0,

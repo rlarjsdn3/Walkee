@@ -8,5 +8,6 @@
 import Foundation
 
 enum WidgetIDs {
-	static let health = "HealthWidget"   // 위젯의 kind와 동일하게
+	// 위젯의 kind와 동일하게
+	static let health = "HealthWidget"
 }

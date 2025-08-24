@@ -488,18 +488,11 @@ extension DashboardViewModel {
         return response
     }
 }
-
+// MARK: - Widget과의 스냅샷 연동 관련 설정
 extension DashboardViewModel {
 	/// 위젯 스냅샷 생성 + 저장 + 리로드
 	func updateWidgetSnapshot() {
-		Task {
-			do {
-				let snap = try await DefaultDashboardSnapshotProvider().makeSnapshot(for: .now)
-				DashboardSnapshotStore.saveAndNotify(snap)
-			} catch {
-				print("Widget snapshot update failed:", error)
-			}
-		}
+		Task { await DashboardSnapshotStore.updateFromHealthKit() }
 	}
 }
 

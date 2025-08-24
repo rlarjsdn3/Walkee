@@ -21,7 +21,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene,
                willConnectTo session: UISceneSession,
                options connectionOptions: UIScene.ConnectionOptions) {
-        
+		print(SharedStore.suiteID)
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
         
@@ -37,25 +37,26 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     func sceneDidDisconnect(_ scene: UIScene) {
     }
-
+	
 	func sceneDidBecomeActive(_ scene: UIScene) {
+		// TODO: 이상 없으면 삭제할 로그 - 앱 그룹 각자 설정한 ID 잘 들어가있는 체크하기 위한 임시 용도
+		// App Group 컨테이너 확인
+		let id  = SharedStore.suiteID
+		let url = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: id)
+		print("📦 [APP] groupID=\(id), url=\(url?.path ?? "nil")")
+		
+		// 온보딩 이전엔 절대 HealthKit 권한 요청/접근 안 함
+		guard UserDefaultsWrapper.shared.hasSeenOnboarding else {
+			print("ℹ️ Onboarding not finished. Skip Health snapshot.")
+			return
+		}
+		
 		Task {
-			do {
-				// 1) 권한 보장 (없으면 요청)
-				if await !healthService.checkHasAnyReadPermission() {
-					let granted = try await healthService.requestAuthorization()
-					guard granted else {
-						print("🔴 Health permission not granted")
-						return
-					}
-				}
-				
-				// 2) 스냅샷 생성 → App Group 저장 → 위젯 리로드
-				let snap = try await DefaultDashboardSnapshotProvider().makeSnapshot(for: .now)
-				DashboardSnapshotStore.saveAndNotify(snap)
-				print("🟢 widget snapshot saved: steps=\(snap.stepsToday)")
-			} catch {
-				print("🔴 makeSnapshot error:", error)
+			if await healthService.checkHasAnyReadPermission() {
+				await DashboardSnapshotStore.updateFromHealthKit()
+				print("🟢 widget snapshot updated from HealthKit")
+			} else {
+				print("⚠️ Health permission not granted, skip snapshot")
 			}
 		}
 	}
@@ -65,18 +66,37 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 		motionAgg = nil
     }
 
-    func sceneWillEnterForeground(_ scene: UIScene) {
-        if UserDefaultsWrapper.shared.hasSeenOnboarding {
-            syncSteps()
-			Task {
-				do {
-					let snap = try await DefaultDashboardSnapshotProvider().makeSnapshot(for: .now)
-					DashboardSnapshotStore.saveAndNotify(snap)
-				} catch { /* log */ }
+	func sceneWillEnterForeground(_ scene: UIScene) {
+		Task { @MainActor in
+			// 마지막에 무조건 실행 (노티 전파는 연기) - 권한 관련 상태 갱신 위해서 있는 부분
+			defer { refreshHKSharingAuthorizationStatus() }
+			
+			if UserDefaultsWrapper.shared.hasSeenOnboarding {
+				syncSteps()
+				
+				if await healthService.checkHasAnyReadPermission() {
+					await DashboardSnapshotStore.updateFromHealthKit()
+					print("🟢 foreground snapshot updated")
+				} else {
+					print("⚠️ Health permission not granted (foreground), skip snapshot")
+				}
 			}
-        }
-        
-        refreshHKSharingAuthorizationStatus()
+		}
+		// TODO: 문제가 발생한 경우 기존 설정해뒀던 코드로 되돌리기 위한 임시 주석입니다.(이상이 없다면 바로 삭제 예정)
+//		if UserDefaultsWrapper.shared.hasSeenOnboarding {
+//			syncSteps()
+//			Task {
+//				if await healthService.checkHasAnyReadPermission() { // 상태 점검(팝업 없음)
+//					await DashboardSnapshotStore.updateFromHealthKit()
+//					print("🟢 foreground snapshot updated")
+//				} else {
+//					print("⚠️ Health permission not granted (foreground), skip snapshot")
+//				}
+//			}
+//		}
+//		
+//        refreshHKSharingAuthorizationStatus()
+		
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {

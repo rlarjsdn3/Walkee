@@ -32,6 +32,7 @@ struct HealthDashboardMediumView: View {
 	@State private var weeklyTrailing: CGFloat = 0
 	@State private var containerTrailing: CGFloat = 0
 	@State private var rightTrailing: CGFloat = 16
+	
 	private var progress: Double {
 		guard snapShot.goalSteps > 0 else { return 0 }
 		return min(1, max(0, Double(snapShot.stepsToday) / Double(snapShot.goalSteps)))
@@ -39,35 +40,35 @@ struct HealthDashboardMediumView: View {
 
 	var body: some View {
 		GeometryReader { geo in
-			let M = AdaptiveMetrics(size: geo.size)
+			let metric = AdaptiveMetrics(size: geo.size)
 
-			let contentW = geo.size.width - (M.outerPadding.leading + M.outerPadding.trailing)
+			let contentW = geo.size.width - (metric.outerPadding.leading + metric.outerPadding.trailing)
 			let leftWidth: CGFloat = max(0, contentW * 0.53)
-			let dividerW = M.dividerWidth
-			let spacing  = M.leftRightSpacing
+			let dividerW = metric.dividerWidth
+			let spacing  = metric.leftRightSpacing
 			let rightWidth: CGFloat = max(0, contentW - leftWidth - dividerW - spacing)
 
 			let gapTopToBar = min(max(geo.size.height * 0.085, 10), 16)
 
 			VStack(spacing: 0) {
-				HStack(alignment: .top, spacing: M.leftRightSpacing) {
+				HStack(alignment: .top, spacing: metric.leftRightSpacing) {
 
-					VStack(alignment: .leading, spacing: M.metricRowSpacing) {
-						metricRow(M: M, symbol: "figure.walk.circle.fill",
+					VStack(alignment: .leading, spacing: metric.metricRowSpacing) {
+						metricRow(M: metric, symbol: "figure.walk.circle.fill",
 								  title: "거리", valueText: snapShot.distanceText, unit: "km")
-						metricRow(M: M, symbol: "timer.circle.fill",
+						metricRow(M: metric, symbol: "timer.circle.fill",
 								  title: "운동 시간", valueText: snapShot.exerciseMinuteText, unit: "분")
-						metricRow(M: M, symbol: "flame.circle.fill",
+						metricRow(M: metric, symbol: "flame.circle.fill",
 								  title: "활동 에너지", valueText: snapShot.activeKcalText, unit: "kcal")
 					}
 					.frame(width: leftWidth, alignment: .leading)
 
 					Rectangle()
 						.fill(Color.secondary.opacity(0.6))
-						.frame(width: dividerW, height: M.dividerHeight)
+						.frame(width: dividerW, height: metric.dividerHeight)
 
 					ZStack {
-						rightContent(metric: M, snapShot: snapShot)
+						rightContent(metric: metric, snapShot: snapShot)
 							.fixedSize(horizontal: true, vertical: true)
 							.background(
 								GeometryReader { g in
@@ -81,14 +82,14 @@ struct HealthDashboardMediumView: View {
 
 				Spacer(minLength: gapTopToBar)
 
-				ProgressBar(progress: progress, height: M.progressHeight, fill: .accent)
+				ProgressBar(progress: progress, height: metric.progressHeight, fill: .accent)
 					.padding(.trailing, rightTrailing)
 
-				Spacer(minLength: M.progressToBottomLabelGap)
+				Spacer(minLength: metric.progressToBottomLabelGap)
 
 				HStack {
 					Text("목표 걸음 수")
-						.font(.system(size: M.goalLabelSize, weight: .heavy))
+						.font(.system(size: metric.goalLabelSize, weight: .heavy))
 						.foregroundStyle(.primary)
 						.lineLimit(1)
 						.minimumScaleFactor(0.9)
@@ -97,16 +98,16 @@ struct HealthDashboardMediumView: View {
 
 					(
 						Text(snapShot.stepsTodayText)
-							.font(.system(size: M.goalStatSize, weight: .semibold))
+							.font(.system(size: metric.goalStatSize, weight: .semibold))
 							.monospacedDigit()
 							.foregroundStyle(.secondary)
 						+
 						Text(" / ")
-							.font(.system(size: M.goalStatSize))
+							.font(.system(size: metric.goalStatSize))
 							.foregroundStyle(.secondary)
 						+
 						Text(snapShot.goalStepsText)
-							.font(.system(size: M.goalStatSize, weight: .heavy))
+							.font(.system(size: metric.goalStatSize, weight: .heavy))
 							.monospacedDigit()
 							.foregroundStyle(.teal)
 					)
@@ -116,7 +117,7 @@ struct HealthDashboardMediumView: View {
 				}
 				.padding(.trailing, rightTrailing)
 			}
-			.padding(M.outerPadding)
+			.padding(metric.outerPadding)
 			.frame(maxWidth: .infinity, maxHeight: .infinity)
 			.background(
 				GeometryReader { geo in
@@ -125,7 +126,7 @@ struct HealthDashboardMediumView: View {
 							containerTrailing = geo.frame(in: .global).maxX
 						}
 						.onChange(of: weeklyTrailing) { oldValue, newValue in
-							rightTrailing = max(0, containerTrailing - weeklyTrailing - M.outerPadding.trailing)
+							rightTrailing = max(0, containerTrailing - weeklyTrailing - metric.outerPadding.trailing)
 						}
 				}
 			)
@@ -221,20 +222,3 @@ struct HealthDashboardMediumView: View {
 	}
 }
 
-private struct ProgressBar: View {
-	let progress: Double
-	let height: CGFloat
-	let fill: Color
-
-	var body: some View {
-		GeometryReader { geo in
-			ZStack(alignment: .leading) {
-				Capsule().fill(Color(.systemGray4))
-				Capsule()
-					.fill(fill)
-					.frame(width: geo.size.width * CGFloat(min(max(progress, 0), 1)))
-			}
-		}
-		.frame(height: height)
-	}
-}
