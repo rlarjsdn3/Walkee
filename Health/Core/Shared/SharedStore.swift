@@ -8,8 +8,8 @@
 import Foundation
 
 enum SharedStore {
-	private static let suiteID = "group.com.seohyun.walking"
-	
+    static let suiteID = Bundle.main.object(forInfoDictionaryKey: "App Group Identifier") as! String
+
 	private static var ud: UserDefaults {
 		guard let u = UserDefaults(suiteName: suiteID) else {
 			fatalError("App Group not configured: \(suiteID)")
