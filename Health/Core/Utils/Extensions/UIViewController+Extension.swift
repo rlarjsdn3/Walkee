@@ -86,3 +86,13 @@ extension UIViewController {
         }
     }
 }
+
+
+extension UIViewController {
+
+    ///
+    func openURL(string: String) {
+        let healthURL = URL(string: string)!
+        UIApplication.shared.open(healthURL, options: [:])
+    }
+}

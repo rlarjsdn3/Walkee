@@ -175,7 +175,7 @@ final class DashboardViewModel {
 
 extension DashboardViewModel {
 
-    func loadHKData() {
+    func loadHKData(includeAIResponse: Bool = true) {
         loadAnchorDateForTopCell()
         loadHKDataForGoalRingCells()
         loadHKDataForStackCells()
@@ -183,7 +183,7 @@ extension DashboardViewModel {
         loadHKDataForBarChartsCells()
 
         // 대시보드가 오늘자 데이터를 보여준다면
-        if shouldShowSummaryAndCharts {
+        if shouldShowSummaryAndCharts && includeAIResponse {
             loadAlanAIResponseForSummaryCells()
         }
     }
@@ -489,10 +489,8 @@ extension DashboardViewModel {
     }
 }
 
+extension DashboardViewModel {
 
-fileprivate extension DashboardViewModel {
-
-    ///
     func checkHKHasAnyReadPermission(typeIdentifier quantityTypeIdentifier: HKQuantityTypeIdentifier? = nil) async -> Bool {
         let hasReadPermission: Bool = await quantityTypeIdentifier != nil
         ? healthService.checkHasReadPermission(for: quantityTypeIdentifier!)
@@ -500,8 +498,11 @@ fileprivate extension DashboardViewModel {
 
         return hasReadPermission && hasHealthKitLinked
     }
+}
 
-    ///
+
+fileprivate extension DashboardViewModel {
+
     func adding(byKind kind: BarChartsBackKind, value: Int, to date: Date) -> Date? {
         switch kind {
         case .daysBack:

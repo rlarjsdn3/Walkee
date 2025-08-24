@@ -75,18 +75,19 @@ extension DashboardBarChartsCollectionViewCell {
 
     // TODO: - 상태 코드 별로 함수로 나누는 리팩토링하기
     private func render(for state: LoadState<DashboardChartsContents>) {
-        var attrString: NSAttributedString
+        var attrString = NSAttributedString(string: "-")
         headerLabel.text = viewModel.headerTitle
-        permissionDeniedView.isHidden = true
 
         switch state {
         case .idle:
-            return
-            
+            permissionDeniedView.isHidden = true
+
         case .loading:
             return
             
         case let .success(chartsDatas):
+            permissionDeniedView.isHidden = true
+
             let count = Double(chartsDatas.count)
             let avgValue = chartsDatas.reduce(0.0, { $0 + $1.value }) / count
             let avgString = avgValue.formatted(.number.precision(.fractionLength(0))) + " 걸음"
@@ -108,14 +109,12 @@ extension DashboardBarChartsCollectionViewCell {
             else { return }
             rangeOfDateLabel.text = prepareRangeOfDateString(from: startDate, to: endDate)
 
-
         case .failure:
-            // TODO: - 차트 중앙에 '데이터를 불러올 수 없다'고 표시
             attrString = NSAttributedString(string: "-")
             print("🔴 건강 데이터를 불러오는 데 실패함: DashboardBarChartsCell (\(viewModel.itemID.kind))")
 
         case .denied:
-            attrString = NSAttributedString(string: "12345 걸음")
+            attrString = NSAttributedString(string: "Placeholder 걸음")
             permissionDeniedView.isHidden = false
             barChartsView.chartData = prepareChartData(
                 Self.chartsDataMock,

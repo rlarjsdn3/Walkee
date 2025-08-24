@@ -69,11 +69,8 @@ final class DashboardViewController: HealthNavigationController, Alertable {
         healthNavigationBar.trailingBarButtonItems = [
             HealthBarButtonItem(
                 image: UIImage(systemName: "square.and.arrow.up"),
-                primaryAction: { [weak self] in
-                    // TODO: - 스크린샷 생성 실패 시, 경고 얼럿 띄우기
-                    self?.presentGoalRingShareSheet()
-                    // TODO: - 일부 데이터 접근 불가 시, 경고 얼럿 띄우기
-                })
+                primaryAction: shareActivityRingImage
+            )
         ]
 
         refreshControl.addTarget(
@@ -113,6 +110,11 @@ final class DashboardViewController: HealthNavigationController, Alertable {
             name: .didChangeHKSharingAuthorizationStatus,
             object: nil
         )
+    }
+
+    private func shareActivityRingImage() {
+        viewModel.loadHKData(includeAIResponse: false)
+        Task.delay(for: 0.2) { @MainActor in await presentActivityRingShareSheet() }
     }
 
     @objc private func refreshHKData() {
@@ -334,17 +336,36 @@ fileprivate extension DashboardViewController {
 
 fileprivate extension DashboardViewController {
 
-    func presentGoalRingShareSheet() {
-        let image = snapshotFirstTwoSections(in: dashboardCollectionView)
-        let itemSource = DashboardActivityItemSrouce(title: "안녕", image: image)
-        let avc = UIActivityViewController(activityItems: [itemSource], applicationActivities: nil)
+    func presentActivityRingShareSheet() async {
+        let stepCountReadPermissionGranted = await viewModel.checkHKHasAnyReadPermission(typeIdentifier: .stepCount)
 
-        if let pop = avc.popoverPresentationController {
-            pop.sourceView = view
-            pop.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 1, height: 1)
-            pop.permittedArrowDirections = []
+        if stepCountReadPermissionGranted {
+            let image = snapshotFirstTwoSections(in: dashboardCollectionView)
+            let itemSource = DashboardActivityItemSrouce(title: "안녕", image: image)
+            let avc = UIActivityViewController(activityItems: [itemSource], applicationActivities: nil)
+
+            if let pop = avc.popoverPresentationController {
+                pop.sourceView = view
+                pop.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 1, height: 1)
+                pop.permittedArrowDirections = []
+            }
+            present(avc, animated: true)
+        } else {
+            showAlert(
+                "권한 설정 필요",
+                message: """
+                         대시보드 현황을 공유하려면 걸음 수 건강 데이터 접근 권한이 필요합니다.
+                         
+                         경로: 프로필(우측 상단) ⏵ 개인정보 보호 ⏵ 앱 ⏵ Health  
+                         위 경로에서 앱의 데이터 접근 권한을 해제하거나 다시 활성화할 수 있습니다.
+                         """,
+                primaryTitle: "설정으로 이동",
+                onPrimaryAction: ({ [weak self] _ in
+                    self?.openURL(string: "x-apple-health://")
+                }),
+                onCancelAction: ({ _ in })
+            )
         }
-        present(avc, animated: true)
     }
 
     func sectionRect(in collectionView: UICollectionView, section: Int) -> CGRect {
