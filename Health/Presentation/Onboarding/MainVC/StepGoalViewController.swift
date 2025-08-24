@@ -148,9 +148,9 @@ class StepGoalViewController: CoreGradientViewController {
         Task {
             do {
                 try await stepSyncService.syncSteps()
-                print("온보딩 직후 동기화 완료")
+                print("[StepGoalViewController] 온보딩 직후 동기화 완료")
             } catch {
-                print("온보딩 직후 동기화 실패: \(error.localizedDescription)")
+                print("[stepGoalViewController] 온보딩 직후 동기화 실패: \(error.localizedDescription)")
             }
         }
 

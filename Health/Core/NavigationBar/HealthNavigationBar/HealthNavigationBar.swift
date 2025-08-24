@@ -123,7 +123,6 @@ final class HealthNavigationBar: CoreView {
         guard let items = trailingBarButtonItems else { return }
         trailingBarItemsStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
         layoutTrailingBarButtonItems(items)
-        print(trailingBarItemsStackView.bounds.height)
     }
 
     private func layoutNavigationBar(_ vc: UIViewController, nav: UINavigationController?) {

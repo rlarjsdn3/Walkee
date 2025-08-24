@@ -42,7 +42,6 @@ class CoreGradientViewController: CoreViewController {
 		
 		if #available(iOS 13.0, *) {
 			let isDarkMode = traitCollection.userInterfaceStyle == .dark
-			print("[\(String(describing: type(of: self)))] 그라디언트 적용: \(gradientType.rawValue), 다크모드: \(isDarkMode)")
 		}
 	}
 	
@@ -52,8 +51,6 @@ class CoreGradientViewController: CoreViewController {
 		currentGradientType = nil
 		view.removeGradientBackground()
 		view.backgroundColor = color
-		
-		print("[\(String(describing: type(of: self)))] 단색 배경 적용: \(color)")
 	}
 	
 	/// 다이나믹 컬러를 cgColor로 변환
