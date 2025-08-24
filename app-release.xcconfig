@@ -10,7 +10,7 @@
 
 BASE_URL = https:\/\/kdt-api-function.azurewebsites.net
 CLIENT_ID = 596b81f5-a038-442c-9dfd-a68690cd0045
-BUNDLE_IDENTIFIER = com.jseongee.walking
+BUNDLE_IDENTIFIER = com.jj.walking
 TOUR_API_SERVICE_KEY = YDfkcjMj2vY5nVcwujxmL5GCXtYT/Wn2bDr3w7XK9UQ5ZqxVHiKJFUrL1NbY4qLQSqCF2EUONsOhw+gPZCdGqg==
 
 // e81b1b0e-3e14-4d0d-9964-d2649364952c // 김건우
