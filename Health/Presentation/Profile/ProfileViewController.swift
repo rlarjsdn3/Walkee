@@ -8,6 +8,7 @@
 import UIKit
 import TSAlertController
 import MessageUI
+import LocalAuthentication
 
 struct ProfileCellModel {
     let title: String
@@ -30,7 +31,7 @@ class ProfileViewController: HealthNavigationController, Alertable {
     @Injected private var healthService: HealthService
     @Injected(.dailyStepViewModel) private var dailyStepVM: DailyStepViewModel
     @Injected(.goalStepCountViewModel) private var goalStepCountVM: GoalStepCountViewModel
-
+    
     private var currentGoalCache: Int = 0
     
     private var grantRecheckObserver: NSObjectProtocol?
@@ -377,7 +378,45 @@ extension ProfileViewController: UITableViewDelegate {
         
         switch model.title {
         case "신체 정보":
-            performSegue(withIdentifier: "bodyInfo", sender: nil)
+            let context = LAContext()
+            context.localizedFallbackTitle = "" // "암호 입력" 버튼 문구 숨기고 싶으면 빈 문자열
+            var error: NSError?
+            
+            let canBio = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
+            
+            // 생체인증 가능하면 Face ID/Touch ID 시도
+            if canBio {
+                context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics,
+                                       localizedReason: "신체 정보에 접근하려면 Face ID 인증이 필요합니다.") { [weak self] success, evalError in
+                    guard let self else { return }
+                    DispatchQueue.main.async {
+                        if success {
+                            self.performSegue(withIdentifier: "bodyInfo", sender: nil)
+                        } else {
+                            self.showWarningToast(title: "인증 실패", message: "인증이 실패했습니다.")
+                        }
+                    }
+                }
+                return
+            }
+            
+            // 생체인증이 없거나 미등록인 경우: 기기 암호로 대체 허용
+            if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
+                context.evaluatePolicy(.deviceOwnerAuthentication,
+                                       localizedReason: "신체 정보에 접근하려면 인증이 필요합니다.") { [weak self] success, _ in
+                    guard let self else { return }
+                    DispatchQueue.main.async {
+                        if success {
+                            self.performSegue(withIdentifier: "bodyInfo", sender: nil)
+                        } else {
+                            self.showWarningToast(title: "인증 실패", message: "인증이 실패했습니다.")
+                        }
+                    }
+                }
+            } else {
+                self.showWarningToast(title: "인증 실패", message: "이 기기에서 인증을 사용할 수 없습니다. 설정 앱에서 Face ID 또는 기기 암호를 설정하세요")
+            }
+            
         case "목표 걸음 설정":
             let goalStep = goalStepCountVM.goalStepCount(for: Date()).map(Int.init) ?? 0
             currentGoalCache = goalStep
@@ -393,23 +432,23 @@ extension ProfileViewController: UITableViewDelegate {
                 },
                 onConfirm: { [weak self] view in
                     guard let self, let v = view as? EditStepGoalView else { return }
-
+                    
                     self.dailyStepVM.upsertDailyStep(goalStepCount: v.value)
                     self.goalStepCountVM.saveGoalStepCount(goalStepCount: Int32(v.value), effectiveDate: Date())
                     self.currentGoalCache = v.value
-
+                    
                     NotificationCenter.default.post(name: .didUpdateGoalStepCount, object: nil)
-
+                    
                     print("[ProfileViewController] 변경된 목표 걸음 수: \(v.value)")
                 }
             )
-
+            
         case "화면 모드 설정":
             showActionSheetForProfile(
                 buildView: {
-                let v = DisplayModeView()
+                    let v = DisplayModeView()
                     return v
-            })
+                })
         case "문의하기":
             if MFMailComposeViewController.canSendMail() {
                 let vc = MFMailComposeViewController()
