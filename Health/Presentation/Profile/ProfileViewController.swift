@@ -16,13 +16,21 @@ struct ProfileCellModel {
     var switchState: Bool = UserDefaultsWrapper.shared.healthkitLinked
 }
 
-class ProfileViewController: CoreGradientViewController {
+
+// TODO: - 건강 권한 끌때는 얼럿 없애기
+// 다 꺼져있을때만 스위치 OFF -> ON으로 할때 ALERT
+// 하나라도 켜져있으면 ALERT 없이 스위치만 변경
+// 알림에선 확인 -> 설정
+//        취소 -> 스위치 원상복구
+
+class ProfileViewController: CoreGradientViewController, Alertable {
     
     @IBOutlet weak var tableView: UITableView!
     
     @Injected private var healthService: HealthService
-    @Injected(.goalStepCountViewModel) private var goalVM: GoalStepCountViewModel
-    
+    @Injected(.dailyStepViewModel) private var dailyStepVM: DailyStepViewModel
+    @Injected(.goalStepCountViewModel) private var goalStepCountVM: GoalStepCountViewModel
+
     private var currentGoalCache: Int = 0
     
     private var grantRecheckObserver: NSObjectProtocol?
@@ -88,7 +96,7 @@ class ProfileViewController: CoreGradientViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         startForegroundGrantSync()
-        let latest = goalVM.goalStepCount(for: Date()).map(Int.init) ?? 0
+        let latest = goalStepCountVM.goalStepCount(for: Date()).map(Int.init) ?? 0
         currentGoalCache = latest
     }
     
@@ -373,30 +381,37 @@ extension ProfileViewController: UITableViewDelegate {
         case "신체 정보":
             performSegue(withIdentifier: "bodyInfo", sender: nil)
         case "목표 걸음 설정":
-            let goalStep = goalVM.goalStepCount(for: Date()).map(Int.init) ?? 0
+            let goalStep = goalStepCountVM.goalStepCount(for: Date()).map(Int.init) ?? 0
             currentGoalCache = goalStep
-            print("goalstep:\(goalStep)")
-            
-            presentSheet(on: self,
-                         buildView: {
-                let v = EditStepGoalView()
-                v.value = goalStep
-                v.step = 500
-                v.minValue = 0
-                v.maxValue = 100_000
-                return v
-            }) { [weak self] view in
-                guard let self, let v = view as? EditStepGoalView else { return }
-                self.goalVM.saveGoalStepCount(goalStepCount: Int32(v.value), effectiveDate: Date())
-                self.currentGoalCache = v.value
-                NotificationCenter.default.post(name: .didUpdateGoalStepCount, object: nil)
-                print(v.value)
-            }
+            print("[ProfileViewController] 현재 목표 걸음 수: \(goalStep)")
+            showActionSheetForProfile(
+                buildView: {
+                    let v = EditStepGoalView()
+                    v.value = goalStep
+                    v.step = 500
+                    v.minValue = 0
+                    v.maxValue = 100_000
+                    return v
+                },
+                onConfirm: { [weak self] view in
+                    guard let self, let v = view as? EditStepGoalView else { return }
+
+                    self.dailyStepVM.upsertDailyStep(goalStepCount: v.value)
+                    self.goalStepCountVM.saveGoalStepCount(goalStepCount: Int32(v.value), effectiveDate: Date())
+                    self.currentGoalCache = v.value
+
+                    NotificationCenter.default.post(name: .didUpdateGoalStepCount, object: nil)
+
+                    print("[ProfileViewController] 변경된 목표 걸음 수: \(v.value)")
+                }
+            )
+
         case "화면 모드 설정":
-            presentSheet(on: self) {
+            showActionSheetForProfile(
+                buildView: {
                 let v = DisplayModeView()
-                return v
-            }
+                    return v
+            })
         case "문의하기":
             if MFMailComposeViewController.canSendMail() {
                 let vc = MFMailComposeViewController()
@@ -424,7 +439,17 @@ extension ProfileViewController: UITableViewDelegate {
                 
                 self.present(vc, animated: true)
             } else {
-                let alertController = TSAlertController(title: "메일 계정 활성화가 필요합니다.", message: "Mail 앱에서 사용자의 Email을 계정을 설정해 주세요.", preferredStyle: .alert)
+                let alertController = TSAlertController(
+                    title: "메일 계정 활성화가 필요합니다.",
+                    message: "Mail 앱에서 사용자의 Email을 계정을 설정해 주세요.",
+                    options: [
+                        .dismissOnSwipeDown,
+                        .dismissOnTapOutside,
+                        .interactiveScaleAndDrag
+                    ],
+                    preferredStyle: .alert
+                )
+                
                 let action = TSAlertAction(title: "확인", style: .default) { _ in
                     guard let mailSettingsURL = URL(string: UIApplication.openSettingsURLString + "&&path=MAIL") else { return }
                     

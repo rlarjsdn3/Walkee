@@ -48,13 +48,8 @@ extension Alertable where Self: UIViewController {
             preferredStyle: .alert
         )
 
-        alert.configuration = configuration != nil
-        ? configuration!
-        : defaultAlertConfiguration
-
-        alert.viewConfiguration = viewConfiguration != nil
-        ? viewConfiguration!
-        : defaultAlertViewConfiguration
+        alert.configuration = configuration ?? defaultAlertConfiguration
+        alert.viewConfiguration = viewConfiguration ?? defaultAlertViewConfiguration
 
         sizeClasses(vRhR: {
             alert.viewConfiguration.size.width = .flexible(minimum: 300, maximum: 300)
@@ -117,13 +112,8 @@ extension Alertable where Self: UIViewController {
             preferredStyle: .alert
         )
 
-        alert.configuration = configuration != nil
-        ? configuration!
-        : defaultAlertConfiguration
-
-        alert.viewConfiguration = viewConfiguration != nil
-        ? viewConfiguration!
-        : defaultAlertViewConfiguration
+        alert.configuration = configuration ?? defaultAlertConfiguration
+        alert.viewConfiguration = viewConfiguration ?? defaultAlertViewConfiguration
 
         sizeClasses(vRhR: {
             alert.viewConfiguration.size.width = .flexible(minimum: 300, maximum: 300)
@@ -273,9 +263,11 @@ extension Alertable where Self: UIViewController {
             cancelAction.highlightType = .fadeIn
             alert.addAction(cancelAction)
         }
-
+        
         self.present(alert, animated: true)
     }
+    
+
 
     /// 사용자 정의 뷰를 포함한 액션 시트를 표시합니다.
     ///
@@ -337,6 +329,67 @@ extension Alertable where Self: UIViewController {
 
         self.present(alert, animated: true)
     }
+    
+    func showActionSheetForProfile(
+        buildView: () -> UIView,
+        heightRatio: CGFloat = 0.4,
+        widthRatio: CGFloat = 0.9,
+        iPadLandscapeHeightRatio: CGFloat = 0.4,
+        iPadLandscapeWidthRatio: CGFloat = 0.8,
+        onConfirm: ((UIView) -> Void)? = nil
+    ) {
+        let contentView = buildView()
+        
+        let alert = TSAlertController(
+            contentView,
+            options: [.interactiveScaleAndDrag, .dismissOnTapOutside],
+            preferredStyle: .actionSheet
+        )
+        
+        alert.configuration.prefersGrabberVisible = false
+        alert.configuration.enteringTransition = .slideUp
+        alert.configuration.exitingTransition = .slideDown
+        alert.configuration.headerAnimation = .slideUp
+        alert.configuration.buttonGroupAnimation = .slideUp
+        alert.viewConfiguration.spacing.keyboardSpacing = 100
+                
+        let isPad = (traitCollection.userInterfaceIdiom == .pad)
+
+        let isLandscape: Bool = {
+            if let iface = view.window?.windowScene?.interfaceOrientation {
+                return iface.isLandscape
+            }
+            if UIDevice.current.orientation.isValidInterfaceOrientation {
+                return UIDevice.current.orientation.isLandscape
+            }
+            // 최후 폴백
+            return UIScreen.main.bounds.width > UIScreen.main.bounds.height
+        }()
+
+        let isPadLandscape = isPad && isLandscape
+
+        let appliedHeightRatio = isPadLandscape ? iPadLandscapeHeightRatio : heightRatio
+        let appliedWidthRatio  = isPadLandscape ? iPadLandscapeWidthRatio : widthRatio
+        
+        alert.viewConfiguration.size.width  = .proportional(minimumRatio: appliedWidthRatio,
+                                                            maximumRatio: appliedWidthRatio)
+        alert.viewConfiguration.size.height = .proportional(minimumRatio: appliedHeightRatio,
+                                                            maximumRatio: appliedHeightRatio)
+        
+        let confirmAction = TSAlertAction(title: "확인", style: .default) { _ in
+            onConfirm?(contentView)
+        }
+        confirmAction.configuration.backgroundColor = .accent
+        confirmAction.configuration.titleAttributes = [
+            .font: UIFont.preferredFont(forTextStyle: .headline),
+            .foregroundColor: UIColor.systemBackground
+        ]
+        confirmAction.highlightType = .fadeIn
+        alert.addAction(confirmAction)
+        
+        
+        self.present(alert, animated: true)
+    }
 }
 
 
@@ -355,8 +408,6 @@ fileprivate extension Alertable {
         var config = TSAlertController.ViewConfiguration()
         config.titleAlignment = .center
         config.messageAlignment = .center
-        config.margin.contentTop = 17.5
-        config.spacing.titleMessageSpacing = 7.5
         return config
     }
 }

@@ -18,11 +18,14 @@ final class ChatbotViewModel {
 	
 	var onActionText: ((String) -> Void)?
 	var onStreamChunk: ((String) -> Void)?
-	var onStreamCompleted: (() -> Void)?
+	var onFinalRender: ((Int, NSAttributedString) -> Void)? // 변경: 인덱스 추가
+	var onStreamCompleted: ((String) -> Void)?
 	var onError: ((String) -> Void)?
 	
 	private var streamTask: Task<Void, Never>?
 	private var clientID: String { AppConfiguration.clientID }
+	
+	private var streamingBuffer: String = "" // 변경: 스트리밍 버퍼 추가
 	
 	deinit { streamTask?.cancel() }
 	
@@ -65,13 +68,25 @@ final class ChatbotViewModel {
 						option: .chat
 					)
 					await self._startStreaming(content: prompt, canRetry: true)
-					print("🧾 [Prompt] Alan에게 전달할 최종 프롬프트:")
-					print(prompt)
+					//print("🧾 [Prompt] Alan에게 전달할 최종 프롬프트:")
+					//print(prompt)
 				} catch {
 					onError?("프롬프트 생성 실패: \(error.localizedDescription)")
 				}
 			}
 #endif
+		}
+	}
+	
+	// MARK: - 상황별 reset agent
+	
+	/// 채팅 화면 종료시 안전하게 호출할 리셋 메서드
+	func resetSessionOnExit() {
+		streamTask?.cancel() // 열려있던 SSE 즉시 취소
+		Log.chat.info("view exit detected > cancel SSE & call reset-state")
+		Task { [weak self] in
+			guard let self else { return }
+			await resetAgentState() // 내부에서 Alan reset-state 호출
 		}
 	}
 	
@@ -100,7 +115,7 @@ final class ChatbotViewModel {
 	
 	private func _startStreaming(content: String, canRetry: Bool) async {
 		var callComplete = true
-		defer { if callComplete { onStreamCompleted?() } }
+		defer { if callComplete { onStreamCompleted?("") } }
 		
 		do {
 			let stream = try sseService.stream(content: content)
@@ -111,6 +126,14 @@ final class ChatbotViewModel {
 				case .continue:
 					if let c = event.data.content, !c.isEmpty { onStreamChunk?(c) }
 				case .complete:
+					let completeText = event.data.content ?? ""
+					self.streamingBuffer.append(completeText)
+					Log.net.info("[SSE COMPLETE] content=\(completeText, privacy: .public)")
+					// 최종 렌더링
+					let finalRendered = ChatMarkdownRenderer.renderFinalMarkdown(self.streamingBuffer)
+					onStreamCompleted?(self.streamingBuffer)
+					self.streamingBuffer = ""
+					callComplete = false
 					break streamLoop
 				}
 			}
@@ -142,8 +165,13 @@ final class ChatbotViewModel {
 	
 	private func resetAgentState() async {
 		let ep = APIEndpoint.resetState(clientID: clientID)
-		do { _ = try await networkService.request(endpoint: ep, as: AlanResetStateResponse.self) }
-		catch { onError?("세션 초기화 실패: \(error.localizedDescription)") }
+		do {
+			_ = try await networkService.request(endpoint: ep, as: AlanResetStateResponse.self)
+			Log.chat.info("reset-state success for clientID=\(self.clientID, privacy: .public)")
+		} catch {
+			Log.chat.error("reset-state failed: \(error.localizedDescription, privacy: .public)")
+			onError?("세션 초기화 실패: \(error.localizedDescription)")
+		}
 	}
 	
 	
@@ -151,7 +179,7 @@ final class ChatbotViewModel {
 	private func startMockStreaming(_ content: String) {
 		streamTask = Task { [weak self] in
 			guard let self else { return }
-			defer { self.onStreamCompleted?() }
+			defer { self.onStreamCompleted?("") }
 			
 			struct Mock: Decodable {
 				struct Action: Decodable { let name: String; let speak: String }

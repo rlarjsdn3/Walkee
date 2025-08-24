@@ -10,6 +10,7 @@ import MapKit
 
 protocol RecommendPlaceCellDelegate: AnyObject {
     func didTapInfoButton(for course: WalkingCourse)
+    func didTapCell(for course: WalkingCourse)
 }
 
 class RecommendPlaceCell: CoreCollectionViewCell {
@@ -32,7 +33,7 @@ class RecommendPlaceCell: CoreCollectionViewCell {
 
     override func awakeFromNib() {
         super.awakeFromNib()
-
+        setupTapGesture()
     }
 
     override func setupAttribute() {
@@ -125,6 +126,17 @@ class RecommendPlaceCell: CoreCollectionViewCell {
                 .applyingSymbolConfiguration(.init(paletteColors: [.info]))
             infoButton.configuration = config
         }
+    }
+
+    private func setupTapGesture() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(cellTapped))
+        self.addGestureRecognizer(tapGesture)
+        self.isUserInteractionEnabled = true
+    }
+
+    @objc private func cellTapped() {
+        guard let course = currentCourse else { return }
+        delegate?.didTapCell(for: course)
     }
 }
 

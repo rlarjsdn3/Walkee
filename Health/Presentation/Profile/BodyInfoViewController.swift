@@ -15,54 +15,7 @@ struct BodyInfoItem {
     var detail: String
 }
 
-enum EditKind {
-    case gender
-    case height
-    case weight
-    case birthday
-}
-
-@MainActor
-func presentSheet(on viewController: UIViewController,
-                  height: CGFloat = 300,
-                  buildView: () -> UIView,
-                  onConfirm: ((UIView) -> Void)? = nil) {
-    
-    let contentView = buildView()
-    contentView.translatesAutoresizingMaskIntoConstraints = false
-    NSLayoutConstraint.activate([
-        contentView.heightAnchor.constraint(equalToConstant: height)
-    ])
-    
-    let alertController = TSAlertController(
-        contentView,
-        options: [.interactiveScaleAndDrag, .dismissOnTapOutside],
-        preferredStyle: .actionSheet
-    )
-    
-    alertController.configuration.prefersGrabberVisible = false
-    alertController.configuration.enteringTransition = .slideUp
-    alertController.configuration.exitingTransition = .slideDown
-    alertController.configuration.headerAnimation = .slideUp
-    alertController.configuration.buttonGroupAnimation = .slideUp
-    alertController.viewConfiguration.spacing.keyboardSpacing = 100
-    
-    let action = TSAlertAction(title: "확인", style: .default) { _ in
-        onConfirm?(contentView)
-    }
-    action.configuration.backgroundColor = .accent
-    action.configuration.titleAttributes = [
-        .font: UIFont.preferredFont(forTextStyle: .headline),
-        .foregroundColor: UIColor.systemBackground
-    ]
-    action.highlightType = .fadeIn
-    
-    alertController.addAction(action)
-    
-    viewController.present(alertController, animated: true)
-}
-
-class BodyInfoViewController: CoreGradientViewController {
+class BodyInfoViewController: CoreGradientViewController, Alertable {
     
     @IBOutlet weak var tableView: UITableView!
     
@@ -70,11 +23,16 @@ class BodyInfoViewController: CoreGradientViewController {
     
     private var currentUser: UserInfoEntity?
     
+    private var profileSheetHeightConstraint: NSLayoutConstraint?
+    private weak var profileSheet: TSAlertController?
+    
+    
     private var items: [BodyInfoItem] = [
-        .init(iconName: "figure.walk", title: "성별", detail: "-"),
+        .init(iconName: "figure.stand.dress.line.vertical.figure", title: "성별", detail: "-"),
         .init(iconName: "birthday.cake", title: "태어난 해", detail: "-"),
         .init(iconName: "scalemass", title: "체중", detail: "-"),
-        .init(iconName: "ruler", title: "키", detail: "-")
+        .init(iconName: "ruler", title: "키", detail: "-"),
+        .init(iconName: "cross", title: "질병", detail: "-")
     ]
     
     override func setupAttribute() {
@@ -88,6 +46,47 @@ class BodyInfoViewController: CoreGradientViewController {
         tableView.rowHeight = 68
         
         fetchUserInfoAndSetupUI()
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        guard let alert = profileSheet else { return }
+
+        // 원하는 비율 재계산
+        let padLand = isPadLandscapeNow()
+        let baseH: CGFloat = 0.33
+        let baseW: CGFloat = 0.9
+        let landH: CGFloat = 0.25
+        let landW: CGFloat = 0.6
+        let h = padLand ? landH : baseH
+        let w = padLand ? landW : baseW
+
+        alert.viewConfiguration.size.width  = .proportional(minimumRatio: w, maximumRatio: w)
+        alert.viewConfiguration.size.height = .proportional(minimumRatio: h, maximumRatio: h)
+
+        // 컨텐츠 높이 제약 업데이트
+        profileSheetHeightConstraint?.constant = view.bounds.height * h
+
+        alert.view.layoutIfNeeded()
+    }
+    
+    private func isPadLandscapeNow() -> Bool {
+        let isPad = traitCollection.userInterfaceIdiom == .pad
+        let iface = view.window?.windowScene?.interfaceOrientation
+        return isPad && (iface?.isLandscape == true)
+    }
+    
+    private func updateDiseaseText(with diseases: [Disease]) {
+        guard let diseaseIndex = items.firstIndex(where: { $0.title == "질병" }) else { return }
+        
+        if diseases.isEmpty {
+            items[diseaseIndex].detail = "-"
+        } else if diseases.first == Disease.none {
+            items[diseaseIndex].detail = "없음"
+        } else if diseases.count > 1 {
+            items[diseaseIndex].detail = "\(diseases.count)개"
+        }
     }
     
     private func fetchUserInfoAndSetupUI() {
@@ -116,13 +115,18 @@ class BodyInfoViewController: CoreGradientViewController {
             if items.indices.contains(3), u.height > 0 {
                 items[3].detail = "\(Int(u.height))cm"
             }
+            
+            if items.indices.contains(4) {
+                if let diseases = u.diseases {
+                    updateDiseaseText(with: diseases)
+                } else {
+                    items[4].detail = "-"
+                }
+            }
         }
         
         tableView.reloadData()
     }
-    
-    
-    
     
 }
 
@@ -172,16 +176,17 @@ extension BodyInfoViewController: UITableViewDelegate {
                     return nil
                 }
             }()
-            
-            presentSheet(
-                on: self,
+            showActionSheetForProfile(
                 buildView: {
                     let v = EditGenderView()
                     v.setDefaultGender(currentGender)
                     return v
-                }) { [weak self] view in
-                    guard let self, let v = view as? EditGenderView else { return }
-                    guard let selected = v.selectedGender else { return }
+                },
+                onConfirm: { [weak self] view in
+                    guard let self,
+                          let v = view as? EditGenderView,
+                          let selected = v.selectedGender else { return }
+                    
                     let u = self.currentUser
                     self.userVM.saveUser(
                         age: u?.age ?? 0,
@@ -192,6 +197,7 @@ extension BodyInfoViewController: UITableViewDelegate {
                     )
                     self.fetchUserInfoAndSetupUI()
                 }
+            )
         case "태어난 해":
             let currentYear = Calendar.current.component(.year, from: Date())
             
@@ -214,26 +220,23 @@ extension BodyInfoViewController: UITableViewDelegate {
                 return (cellYear ?? 0) > 0 ? cellYear! : currentYear
             }()
             
-            presentSheet(
-                on: self,
+            showActionSheetForProfile(
                 buildView: {
                     let v = EditBirthdayView()
                     v.setDefaultYear(defaultYear)
                     return v
-                }) { [weak self] view in
+                },
+                onConfirm: { [weak self] view in
                     guard let self, let v = view as? EditBirthdayView else { return }
-                    
                     let selectedYear = v.getSelectedYear()
                     let age = currentYear - selectedYear
                     let u = self.currentUser
                     self.userVM.saveUser(
-                        id: u?.id,
                         age: Int16(age),
                         gender: u?.gender ?? "",
                         height: u?.height ?? 0,
                         weight: u?.weight ?? 0,
-                        diseases: u?.diseases as? [Disease],
-                        createdAt: u?.createdAt ?? Date()
+                        diseases: u?.diseases as? [Disease]
                     )
                     
                     if self.items.indices.contains(indexPath.row) {
@@ -255,6 +258,8 @@ extension BodyInfoViewController: UITableViewDelegate {
                     }
                     self.fetchUserInfoAndSetupUI()
                 }
+            )
+          
         case "체중":
             let userWeight = currentUser?.weight ?? 0
             let cellWeight: Int = {
@@ -264,18 +269,16 @@ extension BodyInfoViewController: UITableViewDelegate {
             }()
             let defaultWeight = userWeight > 0 ? Int(userWeight) : cellWeight
             
-            
-            presentSheet(
-                on: self,
+            showActionSheetForProfile(
                 buildView: {
                     let v = EditWeightView()
                     v.setDefaultWeight(defaultWeight)
                     return v
-                }) { [weak self] view in
+                }, onConfirm: { [weak self] view in
                     guard let self, let v = view as? EditWeightView else { return }
                     let newWeight = v.selectedWeight
                     let u = self.currentUser
-                                        
+                    
                     self.userVM.saveUser(
                         age: u?.age ?? 0,
                         gender: u?.gender ?? "",
@@ -286,9 +289,12 @@ extension BodyInfoViewController: UITableViewDelegate {
                     
                     if self.items.indices.contains(indexPath.row) {
                         self.items[indexPath.row].detail = "\(Int(newWeight))kg"
+                        
                     }
                     self.fetchUserInfoAndSetupUI()
                 }
+            )
+          
         case "키":
             let userHeight = currentUser?.height ?? 0
             let cellHeight: Int = {
@@ -297,14 +303,13 @@ extension BodyInfoViewController: UITableViewDelegate {
                 return Int(digits) ?? 170
             }()
             let defaultHeight = userHeight > 0 ? Int(userHeight) : cellHeight
-            
-            presentSheet(
-                on: self,
+           
+            showActionSheetForProfile(
                 buildView: {
                     let v = EditHeightView()
                     v.setDefaultHeight(defaultHeight)
                     return v
-                }) { [weak self] view in
+                }, onConfirm: { [weak self] view in
                     guard let self, let v = view as? EditHeightView else { return }
                     let newHeight = v.selectedHeight
                     let u = self.currentUser
@@ -321,7 +326,40 @@ extension BodyInfoViewController: UITableViewDelegate {
                         self.items[indexPath.row].detail = "\(Int(newHeight))cm"
                     }
                     self.fetchUserInfoAndSetupUI()
+                    
                 }
+            )
+        case "질병":
+            showActionSheetForProfile(
+                buildView: {
+                let v = EditDiseaseView()
+                    if let currentDisease = self.currentUser?.diseases as? [Disease] {
+                        v.setSelectedDiseases(currentDisease)
+                    }
+                    return v
+                },
+                heightRatio: 0.6,
+                widthRatio: 0.9,
+                iPadLandscapeHeightRatio: 0.45,
+                iPadLandscapeWidthRatio: 0.8,
+                onConfirm: { [weak self] view in
+                guard let self, let v = view as? EditDiseaseView else { return }
+                    
+                    let selectedDiseases = v.getSelectedDiseases()
+                    let u = self.currentUser
+                    
+                    self.userVM.saveUser(
+                        age: u?.age ?? 0,
+                        gender: u?.gender ?? "",
+                        height: u?.height ?? 0,
+                        weight: u?.weight ?? 0,
+                        diseases: selectedDiseases
+                    )
+                    
+                    self.updateDiseaseText(with: selectedDiseases)
+                    self.fetchUserInfoAndSetupUI()
+            }
+            )
         default:
             break
         }

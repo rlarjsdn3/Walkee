@@ -19,4 +19,5 @@ enum Log {
 	static let ui  = Logger(subsystem: subsystem, category: "UI")
 	// 개인정보 처리
 	static let privacy = Logger(subsystem: subsystem, category: "privacy")
+	static let chat = Logger(subsystem: subsystem, category: "chat")
 }

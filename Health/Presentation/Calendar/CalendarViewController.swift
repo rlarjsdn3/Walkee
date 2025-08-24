@@ -54,8 +54,10 @@ final class CalendarViewController: HealthNavigationController, Alertable {
         scrollManager.handleDeviceRotation(coordinator: coordinator)
     }
 
-    deinit {
-        MainActor.assumeIsolated {
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        // 뷰 컨트롤러가 완전히 제거될 때
+        if isMovingFromParent || isBeingDismissed {
             dataManager.stopObserving()
         }
     }
@@ -67,7 +69,14 @@ private extension CalendarViewController {
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(reloadCalendar),
-            name: .stepDataDidSync,
+            name: .didSyncStepData,
+            object: nil
+        )
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(reloadCalendar),
+            name: .didUpdateGoalStepCount,
             object: nil
         )
     }

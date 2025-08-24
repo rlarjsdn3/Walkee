@@ -20,7 +20,8 @@ class CustomNavigationBarView: UIView {
     
     let backButton: UIButton = {
         let button = UIButton(type: .system)
-        let image = UIImage(systemName: "chevron.left")
+        let config = UIImage.SymbolConfiguration(pointSize: 14, weight: .semibold)
+        let image = UIImage(systemName: "chevron.left", withConfiguration: config)
         button.setImage(image, for: .normal)
         button.tintColor = .label
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -48,13 +49,13 @@ class CustomNavigationBarView: UIView {
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            backButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
+            backButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 18),
             backButton.centerYAnchor.constraint(equalTo: centerYAnchor),
             
             progressIndicatorStackView.centerXAnchor.constraint(equalTo: centerXAnchor),
             progressIndicatorStackView.centerYAnchor.constraint(equalTo: centerYAnchor),
             progressIndicatorStackView.heightAnchor.constraint(equalToConstant: 4),
-            progressIndicatorStackView.widthAnchor.constraint(equalToConstant: 320),
+            progressIndicatorStackView.widthAnchor.constraint(equalToConstant: 300),
         ])
     }
 

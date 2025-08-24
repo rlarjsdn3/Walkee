@@ -7,22 +7,204 @@
 
 import UIKit
 
-class OnboardingViewController: CoreGradientViewController {
-
-    @IBOutlet weak var appImageView: UIImageView!
-    @IBOutlet weak var titleLabel: UILabel!
-    @IBOutlet weak var descriptionLabel: UILabel!
-    @IBOutlet weak var continueButton: UIButton!
+class OnboardingViewController: CoreGradientViewController, UIScrollViewDelegate {
     
+    @IBOutlet weak var continueButton: UIButton!
     @IBOutlet weak var continueButtonLeading: NSLayoutConstraint!
     @IBOutlet weak var continueButtonTrailing: NSLayoutConstraint!
-
+    
     private var iPadWidthConstraint: NSLayoutConstraint?
     private var iPadCenterXConstraint: NSLayoutConstraint?
-
+    
+    private let scrollView = UIScrollView()
+    private let stack = UIStackView()
+    private let pageControl = UIPageControl()
+    private var pages: [UIView] = []
+    
+    private let firstPageView = UIView()
+    private let secondPageView = UIView()
+    private let thirdPageView = UIView()
+    
+    private var currentPage: Int {
+        let pageWidth = scrollView.bounds.width
+        guard pageWidth > 0 else { return 0 }
+        return Int(round(scrollView.contentOffset.x / pageWidth))
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        setupScrollView()
+        setupPages()
+        setupPageControl()
+        setupContinueButton()
+        
+        continueButton.isEnabled = false
+        continueButton.backgroundColor = .buttonBackground
+        pageControl.currentPage = 0
+    }
+    
+    private func setupScrollView() {
+        scrollView.isPagingEnabled = true
+        scrollView.showsHorizontalScrollIndicator = false
+        scrollView.alwaysBounceVertical = false
+        scrollView.delegate = self
+        
+        view.addSubview(scrollView)
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor, constant: 40),
+            scrollView.bottomAnchor.constraint(equalTo: continueButton.topAnchor, constant: -12)
+        ])
+        
+        stack.axis = .horizontal
+        stack.alignment = .fill
+        stack.distribution = .fill
+        scrollView.addSubview(stack)
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            stack.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor),
+            stack.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor),
+            stack.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
+            stack.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor),
+            stack.heightAnchor.constraint(equalTo: scrollView.frameLayoutGuide.heightAnchor)
+        ])
+    }
+    
+    private func setupPages() {
+        pages = [firstPageView, secondPageView, thirdPageView]
+        
+        pages.forEach { page in
+            page.translatesAutoresizingMaskIntoConstraints = false
+            stack.addArrangedSubview(page)
+            page.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor).isActive = true
+        }
+        
+        configureCentralPage(firstPageView,
+                             imageName: "chart.bar.fill",
+                             title: "대시보드",
+                             subtitle: "일일 걸음 및 건강 요약",
+                             description: "당신의 걸음, 하루하루가 건강으로 이어집니다. 일일 걸음 수와 보행 패턴을 한눈에 확인하고, AI가 요약해주는 맞춤 건강 인사이트를 만나보세요.")
+        
+        configureCentralPage(secondPageView,
+                             imageName: "calendar",
+                             title: "캘린더",
+                             subtitle: "목표 달성 현황 & 기록",
+                             description: "캘린더에서 일일 목표 달성 현황과 액티비티 링을 확인하고, 과거의 걸음과 보행 건강 데이터를 쉽게 돌아볼 수 있어요.")
+        
+        configureCentralPage(thirdPageView,
+                             imageName: "message.fill",
+                             title: "맞춤케어",
+                             subtitle: "개인화 코스 & 챗봇",
+                             description: "나에게 꼭 맞는 걷기 루틴. 건강 앱 데이터 기반 사용자에게 난이도별로 맞춤 코스 추천과 분석은 물론, 걷기·러닝에 특화된 챗봇과 함께 건강한 습관을 만들어보세요.")
+    }
+    
+    private func configureCentralPage(_ page: UIView,
+                                      imageName: String,
+                                      title: String,
+                                      subtitle: String,
+                                      description: String) {
+        
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFit
+        imageView.tintColor = .systemPink
+        imageView.image = UIImage(systemName: imageName)
+        
+        let titleLabel = UILabel()
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.text = title
+        titleLabel.numberOfLines = 0
+        
+        let subtitleLabel = UILabel()
+        subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
+        subtitleLabel.text = subtitle
+        subtitleLabel.font = UIFont.systemFont(ofSize: 18, weight: .medium)
+        subtitleLabel.textColor = .secondaryLabel
+        subtitleLabel.numberOfLines = 0
+        
+        let descriptionLabel = UILabel()
+        descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
+        descriptionLabel.text = description
+        descriptionLabel.font = .preferredFont(forTextStyle: .caption1)
+        descriptionLabel.numberOfLines = 0
+        
+        page.addSubview(imageView)
+        page.addSubview(titleLabel)
+        page.addSubview(subtitleLabel)
+        page.addSubview(descriptionLabel)
+        
+        // 아이폰 / 아이패드 정렬 분기
+        let isIpad = traitCollection.horizontalSizeClass == .regular &&
+        traitCollection.verticalSizeClass == .regular
+        
+        if isIpad {
+            titleLabel.textAlignment = .center
+            subtitleLabel.textAlignment = .center
+            descriptionLabel.textAlignment = .center
+        } else {
+            titleLabel.textAlignment = .left
+            subtitleLabel.textAlignment = .left
+            descriptionLabel.textAlignment = .center
+        }
+        
+        // Title Font
+        let titleFont: UIFont = isIpad
+        ? UIFont.systemFont(ofSize: 50, weight: .black)
+        : UIFont.systemFont(ofSize: 36, weight: .black)
+        titleLabel.font = titleFont
+        
+        NSLayoutConstraint.activate([
+            // 타이틀 → 부제목 → 이미지 → 설명 순서
+            titleLabel.topAnchor.constraint(equalTo: page.topAnchor, constant: 60),
+            titleLabel.leadingAnchor.constraint(equalTo: page.leadingAnchor, constant: 20),
+            titleLabel.trailingAnchor.constraint(equalTo: page.trailingAnchor, constant: -20),
+            
+            subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
+            subtitleLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            subtitleLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
+            
+            imageView.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 40),
+            imageView.centerXAnchor.constraint(equalTo: page.centerXAnchor),
+            imageView.widthAnchor.constraint(equalToConstant: 240),
+            imageView.heightAnchor.constraint(equalToConstant: 240),
+            
+            descriptionLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20),
+            descriptionLabel.leadingAnchor.constraint(equalTo: page.leadingAnchor, constant: 20),
+            descriptionLabel.trailingAnchor.constraint(equalTo: page.trailingAnchor, constant: -20)
+        ])
+    }
+    
+    private func setupPageControl() {
+        pageControl.numberOfPages = pages.count
+        pageControl.currentPage = 0
+        pageControl.pageIndicatorTintColor = .lightGray
+        pageControl.currentPageIndicatorTintColor = .accent
+        
+        view.addSubview(pageControl)
+        pageControl.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            pageControl.bottomAnchor.constraint(equalTo: continueButton.topAnchor, constant: -4),
+            pageControl.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+        ])
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let page = currentPage
+        pageControl.currentPage = page
+        
+        if page == pages.count - 1 {
+            continueButton.isEnabled = true
+            continueButton.backgroundColor = .accent
+        } else {
+            continueButton.isEnabled = false
+            continueButton.backgroundColor = .buttonBackground
+        }
+    }
+    
+    private func setupContinueButton() {
         applyBackgroundGradient(.midnightBlack)
         
         var config = UIButton.Configuration.filled()
@@ -36,61 +218,33 @@ class OnboardingViewController: CoreGradientViewController {
         var container = AttributeContainer()
         container.font = UIFont.preferredFont(forTextStyle: .headline)
         config.attributedTitle = AttributedString("다음", attributes: container)
-            
+        
         continueButton.configurationUpdateHandler = { [weak self] button in
-            switch button.state
-            {
+            switch button.state {
             case .highlighted:
                 self?.continueButton.alpha = 0.75
-            default: self?.continueButton.alpha = 1.0
+            default:
+                self?.continueButton.alpha = 1.0
             }
         }
         
         continueButton.configuration = config
-        continueButton.isEnabled = true
+        continueButton.isEnabled = false
+        continueButton.backgroundColor = .buttonBackground
         continueButton.addTarget(self, action: #selector(buttonAction(_:)), for: .touchUpInside)
         continueButton.applyCornerStyle(.medium)
-        continueButton.translatesAutoresizingMaskIntoConstraints = false
-
-        appImageView.image = UIImage(named: "appIconAny")
-        appImageView.contentMode = .scaleAspectFit
-        appImageView.applyCornerStyle(.medium)
-        appImageView.clipsToBounds = true
-
-        titleLabel.text = "환영합니다!"
-
-        let descriptionText = """
-Apple 건강앱과 연동해 신체 정보와 성별을 기반으로 맞춤형 건강 관리를 제공합니다. 달력에서 일별 걸음 목표 달성률을 확인하고 걸음 패턴을 분석합니다. 개인에게 맞는 난이도의 추천 걷기 코스를 얻을 수 있고 챗봇을 통해 다양한 걷기 정보를 얻을 수 있습니다.
-"""
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = 6
-        paragraphStyle.alignment = .center
-
-        let attributedString = NSAttributedString(
-            string: descriptionText,
-            attributes: [
-                .paragraphStyle: paragraphStyle,
-                .foregroundColor: UIColor.white.withAlphaComponent(0.7),
-            ]
-        )
-        descriptionLabel.attributedText = attributedString
-        descriptionLabel.textColor = .secondaryLabel
-
-        if let parentVC = parent as? ProgressContainerViewController {
-            parentVC.customNavigationBar.backButton.isHidden = true
-        }
     }
-
+    
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         
         let isIpad = traitCollection.horizontalSizeClass == .regular &&
-                     traitCollection.verticalSizeClass == .regular
-
+        traitCollection.verticalSizeClass == .regular
+        
         if isIpad {
             continueButtonLeading?.isActive = false
             continueButtonTrailing?.isActive = false
-
+            
             if iPadWidthConstraint == nil {
                 iPadWidthConstraint = continueButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7)
                 iPadCenterXConstraint = continueButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
@@ -100,12 +254,22 @@ Apple 건강앱과 연동해 신체 정보와 성별을 기반으로 맞춤형 �
         } else {
             iPadWidthConstraint?.isActive = false
             iPadCenterXConstraint?.isActive = false
-
+            
             continueButtonLeading?.isActive = true
             continueButtonTrailing?.isActive = true
         }
     }
-
+    
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        let page = currentPage
+        coordinator.animate(alongsideTransition: { _ in
+            self.scrollView.layoutIfNeeded()
+            let offsetX = CGFloat(page) * size.width
+            self.scrollView.setContentOffset(CGPoint(x: offsetX, y: 0), animated: false)
+        })
+        super.viewWillTransition(to: size, with: coordinator)
+    }
+    
     @IBAction func buttonAction(_ sender: Any) {
         performSegue(withIdentifier: "goToHealthLink", sender: self)
     }
