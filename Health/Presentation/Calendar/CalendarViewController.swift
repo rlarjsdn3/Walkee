@@ -4,6 +4,8 @@ import TSAlertController
 
 final class CalendarViewController: HealthNavigationController, Alertable {
 
+    @Injected private var healthService: (any HealthService)
+
     @IBOutlet weak var collectionView: UICollectionView!
 
     /// 뷰가 나타날 때 현재 월로 스크롤할지 여부를 결정하는 플래그
@@ -18,9 +20,12 @@ final class CalendarViewController: HealthNavigationController, Alertable {
     private lazy var dataManager = CalendarDataManager(calendarVM: calendarVM, collectionView: collectionView)
     private lazy var scrollManager = CalendarScrollManager(calendarVM: calendarVM, collectionView: collectionView)
 
+    private var isStepCountAuthorized = false
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNotifications()
+        updateAuthorizationAndReload()
         dataManager.startObserving()
     }
 
@@ -79,6 +84,23 @@ private extension CalendarViewController {
             name: .didUpdateGoalStepCount,
             object: nil
         )
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(reloadCalendar),
+            name: .didChangeHKSharingAuthorizationStatus,
+            object: nil
+        )
+    }
+
+    func updateAuthorizationAndReload() {
+        Task {
+            let result = await healthService.checkHasReadPermission(for: .stepCount)
+            self.isStepCountAuthorized = result
+            await MainActor.run {
+                dataManager.reloadData()
+            }
+        }
     }
 
     func configureNavigationBar() {
@@ -148,8 +170,13 @@ private extension CalendarViewController {
         navigationController?.pushViewController(dashboardVC, animated: true)
     }
 
-    @objc func reloadCalendar() {
-        dataManager.reloadData()
+    @objc func reloadCalendar(_ notification: Notification) {
+        // 건강 앱 연동 상태가 바뀌었을 때만 걸음 연동 체크 후 달력 데이터 갱신
+        if notification.name == .didChangeHKSharingAuthorizationStatus {
+            updateAuthorizationAndReload()
+        } else {
+            dataManager.reloadData()
+        }
     }
 }
 
@@ -162,7 +189,7 @@ extension CalendarViewController: UICollectionViewDataSource {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CalendarMonthCell.id, for: indexPath) as! CalendarMonthCell
 
         if let monthData = calendarVM.month(at: indexPath.item) {
-            cell.configure(with: monthData)
+            cell.configure(with: monthData, isStepCountAuthorized: isStepCountAuthorized)
         }
 
         if cell.onDateSelected == nil {

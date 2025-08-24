@@ -9,6 +9,7 @@ final class CalendarMonthCell: CoreCollectionViewCell {
     @Injected(.calendarStepService) private var stepService: CalendarStepService
 
     private var datesWithBlank: [Date] = []
+    private var isStepCountAuthorized = false
 
     var onDateSelected: ((Date) -> Void)?
 
@@ -23,7 +24,8 @@ final class CalendarMonthCell: CoreCollectionViewCell {
         )
     }
 
-    func configure(with monthData: CalendarMonthData) {
+    func configure(with monthData: CalendarMonthData, isStepCountAuthorized: Bool) {
+        self.isStepCountAuthorized = isStepCountAuthorized
         setupMonthData(year: monthData.year, month: monthData.month)
     }
 
@@ -59,9 +61,16 @@ extension CalendarMonthCell: UICollectionViewDataSource {
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CalendarDateCell.id, for: indexPath) as! CalendarDateCell
+
         let date = datesWithBlank[indexPath.item]
-        let (current, goal) = stepService.steps(for: date)
-        cell.configure(date: date, currentSteps: current, goalSteps: goal)
+
+        if isStepCountAuthorized {
+            let (current, goal) = stepService.steps(for: date)
+            cell.configure(date: date, currentSteps: current, goalSteps: goal)
+        } else {
+            cell.configure(date: date, currentSteps: nil, goalSteps: nil)
+        }
+
         return cell
     }
 }
