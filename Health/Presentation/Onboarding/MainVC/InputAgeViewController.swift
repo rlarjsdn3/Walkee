@@ -127,7 +127,7 @@ class InputAgeViewController: CoreGradientViewController {
    
     private func updateDescriptionTopConstraint() {
         let isLandscape = view.bounds.width > view.bounds.height
-        descriptionLabelTopConst.constant = isLandscape ? originalDescriptionTop * 0.3 : originalDescriptionTop * 1.2
+        descriptionLabelTopConst.constant = originalDescriptionTop * (isLandscape ? 0.3 : 1.2)
     }
     
     private func registerForKeyboardNotifications() {
