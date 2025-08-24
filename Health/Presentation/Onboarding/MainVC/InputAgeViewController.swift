@@ -191,7 +191,7 @@ class InputAgeViewController: CoreGradientViewController {
         guard let text = ageInputField.text, let birthYear = Int16(text) else { return }
         
         // 현재 연도에서 계산하여 age 저장
-        let currentYear = Calendar.current.component(.year, from: Date())
+        let currentYear = Date().year
         let age = Int16(currentYear - Int(birthYear))
         userInfo?.age = age
         
