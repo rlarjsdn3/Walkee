@@ -9,6 +9,7 @@ import UIKit
 import WidgetKit
 import HealthKit
 
+@MainActor
 protocol DashboardSnapshotProvider {
 	func makeSnapshot(for date: Date) async throws -> HealthDashboardSnapshot
 }
@@ -28,6 +29,7 @@ final class DefaultDashboardSnapshotProvider: DashboardSnapshotProvider {
 	@Injected private var health: HealthService
 	@Injected private var goals: GoalStepCountViewModel
 	
+	@MainActor
 	func makeSnapshot(for date: Date) async throws -> HealthDashboardSnapshot {
 		let start = date.startOfDay()
 		let end = date.endOfDay()
@@ -61,40 +63,34 @@ final class DefaultDashboardSnapshotProvider: DashboardSnapshotProvider {
 			).value
 		}
 		
-//		async let stepsValue: Double = try health.fetchStatistics(
-//			for: .stepCount, from: start, to: end,
-//			options: .cumulativeSum, unit: .count()
-//		).value
-//		
-//		async let distMeter: Double = try health.fetchStatistics(
-//			for: .distanceWalkingRunning, from: start, to: end,
-//			options: .cumulativeSum, unit: .meter()
-//		).value
-//		
-//		async let exMinute: Double = try health.fetchStatistics(
-//			for: .appleExerciseTime, from: start, to: end,
-//			options: .cumulativeSum, unit: .minute()
-//		).value
-//		
-//		async let activeKcal: Double = try health.fetchStatistics(
-//			for: .activeEnergyBurned, from: start, to: end,
-//			options: .cumulativeSum, unit: .kilocalorie()
-//		).value
-		
 		// 2) 7일 평균 (예: HealthKit로 계산하는 경우)
-		let weekStart = start.addingTimeInterval(-6 * 24 * 3600)
+		let windowEnd = date.endOfDay()                   // 오늘 24:00
+		let windowStart = Calendar.current
+			.date(byAdding: .day, value: -6, to: date.startOfDay())! // 6일 전 00:00
+
 		let collection = try await health.fetchStatisticsCollection(
 			for: .stepCount,
-			from: weekStart, to: end,
+			from: windowStart, to: windowEnd,
 			options: .cumulativeSum,
 			interval: DateComponents(day: 1),
 			unit: .count()
 		)
-		let weeklyAvg: Int = {
-			guard !collection.isEmpty else { return 0 }
-			let sum = collection.reduce(0.0) { $0 + $1.value }
-			return Int(sum / Double(collection.count))
-		}()
+
+		// HealthKit이 비어있는 날을 생략할 수 있으므로, 7칸을 직접 채워서 합산
+		let cal = Calendar.current
+		var total7 = 0.0
+		var cursor = windowStart
+		while cursor <= windowEnd {
+			// collection 안에서 cursor(그날 00:00)과 같은 날을 찾아 값 사용, 없으면 0
+			let dayValue = collection.first {
+				cal.isDate($0.startDate, inSameDayAs: cursor)
+			}?.value ?? 0.0
+
+			total7 += dayValue
+			cursor = cal.date(byAdding: .day, value: 1, to: cursor)!  // 다음 날로 이동
+		}
+
+		let weeklyAvg = Int(total7 / 7.0)
 		
 		// 3) async let 읽기 → 반드시 try await
 		let step = try await stepsValue
