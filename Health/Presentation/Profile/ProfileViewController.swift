@@ -23,7 +23,7 @@ struct ProfileCellModel {
 // 알림에선 확인 -> 설정
 //        취소 -> 스위치 원상복구
 
-class ProfileViewController: CoreGradientViewController, Alertable {
+class ProfileViewController: HealthNavigationController, Alertable {
     
     @IBOutlet weak var tableView: UITableView!
     
@@ -83,7 +83,8 @@ class ProfileViewController: CoreGradientViewController, Alertable {
         
         applyBackgroundGradient(.midnightBlack)
         
-        navigationItem.title = "프로필"
+        healthNavigationBar.title = "프로필"
+        healthNavigationBar.titleImage = UIImage(systemName: "person.crop.square.fill")
         
         tableView.dataSource = self
         tableView.delegate = self
@@ -143,37 +144,34 @@ class ProfileViewController: CoreGradientViewController, Alertable {
         UserDefaultsWrapper.shared.healthkitLinked = hasAny
         updateSectionItemsForHealthSwitch(to: hasAny)
     }
-    
-    /// 테이블 셀 내 스위치 값 변경 이벤트를 처리합니다.
-    ///
-    /// - Parameter sender: `UISwitch`
+
+    // MARK: - UserDefaults는 쓸지안쓸지 아직모르겠음
+    // TODO: - 권한 있는지 없는지 Notification 뿌리기
     @objc private func switchChanged(_ sender: UISwitch) {
-        // ON: 권한 요청
         if sender.isOn {
+            // OFF -> ON
             Task { [weak self] in
                 guard let self = self else { return }
-                do {
-                    let granted = try await self.healthService.requestAuthorization()
-                    await MainActor.run {
-                        if granted {
-                            // 정상적으로 하나 이상 허용됨
-                            UserDefaultsWrapper.shared.healthkitLinked = true
-                            self.updateSectionItemsForHealthSwitch(to: true)
-                        } else {
-                            // 권한이 하나도 없을 때: 권한 허용 얼럿 표시
-                            self.presentGrantAlert(for: sender)
-                        }
-                    }
-                } catch {
-                    await MainActor.run {
+                let hasAny = await self.healthService.checkHasAnyReadPermission()
+                await MainActor.run {
+                    if hasAny {
+                        // 하나라도 권한이 있으면 alert 없이 ON
+                        UserDefaultsWrapper.shared.healthkitLinked = true
+                        self.updateSectionItemsForHealthSwitch(to: true)
+                    } else {
+                        // 권한이 하나도 없으면 설정 유도 alert
+                        sender.setOn(false, animated: true) // 일단 원복
                         self.presentGrantAlert(for: sender)
                     }
                 }
             }
-        } else { // OFF
-            presentDenyAlert(for: sender)
+        } else {
+            // ON -> OFF: 알럿 없이 바로 반영
+            UserDefaultsWrapper.shared.healthkitLinked = false
+            updateSectionItemsForHealthSwitch(to: false)
         }
     }
+
     
     private func startGrantRecheckAfterReturning(switch sender: UISwitch) {
         // 기존 옵저버 제거
@@ -388,7 +386,7 @@ extension ProfileViewController: UITableViewDelegate {
                     let v = EditStepGoalView()
                     v.value = goalStep
                     v.step = 500
-                    v.minValue = 0
+                    v.minValue = 500
                     v.maxValue = 100_000
                     return v
                 },

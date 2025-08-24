@@ -124,11 +124,10 @@
         <!--프로필-->
         <scene sceneID="Hse-k5-UAj">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="iuE-Rs-pqA" sceneMemberID="viewController">
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" navigationBarHidden="YES" id="iuE-Rs-pqA" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="프로필" image="person.crop.square.fill" catalog="system" id="3Ta-92-2SH"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="N5g-h4-QH3">
-                        <rect key="frame" x="0.0" y="118" width="393" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
