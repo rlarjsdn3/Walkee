@@ -334,13 +334,10 @@ fileprivate extension DashboardViewController {
 
 fileprivate extension DashboardViewController {
 
-    // TODO: - 코드 다시 한번 검토하기
-
     func presentGoalRingShareSheet() {
         let image = snapshotFirstTwoSections(in: dashboardCollectionView)
-        let avc = UIActivityViewController(activityItems: [image], applicationActivities: nil)
-
-        // TODO: - 액티비티 컨트롤러 더 풍부하게 작성하기
+        let itemSource = DashboardActivityItemSrouce(title: "안녕", image: image)
+        let avc = UIActivityViewController(activityItems: [itemSource], applicationActivities: nil)
 
         if let pop = avc.popoverPresentationController {
             pop.sourceView = view
@@ -355,29 +352,24 @@ fileprivate extension DashboardViewController {
         let layout = collectionView.collectionViewLayout
 
         var union = CGRect.null
-        print("CGRect.null:", union)
         let itemCount = collectionView.numberOfItems(inSection: section)
 
         for item in 0..<itemCount {
             let indexPath = IndexPath(item: item, section: section)
             if let attr = layout.layoutAttributesForItem(at: indexPath) {
-                print("Attr.frame:", attr.frame)
                 union = union.union(attr.frame)
-                print("Union:", union)
             }
         }
-        print("Final Union: ", union)
         return union
     }
 
     func snapshot(of rect: CGRect, in collectionView: UICollectionView, scale: CGFloat = UIScreen.main.scale) -> UIImage {
         collectionView.layoutIfNeeded()
 
-//        let renderFormat = UIGraphicsImageRendererFormat.default()
-//        renderFormat.scale = scale
-        let renderer = UIGraphicsImageRenderer(size: rect.size/*, format: renderFormat*/)
-//        → 새로 만든 캔버스는 항상 (0,0)부터 시작하고, 크기는 rect.size.
-//        즉, “출력 이미지 좌표계”는 (0,0)~(200,300) 범위임.
+        let renderFormat = UIGraphicsImageRendererFormat.default()
+        renderFormat.scale = scale
+        // 출력 이미지의 좌표 원점은 (0,0)이며, 크기는 rect.size입니다.
+        let renderer = UIGraphicsImageRenderer(size: rect.size, format: renderFormat)
 
         let originalOffset = collectionView.contentOffset
         defer {
@@ -387,13 +379,32 @@ fileprivate extension DashboardViewController {
         }
 
         let image = renderer.image { context in
+            // 지정한 rect를 (0,0)부터 시작하도록 맞추기 위해
+            // 원점을 rect.origin만큼 반대로 평행 이동합니다.
             context.cgContext.translateBy(x: -rect.origin.x, y: -rect.origin.y)
-//            rect = 우리가 캡처하고 싶은 컬렉션 뷰 내부의 영역
-//            예: rect.origin = (16, 0), rect.size = (200, 300)
 
-//            •    translateBy(x: -16, y: -0)
-//        → 즉, 전체 그림을 왼쪽으로 16만큼 당김.
-//        그러면 원래 (16,0)에 있던 픽셀이 출력 캔버스의 (0,0)에 딱 맞게 옵니다.
+            let topColor = UIColor { traitCollection in
+                traitCollection.userInterfaceStyle == .dark
+                ? UIColor(hex: "292A3D").withAlphaComponent(0.9)
+                : UIColor.systemBackground
+            }.cgColor
+            let bottomColor = UIColor { traitCollection in
+                traitCollection.userInterfaceStyle == .dark
+                ? UIColor(hex: "000000").withAlphaComponent(0.9)
+                : UIColor.systemBackground
+            }.cgColor
+
+            let colorSpace = CGColorSpaceCreateDeviceRGB()
+            let colors = [topColor, bottomColor] as CFArray
+            let locations: [CGFloat] = [0.0, 1.0]
+
+            if let gradient = CGGradient(colorsSpace: colorSpace, colors: colors, locations: locations) {
+                // 상단에 흰색 라인이 보이지 않도록, 시작점을 약간 위로 올려서 그라디언트를 그립니다.
+                let start = CGPoint(x: 0, y: -20)
+                let end   = CGPoint(x: 0, y: rect.size.height)
+                context.cgContext.drawLinearGradient(gradient, start: start, end: end, options: [])
+            }
+
             let viewportHeight = collectionView.bounds.height
 
             var tileMinY = rect.minY
@@ -403,7 +414,7 @@ fileprivate extension DashboardViewController {
                 collectionView.setContentOffset(CGPoint(x: 0, y: targetOffset.y), animated: false)
                 collectionView.layoutIfNeeded()
 
-                collectionView.backgroundColor = .systemBackground // TODO: - 그라디언트 색상으로 바꾸기
+                collectionView.backgroundColor = .clear
                 collectionView.layer.render(in: context.cgContext)
 
                 tileMinY += tileHeight
@@ -420,11 +431,11 @@ fileprivate extension DashboardViewController {
         let s0 = sectionRect(in: collectionView, section: 0)
         let s1 = sectionRect(in: collectionView, section: 1)
         var union = s0.union(s1)
+        
         union.origin.x -= extraInsets.left
         union.origin.y -= extraInsets.top
         union.size.width  += (extraInsets.left + extraInsets.right)
         union.size.height += (extraInsets.top  + extraInsets.bottom)
-        print("FFFFFFF Union:", union)
 
         return snapshot(of: union, in: collectionView)
     }
