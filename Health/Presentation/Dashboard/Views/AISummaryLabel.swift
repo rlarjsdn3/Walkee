@@ -50,6 +50,8 @@ final class AISummaryLabel: CoreView {
     }
 
     override func setupAttribute() {
+        self.translatesAutoresizingMaskIntoConstraints = false
+
         containerStackView.spacing = 12
         containerStackView.alignment = .top
         containerStackView.translatesAutoresizingMaskIntoConstraints = false
@@ -64,6 +66,10 @@ final class AISummaryLabel: CoreView {
     }
 
     override func setupConstraints() {
+        NSLayoutConstraint.activate([
+            self.heightAnchor.constraint(greaterThanOrEqualToConstant: 20)
+        ])
+
         NSLayoutConstraint.activate([
             containerStackView.topAnchor.constraint(equalTo: topAnchor),
             containerStackView.leadingAnchor.constraint(equalTo: leadingAnchor),
