@@ -477,7 +477,6 @@ extension DashboardViewModel {
 }
 
 extension DashboardViewModel {
-
     func requestAlanToSummarizeTodayActivity() async throws -> String? {
         guard let prompt = try? await promptBuilderService.makePrompt(
             message: nil,
@@ -487,7 +486,16 @@ extension DashboardViewModel {
         let response = await alanService.sendQuestion(prompt)
         return response
     }
+	
+	func checkHKHasAnyReadPermission(typeIdentifier quantityTypeIdentifier: HKQuantityTypeIdentifier? = nil) async -> Bool {
+		let hasReadPermission: Bool = await quantityTypeIdentifier != nil
+		? healthService.checkHasReadPermission(for: quantityTypeIdentifier!)
+		: healthService.checkHasAnyReadPermission()
+
+		return hasReadPermission && hasHealthKitLinked
+	}
 }
+
 // MARK: - Widget과의 스냅샷 연동 관련 설정
 extension DashboardViewModel {
 	/// 위젯 스냅샷 생성 + 저장 + 리로드
@@ -495,16 +503,6 @@ extension DashboardViewModel {
 		Task { await DashboardSnapshotStore.updateFromHealthKit() }
 	}
 }
-
-    func checkHKHasAnyReadPermission(typeIdentifier quantityTypeIdentifier: HKQuantityTypeIdentifier? = nil) async -> Bool {
-        let hasReadPermission: Bool = await quantityTypeIdentifier != nil
-        ? healthService.checkHasReadPermission(for: quantityTypeIdentifier!)
-        : healthService.checkHasAnyReadPermission()
-
-        return hasReadPermission && hasHealthKitLinked
-    }
-}
-
 
 fileprivate extension DashboardViewModel {
 
