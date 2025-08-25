@@ -78,10 +78,6 @@ class RecommendPlaceCell: CoreCollectionViewCell {
             return
         }
 
-        // 기본 로딩 상태
-        courseImage.image = UIImage(systemName: "map")
-        courseImage.tintColor = .systemGray3
-
         currentGPXURL = course.gpxpath
         thumbnailTask?.cancel()
 
@@ -96,7 +92,8 @@ class RecommendPlaceCell: CoreCollectionViewCell {
                 courseImage.contentMode = .scaleAspectFill
             } else {
                 courseImage.image = UIImage(systemName: "location.slash")
-                courseImage.tintColor = .systemOrange
+                courseImage.contentMode = .scaleAspectFit
+                courseImage.tintColor = .systemBlue
             }
         }
     }
@@ -107,7 +104,7 @@ class RecommendPlaceCell: CoreCollectionViewCell {
         if distanceText.contains("km") || distanceText.contains("m") {
             userDistanceLabel.textColor = .systemBlue
         } else {
-            userDistanceLabel.textColor = .systemOrange
+            userDistanceLabel.textColor = .systemBlue
         }
     }
 
