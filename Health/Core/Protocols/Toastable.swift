@@ -87,18 +87,26 @@ extension Toastable where Self: UIViewController {
         let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .medium)
         iconView.image = UIImage(systemName: "exclamationmark.triangle.fill", withConfiguration: config)
         iconView.tintColor = .warningSymbol
+        
+        iconView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            iconView.widthAnchor.constraint(equalToConstant: 24),
+            iconView.heightAnchor.constraint(equalToConstant: 24)
+        ])
 
         let titleLabel = UILabel()
         titleLabel.text = title
         titleLabel.font = .boldSystemFont(ofSize: 16)
         titleLabel.textColor = .label
         titleLabel.numberOfLines = 0
+        titleLabel.textAlignment = .center
         
         let messageLabel = UILabel()
         messageLabel.text = message
         messageLabel.font = .systemFont(ofSize: 14)
         messageLabel.textColor = .secondaryLabel
         messageLabel.numberOfLines = 0
+        messageLabel.textAlignment = .center
         
         let textStack = UIStackView(arrangedSubviews: [titleLabel, messageLabel])
         textStack.axis = .vertical
@@ -123,8 +131,7 @@ extension Toastable where Self: UIViewController {
             
             toastContainer.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             toastContainer.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -40),
-            toastContainer.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: 20),
-            toastContainer.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -20)
+            toastContainer.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7)
         ])
         
         UIView.animate(withDuration: 0.5, animations: {
