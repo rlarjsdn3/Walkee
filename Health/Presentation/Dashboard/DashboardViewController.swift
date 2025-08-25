@@ -39,6 +39,8 @@ final class DashboardViewController: HealthNavigationController, Alertable {
         buildLayout()
         setupDataSource()
         applySnapshot()
+		// 위젯 스냅샷 update
+		viewModel.updateWidgetSnapshot()
     }
 
     private func buildLayout() {
@@ -119,6 +121,8 @@ final class DashboardViewController: HealthNavigationController, Alertable {
 
     @objc private func refreshHKData() {
         viewModel.loadHKData()
+		// 당겨서 새로고침 때에도 갱신
+		viewModel.updateWidgetSnapshot()
         Task.delay(for: 1.0) { @MainActor in refreshControl.endRefreshing() }
     }
 
