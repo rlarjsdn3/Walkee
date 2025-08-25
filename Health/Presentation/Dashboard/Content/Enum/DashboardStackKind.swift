@@ -37,7 +37,7 @@ extension DashboardStackKind {
         case .distanceWalkingRunning:           return "location.fill"
         case .appleExerciseTime:                return "timer"
         case .activeEnergyBurned:               return "flame.fill"
-        case .basalEnergyBurned:                return "flame"
+        case .basalEnergyBurned:                return "sleep.circle.fill"
         }
     }
 

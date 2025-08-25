@@ -210,7 +210,7 @@ fileprivate extension DashboardViewController {
         snapshot.appendSections([.ring])
 
         var items: [DashboardContent.Item] = []
-        viewModel.goalRingIDs.forEach { id in
+        viewModel.activtyRingIDs.forEach { id in
             items.append(.goalRing(id))
         }
         viewModel.stackIDs.forEach { id in
@@ -275,9 +275,9 @@ fileprivate extension DashboardViewController {
         }
     }
 
-    func createDailyGoalRingCellRegistration() -> UICollectionView.CellRegistration<DailyGoalRingCollectionViewCell, DailyGoalRingCellViewModel.ItemID> {
-        UICollectionView.CellRegistration<DailyGoalRingCollectionViewCell, DailyGoalRingCellViewModel.ItemID>(cellNib: DailyGoalRingCollectionViewCell.nib) { [weak self] cell, indexPath, id in
-            guard let vm = self?.viewModel.goalRingCells[id] else { return }
+    func createDailyGoalRingCellRegistration() -> UICollectionView.CellRegistration<ActivityRingCollectionViewCell, DailyGoalRingCellViewModel.ItemID> {
+        UICollectionView.CellRegistration<ActivityRingCollectionViewCell, DailyGoalRingCellViewModel.ItemID>(cellNib: ActivityRingCollectionViewCell.nib) { [weak self] cell, indexPath, id in
+            guard let vm = self?.viewModel.activityRingCells[id] else { return }
             cell.bind(with: vm)
         }
     }

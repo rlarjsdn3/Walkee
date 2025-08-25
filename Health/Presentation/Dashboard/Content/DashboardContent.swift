@@ -48,7 +48,7 @@ extension DashboardContent.Item {
     func dequeueReusableCollectionViewCell(
         collectionView: UICollectionView,
         topBarCellRegistration: UICollectionView.CellRegistration<DashboardTopBarCollectionViewCell, DashboardTopBarViewModel.ItemID>,
-        dailyGoalRingCellRegistration: UICollectionView.CellRegistration<DailyGoalRingCollectionViewCell, DailyGoalRingCellViewModel.ItemID>,
+        dailyGoalRingCellRegistration: UICollectionView.CellRegistration<ActivityRingCollectionViewCell, DailyGoalRingCellViewModel.ItemID>,
         healthInfoStackCellRegistration: UICollectionView.CellRegistration<HealthInfoStackCollectionViewCell, HealthInfoStackCellViewModel.ItemID>,
         barChartsCellRegistration: UICollectionView.CellRegistration<DashboardBarChartsCollectionViewCell, DashboardBarChartsCellViewModel.ItemID>,
         alanSummaryCellRegistration: UICollectionView.CellRegistration<AlanActivitySummaryCollectionViewCell, AlanActivitySummaryCellViewModel.ItemID>,
@@ -156,7 +156,7 @@ extension DashboardContent.Section {
     func buildLayout(_ environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
         switch self {
         case .top:      buildTopLayout(environment)
-        case .ring:     buildRingLayout(environment)
+        case .ring:     buildActivityRingLayout(environment)
         case .charts:   buildChartsLayout(environment)
         case .alan:     buildAlanLayout(environment)
         case .card:     buildCardLayout(environment)
@@ -188,33 +188,73 @@ extension DashboardContent.Section {
         return section
     }
 
-    private func buildRingLayout(_ environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
+    private func buildActivityRingLayout(_ environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
+        let leadingItemWidthDimension: NSCollectionLayoutDimension = environment.horizontalSizeClass(
+            compact: .fractionalWidth(0.63),
+            regular: .fractionalWidth(0.4)
+        )
         let leadingItemSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(0.65),
+            widthDimension: leadingItemWidthDimension,
             heightDimension: .fractionalHeight(1.0)
         )
         let leadingItem = NSCollectionLayoutItem(layoutSize: leadingItemSize)
 
+        let trailingItemWidthDimension: NSCollectionLayoutDimension = environment.horizontalSizeClass(
+            compact: .fractionalWidth(1.0),
+            regular: .fractionalWidth(0.5)
+        )
+        let trailingItemHeightDimension: NSCollectionLayoutDimension = environment.horizontalSizeClass(
+            compact: .fractionalHeight(0.25),
+            regular: .fractionalHeight(1.0)
+        )
         let trailingItemSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .fractionalHeight(0.33)
+            widthDimension: trailingItemWidthDimension,
+            heightDimension: trailingItemHeightDimension
         )
         let trailingItem = NSCollectionLayoutItem(layoutSize: trailingItemSize)
 
+        let trailingGroupWidthDimension: NSCollectionLayoutDimension = environment.horizontalSizeClass(
+            compact: .fractionalWidth(0.37),
+            regular: .fractionalWidth(0.6)
+        )
         let trailingGroupSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(0.35),
+            widthDimension: trailingGroupWidthDimension,
             heightDimension: .fractionalHeight(1.0)
         )
-        let trailingGroup = NSCollectionLayoutGroup.vertical(
-            layoutSize: trailingGroupSize,
-            repeatingSubitem: trailingItem,
-            count: 3
-        )
+        let trailingGroup = environment.horizontalSizeClass {
+            let vGroup = NSCollectionLayoutGroup.vertical(
+                layoutSize: trailingGroupSize,
+                subitems: [trailingItem]
+            )
+            vGroup.interItemSpacing = .flexible(12)
+            return vGroup
+        } regular: {
+            let twoColumns = NSCollectionLayoutGroup.horizontal(
+                layoutSize: NSCollectionLayoutSize(
+                    widthDimension: .fractionalWidth(1.0),
+                    heightDimension: .fractionalHeight(0.5)
+                ),
+                repeatingSubitem: trailingItem,
+                count: 2
+            )
+            twoColumns.interItemSpacing = .flexible(12)
+
+            let grid2x2 = NSCollectionLayoutGroup.vertical(
+                layoutSize: trailingGroupSize,
+                subitems: [twoColumns, twoColumns]
+            )
+            grid2x2.interItemSpacing = .flexible(12)
+            return grid2x2
+        }()
         trailingGroup.interItemSpacing = .flexible(12)
 
+        let nestedGroupHeightDimension: NSCollectionLayoutDimension = environment.horizontalSizeClass(
+            compact: .absolute(240),
+            regular: .absolute(210)
+        )
         let nestedGroupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(225)
+            heightDimension: nestedGroupHeightDimension
 
         )
         let nestedGroup = NSCollectionLayoutGroup.horizontal(
