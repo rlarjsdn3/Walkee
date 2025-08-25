@@ -420,7 +420,6 @@ extension ProfileViewController: UITableViewDelegate {
         case "목표 걸음 설정":
             let goalStep = goalStepCountVM.goalStepCount(for: Date()).map(Int.init) ?? 0
             currentGoalCache = goalStep
-            print("[ProfileViewController] 현재 목표 걸음 수: \(goalStep)")
             showActionSheetForProfile(
                 buildView: {
                     let v = EditStepGoalView()
@@ -438,8 +437,6 @@ extension ProfileViewController: UITableViewDelegate {
                     self.currentGoalCache = v.value
                     
                     NotificationCenter.default.post(name: .didUpdateGoalStepCount, object: nil)
-                    
-                    print("[ProfileViewController] 변경된 목표 걸음 수: \(v.value)")
                 }
             )
             

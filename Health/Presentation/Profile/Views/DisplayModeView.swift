@@ -68,7 +68,7 @@ class DisplayModeView: CoreView {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 12),
+            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 8),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
             
@@ -102,7 +102,7 @@ class DisplayModeView: CoreView {
         let titleLabel = UILabel()
         titleLabel.text = title
         titleLabel.textColor = .label
-        titleLabel.font = .preferredFont(forTextStyle: .body)
+        titleLabel.font = .preferredFont(forTextStyle: .headline)
         titleLabel.adjustsFontForContentSizeCategory = true
         
         let spacer = UIView()

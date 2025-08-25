@@ -88,7 +88,7 @@ final class EditStepGoalView: CoreView {
         let horizontalPadding: CGFloat = UIDevice.current.userInterfaceIdiom == .pad ? 160 : 16
         
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 12),
+            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 8),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
 

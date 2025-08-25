@@ -95,7 +95,6 @@ class BodyInfoViewController: HealthNavigationController, Alertable {
         userVM.fetchUsers()
         currentUser = userVM.users.first
         if let u = currentUser {
-            print(u)
             let genderText = (u.gender ?? "").isEmpty ? "-" : (u.gender ?? "")
             if items.indices.contains(0) {
                 items[0].detail = genderText
@@ -203,24 +202,23 @@ extension BodyInfoViewController: UITableViewDelegate {
             )
         case "태어난 해":
             let currentYear = Date().year
-            
             let defaultYear: Int = {
+                let digits = items[indexPath.row].detail.filter(\.isNumber)
+                if let cellYear = Int(digits), cellYear > 0 {
+                    return cellYear
+                }
+
                 let context = CoreDataStack.shared.viewContext
                 let request: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
-                
                 do {
                     if let userInfo = try context.fetch(request).first, userInfo.age > 0 {
-                        let calculatedYear = currentYear - Int(userInfo.age)
-                        return calculatedYear
+                        return currentYear - Int(userInfo.age)
                     }
                 } catch {
                     print("Core Data fetch 실패: \(error)")
                 }
-                
-                // Core Data에서 가져오지 못한 경우, 기존 cell의 값을 사용하거나 현재년도 사용
-                let digits = items[indexPath.row].detail.filter(\.isNumber)
-                let cellYear = Int(digits)
-                return (cellYear ?? 0) > 0 ? cellYear! : currentYear
+
+                return currentYear
             }()
             
             showActionSheetForProfile(
@@ -342,7 +340,7 @@ extension BodyInfoViewController: UITableViewDelegate {
                     return v
                 },
                 heightRatio: 0.6,
-                widthRatio: 0.9,
+                widthRatio: 1.0,
                 iPadLandscapeHeightRatio: 0.45,
                 iPadLandscapeWidthRatio: 0.8,
                 onConfirm: { [weak self] view in

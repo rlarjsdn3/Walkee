@@ -333,7 +333,7 @@ extension Alertable where Self: UIViewController {
     func showActionSheetForProfile(
         buildView: () -> UIView,
         heightRatio: CGFloat = 0.4,
-        widthRatio: CGFloat = 0.9,
+        widthRatio: CGFloat = 1.0,
         iPadLandscapeHeightRatio: CGFloat = 0.4,
         iPadLandscapeWidthRatio: CGFloat = 0.8,
         onConfirm: ((UIView) -> Void)? = nil
