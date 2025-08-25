@@ -175,22 +175,22 @@ final class DashboardViewModel {
 
 extension DashboardViewModel {
 
-    func loadHKData(includeAIResponse: Bool = true) {
-        loadAnchorDateForTopCell()
+    func loadHKData(includeAI: Bool = true, updateAnchorDate: Bool = false) {
+        loadAnchorDateForTopCell(updateAnchorDate: updateAnchorDate)
         loadHKDataForGoalRingCells()
         loadHKDataForStackCells()
         loadHKDataForCardCells()
         loadHKDataForBarChartsCells()
 
         // 대시보드가 오늘자 데이터를 보여준다면
-        if shouldShowSummaryAndCharts && includeAIResponse {
+        if shouldShowSummaryAndCharts && includeAI {
             loadAlanAIResponseForSummaryCells()
         }
     }
 
-    func loadAnchorDateForTopCell() {
+    func loadAnchorDateForTopCell(updateAnchorDate: Bool) {
         for (_, vm) in topCells {
-            vm.renewalAnchorDate(.now)
+            vm.updateAnchorDate(updateAnchorDate ? .now : anchorDate)
         }
     }
 
@@ -429,8 +429,10 @@ extension DashboardViewModel {
     func fetchCoreDataUser() -> (age: Int, goalStep: Int) {
         // ⚠️ 사용자 및 목표 걸음 수가 제대로 등록되어 있으면 않으면 크래시
         let user = try! coreDataUserService.fetchUserInfo()
-        let goalStepCount = goalStepService.goalStepCount(for: anchorDate.endOfDay())!
-        return (Int(user.age), Int(goalStepCount))
+//        let goalStepCount = goalStepService.goalStepCount(for: anchorDate.endOfDay())!
+//        return (Int(user.age), Int(goalStepCount))
+
+        return (27, 5000)
     }
 }
 
@@ -496,9 +498,8 @@ extension DashboardViewModel {
 	}
 }
 
-// MARK: - Widget과의 스냅샷 연동 관련 설정
 extension DashboardViewModel {
-	/// 위젯 스냅샷 생성 + 저장 + 리로드
+
 	func updateWidgetSnapshot() {
 		Task { await DashboardSnapshotStore.updateFromHealthKit() }
 	}

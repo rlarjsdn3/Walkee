@@ -33,6 +33,10 @@ final class AlanActivitySummaryCellViewModel {
         stateSubject.eraseToAnyPublisher()
     }
 
+    var loadState: LoadState<AlanContent> {
+        stateSubject.value
+    }
+
     ///
     var didChange: ((ItemID) -> Void)?
 

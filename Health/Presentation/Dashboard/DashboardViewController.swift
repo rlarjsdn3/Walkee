@@ -28,8 +28,6 @@ final class DashboardViewController: HealthNavigationController, Alertable, Scro
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        loadData()
         registerNotification()
     }
 
@@ -37,9 +35,10 @@ final class DashboardViewController: HealthNavigationController, Alertable, Scro
         super.viewIsAppearing(animated)
 
         buildLayout()
+        loadData()
         setupDataSource()
         applySnapshot()
-		// 위젯 스냅샷 update
+
 		viewModel.updateWidgetSnapshot()
     }
 
@@ -120,13 +119,13 @@ final class DashboardViewController: HealthNavigationController, Alertable, Scro
     }
 
     private func shareActivityRingImage() {
-        viewModel.loadHKData(includeAIResponse: false)
+        viewModel.loadHKData(includeAI: false, updateAnchorDate: false)
         Task.delay(for: 0.2) { @MainActor in await presentActivityRingShareSheet() }
     }
 
     @objc private func refreshHKData() {
-        viewModel.loadHKData()
-		// 당겨서 새로고침 때에도 갱신
+
+        viewModel.loadHKData(includeAI: true, updateAnchorDate: true)
 		viewModel.updateWidgetSnapshot()
         Task.delay(for: 1.0) { @MainActor in refreshControl.endRefreshing() }
     }
@@ -267,6 +266,11 @@ fileprivate extension DashboardViewController {
     func createTopBarCellRegistration() -> UICollectionView.CellRegistration<DashboardTopBarCollectionViewCell, DashboardTopBarViewModel.ItemID> {
         UICollectionView.CellRegistration<DashboardTopBarCollectionViewCell, DashboardTopBarViewModel.ItemID>(cellNib: DashboardTopBarCollectionViewCell.nib) { [weak self] cell, indexPath, id in
             guard let vm = self?.viewModel.topCells[id] else { return }
+            vm.didChange = {
+                guard var snapshot = self?.dataSource?.snapshot() else { return }
+                snapshot.reconfigureItems([.topBar(id)])
+                self?.dataSource?.apply(snapshot, animatingDifferences: false)
+            }
             cell.bind(with: vm)
         }
     }
@@ -299,10 +303,10 @@ fileprivate extension DashboardViewController {
                 guard var snapshot = self?.dataSource?.snapshot() else { return }
 
                 snapshot.reconfigureItems([.alanSummary(id)])
+                self?.dataSource?.apply(snapshot, animatingDifferences: false)
                 self?.dashboardCollectionView.performBatchUpdates {
-                    self?.dataSource?.apply(snapshot, animatingDifferences: false)
-                } completion: { _ in
                     self?.dashboardCollectionView.collectionViewLayout.invalidateLayout()
+                } completion: { _ in
                 }
             }
             cell.bind(with: vm)
@@ -368,7 +372,7 @@ fileprivate extension DashboardViewController {
                          경로: 프로필(우측 상단) ⏵ 개인정보 보호 ⏵ 앱 ⏵ Health  
                          위 경로에서 앱의 데이터 접근 권한을 해제하거나 다시 활성화할 수 있습니다.
                          """,
-                primaryTitle: "설정으로 이동",
+                primaryTitle: "열기",
                 onPrimaryAction: ({ [weak self] _ in
                     self?.openURL(string: "x-apple-health://")
                 }),

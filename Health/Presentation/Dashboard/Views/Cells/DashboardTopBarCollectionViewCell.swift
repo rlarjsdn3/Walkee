@@ -20,6 +20,11 @@ final class DashboardTopBarCollectionViewCell: CoreCollectionViewCell {
 
     override func prepareForReuse() {
         cancellables.removeAll()
+        anchorDateLabel.text = nil
+    }
+
+    override func setupAttribute() {
+        anchorDateLabel.text = nil
     }
 }
 
@@ -38,6 +43,9 @@ extension DashboardTopBarCollectionViewCell {
     private func update(with date: Date) {
         dateLabel.text = date.formatted(using: .md)
         weekDayLabel.text = date.formatted(using: .weekday)
-        anchorDateLabel.text = "(\(date.formatted(using: .h_m)) 기준)"
+
+        if date.isEqual(with: .now) {
+            anchorDateLabel.text = "(\(Date.now.formatted(using: .aHHmm)) 기준)"
+        }
     }
 }

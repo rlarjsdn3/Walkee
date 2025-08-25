@@ -279,13 +279,13 @@ extension DashboardContent.Section {
     private func buildAlanLayout(_ environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(24)
+            heightDimension: .estimated(44)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(24)
+            heightDimension: .estimated(44)
         )
         let group = NSCollectionLayoutGroup.vertical(
             layoutSize: groupSize,

@@ -9,27 +9,67 @@ import UIKit
 
 final class AISummaryLabel: CoreView {
 
-    private let imageView = UIImageView()
-    private let summaryLabel = UILabel()
-    private let containerStackView = UIStackView()
+    private let icon = UIImageView()
+    private let label = UILabel()
 
-    /// 요약 텍스트를 표시하거나 가져옵니다.
+    private let iconSize: CGFloat = 20
+    private let labelLeading: CGFloat = 12
+
+    ///
     var text: String? {
-        get { summaryLabel.text }
-        set { summaryLabel.text = newValue }
+        didSet { label.text = text }
     }
 
     override var intrinsicContentSize: CGSize {
+        getCGSize(label.text)
+    }
+
+    override func setupHierarchy() {
+        addSubviews(icon, label)
+    }
+
+    override func setupAttribute() {
+        icon.image = UIImage(resource: .chatBot)
+        icon.translatesAutoresizingMaskIntoConstraints = false
+
+        label.text = "Hello, World!"
+        label.font = UIFont.preferredFont(forTextStyle: .callout)
+        label.textColor = .label
+        label.numberOfLines = 0
+        label.translatesAutoresizingMaskIntoConstraints = false
+
+        label.setContentHuggingPriority(.required, for: .vertical)
+        label.setContentCompressionResistancePriority(.required, for: .vertical)
+    }
+
+    override func setupConstraints() {
+        NSLayoutConstraint.activate([
+            icon.leadingAnchor.constraint(equalTo: leadingAnchor),
+            icon.topAnchor.constraint(equalTo: topAnchor),
+            icon.widthAnchor.constraint(equalToConstant: iconSize),
+            icon.heightAnchor.constraint(equalToConstant: iconSize),
+
+            label.leadingAnchor.constraint(equalTo: icon.trailingAnchor, constant: labelLeading),
+            label.topAnchor.constraint(equalTo: topAnchor),
+            label.trailingAnchor.constraint(equalTo: trailingAnchor),
+            label.bottomAnchor.constraint(equalTo: bottomAnchor),
+        ])
+    }
+}
+
+extension AISummaryLabel {
+
+    func getCGSize(_ text: String?) -> CGSize {
         guard self.bounds.width > 0 else {
             return CGSizeMake(UIView.noIntrinsicMetric, UIView.noIntrinsicMetric)
         }
 
-        let text = (summaryLabel.attributedText?.string as NSString?) ??
-                   (summaryLabel.text as NSString? ?? "")
-        let font = summaryLabel.font ?? UIFont.preferredFont(forTextStyle: .callout)
+        let text = (label.attributedText?.string as NSString?) ??
+                   (label.text as NSString? ?? "")
+        let font = label.font ?? UIFont.preferredFont(forTextStyle: .callout)
         let width = max(0, self.bounds.width
-                        - 26   // 왼쪽 아이콘의 너비
-                        - 12)  // 스택의 간격(spacing)
+                        - iconSize       // 왼쪽 아이콘의 너비
+                        - labelLeading)  // 스택의 간격(spacing)
 
         let rect = text.boundingRect(
             with: CGSize(width: width, height: .greatestFiniteMagnitude),
@@ -40,50 +80,7 @@ final class AISummaryLabel: CoreView {
 
         return CGSize(
             width: UIView.noIntrinsicMetric,
-            height: ceil(rect.height) + 2 // top 패딩 합
+            height: ceil(rect.height)
         )
-    }
-
-    override func setupHierarchy() {
-        addSubview(containerStackView)
-        containerStackView.addArrangedSubviews(imageView, summaryLabel)
-    }
-
-    override func setupAttribute() {
-        self.translatesAutoresizingMaskIntoConstraints = false
-
-        containerStackView.spacing = 12
-        containerStackView.alignment = .top
-        containerStackView.translatesAutoresizingMaskIntoConstraints = false
-
-        imageView.image = UIImage(resource: .chatBot)
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-
-        summaryLabel.text = "Hello, World!"
-        summaryLabel.font = UIFont.preferredFont(forTextStyle: .callout)
-        summaryLabel.textColor = .label
-        summaryLabel.numberOfLines = 0
-    }
-
-    override func setupConstraints() {
-        NSLayoutConstraint.activate([
-            self.heightAnchor.constraint(greaterThanOrEqualToConstant: 20)
-        ])
-
-        NSLayoutConstraint.activate([
-            containerStackView.topAnchor.constraint(equalTo: topAnchor),
-            containerStackView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            containerStackView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            containerStackView.bottomAnchor.constraint(equalTo: bottomAnchor)
-        ])
-
-        NSLayoutConstraint.activate([
-            imageView.widthAnchor.constraint(equalToConstant: 20),
-            imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, multiplier: 1.0)
-        ])
-
-        NSLayoutConstraint.activate([
-            summaryLabel.topAnchor.constraint(equalTo: containerStackView.topAnchor, constant: 2)
-        ])
     }
 }
