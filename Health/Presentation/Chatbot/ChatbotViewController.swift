@@ -21,7 +21,9 @@ final class ChatbotViewController: CoreGradientViewController {
 	@IBOutlet private weak var containerViewBottomConstraint: NSLayoutConstraint!
 	@IBOutlet private weak var chattingInputStackView: UIStackView!
 	@IBOutlet private weak var chattingContainerStackView: UIStackView!
+	@IBOutlet weak var chattingInputContainer: UIStackView!
 	@IBOutlet private weak var chattingTextField: UITextField!
+	@IBOutlet weak var disclaimerLabel: UILabel!
 	@IBOutlet private weak var sendButton: UIButton!
 	
 	// MARK: 로그 확인용 및 마스킹 적용 PrivacyService 주입
@@ -141,6 +143,38 @@ final class ChatbotViewController: CoreGradientViewController {
 		automaticallyAdjustsScrollViewInsets = false
 	}
 	
+	override func setupConstraints() {
+		super.setupConstraints()
+		// 바깥 컨테이너(SafeArea 꽉)
+		
+		// ✅ 부모 스택뷰 내부 여백: 위 8, 좌우 16, 아래 12(라벨 잘림 방지)
+			chattingContainerStackView.isLayoutMarginsRelativeArrangement = true
+			if #available(iOS 11.0, *) {
+				chattingContainerStackView.directionalLayoutMargins =
+					NSDirectionalEdgeInsets(top: 8, leading: 16, bottom: 12, trailing: 16)
+			} else {
+				chattingContainerStackView.layoutMargins =
+					UIEdgeInsets(top: 8, left: 16, bottom: 12, right: 16)
+			}
+
+			// ✅ 스택 간격 8을 코드로도 보장(스토리보드 값과 동일)
+			chattingContainerStackView.spacing = 8
+
+			// ✅ "안쪽 컨테이너"만 좌우 16 유지: 부모의 layoutMarginsGuide에 붙여줌
+			chattingInputContainer.translatesAutoresizingMaskIntoConstraints = false
+			NSLayoutConstraint.activate([
+				chattingInputContainer.leadingAnchor.constraint(
+					equalTo: chattingContainerStackView.layoutMarginsGuide.leadingAnchor),
+				chattingInputContainer.trailingAnchor.constraint(
+					equalTo: chattingContainerStackView.layoutMarginsGuide.trailingAnchor)
+			])
+
+			// (선택) 라벨이 눌려서 잘리지 않도록
+			disclaimerLabel?.numberOfLines = 0
+			disclaimerLabel?.setContentCompressionResistancePriority(.required, for: .vertical)
+			disclaimerLabel?.setContentHuggingPriority(.required, for: .vertical)
+	}
+	
 	override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
 		super.traitCollectionDidChange(previousTraitCollection)
 		
@@ -242,33 +276,6 @@ final class ChatbotViewController: CoreGradientViewController {
 					self.tableView.reloadRows(at: [ip], with: .none)
 				}
 			}
-//			if self.streamingAIIndex == nil {
-//				let message = ChatMessage(text: "", type: .ai)
-//				self.streamingAIIndex = self.messages.count
-//				self.messages.append(message)
-//				let ip = self.indexPathForMessage(at: self.streamingAIIndex!)
-//				self.tableView.insertRows(at: [ip], with: .fade)
-//				
-//				// seed 렌더링: 셀 등장 시점에만 가볍게 한 번
-//				if let cell = self.tableView.cellForRow(at: ip) as? AIResponseCell {
-//					cell.configure(with: "", isFinal: false)
-//					// 타자기 효과
-//					// cell.setTypewriterEnabled(true)
-//				}
-//			}
-//			
-//			guard let idx = self.streamingAIIndex else { return }
-//			let cleanedChunk = FootnoteSanitizer.sanitize(
-//				chunk,
-//				inFootnote: &self.inFootnote,
-//				pendingOpenBracket: &self.pendingOpenBracket
-//			)
-//			self.messages[idx].text.append(cleanedChunk)
-//
-//			let ip = self.indexPathForMessage(at: idx)
-//			if let cell = self.tableView.cellForRow(at: ip) as? AIResponseCell {
-//				cell.appendText(cleanedChunk)
-//			}
 		}
 		
 		viewModel.onStreamCompleted = { [weak self] finalText in
@@ -314,10 +321,10 @@ final class ChatbotViewController: CoreGradientViewController {
 	}
 	
 	private func setupStackViewStyles() {
-		chattingContainerStackView.layer.cornerRadius = 12
-		chattingContainerStackView.layer.masksToBounds = true
-		chattingContainerStackView.isLayoutMarginsRelativeArrangement = true
-		chattingContainerStackView.layoutMargins = UIEdgeInsets(top: 0, left: 0, bottom: 16, right: 0)
+		chattingContainerStackView.layer.cornerRadius = 0
+		chattingContainerStackView.layer.masksToBounds = false
+		chattingContainerStackView.isLayoutMarginsRelativeArrangement = false
+		chattingContainerStackView.layoutMargins = .zero
 		
 		chattingInputStackView.backgroundColor = .boxBg
 		chattingInputStackView.layer.cornerRadius = 12

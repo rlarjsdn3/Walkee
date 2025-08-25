@@ -27,44 +27,46 @@
                                 </connections>
                             </tableView>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="3mU-rj-JGX">
-                                <rect key="frame" x="16" y="706.33333333333337" width="361" height="77.666666666666629"/>
+                                <rect key="frame" x="0.0" y="706.33333333333337" width="393" height="77.666666666666629"/>
                                 <subviews>
-                                    <stackView opaque="NO" contentMode="scaleToFill" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="JcR-5o-DiP">
-                                        <rect key="frame" x="0.0" y="0.0" width="361" height="54"/>
+                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="UtS-cd-zXs" userLabel="ChattingInputContainer">
+                                        <rect key="frame" x="0.0" y="0.0" width="393" height="77.666666666666671"/>
                                         <subviews>
-                                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="    걸어봇에게 물어보세요." textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="o50-vy-lbP">
-                                                <rect key="frame" x="0.0" y="0.0" width="305" height="54"/>
-                                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
-                                                <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" returnKeyType="done" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
-                                            </textField>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Jhw-LG-ZoI">
-                                                <rect key="frame" x="313" y="0.0" width="48" height="54"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="width" constant="48" id="hjq-4q-gJk"/>
-                                                    <constraint firstAttribute="height" constant="54" id="tHv-qc-zKU"/>
-                                                </constraints>
-                                                <color key="tintColor" systemColor="labelColor"/>
-                                                <state key="normal" title="Button"/>
-                                                <buttonConfiguration key="configuration" style="plain" image="paperplane.fill" catalog="system">
-                                                    <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage" configurationType="pointSize" pointSize="20"/>
-                                                </buttonConfiguration>
-                                                <connections>
-                                                    <action selector="sendButtonTapped:" destination="yZA-Tc-F2L" eventType="touchUpInside" id="xSl-Ua-B6q"/>
-                                                </connections>
-                                            </button>
+                                            <stackView opaque="NO" contentMode="scaleToFill" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="JcR-5o-DiP">
+                                                <rect key="frame" x="0.0" y="0.0" width="393" height="54"/>
+                                                <subviews>
+                                                    <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="    걸어봇에게 물어보세요." textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="o50-vy-lbP">
+                                                        <rect key="frame" x="0.0" y="0.0" width="337" height="54"/>
+                                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                        <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                                                        <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" returnKeyType="done" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
+                                                    </textField>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Jhw-LG-ZoI">
+                                                        <rect key="frame" x="345" y="0.0" width="48" height="54"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="width" constant="48" id="hjq-4q-gJk"/>
+                                                            <constraint firstAttribute="height" constant="54" id="tHv-qc-zKU"/>
+                                                        </constraints>
+                                                        <color key="tintColor" systemColor="labelColor"/>
+                                                        <state key="normal" title="Button"/>
+                                                        <buttonConfiguration key="configuration" style="plain" image="paperplane.fill" catalog="system">
+                                                            <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage" configurationType="pointSize" pointSize="20"/>
+                                                        </buttonConfiguration>
+                                                        <connections>
+                                                            <action selector="sendButtonTapped:" destination="yZA-Tc-F2L" eventType="touchUpInside" id="xSl-Ua-B6q"/>
+                                                        </connections>
+                                                    </button>
+                                                </subviews>
+                                                <color key="backgroundColor" name="boxBgColor"/>
+                                            </stackView>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Alan AI는 정보 제공시 실수를 할 수 있으니 다시 한번 확인하세요." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3Dn-0Q-cLi">
+                                                <rect key="frame" x="0.0" y="61.999999999999993" width="393" height="15.666666666666664"/>
+                                                <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
+                                                <color key="textColor" name="buttonTextColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
                                         </subviews>
-                                        <color key="backgroundColor" name="boxBgColor"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="54" id="Xy2-pH-nEn"/>
-                                        </constraints>
                                     </stackView>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Alan AI는 정보 제공시 실수를 할 수 있으니 다시 한번 확인하세요." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3Dn-0Q-cLi">
-                                        <rect key="frame" x="0.0" y="61.999999999999993" width="361" height="15.666666666666664"/>
-                                        <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
-                                        <color key="textColor" name="buttonTextColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
                                 </subviews>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </stackView>
@@ -86,16 +88,18 @@
                             <constraint firstItem="vgf-3o-Tx2" firstAttribute="bottom" secondItem="Sjn-mm-DvB" secondAttribute="bottom" constant="80" id="RqY-8N-hsN"/>
                             <constraint firstItem="Sjn-mm-DvB" firstAttribute="top" secondItem="pb1-hy-Jgy" secondAttribute="bottom" id="Zlc-r2-1AD"/>
                             <constraint firstItem="Sjn-mm-DvB" firstAttribute="leading" secondItem="vgf-3o-Tx2" secondAttribute="leading" id="ioe-9z-joi"/>
-                            <constraint firstItem="vgf-3o-Tx2" firstAttribute="trailing" secondItem="3mU-rj-JGX" secondAttribute="trailing" constant="16" id="kHh-e7-Smv"/>
-                            <constraint firstItem="3mU-rj-JGX" firstAttribute="leading" secondItem="vgf-3o-Tx2" secondAttribute="leading" constant="16" id="oL1-rU-rTT"/>
+                            <constraint firstItem="vgf-3o-Tx2" firstAttribute="trailing" secondItem="3mU-rj-JGX" secondAttribute="trailing" id="kHh-e7-Smv"/>
+                            <constraint firstItem="3mU-rj-JGX" firstAttribute="leading" secondItem="vgf-3o-Tx2" secondAttribute="leading" id="oL1-rU-rTT"/>
                             <constraint firstItem="Sjn-mm-DvB" firstAttribute="trailing" secondItem="vgf-3o-Tx2" secondAttribute="trailing" id="zec-a9-W3H"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="chattingContainerStackView" destination="3mU-rj-JGX" id="kTS-Vf-4iy"/>
+                        <outlet property="chattingInputContainer" destination="UtS-cd-zXs" id="nKH-Av-NLN"/>
                         <outlet property="chattingInputStackView" destination="JcR-5o-DiP" id="lDv-9C-jgs"/>
                         <outlet property="chattingTextField" destination="o50-vy-lbP" id="pDR-5e-edJ"/>
                         <outlet property="containerViewBottomConstraint" destination="ODB-MH-Tcl" id="UcB-4b-CDa"/>
+                        <outlet property="disclaimerLabel" destination="3Dn-0Q-cLi" id="M9f-cX-R25"/>
                         <outlet property="headerView" destination="pb1-hy-Jgy" id="ni0-tM-QuI"/>
                         <outlet property="sendButton" destination="Jhw-LG-ZoI" id="CFe-Za-2Lz"/>
                         <outlet property="tableView" destination="Sjn-mm-DvB" id="kml-mG-8HL"/>
