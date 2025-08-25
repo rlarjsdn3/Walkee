@@ -60,6 +60,10 @@ final class CoreDataStack {
                 fatalError("Failed to load persistent stores: \(error.localizedDescription)")
             }
         }
+
+        // 백그라운드 컨텍스트 저장 시 메인 컨텍스트(viewContext) 자동 업데이트
+        container.viewContext.automaticallyMergesChangesFromParent = true
+
         return container
     }()
 
