@@ -15,15 +15,17 @@ class OnboardingViewController: CoreGradientViewController, UIScrollViewDelegate
     
     private var iPadWidthConstraint: NSLayoutConstraint?
     private var iPadCenterXConstraint: NSLayoutConstraint?
+    private var didReachLastPage = false
+    private var pages: [UIView] = []
     
     private let scrollView = UIScrollView()
     private let stack = UIStackView()
     private let pageControl = UIPageControl()
-    private var pages: [UIView] = []
     
     private let firstPageView = UIView()
     private let secondPageView = UIView()
     private let thirdPageView = UIView()
+    
     
     private var currentPage: Int {
         let pageWidth = scrollView.bounds.width
@@ -244,6 +246,10 @@ class OnboardingViewController: CoreGradientViewController, UIScrollViewDelegate
         pageControl.currentPage = page
         
         if page == pages.count - 1 {
+            didReachLastPage = true
+        }
+        
+        if didReachLastPage {
             continueButton.isEnabled = true
             continueButton.backgroundColor = .accent
         } else {
