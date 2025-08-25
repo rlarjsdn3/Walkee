@@ -159,22 +159,28 @@ final class ChatbotViewController: CoreGradientViewController {
 	private func observeNetworkStatusChanges() {
 		networkStatusObservationTask = Task {
 			for await isConnected in await NetworkMonitor.shared.networkStatusStream() {
-				if isConnected {
-					if wasPreviouslyDisconnected {
-						showWarningToast(
-							title: "네트워크 연결이 복구되었습니다.",
-							message: "계속해서 대화를 이어가세요 😊",
-							duration: 2.5
+				await MainActor.run {
+					if isConnected {
+						if wasPreviouslyDisconnected {
+							showToastAboveKeyboard(
+								type: .success,
+								title: "네트워크 연결이 복구되었습니다.",
+								message: "계속해서 대화를 이어가세요 😊",
+								duration: 2.5,
+								keyboardHeight: currentKeyboardHeight
+							)
+							wasPreviouslyDisconnected = false
+						}
+					} else {
+						showToastAboveKeyboard(
+							type: .warning,
+							title: "네트워크 연결 상태를 확인해주세요.",
+							message: "와이파이나 셀룰러 데이터 연결상태를 확인해주세요.",
+							duration: 3.0,
+							keyboardHeight: currentKeyboardHeight
 						)
-						wasPreviouslyDisconnected = false
+						wasPreviouslyDisconnected = true
 					}
-				} else {
-					showWarningToast(
-						title: "네트워크 연결 상태를 확인해주세요.",
-						message: "와이파이나 셀룰러 데이터 연결상태를 확인해주세요.",
-						duration: 3.0
-					)
-					wasPreviouslyDisconnected = true
 				}
 			}
 		}
