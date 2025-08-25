@@ -74,6 +74,6 @@ extension HealthTabBarController: UITabBarControllerDelegate {
         }
 
         // 현재 선택된 탭을 이전 탭으로 업데이트
-        previousSelectedIndex = currentSelectedIndex
+        setPreviousSelectedIndex(currentSelectedIndex)
     }
 }
