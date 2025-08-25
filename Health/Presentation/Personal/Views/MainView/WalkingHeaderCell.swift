@@ -13,5 +13,4 @@ class WalkingHeaderCell: UICollectionViewCell {
         super.awakeFromNib()
         // Initialization code
     }
-
 }

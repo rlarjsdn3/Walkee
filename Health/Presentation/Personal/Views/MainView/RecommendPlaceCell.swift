@@ -14,6 +14,7 @@ protocol RecommendPlaceCellDelegate: AnyObject {
 }
 
 class RecommendPlaceCell: CoreCollectionViewCell {
+    private var skeletonView: SkeletonView!
 
     @IBOutlet weak var placeBackground: UIView!
     @IBOutlet weak var courseImage: UIImageView!
@@ -40,6 +41,7 @@ class RecommendPlaceCell: CoreCollectionViewCell {
     override func setupAttribute() {
         super.setupAttribute()
         setupInfoButton()
+        setupSkeletonView()
         BackgroundHeightUtils.setupShadow(for: self)
         BackgroundHeightUtils.setupDarkModeBorder(for: placeBackground)
         placeBackground.applyCornerStyle(.medium)
@@ -54,16 +56,20 @@ class RecommendPlaceCell: CoreCollectionViewCell {
 
         //이전 Task 취소 (메모리 누수 방지)
         thumbnailTask?.cancel()
+        showSkeletonView()
     }
 
     // API에서 받은 실제 데이터로 설정
     func configure(with course: WalkingCourse) {
         self.currentCourse = course
         // 기본 텍스트 설정
-        courseNameLabel.text = course.crsKorNm
+        courseNameLabel.text = course.crsKorNm.upToFirstCourse()
         locationLabel.text = course.sigun
-        distanceLabel.text = "\(course.crsDstnc)km"
-        durationLabel.text = course.crsTotlRqrmHour.toFormattedDuration()
+        showSkeletonView()
+        let distance = NSAttributedString(string: "\(course.crsDstnc)km")
+            .font(UIFont.preferredFont(forTextStyle: .footnote), to: "km")
+        distanceLabel.attributedText = distance
+        durationLabel.attributedText = course.crsTotlRqrmHour.toFormattedDuration()
         // 난이도 텍스트와 이미지 색상 동시 설정
         let levelInfo = getLevelInfo(from: course.crsLevel)
         levelLabel.text = levelInfo.text
@@ -75,12 +81,9 @@ class RecommendPlaceCell: CoreCollectionViewCell {
         // 캐시 먼저 확인
         if let cachedImage = WalkingCourseService.shared.getCachedThumbnail(for: course.gpxpath) {
             courseImage.image = cachedImage
+            hideSkeletonView()
             return
         }
-
-        // 기본 로딩 상태
-        courseImage.image = UIImage(systemName: "map")
-        courseImage.tintColor = .systemGray3
 
         currentGPXURL = course.gpxpath
         thumbnailTask?.cancel()
@@ -91,12 +94,15 @@ class RecommendPlaceCell: CoreCollectionViewCell {
 
             guard currentGPXURL == course.gpxpath else { return }
 
+            hideSkeletonView()
+
             if let image = image {
                 courseImage.image = image
                 courseImage.contentMode = .scaleAspectFill
+                hideSkeletonView()
             } else {
-                courseImage.image = UIImage(systemName: "location.slash")
-                courseImage.tintColor = .systemOrange
+                courseImage.image = nil
+                showSkeletonView()
             }
         }
     }
@@ -107,7 +113,7 @@ class RecommendPlaceCell: CoreCollectionViewCell {
         if distanceText.contains("km") || distanceText.contains("m") {
             userDistanceLabel.textColor = .systemBlue
         } else {
-            userDistanceLabel.textColor = .systemOrange
+            userDistanceLabel.textColor = .systemBlue
         }
     }
 
@@ -149,22 +155,68 @@ class RecommendPlaceCell: CoreCollectionViewCell {
         guard let course = currentCourse else { return }
         delegate?.didTapCell(for: course)
     }
+
+    private func setupSkeletonView() {
+        skeletonView = SkeletonView()
+        skeletonView?.translatesAutoresizingMaskIntoConstraints = false
+        courseImage.addSubview(skeletonView!)
+
+        NSLayoutConstraint.activate([
+            skeletonView!.topAnchor.constraint(equalTo: courseImage.topAnchor),
+            skeletonView!.leadingAnchor.constraint(equalTo: courseImage.leadingAnchor),
+            skeletonView!.trailingAnchor.constraint(equalTo: courseImage.trailingAnchor),
+            skeletonView!.bottomAnchor.constraint(equalTo: courseImage.bottomAnchor)
+        ])
+    }
+
+    // 로딩 시작
+    private func showSkeletonView() {
+        skeletonView?.isHidden = false
+        skeletonView?.startAnimating()
+    }
+
+    // 로딩 완료
+    private func hideSkeletonView() {
+        skeletonView?.isHidden = true
+        skeletonView?.stopAnimating()
+    }
 }
 
 extension String {
 
     //소요시간 포맷팅
-    func toFormattedDuration() -> String {
+    func toFormattedDuration() -> NSAttributedString {
         let minutes = Int(self)!
         let hours = minutes / 60
         let mins = minutes % 60
 
+        let formattedString: String
+
         if hours > 0 && mins > 0 {
-            return "\(hours)시간 \(mins)분"
+            formattedString = "\(hours)시간 \(mins)분"
         } else if hours > 0 {
-            return "\(hours)시간"
+            formattedString = "\(hours)시간"
         } else {
-            return "\(mins)분"
+            formattedString = "\(mins)분"
         }
+
+        let attributedString = NSAttributedString(string: formattedString)
+
+        // 단위 부분에 footnote 폰트 적용
+        let footnoteFont = UIFont.preferredFont(forTextStyle: .footnote)
+        var result = attributedString
+        result = result.font(footnoteFont, to: "시간")
+        result = result.font(footnoteFont, to: "분")
+
+        return result
+    }
+
+    // 첫 번째 "코스"까지만 반환
+    func upToFirstCourse() -> String {
+        if let range = self.range(of: "코스") {
+            let endIndex = self.index(range.upperBound, offsetBy: 0)
+            return String(self[..<endIndex])
+        }
+        return self
     }
 }

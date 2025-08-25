@@ -121,19 +121,19 @@ class MonthSummaryCell: CoreCollectionViewCell {
     // UI 업데이트 메서드
     private func updateUIWithData(with data: MonthlyHealthData) {
         // 메인 라벨 (총계)
-        let stepsString = "\(data.monthlyTotalSteps.formatted()) 걸음"
+        let stepsString = "\(data.monthlyTotalSteps.formatted())걸음"
         let stepsAttrString = NSAttributedString(string: stepsString)
             .font(.preferredFont(forTextStyle: .footnote), to: "걸음")
             .foregroundColor(.secondaryLabel, to: "걸음")
         walkingLabel.attributedText = stepsAttrString
         
-        let distanceString = "\(String(format: "%.1f", data.monthlyTotalDistance)) km"
+        let distanceString = "\(String(format: "%.1f", data.monthlyTotalDistance))km"
         let distanceAttrString = NSAttributedString(string: distanceString)
             .font(.preferredFont(forTextStyle: .footnote), to: "km")
             .foregroundColor(.secondaryLabel, to: "km")
         distanceLabel.attributedText = distanceAttrString
         
-        let calorieString = "\(String(format: "%.1f", data.monthlyTotalCalories)) kcal"
+        let calorieString = "\(String(format: "%.1f", data.monthlyTotalCalories))kcal"
         let calorieAttrString = NSAttributedString(string: calorieString)
             .font(.preferredFont(forTextStyle: .footnote), to: "kcal")
             .foregroundColor(.secondaryLabel, to: "kcal")
