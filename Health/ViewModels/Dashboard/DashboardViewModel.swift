@@ -479,7 +479,6 @@ extension DashboardViewModel {
 }
 
 extension DashboardViewModel {
-
     func requestAlanToSummarizeTodayActivity() async throws -> String? {
         guard let prompt = try? await promptBuilderService.makePrompt(
             message: nil,
@@ -489,19 +488,22 @@ extension DashboardViewModel {
         let response = await alanService.sendQuestion(prompt)
         return response
     }
+	
+	func checkHKHasAnyReadPermission(typeIdentifier quantityTypeIdentifier: HKQuantityTypeIdentifier? = nil) async -> Bool {
+		let hasReadPermission: Bool = await quantityTypeIdentifier != nil
+		? healthService.checkHasReadPermission(for: quantityTypeIdentifier!)
+		: healthService.checkHasAnyReadPermission()
+
+		return hasReadPermission && hasHealthKitLinked
+	}
 }
 
 extension DashboardViewModel {
 
-    func checkHKHasAnyReadPermission(typeIdentifier quantityTypeIdentifier: HKQuantityTypeIdentifier? = nil) async -> Bool {
-        let hasReadPermission: Bool = await quantityTypeIdentifier != nil
-        ? healthService.checkHasReadPermission(for: quantityTypeIdentifier!)
-        : healthService.checkHasAnyReadPermission()
-
-        return hasReadPermission && hasHealthKitLinked
-    }
+	func updateWidgetSnapshot() {
+		Task { await DashboardSnapshotStore.updateFromHealthKit() }
+	}
 }
-
 
 fileprivate extension DashboardViewModel {
 

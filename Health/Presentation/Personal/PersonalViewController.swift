@@ -9,7 +9,7 @@ import CoreLocation
 import Combine
 import TSAlertController
 
-class PersonalViewController: HealthNavigationController, Alertable, UICollectionViewDelegate {
+class PersonalViewController: HealthNavigationController, Alertable, ScrollableToTop, UICollectionViewDelegate {
 
     typealias PersonalDiffableDataSource = UICollectionViewDiffableDataSource<PersonalContent.Section, PersonalContent.Item>
 
@@ -87,6 +87,11 @@ class PersonalViewController: HealthNavigationController, Alertable, UICollectio
         collectionView.backgroundColor = .clear
         collectionView.delegate = self
         collectionView.setCollectionViewLayout(createCollectionViewLayout(), animated: false)
+    }
+
+    func scrollToTop() {
+        guard isViewLoaded, collectionView != nil else { return }
+        collectionView.setContentOffset(.zero, animated: true)
     }
 
     private func navigateToChatbot() {
