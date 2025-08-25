@@ -35,9 +35,10 @@ final class HealthInfoStackCollectionViewCell: CoreCollectionViewCell {
         super.layoutSubviews()
 
         sizeClasses(vRhR: {
+            self.titleLabel.font = .preferredFont(forTextStyle: .caption2)
             self.symbolImageHeightConstraint = self.symbolImageHeightConstraint.setMultiplier(multiplier: 0.4)
         })
-        symbolContainerView.applyCornerStyle(.circular)
+        symbolContainerView.layer.cornerRadius = symbolContainerView.bounds.width / 2
     }
 
     override func prepareForReuse() {

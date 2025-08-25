@@ -16,7 +16,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "1A231D962E5989F600A8B452"
+               BlueprintIdentifier = "C7DCD3E82E5CA8CF00A6351C"
                BuildableName = "HealthWidgetExtension.appex"
                BlueprintName = "HealthWidgetExtension"
                ReferencedContainer = "container:Health.xcodeproj">
@@ -71,7 +71,7 @@
          BundleIdentifier = "com.apple.springboard">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "1A231D962E5989F600A8B452"
+            BlueprintIdentifier = "C7DCD3E82E5CA8CF00A6351C"
             BuildableName = "HealthWidgetExtension.appex"
             BlueprintName = "HealthWidgetExtension"
             ReferencedContainer = "container:Health.xcodeproj">
@@ -105,7 +105,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "1A231D962E5989F600A8B452"
+            BlueprintIdentifier = "C7DCD3E82E5CA8CF00A6351C"
             BuildableName = "HealthWidgetExtension.appex"
             BlueprintName = "HealthWidgetExtension"
             ReferencedContainer = "container:Health.xcodeproj">
