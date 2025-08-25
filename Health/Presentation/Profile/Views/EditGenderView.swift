@@ -81,7 +81,7 @@ final class EditGenderView: CoreView {
         button.setTitleColor(.systemBackground, for: .normal)
         button.backgroundColor = .buttonBackground
         button.titleLabel?.font = UIDevice.current.userInterfaceIdiom == .pad
-        ? .preferredFont(forTextStyle: .largeTitle)
+        ? .preferredFont(forTextStyle: .largeTitle).withBoldTrait()
         : .systemFont(ofSize: 18, weight: .bold)
         button.titleLabel?.adjustsFontForContentSizeCategory = true
         button.clipsToBounds = true

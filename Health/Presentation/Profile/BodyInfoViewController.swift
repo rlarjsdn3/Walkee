@@ -339,10 +339,8 @@ extension BodyInfoViewController: UITableViewDelegate {
                     }
                     return v
                 },
-                heightRatio: 0.6,
-                widthRatio: 1.0,
-                iPadLandscapeHeightRatio: 0.45,
-                iPadLandscapeWidthRatio: 0.8,
+                width: 800,
+                iPadLandscapeWidth: 700,
                 onConfirm: { [weak self] view in
                 guard let self, let v = view as? EditDiseaseView else { return }
                     

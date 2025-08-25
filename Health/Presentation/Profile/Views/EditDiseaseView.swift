@@ -47,12 +47,12 @@ class EditDiseaseView: CoreView {
         titleLabel.configureAsTitle("질병")
         
         collectionView.register(EditDiseaseCollectionViewCell.self, forCellWithReuseIdentifier: EditDiseaseCollectionViewCell.id)
+        collectionView.isScrollEnabled = false
         applySnapshot(animated: false)
         
         DispatchQueue.main.async { [weak self] in
             self?.updateCollectionViewSelectionIfNeeded()
         }
-        
     }
     
     override func setupConstraints() {

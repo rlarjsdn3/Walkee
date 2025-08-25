@@ -36,6 +36,8 @@ final class EditHeightView: CoreView {
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         pickerView.translatesAutoresizingMaskIntoConstraints = false
         
+        let pickerHeight: CGFloat = traitCollection.userInterfaceIdiom == .pad ? 300 : 216
+        
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 8),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
@@ -44,6 +46,7 @@ final class EditHeightView: CoreView {
             pickerView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 24),
             pickerView.leadingAnchor.constraint(equalTo: leadingAnchor),
             pickerView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            pickerView.heightAnchor.constraint(equalToConstant: pickerHeight),
             pickerView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
     }

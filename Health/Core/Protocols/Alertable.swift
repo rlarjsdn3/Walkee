@@ -332,10 +332,12 @@ extension Alertable where Self: UIViewController {
     
     func showActionSheetForProfile(
         buildView: () -> UIView,
-        heightRatio: CGFloat = 0.4,
-        widthRatio: CGFloat = 1.0,
-        iPadLandscapeHeightRatio: CGFloat = 0.4,
-        iPadLandscapeWidthRatio: CGFloat = 0.8,
+        height: CGFloat = 500,
+        width: CGFloat = 500,
+        iPadLandscapeHeight: CGFloat = 700,
+        iPadLandscapeWidth: CGFloat = 700,
+        iPadPortraitHeight: CGFloat = 500,
+        iPadPortraitWidth: CGFloat = 700,
         onConfirm: ((UIView) -> Void)? = nil
     ) {
         let contentView = buildView()
@@ -352,29 +354,97 @@ extension Alertable where Self: UIViewController {
         alert.configuration.headerAnimation = .slideUp
         alert.configuration.buttonGroupAnimation = .slideUp
         alert.viewConfiguration.spacing.keyboardSpacing = 100
-                
+        
+        // 디바이스 및 방향 정보
         let isPad = (traitCollection.userInterfaceIdiom == .pad)
-
+        
         let isLandscape: Bool = {
-            if let iface = view.window?.windowScene?.interfaceOrientation {
-                return iface.isLandscape
+            // 1. WindowScene에서 방향 확인 (가장 정확)
+            if let windowScene = view.window?.windowScene {
+                return windowScene.interfaceOrientation.isLandscape
             }
+            
+            // 2. 현재 디바이스 방향 확인
             if UIDevice.current.orientation.isValidInterfaceOrientation {
                 return UIDevice.current.orientation.isLandscape
             }
-            // 최후 폴백
-            return UIScreen.main.bounds.width > UIScreen.main.bounds.height
+            
+            // 3. 화면 크기로 추정 (폴백)
+            let screenBounds = UIScreen.main.bounds
+            return screenBounds.width > screenBounds.height
         }()
-
-        let isPadLandscape = isPad && isLandscape
-
-        let appliedHeightRatio = isPadLandscape ? iPadLandscapeHeightRatio : heightRatio
-        let appliedWidthRatio  = isPadLandscape ? iPadLandscapeWidthRatio : widthRatio
         
-        alert.viewConfiguration.size.width  = .proportional(minimumRatio: appliedWidthRatio,
-                                                            maximumRatio: appliedWidthRatio)
-        alert.viewConfiguration.size.height = .proportional(minimumRatio: appliedHeightRatio,
-                                                            maximumRatio: appliedHeightRatio)
+        let screenSize = UIScreen.main.bounds.size
+        let maxWidth = screenSize.width
+        let maxHeight = screenSize.height * 0.6 // 최대 높이 제한
+        
+        // 크기 계산
+        var appliedWidth: CGFloat
+        var appliedHeight: CGFloat
+        
+        if isPad {
+            if isLandscape {
+                // iPad Landscape
+                appliedWidth = min(iPadLandscapeWidth, maxWidth)
+                appliedHeight = min(iPadLandscapeHeight, maxHeight)
+            } else {
+                // iPad Portrait
+                appliedWidth = min(iPadPortraitWidth, maxWidth)
+                appliedHeight = min(iPadPortraitHeight, maxHeight)
+            }
+        } else {
+            // iPhone (가로세로 동일)
+            appliedWidth = min(width, maxWidth)
+            appliedHeight = min(height, maxHeight)
+        }
+        
+        // 사이즈 클래스에 따른 크기 설정
+        sizeClasses(
+            vChC: {
+                // iPhone Landscape (Vertical Compact, Horizontal Compact)
+                alert.viewConfiguration.size.width = .flexible(
+                    minimum: appliedWidth,
+                    maximum: appliedWidth
+                )
+                alert.viewConfiguration.size.height = .flexible(
+                    minimum: appliedHeight,
+                    maximum: min(appliedHeight, screenSize.height - 100)
+                )
+            },
+            vChR: {
+                // iPad Landscape (Vertical Compact, Horizontal Regular)
+                alert.viewConfiguration.size.width = .flexible(
+                    minimum: appliedWidth,
+                    maximum: appliedWidth
+                )
+                alert.viewConfiguration.size.height = .flexible(
+                    minimum: appliedHeight,
+                    maximum: appliedHeight
+                )
+            },
+            vRhC: {
+                // iPhone Portrait (Vertical Regular, Horizontal Compact)
+                alert.viewConfiguration.size.width = .flexible(
+                    minimum: appliedWidth,
+                    maximum: appliedWidth
+                )
+                alert.viewConfiguration.size.height = .flexible(
+                    minimum: appliedHeight,
+                    maximum: appliedHeight
+                )
+            },
+            vRhR: {
+                // iPad Portrait (Vertical Regular, Horizontal Regular)
+                alert.viewConfiguration.size.width = .flexible(
+                    minimum: appliedWidth,
+                    maximum: appliedWidth
+                )
+                alert.viewConfiguration.size.height = .flexible(
+                    minimum: appliedHeight,
+                    maximum: appliedHeight
+                )
+            }
+        )
         
         let confirmAction = TSAlertAction(title: "확인", style: .default) { _ in
             onConfirm?(contentView)
@@ -387,9 +457,79 @@ extension Alertable where Self: UIViewController {
         confirmAction.highlightType = .fadeIn
         alert.addAction(confirmAction)
         
-        
         self.present(alert, animated: true)
     }
+
+    
+//    func showActionSheetForProfile(
+//        buildView: () -> UIView,
+//        height: CGFloat = 500,
+//        width: CGFloat = 500,
+//        iPadLandscapeHeight: CGFloat = 500,
+//        iPadLandscapeWidth: CGFloat = 700,
+//        onConfirm: ((UIView) -> Void)? = nil
+//    ) {
+//        let contentView = buildView()
+//        
+//        let alert = TSAlertController(
+//            contentView,
+//            options: [.interactiveScaleAndDrag, .dismissOnTapOutside],
+//            preferredStyle: .actionSheet
+//        )
+//        
+//        alert.configuration.prefersGrabberVisible = false
+//        alert.configuration.enteringTransition = .slideUp
+//        alert.configuration.exitingTransition = .slideDown
+//        alert.configuration.headerAnimation = .slideUp
+//        alert.configuration.buttonGroupAnimation = .slideUp
+//        alert.viewConfiguration.spacing.keyboardSpacing = 100
+//                
+//        let isPad = (traitCollection.userInterfaceIdiom == .pad)
+//
+//        let isLandscape: Bool = {
+//            if let iface = view.window?.windowScene?.interfaceOrientation {
+//                return iface.isLandscape
+//            }
+//            if UIDevice.current.orientation.isValidInterfaceOrientation {
+//                return UIDevice.current.orientation.isLandscape
+//            }
+//            // 최후 폴백
+//            return UIScreen.main.bounds.width > UIScreen.main.bounds.height
+//        }()
+//
+//        let isPadLandscape = isPad && isLandscape
+//
+//        let appliedHeight = isPadLandscape ? iPadLandscapeHeight : height
+//        let appliedWidth  = isPadLandscape ? iPadLandscapeWidth : width
+//        
+//        sizeClasses(vRhR: {
+//            alert.viewConfiguration.size.width = .flexible(minimum: appliedWidth, maximum: appliedWidth)
+//            alert.viewConfiguration.size.height = .flexible(minimum: appliedHeight, maximum: appliedHeight)
+//        })
+//        
+////        alert.viewConfiguration.size.width  = .proportional(minimumRatio: appliedWidthRatio,
+////                                                            maximumRatio: appliedWidthRatio)
+////        alert.viewConfiguration.size.height = .proportional(minimumRatio: appliedHeightRatio,
+////                                                            maximumRatio: appliedHeightRatio)
+//        
+////        alert.viewConfiguration.size.width = .flexible(minimum: appliedWidthRatio, maximum: appliedWidthRatio)
+////        alert.viewConfiguration.size.height = .flexible(minimum: appliedHeightRatio, maximum: appliedHeightRatio)
+//
+//        
+//        let confirmAction = TSAlertAction(title: "확인", style: .default) { _ in
+//            onConfirm?(contentView)
+//        }
+//        confirmAction.configuration.backgroundColor = .accent
+//        confirmAction.configuration.titleAttributes = [
+//            .font: UIFont.preferredFont(forTextStyle: .headline),
+//            .foregroundColor: UIColor.systemBackground
+//        ]
+//        confirmAction.highlightType = .fadeIn
+//        alert.addAction(confirmAction)
+//        
+//        
+//        self.present(alert, animated: true)
+//    }
 }
 
 
