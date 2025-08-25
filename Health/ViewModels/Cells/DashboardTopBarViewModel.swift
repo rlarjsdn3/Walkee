@@ -26,13 +26,17 @@ final class DashboardTopBarViewModel {
     }
 
     ///
+    var didChange: (() -> Void)?
+
+    ///
     init(itemID: ItemID) {
         self.itemID = itemID
     }
 
     ///
-    func renewalAnchorDate(_ new: Date) {
+    func updateAnchorDate(_ new: Date) {
         stateSubject.send(new)
+        didChange?()
     }
 }
 
