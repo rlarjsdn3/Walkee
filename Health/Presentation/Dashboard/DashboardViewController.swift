@@ -9,7 +9,7 @@ import UIKit
 
 import TSAlertController
 
-final class DashboardViewController: HealthNavigationController, Alertable {
+final class DashboardViewController: HealthNavigationController, Alertable, ScrollableToTop {
 
     typealias DashboardDiffableDataSource = UICollectionViewDiffableDataSource<DashboardContent.Section, DashboardContent.Item>
 
@@ -41,6 +41,11 @@ final class DashboardViewController: HealthNavigationController, Alertable {
         applySnapshot()
 		// 위젯 스냅샷 update
 		viewModel.updateWidgetSnapshot()
+    }
+
+    func scrollToTop() {
+        guard isViewLoaded, dashboardCollectionView != nil else { return }
+        dashboardCollectionView.setContentOffset(.zero, animated: true)
     }
 
     private func buildLayout() {
