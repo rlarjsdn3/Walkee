@@ -67,19 +67,6 @@
 			);
 			target = 1A231D962E5989F600A8B452 /* HealthWidgetExtension */;
 		};
-		1A231DAD2E598B8C00A8B452 /* Exceptions for "Health" folder in "HealthWidgetExtension" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Core/Shared/HealthDashboardSnapshot.swift,
-				Core/Shared/SharedStore.swift,
-				"Core/Shared/SharedStore+Dashboard.swift",
-				Core/Shared/WidgetBridge.swift,
-				Core/Shared/WidgetIDs.swift,
-				"Core/Utils/Extensions/UILabel+Extension.swift",
-				"Core/Utils/Extensions/UIView+Extension.swift",
-			);
-			target = 1A231D962E5989F600A8B452 /* HealthWidgetExtension */;
-		};
 		1A2326112E5A034200A8B452 /* Exceptions for "HealthWidget" folder in "Health" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -88,6 +75,16 @@
 				Views/ProgressBar.swift,
 			);
 			target = C76490962E3790170062054D /* Health */;
+		};
+		1A7AFFC52E5C066B00C6A3D4 /* Exceptions for "Health" folder in "HealthWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Core/Shared/HealthDashboardSnapshot.swift,
+				Core/Shared/SharedStore.swift,
+				"Core/Shared/SharedStore+Dashboard.swift",
+				Core/Shared/WidgetIDs.swift,
+			);
+			target = 1A231D962E5989F600A8B452 /* HealthWidgetExtension */;
 		};
 		C76490A92E3790180062054D /* Exceptions for "Health" folder in "Health" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
@@ -112,6 +109,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				C76490A92E3790180062054D /* Exceptions for "Health" folder in "Health" target */,
+				1A7AFFC52E5C066B00C6A3D4 /* Exceptions for "Health" folder in "HealthWidgetExtension" target */,
 			);
 			path = Health;
 			sourceTree = "<group>";
@@ -430,7 +428,6 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "$(WIDGET_BUNDLE_IDENTIFIER)";
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(WIDGET_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
