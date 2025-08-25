@@ -375,6 +375,18 @@ extension Alertable where Self: UIViewController {
         let maxWidth = screenSize.width
         let maxHeight = screenSize.height * 0.6
         
+        contentView.setNeedsLayout()
+        contentView.layoutIfNeeded()
+        let fitted = contentView.systemLayoutSizeFitting(
+            CGSize(width: maxWidth, height: UIView.layoutFittingCompressedSize.height),
+            withHorizontalFittingPriority: .required,
+            verticalFittingPriority: .fittingSizeLevel
+        )
+
+        let iPhoneSheetHeight: CGFloat = 400
+        let minContentHeight: CGFloat = iPhoneSheetHeight + 44
+        let contentBasedHeight = min(max(fitted.height + 12, minContentHeight), maxHeight)
+
         var appliedWidth: CGFloat
         var appliedHeight: CGFloat
         
@@ -388,7 +400,7 @@ extension Alertable where Self: UIViewController {
             }
         } else {
             appliedWidth = min(width, maxWidth)
-            appliedHeight = min(height, maxHeight)
+            appliedHeight = contentBasedHeight
         }
         
         sizeClasses(
