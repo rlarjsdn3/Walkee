@@ -14,27 +14,47 @@ final class AlanActivitySummaryCollectionViewCell: CoreCollectionViewCell {
     @IBOutlet weak var loadingIndicatorView: AlanLoadingIndicatorView!
     
     private var cancellables: Set<AnyCancellable> = []
-    
+
     private var borderWidth: CGFloat {
         (traitCollection.userInterfaceStyle == .dark) ? 0 : 0.75
     }
 
     private var viewModel: AlanActivitySummaryCellViewModel!
+    
+    @MainActor required init?(coder: NSCoder) {
+        super.init(coder: coder)
+    }
 
     override func preferredLayoutAttributesFitting(_ attrs: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
         super.preferredLayoutAttributesFitting(attrs)
-        
+
+        summaryLabelView.layoutIfNeeded()
+        loadingIndicatorView.layoutIfNeeded()
+
+        let topBottomPadding: CGFloat = 24 // top·bottom 패딩 합
         let newAttrs = attrs.copy() as! UICollectionViewLayoutAttributes
 
         var contentHeight: CGFloat
-        if loadingIndicatorView.state == .success {
-            contentHeight = summaryLabelView.intrinsicContentSize.height + 24 // top/bottom 패딩 합
-        } else {
-            contentHeight = loadingIndicatorView.intrinsicContentSize.height + 24 // top/bottom 패딩 합
+        switch viewModel.loadState {
+        case let .success(content):
+            summaryLabelView.text = content.message
+            contentHeight = summaryLabelView.getCGSize(content.message).height + topBottomPadding
+
+        case .failure:
+            loadingIndicatorView.setState(.failed)
+            contentHeight = loadingIndicatorView.getCGSize(.failed).height + topBottomPadding
+
+        case .denied:
+            loadingIndicatorView.setState(.denied)
+            contentHeight = loadingIndicatorView.getCGSize(.denied).height + topBottomPadding
+
+        default:
+            loadingIndicatorView.setState(.loading)
+            contentHeight = loadingIndicatorView.getCGSize(.loading).height + topBottomPadding
         }
+
         newAttrs.size.height = contentHeight
         return newAttrs
-        // TODO: - 제약만으로 셀의 셀프-사이징이 동작하도록 코드 개선하기
     }
 
     override func setupAttribute() {
@@ -74,11 +94,10 @@ extension AlanActivitySummaryCollectionViewCell {
 
     // TODO: - 상태 코드 별로 함수로 나누는 리팩토링하기
     private func render(for state: LoadState<AlanContent>) {
-        summaryLabelView.isHidden = true
 
         switch state {
         case .idle:
-            return 
+            return
 
         case .loading:
             loadingIndicatorView.isHidden = false
@@ -88,7 +107,6 @@ extension AlanActivitySummaryCollectionViewCell {
         case let .success(content):
             summaryLabelView.isHidden = false
             summaryLabelView.text = content.message
-            summaryLabelView.invalidateIntrinsicContentSize()
             loadingIndicatorView.setState(.success)
 
         case .failure:

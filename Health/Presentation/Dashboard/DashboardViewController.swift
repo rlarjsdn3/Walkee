@@ -294,10 +294,10 @@ fileprivate extension DashboardViewController {
                 guard var snapshot = self?.dataSource?.snapshot() else { return }
 
                 snapshot.reconfigureItems([.alanSummary(id)])
+                self?.dataSource?.apply(snapshot, animatingDifferences: false)
                 self?.dashboardCollectionView.performBatchUpdates {
-                    self?.dataSource?.apply(snapshot, animatingDifferences: false)
-                } completion: { _ in
                     self?.dashboardCollectionView.collectionViewLayout.invalidateLayout()
+                } completion: { _ in
                 }
             }
             cell.bind(with: vm)

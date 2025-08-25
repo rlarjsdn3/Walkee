@@ -26,14 +26,14 @@
             </view>
             <viewLayoutGuide key="safeArea" id="ZTg-uK-7eu"/>
             <constraints>
-                <constraint firstAttribute="bottom" secondItem="V9T-Hc-DMw" secondAttribute="bottom" constant="12" id="4iL-nQ-LvM"/>
-                <constraint firstItem="Udn-KC-rhh" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="12" id="CF0-rA-EUC"/>
-                <constraint firstItem="Udn-KC-rhh" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="12" id="JZn-Ra-aUe"/>
-                <constraint firstAttribute="trailing" secondItem="V9T-Hc-DMw" secondAttribute="trailing" constant="12" id="Rtv-Jm-yfS"/>
-                <constraint firstItem="V9T-Hc-DMw" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="12" id="Ufv-ql-fb8"/>
-                <constraint firstItem="V9T-Hc-DMw" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="12" id="g7A-YL-26f"/>
-                <constraint firstAttribute="bottom" secondItem="Udn-KC-rhh" secondAttribute="bottom" constant="12" id="vL7-Ev-gOf"/>
-                <constraint firstAttribute="trailing" secondItem="Udn-KC-rhh" secondAttribute="trailing" constant="12" id="xK3-r3-yQ7"/>
+                <constraint firstItem="Udn-KC-rhh" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="12" id="5cW-Sq-7Lu"/>
+                <constraint firstAttribute="bottom" secondItem="V9T-Hc-DMw" secondAttribute="bottom" constant="12" id="5y1-zA-wdf"/>
+                <constraint firstItem="V9T-Hc-DMw" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="12" id="AhV-a9-6k0"/>
+                <constraint firstItem="Udn-KC-rhh" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="12" id="B8a-w8-neo"/>
+                <constraint firstItem="V9T-Hc-DMw" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="12" id="ixW-6L-Ntz"/>
+                <constraint firstAttribute="trailing" secondItem="V9T-Hc-DMw" secondAttribute="trailing" constant="12" id="iyt-wE-o9j"/>
+                <constraint firstAttribute="trailing" secondItem="Udn-KC-rhh" secondAttribute="trailing" constant="12" id="sbd-g7-uZj"/>
+                <constraint firstAttribute="bottom" secondItem="Udn-KC-rhh" secondAttribute="bottom" constant="12" id="wwU-wE-ZDM"/>
             </constraints>
             <size key="customSize" width="394" height="125"/>
             <connections>

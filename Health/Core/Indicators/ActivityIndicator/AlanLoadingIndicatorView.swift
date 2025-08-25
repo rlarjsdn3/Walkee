@@ -24,7 +24,6 @@ final class AlanLoadingIndicatorView: CoreView {
     private let exclamationMarkImageView = UIImageView()
     private let loadingIndicatorView = CustomActivityIndicatorView()
     private let titleLabel = UILabel()
-    private let indicatorStackView = UIStackView()
     
     private(set) var state: State = .loading
     private var timer: Timer?
@@ -34,45 +33,27 @@ final class AlanLoadingIndicatorView: CoreView {
     private let deniedSummaryText = "AI가 요약에 실패했어요. 건강 데이터에 대한 접근 권한이 필요해요."
     private let failedSummaryText = "AI가 요약에 실패했어요. 잠시 후 다시 시도해 주세요."
 
+    private let iconSize: CGFloat = 18
+    private let titleLabelLeading: CGFloat = 8
+
     override var intrinsicContentSize: CGSize {
-        guard bounds.width > 0 else {
-            return CGSize(width: UIView.noIntrinsicMetric, height: UIView.noIntrinsicMetric)
-        }
-
-        let text: NSString = (titleLabel.attributedText?.string as NSString?) ??
-                             (titleLabel.text as NSString? ?? "")
-        let font = titleLabel.font ?? UIFont.preferredFont(forTextStyle: .subheadline)
-
-        let width = max(0, bounds.width
-                        - 20  // 왼쪽 아이콘의 너비
-                        - 8)  // 스택의 간격(spacing)
-
-        let rect = text.boundingRect(
-            with: CGSize(width: width, height: .greatestFiniteMagnitude),
-            options: [.usesLineFragmentOrigin, .usesFontLeading],
-            attributes: [.font: font],
-            context: nil
-        )
-        return CGSize(width: UIView.noIntrinsicMetric, height: ceil(rect.height - 2))
+        getCGSize(state)
     }
 
     override func setupHierarchy() {
-        addSubview(indicatorStackView)
-        indicatorStackView.addArrangedSubviews(loadingIndicatorView, exclamationMarkImageView, titleLabel)
+        addSubviews(loadingIndicatorView, exclamationMarkImageView, titleLabel)
     }
 
     override func setupAttribute() {
         loadingIndicatorView.color = .accent
-        loadingIndicatorView.dotDiameter = 20
+        loadingIndicatorView.dotDiameter = iconSize
+        loadingIndicatorView.translatesAutoresizingMaskIntoConstraints = false
 
         titleLabel.text = doingSummaryText
         titleLabel.font = .preferredFont(forTextStyle: .subheadline)
         titleLabel.textColor = .secondaryLabel
         titleLabel.numberOfLines = 0
-
-        indicatorStackView.spacing = 8
-        indicatorStackView.alignment = .fill
-        indicatorStackView.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
         exclamationMarkImageView.image = exclamationmarkCircleImage([.systemRed])
         exclamationMarkImageView.translatesAutoresizingMaskIntoConstraints = false
@@ -82,15 +63,24 @@ final class AlanLoadingIndicatorView: CoreView {
 
     override func setupConstraints() {
         NSLayoutConstraint.activate([
-            indicatorStackView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            indicatorStackView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            indicatorStackView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            indicatorStackView.topAnchor.constraint(equalTo: topAnchor)
+            loadingIndicatorView.topAnchor.constraint(equalTo: topAnchor),
+            loadingIndicatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            loadingIndicatorView.widthAnchor.constraint(equalToConstant: iconSize),
+            loadingIndicatorView.heightAnchor.constraint(equalToConstant: iconSize)
         ])
-        
+
         NSLayoutConstraint.activate([
-            exclamationMarkImageView.widthAnchor.constraint(equalToConstant: 20),
-            exclamationMarkImageView.heightAnchor.constraint(equalTo: exclamationMarkImageView.widthAnchor, multiplier: 1.0)
+            exclamationMarkImageView.topAnchor.constraint(equalTo: topAnchor),
+            exclamationMarkImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            exclamationMarkImageView.widthAnchor.constraint(equalToConstant: iconSize),
+            exclamationMarkImageView.heightAnchor.constraint(equalToConstant: iconSize)
+        ])
+
+        NSLayoutConstraint.activate([
+            titleLabel.leadingAnchor.constraint(equalTo: loadingIndicatorView.trailingAnchor, constant: 8),
+            titleLabel.topAnchor.constraint(equalTo: topAnchor),
+            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
+            titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
     }
 
@@ -125,8 +115,6 @@ extension AlanLoadingIndicatorView {
         loadingIndicatorView.startAnimating()
         loadingIndicatorView.isHidden = false
         exclamationMarkImageView.isHidden = true
-        indicatorStackView.spacing = 6
-        indicatorStackView.alignment = .fill
         titleLabel.text = doingSummaryText
         startTimer()
     }
@@ -137,8 +125,6 @@ extension AlanLoadingIndicatorView {
         loadingIndicatorView.isHidden = true
         exclamationMarkImageView.image = exclamationmarkCircleImage([.systemRed])
         exclamationMarkImageView.isHidden = false
-        indicatorStackView.spacing = 8
-        indicatorStackView.alignment = .top
         titleLabel.text = failedSummaryText
         stopTimer()
     }
@@ -149,8 +135,6 @@ extension AlanLoadingIndicatorView {
         loadingIndicatorView.isHidden = true
         exclamationMarkImageView.image = exclamationmarkCircleImage([.systemYellow])
         exclamationMarkImageView.isHidden = false
-        indicatorStackView.spacing = 8
-        indicatorStackView.alignment = .top
         titleLabel.text = deniedSummaryText
         stopTimer()
     }
@@ -160,6 +144,33 @@ extension AlanLoadingIndicatorView {
         loadingIndicatorView.stopAnimating()
         isHidden = true
         stopTimer()
+    }
+}
+
+extension AlanLoadingIndicatorView {
+
+    func getCGSize(_ state: State) -> CGSize {
+        guard bounds.width > 0 else {
+            return CGSize(width: UIView.noIntrinsicMetric, height: UIView.noIntrinsicMetric)
+        }
+
+        let text: NSString = (titleLabel.attributedText?.string as NSString?) ??
+                             (titleLabel.text as NSString? ?? "")
+
+        let font = titleLabel.font ?? UIFont.preferredFont(forTextStyle: .subheadline)
+
+        let width = max(0, bounds.width
+                        - iconSize            // 왼쪽 아이콘의 너비
+                        - titleLabelLeading)  // 스택의 간격(spacing)
+
+        let rect = text.boundingRect(
+            with: CGSize(width: width, height: .greatestFiniteMagnitude),
+            options: [.usesLineFragmentOrigin, .usesFontLeading],
+            attributes: [.font: font],
+            context: nil
+        )
+
+        return CGSize(width: UIView.noIntrinsicMetric, height: ceil(rect.height - 2))
     }
 }
 
