@@ -60,7 +60,7 @@ class RecommendPlaceCell: CoreCollectionViewCell {
     func configure(with course: WalkingCourse) {
         self.currentCourse = course
         // 기본 텍스트 설정
-        courseNameLabel.text = course.crsKorNm
+        courseNameLabel.text = course.crsKorNm.upToFirstCourse()
         locationLabel.text = course.sigun
         let distance = NSAttributedString(string: "\(course.crsDstnc)km")
             .font(UIFont.preferredFont(forTextStyle: .footnote), to: "km")
@@ -177,5 +177,14 @@ extension String {
         result = result.font(footnoteFont, to: "분")
 
         return result
+    }
+
+    // 첫 번째 "코스"까지만 반환
+    func upToFirstCourse() -> String {
+        if let range = self.range(of: "코스") {
+            let endIndex = self.index(range.upperBound, offsetBy: 0)
+            return String(self[..<endIndex])
+        }
+        return self
     }
 }
