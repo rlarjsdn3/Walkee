@@ -13,6 +13,8 @@ class WalkingCourseService {
 
     // 썸네일 캐시
     private var thumbnailCache = NSCache<NSString, UIImage>()
+    //좌표 캐시
+    private var coordinatesCache = NSCache<NSString, NSArray>()
     //코스 데이터 캐시(한 번 로드하면 계속 사용)
     private var coursesCache: [WalkingCourse]?
 
@@ -52,6 +54,29 @@ class WalkingCourseService {
         }
     }
 
+    // 좌표 캐싱을 위한 공통 메서드
+    private func getOrDownloadCoordinates(from gpxURL: String) async -> [CLLocationCoordinate2D] {
+        // 좌표 캐시 확인
+        if let cachedCoordinates = coordinatesCache.object(forKey: gpxURL as NSString) {
+            return cachedCoordinates as! [CLLocationCoordinate2D]
+        }
+
+        // 캐시에 없으면 다운로드
+        guard let url = URL(string: gpxURL) else { return [] }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let coordinates = parseGPXCoordinates(from: data)
+
+            // 좌표 캐싱
+            coordinatesCache.setObject(coordinates as NSArray, forKey: gpxURL as NSString)
+            return coordinates
+        } catch {
+            print("GPX 다운로드 실패: \(error)")
+            return []
+        }
+    }
+
     // GPX URL에서 썸네일 생성 (캐시 적용)
     func generateThumbnailAsync(from gpxURL: String) async -> UIImage? {
         // 캐시 확인
@@ -59,51 +84,33 @@ class WalkingCourseService {
             return cachedImage
         }
 
-        // GPX 다운로드 및 처리
+        // 직접 처리
         let image = await downloadAndProcessGPX(urlString: gpxURL)
-
         if let image = image {
             thumbnailCache.setObject(image, forKey: gpxURL as NSString)
         }
-
         return image
+    }
+
+    func getCachedThumbnail(for gpxURL: String) -> UIImage? {
+        return thumbnailCache.object(forKey: gpxURL as NSString)
     }
 
     //좌표값 다운로드해서 이미지 생성
     private func downloadAndProcessGPX(urlString: String) async -> UIImage? {
-        guard let url = URL(string: urlString) else {
+        let coordinates = await getOrDownloadCoordinates(from: urlString)
+
+        if coordinates.isEmpty {
             return nil
         }
 
-        do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-
-            let coordinates = parseGPXCoordinates(from: data)
-
-            if coordinates.isEmpty {
-                return nil
-            }
-
-            return await createMapSnapshot(coordinates: coordinates)
-
-        } catch {
-            print("GPX 다운로드 실패: \(error)")
-            return nil
-        }
+        return await createMapSnapshot(coordinates: coordinates)
     }
 
     //첫번째 좌표값 가져오기
     func getFirstCoordinate(from gpxURL: String) async -> CLLocationCoordinate2D? {
-        guard let url = URL(string: gpxURL) else { return nil }
-
-        do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-            let coordinates = parseGPXCoordinates(from: data)
-            return coordinates.first
-        } catch {
-            print("GPX 로드 실패: \(error)")
-            return nil
-        }
+        let coordinates = await getOrDownloadCoordinates(from: gpxURL)
+        return coordinates.first
     }
 
     //좌표 리스트만 반환
@@ -115,13 +122,13 @@ class WalkingCourseService {
         }
 
         // 첫 번째 트랙만 추출
-           var targetContent = xmlString
-           if let firstTrackStart = xmlString.range(of: "<trk>") {
-               let afterFirstTrack = String(xmlString[firstTrackStart.upperBound...])
-               if let firstTrackEnd = afterFirstTrack.range(of: "</trk>") {
-                   targetContent = String(afterFirstTrack[..<firstTrackEnd.lowerBound])
-               }
-           }
+        var targetContent = xmlString
+        if let firstTrackStart = xmlString.range(of: "<trk>") {
+            let afterFirstTrack = String(xmlString[firstTrackStart.upperBound...])
+            if let firstTrackEnd = afterFirstTrack.range(of: "</trk>") {
+                targetContent = String(afterFirstTrack[..<firstTrackEnd.lowerBound])
+            }
+        }
 
         let pattern = "<trkpt lat=\"([^\"]+)\" lon=\"([^\"]+)\""
 
@@ -169,6 +176,8 @@ class WalkingCourseService {
         )
         options.size = CGSize(width: 300, height: 150)
         options.scale = await UIScreen.main.scale
+        options.mapType = .standard
+        options.traitCollection = UITraitCollection(userInterfaceStyle: .light)
 
         let snapshotter = MKMapSnapshotter(options: options)
 
