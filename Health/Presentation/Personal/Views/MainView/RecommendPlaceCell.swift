@@ -14,6 +14,7 @@ protocol RecommendPlaceCellDelegate: AnyObject {
 }
 
 class RecommendPlaceCell: CoreCollectionViewCell {
+    private var skeletonView: SkeletonView!
 
     @IBOutlet weak var placeBackground: UIView!
     @IBOutlet weak var courseImage: UIImageView!
@@ -40,6 +41,7 @@ class RecommendPlaceCell: CoreCollectionViewCell {
     override func setupAttribute() {
         super.setupAttribute()
         setupInfoButton()
+        setupSkeletonView()
         BackgroundHeightUtils.setupShadow(for: self)
         BackgroundHeightUtils.setupDarkModeBorder(for: placeBackground)
         placeBackground.applyCornerStyle(.medium)
@@ -54,6 +56,7 @@ class RecommendPlaceCell: CoreCollectionViewCell {
 
         //이전 Task 취소 (메모리 누수 방지)
         thumbnailTask?.cancel()
+        showSkeletonView()
     }
 
     // API에서 받은 실제 데이터로 설정
@@ -62,6 +65,7 @@ class RecommendPlaceCell: CoreCollectionViewCell {
         // 기본 텍스트 설정
         courseNameLabel.text = course.crsKorNm.upToFirstCourse()
         locationLabel.text = course.sigun
+        showSkeletonView()
         let distance = NSAttributedString(string: "\(course.crsDstnc)km")
             .font(UIFont.preferredFont(forTextStyle: .footnote), to: "km")
         distanceLabel.attributedText = distance
@@ -77,6 +81,7 @@ class RecommendPlaceCell: CoreCollectionViewCell {
         // 캐시 먼저 확인
         if let cachedImage = WalkingCourseService.shared.getCachedThumbnail(for: course.gpxpath) {
             courseImage.image = cachedImage
+            hideSkeletonView()
             return
         }
 
@@ -89,13 +94,15 @@ class RecommendPlaceCell: CoreCollectionViewCell {
 
             guard currentGPXURL == course.gpxpath else { return }
 
+            hideSkeletonView()
+
             if let image = image {
                 courseImage.image = image
                 courseImage.contentMode = .scaleAspectFill
+                hideSkeletonView()
             } else {
-                courseImage.image = UIImage(systemName: "location.slash")
-                courseImage.contentMode = .scaleAspectFit
-                courseImage.tintColor = .systemBlue
+                courseImage.image = nil
+                showSkeletonView()
             }
         }
     }
@@ -147,6 +154,31 @@ class RecommendPlaceCell: CoreCollectionViewCell {
     @objc private func cellTapped() {
         guard let course = currentCourse else { return }
         delegate?.didTapCell(for: course)
+    }
+
+    private func setupSkeletonView() {
+        skeletonView = SkeletonView()
+        skeletonView?.translatesAutoresizingMaskIntoConstraints = false
+        courseImage.addSubview(skeletonView!)
+
+        NSLayoutConstraint.activate([
+            skeletonView!.topAnchor.constraint(equalTo: courseImage.topAnchor),
+            skeletonView!.leadingAnchor.constraint(equalTo: courseImage.leadingAnchor),
+            skeletonView!.trailingAnchor.constraint(equalTo: courseImage.trailingAnchor),
+            skeletonView!.bottomAnchor.constraint(equalTo: courseImage.bottomAnchor)
+        ])
+    }
+
+    // 로딩 시작
+    private func showSkeletonView() {
+        skeletonView?.isHidden = false
+        skeletonView?.startAnimating()
+    }
+
+    // 로딩 완료
+    private func hideSkeletonView() {
+        skeletonView?.isHidden = true
+        skeletonView?.stopAnimating()
     }
 }
 
