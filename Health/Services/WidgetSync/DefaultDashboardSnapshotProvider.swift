@@ -64,33 +64,7 @@ final class DefaultDashboardSnapshotProvider: DashboardSnapshotProvider {
 		}
 		
 		// 2) 7일 평균 (예: HealthKit로 계산하는 경우)
-		let windowEnd = date.endOfDay()                   // 오늘 24:00
-		let windowStart = Calendar.current
-			.date(byAdding: .day, value: -6, to: date.startOfDay())! // 6일 전 00:00
-
-		let collection = try await health.fetchStatisticsCollection(
-			for: .stepCount,
-			from: windowStart, to: windowEnd,
-			options: .cumulativeSum,
-			interval: DateComponents(day: 1),
-			unit: .count()
-		)
-
-		// HealthKit이 비어있는 날을 생략할 수 있으므로, 7칸을 직접 채워서 합산
-		let cal = Calendar.current
-		var total7 = 0.0
-		var cursor = windowStart
-		while cursor <= windowEnd {
-			// collection 안에서 cursor(그날 00:00)과 같은 날을 찾아 값 사용, 없으면 0
-			let dayValue = collection.first {
-				cal.isDate($0.startDate, inSameDayAs: cursor)
-			}?.value ?? 0.0
-
-			total7 += dayValue
-			cursor = cal.date(byAdding: .day, value: 1, to: cursor)!  // 다음 날로 이동
-		}
-
-		let weeklyAvg = Int(total7 / 7.0)
+		let weeklyAvg = try await weeklyAverageSteps(endingOn: end)
 		
 		// 3) async let 읽기 → 반드시 try await
 		let step = try await stepsValue
@@ -111,6 +85,9 @@ final class DefaultDashboardSnapshotProvider: DashboardSnapshotProvider {
 			weeklyAvgSteps: weeklyAvg
 		)
 	}
+	
+	
+
 	
 	// 증분 반영 버전 (전경 CoreMotion 전용)
 	func makeSnapshot(for date: Date, addStepDelta delta: Int) async throws -> HealthDashboardSnapshot {
@@ -145,5 +122,46 @@ final class DefaultDashboardSnapshotProvider: DashboardSnapshotProvider {
 			weeklyAvgSteps: fresh.weeklyAvgSteps
 		)
 		return fresh
+	}
+	
+	/// 오늘을 포함한 최근 7일 평균(반올림). HealthKit 컬렉션에 빠진 날은 0으로 채운다.
+	private func weeklyAverageSteps(endingOn endOfToday: Date) async throws -> Int {
+		let cal = Calendar.current
+		let start = cal.startOfDay(for: cal.date(byAdding: .day, value: -6, to: endOfToday.startOfDay())!)
+		let end   = endOfToday.endOfDay()
+		
+		let collection = try await health.fetchStatisticsCollection(
+			for: .stepCount,
+			from: start,
+			to: end,
+			options: .cumulativeSum,
+			interval: DateComponents(day: 1),
+			unit: .count()
+		)
+		
+		// 일자→값 맵 (HK는 값 없는 날을 생략할 수 있음)
+		var byDay: [Date: Double] = [:]
+		for item in collection {
+			byDay[item.startDate.startOfDay()] = item.value
+		}
+		
+		// 정확히 7칸 채우기(누락일 0)
+		var total = 0.0
+		for offset in 0..<7 {
+			let day = cal.date(byAdding: .day, value: offset, to: start)!
+			total += byDay[day.startOfDay()] ?? 0.0
+		}
+		
+		// 반올림으로 통일 (대시보드와 동일)
+		return Int((total / 7.0).rounded(.toNearestOrAwayFromZero))
+	}
+}
+
+// MARK: - Date helpers
+private extension Date {
+	func startOfDay() -> Date { Calendar.current.startOfDay(for: self) }
+	func endOfDay() -> Date {
+		let c = Calendar.current
+		return c.date(byAdding: DateComponents(day: 1, second: -1), to: c.startOfDay(for: self))!
 	}
 }
