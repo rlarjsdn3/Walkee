@@ -197,8 +197,8 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
                   
                     showAlert(
                         "권한 설정",
-                        message: "건강앱 연동없이 앱 실행시, 일부기능이 제한될 수 있습니다. 설정화면으로 이동하시겠습니까?",
-                        primaryTitle: "설정으로 이동",
+                        message: "건강앱 연동없이 앱 실행시, 일부기능이 제한될 수 있습니다. 건강 앱 화면으로 이동하시겠습니까?",
+                        primaryTitle: "열기",
                         onPrimaryAction: { _ in
                             // 오후 회의 이후 어느경로로 이동하는지 정하는거로
 //                            self.openAppSettings()

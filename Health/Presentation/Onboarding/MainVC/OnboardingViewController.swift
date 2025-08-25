@@ -26,7 +26,6 @@ class OnboardingViewController: CoreGradientViewController, UIScrollViewDelegate
     private let secondPageView = UIView()
     private let thirdPageView = UIView()
     
-    
     private var currentPage: Int {
         let pageWidth = scrollView.bounds.width
         guard pageWidth > 0 else { return 0 }
@@ -140,7 +139,6 @@ class OnboardingViewController: CoreGradientViewController, UIScrollViewDelegate
         descriptionLabel.numberOfLines = 0
         descriptionLabel.textAlignment = .center
         
-        // 아이패드 제약
         let isIpad = traitCollection.userInterfaceIdiom == .pad
         
         if isIpad {
@@ -150,55 +148,29 @@ class OnboardingViewController: CoreGradientViewController, UIScrollViewDelegate
             descriptionLabel.font = UIFont.systemFont(ofSize: 16, weight: .regular)
             titleLabel.font = UIFont.systemFont(ofSize: 50, weight: .black)
             
-            let isPortrait = UIScreen.main.bounds.height > UIScreen.main.bounds.width
-            if isPortrait {
-                let container = UIStackView(arrangedSubviews: [titleLabel, subtitleLabel, imageView, descriptionLabel])
-                container.axis = .vertical
-                container.alignment = .center
-                container.spacing = 4
-                container.translatesAutoresizingMaskIntoConstraints = false
+            let container = UIStackView(arrangedSubviews: [titleLabel, subtitleLabel, imageView, descriptionLabel])
+            container.axis = .vertical
+            container.alignment = .center
+            container.spacing = 4
+            container.translatesAutoresizingMaskIntoConstraints = false
+            
+            page.addSubview(container)
+            
+            NSLayoutConstraint.activate([
+                container.centerXAnchor.constraint(equalTo: page.centerXAnchor),
+                container.centerYAnchor.constraint(equalTo: page.centerYAnchor),
+                container.leadingAnchor.constraint(equalTo: page.leadingAnchor, constant: 120),
+                container.trailingAnchor.constraint(equalTo: page.trailingAnchor, constant: -120),
                 
-                page.addSubview(container)
-                
-                NSLayoutConstraint.activate([
-                    container.centerYAnchor.constraint(equalTo: page.centerYAnchor),
-                    container.leadingAnchor.constraint(equalTo: page.leadingAnchor, constant: 120),
-                    container.trailingAnchor.constraint(equalTo: page.trailingAnchor, constant: -120),
-                    
-                    imageView.widthAnchor.constraint(equalToConstant: 240),
-                    imageView.heightAnchor.constraint(equalToConstant: 240)
-                ])
-            } else {
-                page.addSubview(imageView)
-                page.addSubview(titleLabel)
-                page.addSubview(subtitleLabel)
-                page.addSubview(descriptionLabel)
-                
-                NSLayoutConstraint.activate([
-                    titleLabel.topAnchor.constraint(equalTo: page.topAnchor, constant: 60),
-                    titleLabel.leadingAnchor.constraint(equalTo: page.leadingAnchor, constant: 12),
-                    titleLabel.trailingAnchor.constraint(equalTo: page.trailingAnchor, constant: -12),
-                    
-                    subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
-                    subtitleLabel.leadingAnchor.constraint(equalTo: page.leadingAnchor, constant: 12),
-                    subtitleLabel.trailingAnchor.constraint(equalTo: page.trailingAnchor, constant: -12),
-                    
-                    imageView.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 40),
-                    imageView.centerXAnchor.constraint(equalTo: page.centerXAnchor),
-                    imageView.widthAnchor.constraint(equalToConstant: 240),
-                    imageView.heightAnchor.constraint(equalToConstant: 240),
-                    
-                    descriptionLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 12),
-                    descriptionLabel.leadingAnchor.constraint(equalTo: page.leadingAnchor, constant: 12),
-                    descriptionLabel.trailingAnchor.constraint(equalTo: page.trailingAnchor, constant: -12)
-                ])
-            }
-        // 아이폰 제약
+                imageView.widthAnchor.constraint(equalToConstant: 240),
+                imageView.heightAnchor.constraint(equalToConstant: 240)
+            ])
         } else {
+            // 아이폰 제약
             titleLabel.textAlignment = .left
             subtitleLabel.textAlignment = .left
             descriptionLabel.textAlignment = .center
-            descriptionLabel.font = .preferredFont(forTextStyle: .caption1)
+            descriptionLabel.font = .preferredFont(forTextStyle: .callout)
             titleLabel.font = UIFont.systemFont(ofSize: 36, weight: .black)
             
             page.addSubview(imageView)
@@ -215,7 +187,7 @@ class OnboardingViewController: CoreGradientViewController, UIScrollViewDelegate
                 subtitleLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
                 subtitleLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
                 
-                imageView.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 40),
+                imageView.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 20),
                 imageView.centerXAnchor.constraint(equalTo: page.centerXAnchor),
                 imageView.widthAnchor.constraint(equalToConstant: 240),
                 imageView.heightAnchor.constraint(equalToConstant: 240),
