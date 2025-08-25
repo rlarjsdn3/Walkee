@@ -26,6 +26,7 @@ class WeightViewController: CoreGradientViewController {
     
     private var iPadWidthConstraint: NSLayoutConstraint?
     private var iPadCenterXConstraint: NSLayoutConstraint?
+    private var weightInputFieldiPadWidthConstraint: NSLayoutConstraint?
     
     private var userInfo: UserInfoEntity?
     private let context = CoreDataStack.shared.persistentContainer.viewContext
@@ -72,6 +73,7 @@ class WeightViewController: CoreGradientViewController {
         super.viewWillLayoutSubviews()
         updateContinueButtonConstraints()
         updateDescriptionTopConstraint()
+        updateWeightInputFieldConstraints() // iPad/iPhone 대응
     }
     
     private func setupContinueButton() {
@@ -116,6 +118,23 @@ class WeightViewController: CoreGradientViewController {
             iPadCenterXConstraint?.isActive = false
             continueButtonLeading?.isActive = true
             continueButtonTrailing?.isActive = true
+        }
+    }
+    
+    private func updateWeightInputFieldConstraints() {
+        let isIpad = traitCollection.horizontalSizeClass == .regular &&
+                     traitCollection.verticalSizeClass == .regular
+        
+        if isIpad {
+            // iPad → 고정 width
+            if weightInputFieldiPadWidthConstraint == nil {
+                weightInputFieldiPadWidthConstraint = weightInputField.widthAnchor.constraint(equalToConstant: 120)
+                weightInputFieldiPadWidthConstraint?.isActive = true
+            }
+        } else {
+            // iPhone → dynamic width 사용
+            weightInputFieldiPadWidthConstraint?.isActive = false
+            weightInputFieldiPadWidthConstraint = nil
         }
     }
     
@@ -289,3 +308,4 @@ extension WeightViewController: UIGestureRecognizerDelegate {
         return true
     }
 }
+

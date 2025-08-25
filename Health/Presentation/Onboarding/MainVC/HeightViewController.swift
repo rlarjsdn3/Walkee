@@ -26,6 +26,7 @@ class HeightViewController: CoreGradientViewController {
     
     private var iPadWidthConstraint: NSLayoutConstraint?
     private var iPadCenterXConstraint: NSLayoutConstraint?
+    private var heightInputFieldiPadWidthConstraint: NSLayoutConstraint?
     
     private var userInfo: UserInfoEntity?
     private let context = CoreDataStack.shared.persistentContainer.viewContext
@@ -72,6 +73,7 @@ class HeightViewController: CoreGradientViewController {
         super.viewWillLayoutSubviews()
         updateContinueButtonConstraints()
         updateDescriptionTopConstraint()
+        updateHeightInputFieldConstraints()
     }
     
     private func setupContinueButton() {
@@ -138,6 +140,23 @@ class HeightViewController: CoreGradientViewController {
             name: UIResponder.keyboardDidHideNotification,
             object: nil
         )
+    }
+    
+    private func updateHeightInputFieldConstraints() {
+        let isIpad = traitCollection.horizontalSizeClass == .regular &&
+                     traitCollection.verticalSizeClass == .regular
+        
+        if isIpad {
+            // iPad → 고정 width
+            if heightInputFieldiPadWidthConstraint == nil {
+                heightInputFieldiPadWidthConstraint = heightInputField.widthAnchor.constraint(equalToConstant: 120)
+                heightInputFieldiPadWidthConstraint?.isActive = true
+            }
+        } else {
+            // iPhone → dynamic width 사용
+            heightInputFieldiPadWidthConstraint?.isActive = false
+            heightInputFieldiPadWidthConstraint = nil
+        }
     }
     
     @objc private func keyboardWillShow(_ notification: Notification) {
