@@ -31,12 +31,7 @@ final class HealthNavigationBar: CoreView {
     }()
 
     private let defaultTitleImageSymbolConfiguration = UIImage.SymbolConfiguration(pointSize: 22)
-
-    private var defaultTrailingBarButtonItemSymbolConfiguration: UIImage.SymbolConfiguration {
-        isPad
-        ? UIImage.SymbolConfiguration(pointSize: 24)
-        : UIImage.SymbolConfiguration(pointSize: 20)
-    }
+    private var defaultTrailingBarButtonItemSymbolConfiguration = UIImage.SymbolConfiguration(pointSize: 20)
 
     /// 내비게이션 바의 동작을 위임받을 델리게이트입니다.
     weak var delegate: (any HealthNavigationBarDelegate)?

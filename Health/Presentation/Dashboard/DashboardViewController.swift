@@ -29,30 +29,36 @@ final class DashboardViewController: HealthNavigationController, Alertable {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        loadData()
         registerNotification()
     }
 
     override func viewIsAppearing(_ animated: Bool) {
         super.viewIsAppearing(animated)
 
-        // TODO: - 다른 메서드로 빼서 코드 정돈하기
-        if !hasBuiltLayout {
-            let vSizeClass = traitCollection.verticalSizeClass
-            let hSizeClass = traitCollection.horizontalSizeClass
-            let env = DashboardViewModel.DashboardEnvironment(
-                vericalClassIsRegular: vSizeClass == .regular,
-                horizontalClassIsRegular: hSizeClass == .regular
-            )
-            viewModel.buildDashboardCells(for: env)
-            hasBuiltLayout = true
-        }
-        
-        if !hasLoadedData {
-            viewModel.loadHKData()
-            setupDataSource()
-            applySnapshot()
-            hasLoadedData = true
-        }
+        buildLayout()
+        setupDataSource()
+        applySnapshot()
+    }
+
+    private func buildLayout() {
+        guard !hasBuiltLayout else { return }
+
+        let vSizeClass = traitCollection.verticalSizeClass
+        let hSizeClass = traitCollection.horizontalSizeClass
+        let env = DashboardViewModel.DashboardEnvironment(
+            vericalClassIsRegular: vSizeClass == .regular,
+            horizontalClassIsRegular: hSizeClass == .regular
+        )
+        viewModel.buildDashboardCells(for: env)
+        hasBuiltLayout = true
+    }
+
+    private func loadData() {
+        guard !hasLoadedData else { return }
+
+        viewModel.loadHKData()
+        hasLoadedData = true
     }
 
     override func setupAttribute() {
@@ -61,7 +67,10 @@ final class DashboardViewController: HealthNavigationController, Alertable {
         healthNavigationBar.title = "대시보드"
         healthNavigationBar.titleImage = UIImage(systemName: "chart.xyaxis.line")
         healthNavigationBar.trailingBarButtonItems = [
-            HealthBarButtonItem(image: UIImage(systemName: "square.and.arrow.up"))
+            HealthBarButtonItem(
+                image: UIImage(systemName: "square.and.arrow.up"),
+                primaryAction: shareActivityRingImage
+            )
         ]
 
         refreshControl.addTarget(
@@ -101,6 +110,11 @@ final class DashboardViewController: HealthNavigationController, Alertable {
             name: .didChangeHKSharingAuthorizationStatus,
             object: nil
         )
+    }
+
+    private func shareActivityRingImage() {
+        viewModel.loadHKData(includeAIResponse: false)
+        Task.delay(for: 0.2) { @MainActor in await presentActivityRingShareSheet() }
     }
 
     @objc private func refreshHKData() {
@@ -277,7 +291,7 @@ fileprivate extension DashboardViewController {
 
                 snapshot.reconfigureItems([.alanSummary(id)])
                 self?.dashboardCollectionView.performBatchUpdates {
-                    self?.dataSource?.apply(snapshot, animatingDifferences: true)
+                    self?.dataSource?.apply(snapshot, animatingDifferences: false)
                 } completion: { _ in
                     self?.dashboardCollectionView.collectionViewLayout.invalidateLayout()
                 }
@@ -317,6 +331,134 @@ fileprivate extension DashboardViewController {
                 detailButton: infoDetailBtn
             )
         }
+    }
+}
+
+fileprivate extension DashboardViewController {
+
+    func presentActivityRingShareSheet() async {
+        let stepCountReadPermissionGranted = await viewModel.checkHKHasAnyReadPermission(typeIdentifier: .stepCount)
+
+        if stepCountReadPermissionGranted {
+            let image = snapshotFirstTwoSections(in: dashboardCollectionView)
+            let itemSource = DashboardActivityItemSrouce(title: "안녕", image: image)
+            let avc = UIActivityViewController(activityItems: [itemSource], applicationActivities: nil)
+
+            if let pop = avc.popoverPresentationController {
+                pop.sourceView = view
+                pop.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 1, height: 1)
+                pop.permittedArrowDirections = []
+            }
+            present(avc, animated: true)
+        } else {
+            showAlert(
+                "권한 설정 필요",
+                message: """
+                         대시보드 현황을 공유하려면 걸음 수 건강 데이터 접근 권한이 필요합니다.
+                         
+                         경로: 프로필(우측 상단) ⏵ 개인정보 보호 ⏵ 앱 ⏵ Health  
+                         위 경로에서 앱의 데이터 접근 권한을 해제하거나 다시 활성화할 수 있습니다.
+                         """,
+                primaryTitle: "설정으로 이동",
+                onPrimaryAction: ({ [weak self] _ in
+                    self?.openURL(string: "x-apple-health://")
+                }),
+                onCancelAction: ({ _ in })
+            )
+        }
+    }
+
+    func sectionRect(in collectionView: UICollectionView, section: Int) -> CGRect {
+        collectionView.layoutIfNeeded()
+        let layout = collectionView.collectionViewLayout
+
+        var union = CGRect.null
+        let itemCount = collectionView.numberOfItems(inSection: section)
+
+        for item in 0..<itemCount {
+            let indexPath = IndexPath(item: item, section: section)
+            if let attr = layout.layoutAttributesForItem(at: indexPath) {
+                union = union.union(attr.frame)
+            }
+        }
+        return union
+    }
+
+    func snapshot(of rect: CGRect, in collectionView: UICollectionView, scale: CGFloat = UIScreen.main.scale) -> UIImage {
+        collectionView.layoutIfNeeded()
+
+        let renderFormat = UIGraphicsImageRendererFormat.default()
+        renderFormat.scale = scale
+        // 출력 이미지의 좌표 원점은 (0,0)이며, 크기는 rect.size입니다.
+        let renderer = UIGraphicsImageRenderer(size: rect.size, format: renderFormat)
+
+        let originalOffset = collectionView.contentOffset
+        defer {
+            collectionView.backgroundColor = .clear
+            collectionView.setContentOffset(originalOffset, animated: false)
+            collectionView.layoutIfNeeded()
+        }
+
+        let image = renderer.image { context in
+            // 지정한 rect를 (0,0)부터 시작하도록 맞추기 위해
+            // 원점을 rect.origin만큼 반대로 평행 이동합니다.
+            context.cgContext.translateBy(x: -rect.origin.x, y: -rect.origin.y)
+
+            let topColor = UIColor { traitCollection in
+                traitCollection.userInterfaceStyle == .dark
+                ? UIColor(hex: "292A3D").withAlphaComponent(0.9)
+                : UIColor.systemBackground
+            }.cgColor
+            let bottomColor = UIColor { traitCollection in
+                traitCollection.userInterfaceStyle == .dark
+                ? UIColor(hex: "000000").withAlphaComponent(0.9)
+                : UIColor.systemBackground
+            }.cgColor
+
+            let colorSpace = CGColorSpaceCreateDeviceRGB()
+            let colors = [topColor, bottomColor] as CFArray
+            let locations: [CGFloat] = [0.0, 1.0]
+
+            if let gradient = CGGradient(colorsSpace: colorSpace, colors: colors, locations: locations) {
+                // 상단에 흰색 라인이 보이지 않도록, 시작점을 약간 위로 올려서 그라디언트를 그립니다.
+                let start = CGPoint(x: 0, y: -20)
+                let end   = CGPoint(x: 0, y: rect.size.height)
+                context.cgContext.drawLinearGradient(gradient, start: start, end: end, options: [])
+            }
+
+            let viewportHeight = collectionView.bounds.height
+
+            var tileMinY = rect.minY
+            while tileMinY < rect.maxY {
+                let tileHeight = min(viewportHeight, rect.maxY - tileMinY)
+                let targetOffset = CGPoint(x: rect.minX, y: tileMinY)
+                collectionView.setContentOffset(CGPoint(x: 0, y: targetOffset.y), animated: false)
+                collectionView.layoutIfNeeded()
+
+                collectionView.backgroundColor = .clear
+                collectionView.layer.render(in: context.cgContext)
+
+                tileMinY += tileHeight
+            }
+        }
+
+        return image
+    }
+
+    func snapshotFirstTwoSections(
+        in collectionView: UICollectionView,
+        extraInsets: UIEdgeInsets = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
+    ) -> UIImage {
+        let s0 = sectionRect(in: collectionView, section: 0)
+        let s1 = sectionRect(in: collectionView, section: 1)
+        var union = s0.union(s1)
+        
+        union.origin.x -= extraInsets.left
+        union.origin.y -= extraInsets.top
+        union.size.width  += (extraInsets.left + extraInsets.right)
+        union.size.height += (extraInsets.top  + extraInsets.bottom)
+
+        return snapshot(of: union, in: collectionView)
     }
 }
 
