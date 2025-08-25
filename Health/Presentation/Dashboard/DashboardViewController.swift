@@ -359,7 +359,7 @@ fileprivate extension DashboardViewController {
                          경로: 프로필(우측 상단) ⏵ 개인정보 보호 ⏵ 앱 ⏵ Health  
                          위 경로에서 앱의 데이터 접근 권한을 해제하거나 다시 활성화할 수 있습니다.
                          """,
-                primaryTitle: "설정으로 이동",
+                primaryTitle: "열기",
                 onPrimaryAction: ({ [weak self] _ in
                     self?.openURL(string: "x-apple-health://")
                 }),
