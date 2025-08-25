@@ -17,7 +17,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" style="insetGrouped" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" estimatedSectionHeaderHeight="-1" sectionFooterHeight="18" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="OJQ-sg-r2p">
-                                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                                <rect key="frame" x="0.0" y="118" width="393" height="734"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </tableView>
                         </subviews>
@@ -25,7 +25,7 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="OJQ-sg-r2p" firstAttribute="leading" secondItem="5EZ-qb-Rvc" secondAttribute="leading" id="0m0-VJ-dDa"/>
-                            <constraint firstItem="OJQ-sg-r2p" firstAttribute="top" secondItem="5EZ-qb-Rvc" secondAttribute="top" id="8E0-fT-fbk"/>
+                            <constraint firstItem="OJQ-sg-r2p" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" id="8E0-fT-fbk"/>
                             <constraint firstAttribute="trailing" secondItem="OJQ-sg-r2p" secondAttribute="trailing" id="Ndv-fh-1sv"/>
                             <constraint firstAttribute="bottom" secondItem="OJQ-sg-r2p" secondAttribute="bottom" id="vX0-sA-e4z"/>
                         </constraints>
@@ -49,14 +49,14 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="insetGrouped" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" estimatedSectionHeaderHeight="-1" sectionFooterHeight="18" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="GYD-Jy-4pd">
-                                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                                <rect key="frame" x="0.0" y="118" width="393" height="734"/>
                             </tableView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Ugp-v8-Ytf"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="GYD-Jy-4pd" secondAttribute="trailing" id="0uh-lY-5gu"/>
-                            <constraint firstItem="GYD-Jy-4pd" firstAttribute="top" secondItem="eJ2-Tp-S4C" secondAttribute="top" id="RMo-cc-byo"/>
+                            <constraint firstItem="GYD-Jy-4pd" firstAttribute="top" secondItem="Ugp-v8-Ytf" secondAttribute="top" id="RMo-cc-byo"/>
                             <constraint firstItem="GYD-Jy-4pd" firstAttribute="leading" secondItem="eJ2-Tp-S4C" secondAttribute="leading" id="gZ7-JN-ISi"/>
                             <constraint firstAttribute="bottom" secondItem="GYD-Jy-4pd" secondAttribute="bottom" id="t3b-F8-wx5"/>
                         </constraints>
