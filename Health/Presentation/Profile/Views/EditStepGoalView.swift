@@ -22,7 +22,7 @@ final class EditStepGoalView: CoreView {
     }
     
     var step: Int = 500
-    var minValue: Int = 0
+    var minValue: Int = 500
     var maxValue: Int = 100_000
     var onValueChanged: ((Int) -> Void)?
     
@@ -143,7 +143,7 @@ final class EditStepGoalView: CoreView {
         plusButton.isEnabled  = value < maxValue
     }
     
-    func configure(defaultValue: Int, step: Int = 500, min: Int = 0, max: Int = 100_000) {
+    func configure(defaultValue: Int, step: Int = 500, min: Int = 500, max: Int = 100_000) {
         self.step = step
         self.minValue = min
         self.maxValue = max

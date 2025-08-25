@@ -15,7 +15,7 @@ struct BodyInfoItem {
     var detail: String
 }
 
-class BodyInfoViewController: CoreGradientViewController, Alertable {
+class BodyInfoViewController: HealthNavigationController, Alertable {
     
     @IBOutlet weak var tableView: UITableView!
     
@@ -38,6 +38,8 @@ class BodyInfoViewController: CoreGradientViewController, Alertable {
     override func setupAttribute() {
         super.setupAttribute()
         
+        healthNavigationBar.title = "신체 정보"
+
         applyBackgroundGradient(.midnightBlack)
         tableView.dataSource = self
         tableView.delegate = self
@@ -84,7 +86,7 @@ class BodyInfoViewController: CoreGradientViewController, Alertable {
             items[diseaseIndex].detail = "-"
         } else if diseases.first == Disease.none {
             items[diseaseIndex].detail = "없음"
-        } else if diseases.count > 1 {
+        } else if diseases.count >= 1 {
             items[diseaseIndex].detail = "\(diseases.count)개"
         }
     }
@@ -93,6 +95,7 @@ class BodyInfoViewController: CoreGradientViewController, Alertable {
         userVM.fetchUsers()
         currentUser = userVM.users.first
         if let u = currentUser {
+            print(u)
             let genderText = (u.gender ?? "").isEmpty ? "-" : (u.gender ?? "")
             if items.indices.contains(0) {
                 items[0].detail = genderText
@@ -199,7 +202,7 @@ extension BodyInfoViewController: UITableViewDelegate {
                 }
             )
         case "태어난 해":
-            let currentYear = Calendar.current.component(.year, from: Date())
+            let currentYear = Date().year
             
             let defaultYear: Int = {
                 let context = CoreDataStack.shared.viewContext
