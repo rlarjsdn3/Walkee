@@ -16,9 +16,7 @@ extension Date {
         /// 요일 축약형 (예: "월")
         case weekdayShorthand = "EEE"
         /// AM/PM 시분 형식 (예: 오후 12:12)
-        ///
-        /// 시는 24시간제로 출력됩니다.
-        case aHHmm = "a HH:mm"
+        case aHHmm = "a hh:mm"
         /// 일 형식 (예: 21일)
         case d = "d일"
         /// 월일 형식 (예: "8월 1일")
