@@ -10,7 +10,7 @@ import CoreData
 
 class HeightViewController: CoreGradientViewController {
     
-    @IBOutlet weak var heightInputField: UITextField!
+    @IBOutlet weak var heightInputField: DynamicWidthTextField!
     @IBOutlet weak var errorLabel: UILabel!
     @IBOutlet weak var cmLabel: UILabel!
     @IBOutlet weak var continueButton: UIButton!
@@ -30,6 +30,8 @@ class HeightViewController: CoreGradientViewController {
     private var userInfo: UserInfoEntity?
     private let context = CoreDataStack.shared.persistentContainer.viewContext
     
+    private var shouldPerformSegueAfterKeyboardHide = false
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -42,28 +44,7 @@ class HeightViewController: CoreGradientViewController {
         errorLabel.isHidden = true
         errorLabel.textColor = .red
         
-        var config = UIButton.Configuration.filled()
-        config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
-            var out = incoming
-            out.font = UIFont.preferredFont(forTextStyle: .headline)
-            return out
-        }
-        config.baseBackgroundColor = .accent
-        config.baseForegroundColor = .systemBackground
-        var container = AttributeContainer()
-        container.font = UIFont.preferredFont(forTextStyle: .headline)
-        config.attributedTitle = AttributedString("다음", attributes: container)
-            
-        continueButton.configurationUpdateHandler = { [weak self] button in
-            switch button.state
-            {
-            case .highlighted:
-                self?.continueButton.alpha = 0.75
-            default: self?.continueButton.alpha = 1.0
-            }
-        }
-        continueButton.configuration = config
-        continueButton.applyCornerStyle(.medium)
+        setupContinueButton()
         
         originalCenterY = heightInputFieldCenterY.constant
         originalDescriptionTop = descriptionLabelTopConst.constant
@@ -93,23 +74,37 @@ class HeightViewController: CoreGradientViewController {
         updateDescriptionTopConstraint()
     }
     
+    private func setupContinueButton() {
+        var config = UIButton.Configuration.filled()
+        config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+            var out = incoming
+            out.font = UIFont.preferredFont(forTextStyle: .headline)
+            return out
+        }
+        config.baseBackgroundColor = .accent
+        config.baseForegroundColor = .systemBackground
+        var container = AttributeContainer()
+        container.font = UIFont.preferredFont(forTextStyle: .headline)
+        config.attributedTitle = AttributedString("다음", attributes: container)
+        
+        continueButton.configurationUpdateHandler = { [weak self] button in
+            self?.continueButton.alpha = (button.state == .highlighted) ? 0.75 : 1.0
+        }
+        continueButton.configuration = config
+        continueButton.applyCornerStyle(.medium)
+    }
+    
     private func updateDescriptionTopConstraint() {
         let isLandscape = view.bounds.width > view.bounds.height
-        if isLandscape {
-            descriptionLabelTopConst.constant = originalDescriptionTop * 0.3
-        } else {
-            descriptionLabelTopConst.constant = originalDescriptionTop * 1.2
-        }
+        descriptionLabelTopConst.constant = originalDescriptionTop * (isLandscape ? 0.3 : 1.2)
     }
     
     private func updateContinueButtonConstraints() {
         let isIpad = traitCollection.horizontalSizeClass == .regular &&
                      traitCollection.verticalSizeClass == .regular
-        
         if isIpad {
             continueButtonLeading?.isActive = false
             continueButtonTrailing?.isActive = false
-            
             if iPadWidthConstraint == nil {
                 iPadWidthConstraint = continueButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7)
                 iPadCenterXConstraint = continueButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
@@ -119,7 +114,6 @@ class HeightViewController: CoreGradientViewController {
         } else {
             iPadWidthConstraint?.isActive = false
             iPadCenterXConstraint?.isActive = false
-            
             continueButtonLeading?.isActive = true
             continueButtonTrailing?.isActive = true
         }
@@ -136,6 +130,12 @@ class HeightViewController: CoreGradientViewController {
             self,
             selector: #selector(keyboardWillHide(_:)),
             name: UIResponder.keyboardWillHideNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardDidHide(_:)),
+            name: UIResponder.keyboardDidHideNotification,
             object: nil
         )
     }
@@ -170,10 +170,18 @@ class HeightViewController: CoreGradientViewController {
             self.view.layoutIfNeeded()
         }
     }
+
+    @objc private func keyboardDidHide(_ notification: Notification) {
+        if shouldPerformSegueAfterKeyboardHide {
+            shouldPerformSegueAfterKeyboardHide = false
+            performSegue(withIdentifier: "goToDiseaseTap", sender: nil)
+        }
+    }
     
     private func setupTapGestureToDismissKeyboard() {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tapGesture.cancelsTouchesInView = false
+        tapGesture.delegate = self
         view.addGestureRecognizer(tapGesture)
     }
     
@@ -190,16 +198,20 @@ class HeightViewController: CoreGradientViewController {
         guard let text = heightInputField.text, let heightValue = Double(text) else { return }
         
         userInfo?.height = heightValue
-        do {
-            try context.save()
+        try? context.save()
+        
+        if heightInputField.isFirstResponder {
+            shouldPerformSegueAfterKeyboardHide = true
+            view.endEditing(true)
+        } else {
             performSegue(withIdentifier: "goToDiseaseTap", sender: nil)
-        } catch {
-            print("Failed to save height: \(error)")
         }
     }
+
     
     @objc private func textFieldDidChange(_ textField: UITextField) {
         validateInput()
+        textField.invalidateIntrinsicContentSize()
     }
     
     private func validateInput() {
@@ -294,6 +306,13 @@ extension HeightViewController: UITextFieldDelegate {
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
+        return true
+    }
+}
+
+extension HeightViewController: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        if touch.view?.isDescendant(of: continueButton) == true { return false }
         return true
     }
 }
