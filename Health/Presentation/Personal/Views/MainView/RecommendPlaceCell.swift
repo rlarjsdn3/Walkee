@@ -62,8 +62,10 @@ class RecommendPlaceCell: CoreCollectionViewCell {
         // 기본 텍스트 설정
         courseNameLabel.text = course.crsKorNm
         locationLabel.text = course.sigun
-        distanceLabel.text = "\(course.crsDstnc)km"
-        durationLabel.text = course.crsTotlRqrmHour.toFormattedDuration()
+        let distance = NSAttributedString(string: "\(course.crsDstnc)km")
+            .font(UIFont.preferredFont(forTextStyle: .footnote), to: "km")
+        distanceLabel.attributedText = distance
+        durationLabel.attributedText = course.crsTotlRqrmHour.toFormattedDuration()
         // 난이도 텍스트와 이미지 색상 동시 설정
         let levelInfo = getLevelInfo(from: course.crsLevel)
         levelLabel.text = levelInfo.text
@@ -151,17 +153,29 @@ class RecommendPlaceCell: CoreCollectionViewCell {
 extension String {
 
     //소요시간 포맷팅
-    func toFormattedDuration() -> String {
+    func toFormattedDuration() -> NSAttributedString {
         let minutes = Int(self)!
         let hours = minutes / 60
         let mins = minutes % 60
 
+        let formattedString: String
+
         if hours > 0 && mins > 0 {
-            return "\(hours)시간 \(mins)분"
+            formattedString = "\(hours)시간 \(mins)분"
         } else if hours > 0 {
-            return "\(hours)시간"
+            formattedString = "\(hours)시간"
         } else {
-            return "\(mins)분"
+            formattedString = "\(mins)분"
         }
+
+        let attributedString = NSAttributedString(string: formattedString)
+
+        // 단위 부분에 footnote 폰트 적용
+        let footnoteFont = UIFont.preferredFont(forTextStyle: .footnote)
+        var result = attributedString
+        result = result.font(footnoteFont, to: "시간")
+        result = result.font(footnoteFont, to: "분")
+
+        return result
     }
 }

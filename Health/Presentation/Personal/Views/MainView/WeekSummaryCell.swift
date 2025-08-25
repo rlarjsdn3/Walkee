@@ -83,14 +83,14 @@ class WeekSummaryCell: CoreCollectionViewCell {
 
     private func updateUIWithData(_ data: WeeklyHealthData) {
         // 걸음수 스타일링
-        let stepsString = "\(data.weeklyTotalSteps.formatted()) 걸음"
+        let stepsString = "\(data.weeklyTotalSteps.formatted())걸음"
         let stepsAttrString = NSAttributedString(string: stepsString)
             .font(.preferredFont(forTextStyle: .footnote), to: "걸음")
             .foregroundColor(.secondaryLabel, to: "걸음")
         walkingLabel.attributedText = stepsAttrString
 
         // 거리 스타일링
-        let distanceString = "\(String(format: "%.1f", data.weeklyTotalDistance)) km"
+        let distanceString = "\(String(format: "%.1f", data.weeklyTotalDistance))km"
         let distanceAttrString = NSAttributedString(string: distanceString)
             .font(.preferredFont(forTextStyle: .footnote), to: "km")
             .foregroundColor(.secondaryLabel, to: "km")
