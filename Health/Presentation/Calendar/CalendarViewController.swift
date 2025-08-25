@@ -8,14 +8,6 @@ final class CalendarViewController: HealthNavigationController, Alertable {
 
     @IBOutlet weak var collectionView: UICollectionView!
 
-    /// 뷰가 나타날 때 현재 월로 스크롤할지 여부를 결정하는 플래그
-    ///
-    /// 탭 전환 시(`true`)와 화면 내 네비게이션(`false`) 시나리오를 구분하여 적절한 스크롤 동작을 제어합니다.
-    /// `viewWillAppear(_:)`에서 사용된 후 자동으로 `false`로 리셋되어 일회성 동작을 보장합니다.
-    ///
-    /// - Note: 다른 탭에서 달력 탭으로 전환할 때만 `true`로 설정하고, 달력 내 push/pop 시에는 기본값(`false`)을 유지합니다.
-    var shouldScrollToCurrentOnAppear = false
-
     private let calendarVM = CalendarViewModel()
     private lazy var dataManager = CalendarDataManager(calendarVM: calendarVM, collectionView: collectionView)
     private lazy var scrollManager = CalendarScrollManager(calendarVM: calendarVM, collectionView: collectionView)
@@ -34,12 +26,6 @@ final class CalendarViewController: HealthNavigationController, Alertable {
         configureNavigationBar()
 		configureBackground()
         configureCollectionView()
-    }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        scrollManager.handleViewWillAppear(shouldScrollToCurrentOnAppear)
-        shouldScrollToCurrentOnAppear = false // 기본값으로 복원
     }
 
     override func viewDidLayoutSubviews() {
@@ -65,6 +51,12 @@ final class CalendarViewController: HealthNavigationController, Alertable {
         if isMovingFromParent || isBeingDismissed {
             dataManager.stopObserving()
         }
+    }
+
+    // 캘린더 탭 재선택 시 현재 월로 스크롤
+    func scrollToCurrentMonth() {
+        guard isViewLoaded, collectionView != nil else { return }
+        scrollManager.scrollToCurrentMonth(animated: true)
     }
 }
 
@@ -114,7 +106,7 @@ private extension CalendarViewController {
         let scrollToCurrentButton = HealthBarButtonItem(
             image: UIImage(systemName: "clock.arrow.trianglehead.counterclockwise.rotate.90"),
             primaryAction: { [weak self] in
-                self?.scrollManager.scrollToCurrentMonth(animated: true)
+                self?.scrollToCurrentMonth()
             }
         )
 

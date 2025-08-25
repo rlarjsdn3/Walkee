@@ -44,21 +44,6 @@ final class CalendarScrollManager {
         }
     }
 
-    /// `viewWillAppear`에서 호출되는 메서드
-    ///
-    /// 탭 전환 시나리오에 따라 적절한 스크롤 동작을 수행합니다.
-    ///
-    /// - Parameter shouldScrollToCurrent: 현재 월로 스크롤할지 여부
-    ///   - `true`: 다른 탭에서 캘린더 탭으로 진입 시 (현재 월로 스크롤)
-    ///   - `false`: 캘린더 탭 내에서 push/pop 복귀 시 (스크롤 위치 유지)
-    func handleViewWillAppear(_ shouldScrollToCurrent: Bool) {
-        if shouldScrollToCurrent {
-            scrollToCurrentMonth()
-        } else {
-            return
-        }
-    }
-
     /// 현재 월로 스크롤합니다.
     func scrollToCurrentMonth(animated: Bool = false) {
         guard let collectionView = collectionView,
