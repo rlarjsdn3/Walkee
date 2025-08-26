@@ -1,5 +1,5 @@
 //
-//  DailyGoalRingCollectionViewCell.swift
+//  ActivityRingCollectionViewCell.swift
 //  Health
 //
 //  Created by 김건우 on 8/5/25.
@@ -8,7 +8,7 @@
 import Combine
 import UIKit
 
-final class DailyGoalRingCollectionViewCell: CoreCollectionViewCell {
+final class ActivityRingCollectionViewCell: CoreCollectionViewCell {
 
     @IBOutlet weak var circleProgressView: CircleProgressView!
     @IBOutlet weak var permissionDeniedView: PermissionDeniedCompactView!
@@ -16,6 +16,14 @@ final class DailyGoalRingCollectionViewCell: CoreCollectionViewCell {
     private var cancalleable: Set<AnyCancellable> = []
 
     private var viewModel: DailyGoalRingCellViewModel!
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        sizeClasses(vRhR: {
+            self.circleProgressView.fontScale = 0.8
+        })
+    }
 
     override func prepareForReuse() {
         cancalleable.removeAll()
@@ -26,7 +34,7 @@ final class DailyGoalRingCollectionViewCell: CoreCollectionViewCell {
     }
 }
 
-extension DailyGoalRingCollectionViewCell {
+extension ActivityRingCollectionViewCell {
 
     func bind(with viewModel: DailyGoalRingCellViewModel) {
         self.viewModel = viewModel

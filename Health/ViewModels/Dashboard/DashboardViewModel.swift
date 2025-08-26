@@ -20,8 +20,8 @@ final class DashboardViewModel {
     private(set) var topIDs: [DashboardTopBarViewModel.ItemID] = []
     private(set) var topCells: [DashboardTopBarViewModel.ItemID: DashboardTopBarViewModel] = [:]
 
-    private(set) var goalRingIDs: [DailyGoalRingCellViewModel.ItemID] = []
-    private(set) var goalRingCells: [DailyGoalRingCellViewModel.ItemID: DailyGoalRingCellViewModel] = [:]
+    private(set) var activtyRingIDs: [DailyGoalRingCellViewModel.ItemID] = []
+    private(set) var activityRingCells: [DailyGoalRingCellViewModel.ItemID: DailyGoalRingCellViewModel] = [:]
 
     private(set) var stackIDs: [HealthInfoStackCellViewModel.ItemID] = []
     private(set) var stackCells: [HealthInfoStackCellViewModel.ItemID: HealthInfoStackCellViewModel] = [:]
@@ -59,7 +59,7 @@ final class DashboardViewModel {
     func buildDashboardCells(for environment: DashboardEnvironment) {
         buildTopBarCell()
         buildStackCells()
-        buildGoalRingCells()
+        buildActivityRingCells()
         buildCardCells()
 
         // 대시보드가 오늘자 데이터를 보여준다면
@@ -81,7 +81,7 @@ final class DashboardViewModel {
         topCells = newCells
     }
 
-    private func buildGoalRingCells() {
+    private func buildActivityRingCells() {
         let newIDs = [DailyGoalRingCellViewModel.ItemID()]
 
         var newCells: [DailyGoalRingCellViewModel.ItemID: DailyGoalRingCellViewModel] = [:]
@@ -89,8 +89,8 @@ final class DashboardViewModel {
             newCells.updateValue(DailyGoalRingCellViewModel(itemID: id), forKey: id)
         }
 
-        goalRingIDs = newIDs
-        goalRingCells = newCells
+        activtyRingIDs = newIDs
+        activityRingCells = newCells
     }
 
     private func buildStackCells() {
@@ -98,6 +98,7 @@ final class DashboardViewModel {
             HealthInfoStackCellViewModel.ItemID(kind: .distanceWalkingRunning),
             HealthInfoStackCellViewModel.ItemID(kind: .appleExerciseTime),
             HealthInfoStackCellViewModel.ItemID(kind: .activeEnergyBurned),
+            HealthInfoStackCellViewModel.ItemID(kind: .basalEnergyBurned),
         ]
 
         var newCells: [HealthInfoStackCellViewModel.ItemID: HealthInfoStackCellViewModel] = [:]
@@ -198,7 +199,7 @@ extension DashboardViewModel {
         let (_, goalStepCount) = fetchCoreDataUser()
         
         Task {
-            for (_, vm) in self.goalRingCells {
+            for (_, vm) in self.activityRingCells {
                 vm.setState(.loading)
 
                 // 루프 진입 직후, 해당 특정 데이터에 대한 읽기 권한이 있는지 먼저 확인
@@ -429,10 +430,10 @@ extension DashboardViewModel {
     func fetchCoreDataUser() -> (age: Int, goalStep: Int) {
         // ⚠️ 사용자 및 목표 걸음 수가 제대로 등록되어 있으면 않으면 크래시
         let user = try! coreDataUserService.fetchUserInfo()
-//        let goalStepCount = goalStepService.goalStepCount(for: anchorDate.endOfDay())!
-//        return (Int(user.age), Int(goalStepCount))
+        let goalStepCount = goalStepService.goalStepCount(for: anchorDate.endOfDay())!
+        return (Int(user.age), Int(goalStepCount))
 
-        return (27, 5000)
+//        return (27, 5000)
     }
 }
 

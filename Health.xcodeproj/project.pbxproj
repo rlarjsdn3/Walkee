@@ -10,6 +10,11 @@
 		C76CA76E2E3AE2110040EF75 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = C76CA76D2E3AE2110040EF75 /* FirebaseAnalyticsCore */; };
 		C7B7CAA72E5A9A460078C2EA /* Markdown in Frameworks */ = {isa = PBXBuildFile; productRef = C7B7CAA62E5A9A460078C2EA /* Markdown */; };
 		C7DC8D422E4640E400DC0E68 /* TSAlertController in Frameworks */ = {isa = PBXBuildFile; productRef = C7DC8D412E4640E400DC0E68 /* TSAlertController */; };
+		C7DCCC562E5C883000A6351C /* app-debug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = C7DCCB672E5C883000A6351C /* app-debug.xcconfig */; };
+		C7DCCC622E5C883000A6351C /* app-release.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = C7DCCB682E5C883000A6351C /* app-release.xcconfig */; };
+		C7DCD3EB2E5CA8D000A6351C /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C7DCD3EA2E5CA8CF00A6351C /* WidgetKit.framework */; };
+		C7DCD3ED2E5CA8D000A6351C /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C7DCD3EC2E5CA8D000A6351C /* SwiftUI.framework */; };
+		C7DCD3F82E5CA8D000A6351C /* HealthWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C7DCD3E92E5CA8CF00A6351C /* HealthWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -20,11 +25,38 @@
 			remoteGlobalIDString = C76490962E3790170062054D;
 			remoteInfo = Health;
 		};
+		C7DCD3F62E5CA8D000A6351C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C764908F2E3790170062054D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C7DCD3E82E5CA8CF00A6351C;
+			remoteInfo = HealthWidgetExtension;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		C7DCD3FD2E5CA8D000A6351C /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				C7DCD3F82E5CA8D000A6351C /* HealthWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		C76490972E3790170062054D /* Health.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Health.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C76490C32E3790410062054D /* HealthTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HealthTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C7DCCB672E5C883000A6351C /* app-debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "app-debug.xcconfig"; sourceTree = "<group>"; };
+		C7DCCB682E5C883000A6351C /* app-release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "app-release.xcconfig"; sourceTree = "<group>"; };
+		C7DCCC7A2E5CA6D700A6351C /* HealthWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HealthWidgetExtension.entitlements; sourceTree = "<group>"; };
+		C7DCD3E92E5CA8CF00A6351C /* HealthWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HealthWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		C7DCD3EA2E5CA8CF00A6351C /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		C7DCD3EC2E5CA8D000A6351C /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -35,6 +67,23 @@
 			);
 			target = C76490962E3790170062054D /* Health */;
 		};
+		C7DCD3FC2E5CA8D000A6351C /* Exceptions for "HealthWidget" folder in "HealthWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = C7DCD3E82E5CA8CF00A6351C /* HealthWidgetExtension */;
+		};
+		C7DCD4092E5CA8F300A6351C /* Exceptions for "Health" folder in "HealthWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Core/Shared/HealthDashboardSnapshot.swift,
+				Core/Shared/SharedStore.swift,
+				"Core/Shared/SharedStore+Dashboard.swift",
+				Core/Shared/WidgetIDs.swift,
+			);
+			target = C7DCD3E82E5CA8CF00A6351C /* HealthWidgetExtension */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -42,6 +91,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				C76490A92E3790180062054D /* Exceptions for "Health" folder in "Health" target */,
+				C7DCD4092E5CA8F300A6351C /* Exceptions for "Health" folder in "HealthWidgetExtension" target */,
 			);
 			path = Health;
 			sourceTree = "<group>";
@@ -49,6 +99,14 @@
 		C76490C42E3790410062054D /* HealthTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = HealthTests;
+			sourceTree = "<group>";
+		};
+		C7DCD3EE2E5CA8D000A6351C /* HealthWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				C7DCD3FC2E5CA8D000A6351C /* Exceptions for "HealthWidget" folder in "HealthWidgetExtension" target */,
+			);
+			path = HealthWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -71,6 +129,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C7DCD3E62E5CA8CF00A6351C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C7DCD3ED2E5CA8D000A6351C /* SwiftUI.framework in Frameworks */,
+				C7DCD3EB2E5CA8D000A6351C /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -79,8 +146,12 @@
 			children = (
 				C76490992E3790170062054D /* Health */,
 				C76490C42E3790410062054D /* HealthTests */,
+				C7DCD3EE2E5CA8D000A6351C /* HealthWidget */,
 				C76CA76C2E3AE2110040EF75 /* Frameworks */,
 				C76490982E3790170062054D /* Products */,
+				C7DCCC7A2E5CA6D700A6351C /* HealthWidgetExtension.entitlements */,
+				C7DCCB672E5C883000A6351C /* app-debug.xcconfig */,
+				C7DCCB682E5C883000A6351C /* app-release.xcconfig */,
 			);
 			sourceTree = "<group>";
 		};
@@ -89,6 +160,7 @@
 			children = (
 				C76490972E3790170062054D /* Health.app */,
 				C76490C32E3790410062054D /* HealthTests.xctest */,
+				C7DCD3E92E5CA8CF00A6351C /* HealthWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -96,6 +168,8 @@
 		C76CA76C2E3AE2110040EF75 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C7DCD3EA2E5CA8CF00A6351C /* WidgetKit.framework */,
+				C7DCD3EC2E5CA8D000A6351C /* SwiftUI.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -110,10 +184,12 @@
 				C76490932E3790170062054D /* Sources */,
 				C76490942E3790170062054D /* Frameworks */,
 				C76490952E3790170062054D /* Resources */,
+				C7DCD3FD2E5CA8D000A6351C /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				C7DCD3F72E5CA8D000A6351C /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				C76490992E3790170062054D /* Health */,
@@ -151,6 +227,28 @@
 			productReference = C76490C32E3790410062054D /* HealthTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		C7DCD3E82E5CA8CF00A6351C /* HealthWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C7DCD3F92E5CA8D000A6351C /* Build configuration list for PBXNativeTarget "HealthWidgetExtension" */;
+			buildPhases = (
+				C7DCD3E52E5CA8CF00A6351C /* Sources */,
+				C7DCD3E62E5CA8CF00A6351C /* Frameworks */,
+				C7DCD3E72E5CA8CF00A6351C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				C7DCD3EE2E5CA8D000A6351C /* HealthWidget */,
+			);
+			name = HealthWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = HealthWidgetExtension;
+			productReference = C7DCD3E92E5CA8CF00A6351C /* HealthWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -168,6 +266,9 @@
 						CreatedOnToolsVersion = 16.4;
 						LastSwiftMigration = 1640;
 						TestTargetID = C76490962E3790170062054D;
+					};
+					C7DCD3E82E5CA8CF00A6351C = {
+						CreatedOnToolsVersion = 16.4;
 					};
 				};
 			};
@@ -192,6 +293,7 @@
 			targets = (
 				C76490962E3790170062054D /* Health */,
 				C76490C22E3790410062054D /* HealthTests */,
+				C7DCD3E82E5CA8CF00A6351C /* HealthWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -201,10 +303,19 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C7DCCC562E5C883000A6351C /* app-debug.xcconfig in Resources */,
+				C7DCCC622E5C883000A6351C /* app-release.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		C76490C12E3790410062054D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C7DCD3E72E5CA8CF00A6351C /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -228,6 +339,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C7DCD3E52E5CA8CF00A6351C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -236,13 +354,17 @@
 			target = C76490962E3790170062054D /* Health */;
 			targetProxy = C76490C72E3790410062054D /* PBXContainerItemProxy */;
 		};
+		C7DCD3F72E5CA8D000A6351C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C7DCD3E82E5CA8CF00A6351C /* HealthWidgetExtension */;
+			targetProxy = C7DCD3F62E5CA8D000A6351C /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		C76490AB2E3790180062054D /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = C76490992E3790170062054D /* Health */;
-			baseConfigurationReferenceRelativePath = "app-debug.xcconfig";
+			baseConfigurationReference = C7DCCB672E5C883000A6351C /* app-debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -283,8 +405,7 @@
 		};
 		C76490AC2E3790180062054D /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = C76490992E3790170062054D /* Health */;
-			baseConfigurationReferenceRelativePath = "app-release.xcconfig";
+			baseConfigurationReference = C7DCCB682E5C883000A6351C /* app-release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -488,6 +609,64 @@
 			};
 			name = Release;
 		};
+		C7DCD3FA2E5CA8D000A6351C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = C7DCCB672E5C883000A6351C /* app-debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = HealthWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4DQM269FVB;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = HealthWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = HealthWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kunwoo.walking.HealthWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C7DCD3FB2E5CA8D000A6351C /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = C7DCCB682E5C883000A6351C /* app-release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = HealthWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4DQM269FVB;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = HealthWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = HealthWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kunwoo.walking.HealthWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -514,6 +693,15 @@
 			buildConfigurations = (
 				C76490C92E3790410062054D /* Debug */,
 				C76490CA2E3790410062054D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C7DCD3F92E5CA8D000A6351C /* Build configuration list for PBXNativeTarget "HealthWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C7DCD3FA2E5CA8D000A6351C /* Debug */,
+				C7DCD3FB2E5CA8D000A6351C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -23,14 +23,22 @@ final class HealthInfoStackCollectionViewCell: CoreCollectionViewCell {
     private var cancellable: Set<AnyCancellable> = []
     private var chartsHostingController: UIHostingController<LineChartsView>?
 
+    @IBOutlet weak var symbolImageHeightConstraint: NSLayoutConstraint!
+
     private var borderWidth: CGFloat {
         (traitCollection.userInterfaceStyle == .dark) ? 0 : 0.75
     }
     
     private var viewModel: HealthInfoStackCellViewModel!
-    
+
     override func layoutSubviews() {
-       symbolContainerView.applyCornerStyle(.circular)
+        super.layoutSubviews()
+
+        sizeClasses(vRhR: {
+            self.titleLabel.font = .preferredFont(forTextStyle: .caption2)
+            self.symbolImageHeightConstraint = self.symbolImageHeightConstraint.setMultiplier(multiplier: 0.4)
+        })
+        symbolContainerView.layer.cornerRadius = symbolContainerView.bounds.width / 2
     }
 
     override func prepareForReuse() {
@@ -89,41 +97,47 @@ extension HealthInfoStackCollectionViewCell {
 
     // TODO: - 상태 코드 별로 함수로 나누는 리팩토링하기
     private func render(_ new: LoadState<InfoStackContent>, parent: UIViewController?) {
-        var lblString: String
-        let unitString = viewModel.itemID.kind.unitString
         titleLabel.text = viewModel.itemID.kind.title
+        unitLabel.text = viewModel.itemID.kind.unitString
         symbolImageView.image = UIImage(systemName: viewModel.itemID.kind.systemName)
-        unitLabel.text = unitString
+        chartsContainerView.isHidden = true
         permissionDeniedView.isHidden = true
 
-        switch new {
-        case .idle:
-            return
-            
-        case .loading:
-            return
+        let valueText: String
 
+        switch new {
         case let .success(content):
-            lblString = String(format: "%0.f", content.value)
+            valueText = formatValue(kind: viewModel.itemID.kind, value: content.value)
 
             if let charts = content.charts, !charts.isEmpty {
-                if traitCollection.verticalSizeClass == .regular &&
-                    traitCollection.horizontalSizeClass == .regular {
-                    addChartsHostingController(with: charts, parent: parent)
-                }
+                sizeClasses(vRhR: {
+                        self.addChartsHostingController(with: charts, parent: parent)
+                })
             }
 
         case .failure:
-            lblString = "0"
+            valueText = "0"
             print("🔴 건강 데이터를 불러오는 데 실패함: HealthInfoStackCell (\(viewModel.itemID.kind.quantityTypeIdentifier))")
 
         case .denied:
-            lblString = "-"
+            valueText = "-"
             permissionDeniedView.isHidden = false
             print("🔵 건강 데이터에 접근할 수 있는 권한이 없음: HealthInfoStackCell (\(viewModel.itemID.kind.quantityTypeIdentifier))")
+
+        default:
+            return
         }
 
-        valueLabel.text = lblString
+        valueLabel.text = valueText
+    }
+
+    private func formatValue(kind: DashboardStackKind, value: Double) -> String {
+        switch kind {
+        case .appleExerciseTime:
+            return String(format: "%.0f", value)
+        default:
+            return String(format: "%.1f", value)
+        }
     }
 
     private func addChartsHostingController(
@@ -137,5 +151,6 @@ extension HealthInfoStackCollectionViewCell {
         let hVC = LineChartsHostingController(chartsData: hkd)
         parent?.addChild(hVC, to: chartsContainerView)
         self.chartsHostingController = hVC
+        chartsContainerView.isHidden = false
     }
 }
