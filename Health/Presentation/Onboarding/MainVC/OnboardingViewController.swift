@@ -154,7 +154,7 @@ class OnboardingViewController: CoreGradientViewController, UIScrollViewDelegate
         let isIpad = traitCollection.userInterfaceIdiom == .pad
         titleLabel.font = UIFont.systemFont(ofSize: isIpad ? 50 : 36, weight: .black)
         subtitleLabel.font = UIFont.systemFont(ofSize: isIpad ? 24 : 20, weight: .medium)
-        descriptionLabel.font = UIFont.systemFont(ofSize: isIpad ? 18 : 12, weight: .regular)
+        descriptionLabel.font = UIFont.systemFont(ofSize: isIpad ? 20 : 16, weight: .regular)
 
         let container = UIStackView(arrangedSubviews: [titleLabel, subtitleLabel, imageView, descriptionLabel])
         container.axis = .vertical

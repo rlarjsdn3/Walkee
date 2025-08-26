@@ -220,14 +220,14 @@ class GenderSelectViewController: CoreGradientViewController {
     }
 
     private func updateGenderSelectionUI() {
-        let selectedTextColor = UIColor.black
-        let defaultTextColor = UIColor.white
+        let selectedTextColor = UIColor.systemBackground
+        let defaultTextColor = UIColor.label
         
         femaleGender.textColor = (selectedGender == .female) ? selectedTextColor : defaultTextColor
         maleGender.textColor = (selectedGender == .male) ? selectedTextColor : defaultTextColor
         
-        femaleButton.tintColor = (selectedGender == .female) ? .accent : .buttonBackground
-        maleButton.tintColor = (selectedGender == .male) ? .accent : .buttonBackground
+        femaleButton.tintColor = (selectedGender == .female) ? .accent : .boxBg
+        maleButton.tintColor = (selectedGender == .male) ? .accent : .boxBg
         
 //        if let currentFont = femaleGender.font {
 //            femaleGender.font = (selectedGender == .female) ? currentFont.withBoldTrait() : currentFont.withNormalTrait()
