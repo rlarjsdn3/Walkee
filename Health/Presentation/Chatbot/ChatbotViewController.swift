@@ -14,7 +14,7 @@ import os
 final class ChatbotViewController: CoreGradientViewController {
 	// MARK: - Outlets & Dependencies
 	@Injected private var viewModel: ChatbotViewModel
-	private var headerHeight: CGFloat = 64   // 필요시 64~80 조정
+	private var headerHeight: CGFloat = 44
 	
 	@IBOutlet weak var headerView: ChatbotHeaderTitleView!
 	@IBOutlet private weak var tableView: UITableView!
@@ -145,34 +145,28 @@ final class ChatbotViewController: CoreGradientViewController {
 	
 	override func setupConstraints() {
 		super.setupConstraints()
-		// 바깥 컨테이너(SafeArea 꽉)
+		chattingContainerStackView.isLayoutMarginsRelativeArrangement = true
+		if #available(iOS 11.0, *) {
+			chattingContainerStackView.directionalLayoutMargins =
+			NSDirectionalEdgeInsets(top: 8, leading: 16, bottom: 12, trailing: 16)
+		} else {
+			chattingContainerStackView.layoutMargins =
+			UIEdgeInsets(top: 8, left: 16, bottom: 12, right: 16)
+		}
 		
-		// ✅ 부모 스택뷰 내부 여백: 위 8, 좌우 16, 아래 12(라벨 잘림 방지)
-			chattingContainerStackView.isLayoutMarginsRelativeArrangement = true
-			if #available(iOS 11.0, *) {
-				chattingContainerStackView.directionalLayoutMargins =
-					NSDirectionalEdgeInsets(top: 8, leading: 16, bottom: 12, trailing: 16)
-			} else {
-				chattingContainerStackView.layoutMargins =
-					UIEdgeInsets(top: 8, left: 16, bottom: 12, right: 16)
-			}
-
-			// ✅ 스택 간격 8을 코드로도 보장(스토리보드 값과 동일)
-			chattingContainerStackView.spacing = 8
-
-			// ✅ "안쪽 컨테이너"만 좌우 16 유지: 부모의 layoutMarginsGuide에 붙여줌
-			chattingInputContainer.translatesAutoresizingMaskIntoConstraints = false
-			NSLayoutConstraint.activate([
-				chattingInputContainer.leadingAnchor.constraint(
-					equalTo: chattingContainerStackView.layoutMarginsGuide.leadingAnchor),
-				chattingInputContainer.trailingAnchor.constraint(
-					equalTo: chattingContainerStackView.layoutMarginsGuide.trailingAnchor)
-			])
-
-			// (선택) 라벨이 눌려서 잘리지 않도록
-			disclaimerLabel?.numberOfLines = 0
-			disclaimerLabel?.setContentCompressionResistancePriority(.required, for: .vertical)
-			disclaimerLabel?.setContentHuggingPriority(.required, for: .vertical)
+		chattingContainerStackView.spacing = 8
+		
+		chattingInputContainer.translatesAutoresizingMaskIntoConstraints = false
+		NSLayoutConstraint.activate([
+			chattingInputContainer.leadingAnchor.constraint(
+				equalTo: chattingContainerStackView.layoutMarginsGuide.leadingAnchor),
+			chattingInputContainer.trailingAnchor.constraint(
+				equalTo: chattingContainerStackView.layoutMarginsGuide.trailingAnchor)
+		])
+		
+		disclaimerLabel?.numberOfLines = 0
+		disclaimerLabel?.setContentCompressionResistancePriority(.required, for: .vertical)
+		disclaimerLabel?.setContentHuggingPriority(.required, for: .vertical)
 	}
 	
 	override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {

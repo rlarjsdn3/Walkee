@@ -31,7 +31,7 @@ final class ChatbotHeaderTitleView: CoreView {
 	private lazy var closeButton: UIButton = {
 		var config = UIButton.Configuration.plain()
 		config.image = UIImage(systemName: "xmark.circle.fill")
-		config.baseForegroundColor = .label
+		config.baseForegroundColor = .secondaryLabel
 		config.preferredSymbolConfigurationForImage =
 		UIImage.SymbolConfiguration(pointSize: 30, weight: .regular, scale: .default)
 		config.contentInsets = NSDirectionalEdgeInsets(top: 1, leading: 1, bottom: 1, trailing: 1)
