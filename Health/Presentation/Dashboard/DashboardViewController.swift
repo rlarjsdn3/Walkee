@@ -39,7 +39,7 @@ final class DashboardViewController: HealthNavigationController, Alertable, Scro
         setupDataSource()
         applySnapshot()
 
-		viewModel.updateWidgetSnapshot()
+        Task.detached { await self.viewModel.updateWidgetSnapshot() }
     }
 
     func scrollToTop() {
@@ -113,8 +113,15 @@ final class DashboardViewController: HealthNavigationController, Alertable, Scro
         
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(refreshHKData),
+            selector: #selector(reloadHKData(_:)),
             name: .didChangeHKSharingAuthorizationStatus,
+            object: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(reloadHKData(_:)),
+            name: .didChangeHealthLinkStatusOnProfile,
             object: nil
         )
     }
@@ -126,8 +133,14 @@ final class DashboardViewController: HealthNavigationController, Alertable, Scro
 
     @objc private func refreshHKData() {
         viewModel.loadHKData(includeAI: true, updateAnchorDate: true)
-		viewModel.updateWidgetSnapshot()
+        Task.detached { await self.viewModel.updateWidgetSnapshot() }
         Task.delay(for: 1.0) { @MainActor in refreshControl.endRefreshing() }
+    }
+    
+    @objc private func reloadHKData(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let state = userInfo["status"] as? Bool else { return }
+        if !state { refreshHKData() }
     }
 
 

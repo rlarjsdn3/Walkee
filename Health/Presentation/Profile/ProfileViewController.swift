@@ -21,6 +21,7 @@ class ProfileViewController: HealthNavigationController, Alertable {
     
     @IBOutlet weak var tableView: UITableView!
     
+    @Injected private var syncStepService: StepSyncService
     @Injected private var healthService: HealthService
     @Injected(.dailyStepViewModel) private var dailyStepVM: DailyStepViewModel
     @Injected(.goalStepCountViewModel) private var goalStepCountVM: GoalStepCountViewModel
@@ -148,7 +149,7 @@ class ProfileViewController: HealthNavigationController, Alertable {
             // OFF -> ON
             Task { [weak self] in
                 guard let self = self else { return }
-                let hasAny = await self.healthService.checkHasAnyReadPermission()
+                let hasAny = try await self.healthService.requestAuthorization()
                 await MainActor.run {
                     if hasAny {
                         // 하나라도 권한이 있으면 alert 없이 ON
@@ -160,6 +161,8 @@ class ProfileViewController: HealthNavigationController, Alertable {
                         self.presentGrantAlert(for: sender)
                     }
                 }
+                
+                try? await syncStepService.syncSteps()
             }
         } else {
             // ON -> OFF: 알럿 없이 바로 반영

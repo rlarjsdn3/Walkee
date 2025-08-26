@@ -147,7 +147,7 @@ class StepGoalViewController: CoreGradientViewController {
 
         Task {
             do {
-                try await stepSyncService.syncSteps()
+                try? await stepSyncService.syncSteps()
                 print("[StepGoalViewController] 온보딩 직후 동기화 완료")
 
                 if let window = UIApplication.shared.connectedScenes

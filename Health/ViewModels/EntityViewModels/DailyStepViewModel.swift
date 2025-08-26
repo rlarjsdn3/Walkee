@@ -49,7 +49,7 @@ final class DailyStepViewModel: ObservableObject {
     func fetchDailyStep(_ date: Date) -> DailyStepEntity? {
         let normalizedDate = date.startOfDay()
         let request: NSFetchRequest<DailyStepEntity> = DailyStepEntity.fetchRequest()
-        request.predicate = NSPredicate(format: "date == %@", normalizedDate as CVarArg)
+        request.predicate = NSPredicate(format: "date >= %@", normalizedDate as CVarArg)
         request.fetchLimit = 1
 
         do {
