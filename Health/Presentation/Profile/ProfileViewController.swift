@@ -36,6 +36,8 @@ class ProfileViewController: HealthNavigationController, Alertable {
     
     private var grantRecheckObserver: NSObjectProtocol?
     
+    private var isAuthenticating = false
+    
     private let sectionTitles: [String?] = [
         nil,
         "개인 설정",
@@ -377,43 +379,46 @@ extension ProfileViewController: UITableViewDelegate {
         
         switch model.title {
         case "신체 정보":
+            guard !isAuthenticating else { return }
+            isAuthenticating = true
+            tableView.isUserInteractionEnabled = false
+            
             let context = LAContext()
-            context.localizedFallbackTitle = "" // "암호 입력" 버튼 문구 숨기고 싶으면 빈 문자열
+            context.localizedFallbackTitle = ""
             var error: NSError?
             
-            let canBio = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
+            let policy: LAPolicy = .deviceOwnerAuthentication
             
-            // 생체인증 가능하면 Face ID/Touch ID 시도
-            if canBio {
-                context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics,
-                                       localizedReason: "신체 정보에 접근하려면 Face ID 인증이 필요합니다.") { [weak self] success, evalError in
-                    guard let self else { return }
-                    DispatchQueue.main.async {
-                        if success {
-                            self.performSegue(withIdentifier: "bodyInfo", sender: nil)
-                        } else {
-                            self.showWarningToast(title: "인증 실패", message: "인증이 실패했습니다.")
-                        }
-                    }
-                }
+            guard context.canEvaluatePolicy(policy, error: &error) else {
+                isAuthenticating = false
+                tableView.isUserInteractionEnabled = true
+                showWarningToast(
+                    title: "인증 불가",
+                    message: "이 기기에서 인증을 사용할 수 없습니다. 설정에서 Face ID/암호를 설정하세요."
+                )
                 return
             }
             
-            // 생체인증이 없거나 미등록인 경우: 기기 암호로 대체 허용
-            if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
-                context.evaluatePolicy(.deviceOwnerAuthentication,
-                                       localizedReason: "신체 정보에 접근하려면 인증이 필요합니다.") { [weak self] success, _ in
+            context.evaluatePolicy(policy, localizedReason: "신체 정보에 접근하려면 인증이 필요합니다.") { [weak self] success, evalError in
+                Task { @MainActor in
                     guard let self else { return }
-                    DispatchQueue.main.async {
-                        if success {
-                            self.performSegue(withIdentifier: "bodyInfo", sender: nil)
-                        } else {
-                            self.showWarningToast(title: "인증 실패", message: "인증이 실패했습니다.")
+                    self.isAuthenticating = false
+                    tableView.isUserInteractionEnabled = true
+                    
+                    if success {
+                        self.performSegue(withIdentifier: "bodyInfo", sender: nil)
+                        return
+                    }
+                    
+                    if let laError = evalError as? LAError {
+                        switch laError.code {
+                        case .appCancel, .systemCancel, .userCancel, .userFallback:
+                            return
+                        default:
+                            break
                         }
                     }
                 }
-            } else {
-                self.showWarningToast(title: "인증 실패", message: "이 기기에서 인증을 사용할 수 없습니다. 설정 앱에서 Face ID 또는 기기 암호를 설정하세요")
             }
             
         case "목표 걸음 설정":
