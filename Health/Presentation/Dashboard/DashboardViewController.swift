@@ -113,7 +113,7 @@ final class DashboardViewController: HealthNavigationController, Alertable, Scro
         
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(reloadHKData(_:)),
+            selector: #selector(refreshHKData),
             name: .didChangeHKSharingAuthorizationStatus,
             object: nil
         )
