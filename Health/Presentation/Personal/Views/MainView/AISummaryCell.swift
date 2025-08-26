@@ -38,8 +38,11 @@ class AISummaryCell: CoreCollectionViewCell {
         loadingIndicatorView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            loadingIndicatorView.centerXAnchor.constraint(equalTo: summaryBackgroundView.centerXAnchor),
-            loadingIndicatorView.centerYAnchor.constraint(equalTo: summaryBackgroundView.centerYAnchor),
+            loadingIndicatorView.centerXAnchor.constraint(equalTo: summaryBackgroundView.centerXAnchor, constant: 0),
+            loadingIndicatorView.centerYAnchor.constraint(equalTo: summaryBackgroundView.centerYAnchor, constant: 0),
+            loadingIndicatorView.widthAnchor.constraint(greaterThanOrEqualToConstant: 200),
+//            loadingIndicatorView.widthAnchor.constraint(equalToConstant: 300),
+//            loadingIndicatorView.heightAnchor.constraint(equalToConstant: 70)
             loadingIndicatorView.leadingAnchor.constraint(greaterThanOrEqualTo: summaryBackgroundView.leadingAnchor, constant: 16),
             loadingIndicatorView.trailingAnchor.constraint(lessThanOrEqualTo: summaryBackgroundView.trailingAnchor, constant: -16)
         ])
@@ -105,6 +108,7 @@ class AISummaryCell: CoreCollectionViewCell {
             aiSummaryLabel.isHidden = true
             loadingIndicatorView.isHidden = false
             loadingIndicatorView.setState(.failed)
+            loadingIndicatorView.frame.size.height = loadingIndicatorView.getCGSize(.failed).height
             chatbotView.isHidden = true
 
         case .denied:
@@ -112,6 +116,7 @@ class AISummaryCell: CoreCollectionViewCell {
             aiSummaryLabel.text = nil
             loadingIndicatorView.isHidden = false
             loadingIndicatorView.setState(.denied)
+            loadingIndicatorView.frame.size.height = loadingIndicatorView.getCGSize(.denied).height
             chatbotView.isHidden = true
         }
     }
