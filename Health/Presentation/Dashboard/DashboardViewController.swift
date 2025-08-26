@@ -99,6 +99,7 @@ final class DashboardViewController: HealthNavigationController, Alertable, Scro
             bottom: 24, right: .zero
         )
         dashboardCollectionView.refreshControl = refreshControl
+        dashboardCollectionView.showsVerticalScrollIndicator = false
     }
 
     private func registerNotification() {
@@ -124,7 +125,6 @@ final class DashboardViewController: HealthNavigationController, Alertable, Scro
     }
 
     @objc private func refreshHKData() {
-
         viewModel.loadHKData(includeAI: true, updateAnchorDate: true)
 		viewModel.updateWidgetSnapshot()
         Task.delay(for: 1.0) { @MainActor in refreshControl.endRefreshing() }
