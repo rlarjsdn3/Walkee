@@ -12,6 +12,9 @@ extension Notification.Name {
     /// 프로필 화면에서 `목표 걸음 수` 데이터가 갱신되었음을 알리는 알림 이름입니다.
     static let didUpdateGoalStepCount = Notification.Name("didUpdateGoalStepCount")
 
+    /// 프로필 화면에서 `Apple 건강 앱` 연동 스위치 상태가 갱신되었음을 알리는 알림 이름입니다.
+    static let didChangeHealthLinkStatusOnProfile = Notification.Name("didChangeHealthLinkStatusOnProfile")
+
     /// 걸음 수 데이터 동기화가 완료되었을 때 발송되는 알림
     ///
     /// 이 알림은 `DefaultStepSyncService.syncSteps()` 메서드가 성공적으로 완료된 후
