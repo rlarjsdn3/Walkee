@@ -219,83 +219,27 @@ class ProfileViewController: HealthNavigationController, Alertable {
     
     @MainActor
     private func presentGrantAlert(for sender: UISwitch) {
-        let alert = TSAlertController(
-            title: "권한 설정 안내",
-            message:
-                """
-                건강 앱에서 권한을 직접 바꿀 수 있어요.
-                경로: 프로필(우측 상단) > 개인정보보호 > 앱 > Health
-                여기에서 이 앱의 데이터 접근 권한을 해제하거나 다시 켤 수 있습니다.
-                """,
-            preferredStyle: .alert
+        showAlert(
+            "권한 설정 안내",
+            message: """
+                     건강 앱에서 권한을 직접 바꿀 수 있어요.
+                     경로: 프로필(우측 상단) > 개인정보보호 > 앱 > Health
+                     여기에서 이 앱의 데이터 접근 권한을 해제하거나 다시 켤 수 있습니다.
+                     """,
+            primaryTitle: "열기",
+            onPrimaryAction: ({ [weak self] _ in
+                guard let self else { return }
+                self.openHealthApp()
+                self.startGrantRecheckAfterReturning(switch: sender)
+            }),
+            onCancelAction: ({ [weak self] _ in
+                guard let self else { return }
+                
+                sender.setOn(false, animated: true)
+                UserDefaultsWrapper.shared.healthkitLinked = false
+                self.updateSectionItemsForHealthSwitch(to: false)
+            })
         )
-        alert.viewConfiguration.titleAlignment = .center
-        alert.viewConfiguration.messageAlignment = .center
-        alert.viewConfiguration.size.width = .proportional(minimumRatio: 0.9)
-        
-        // 취소: 사용자가 거부 의사 → OFF
-        alert.addAction(TSAlertAction(title: "취소", style: .cancel) { [weak self] _ in
-            guard let self = self else { return }
-            sender.setOn(false, animated: true)
-            UserDefaultsWrapper.shared.healthkitLinked = false
-            self.updateSectionItemsForHealthSwitch(to: false)
-        })
-        // 열기: 건강앱 열어주고 돌아오면 권한 재확인
-        let action = TSAlertAction(title: "열기", style: .default) { [weak self] _ in
-            guard let self = self else { return }
-            self.openHealthApp()
-            self.startGrantRecheckAfterReturning(switch: sender)
-        }
-        
-        action.configuration.backgroundColor = .accent
-        action.configuration.titleAttributes = [
-            .font: UIFont.preferredFont(forTextStyle: .headline),
-            .foregroundColor: UIColor.systemBackground
-        ]
-        action.highlightType = .fadeIn
-        alert.addAction(action)
-        
-        present(alert, animated: true)
-    }
-    
-    private func presentDenyAlert(for sender: UISwitch) {
-        let alert = TSAlertController(
-            title: "권한 설정 안내",
-            message:
-                """
-                건강 앱에서 권한을 직접 바꿀 수 있어요.
-                경로: 프로필(우측 상단) > 개인정보보호 > 앱 > Health
-                여기에서 이 앱의 데이터 접근 권한을 해제하거나 다시 켤 수 있습니다.
-                """,
-            preferredStyle: .alert
-        )
-        alert.viewConfiguration.titleAlignment = .center
-        alert.viewConfiguration.messageAlignment = .center
-        alert.viewConfiguration.size.width = .proportional(minimumRatio: 0.9)
-        alert.addAction(TSAlertAction(title: "취소", style: .cancel) { [weak self] _ in
-            guard let self = self else { return }
-            // 취소: 스위치 복구
-            sender.setOn(true, animated: true)
-            UserDefaultsWrapper.shared.healthkitLinked = true
-            self.updateSectionItemsForHealthSwitch(to: true)
-        })
-        let action = TSAlertAction(title: "열기", style: .default) { [weak self] _ in
-            guard let self = self else { return }
-            
-            // 건강 앱 열기
-            self.openHealthApp()
-            
-            // 설정에서 돌아오면 권한을 재확인해 스위치 상태 동기화
-            self.startGrantRecheckAfterReturning(switch: sender)
-        }
-        action.configuration.backgroundColor = .accent
-        action.configuration.titleAttributes = [
-            .font: UIFont.preferredFont(forTextStyle: .headline),
-            .foregroundColor: UIColor.systemBackground
-        ]
-        action.highlightType = .fadeIn
-        alert.addAction(action)
-        present(alert, animated: true)
     }
     
     /// 건강(Health) 앱을 엽니다.
@@ -511,11 +455,11 @@ extension ProfileViewController: MFMailComposeViewControllerDelegate {
     func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: (any Error)?) {
         switch result {
         case .cancelled:
-            showToast(message: "작성 취소")
+            showToast(message: "메일 작성을 취소했습니다.")
         case .saved:
-            showToast(message: "임시 저장")
+            showToast(message: "메일을 임시 저장했습니다.")
         case .sent:
-            showToast(message: "메일 전송 완료")
+            showToast(message: "메일 전송을 완료 했습니다.")
         case .failed:
             showWarningToast(title: "전송 실패", message: "메일 전송에 실패했습니다.")
         @unknown default:
