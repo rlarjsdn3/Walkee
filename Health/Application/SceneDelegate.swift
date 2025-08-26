@@ -28,8 +28,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         initializeHKSharingAuthorizationStatus()
         let hasSeenOnboarding = UserDefaultsWrapper.shared.hasSeenOnboarding
         
-        let savedTheme = DisplayModeView.loadSavedTheme()
-        window?.overrideUserInterfaceStyle = savedTheme.uiStyle
         
         window?.rootViewController = setupRootViewController(hasSeenOnboarding: hasSeenOnboarding)
         window?.makeKeyAndVisible()
