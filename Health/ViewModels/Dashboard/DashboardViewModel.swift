@@ -431,8 +431,10 @@ extension DashboardViewModel {
     func fetchCoreDataUser() -> (age: Int, goalStep: Int) {
         // ⚠️ 사용자 및 목표 걸음 수가 제대로 등록되어 있으면 않으면 크래시
         let user = try! coreDataUserService.fetchUserInfo()
-        let goalStepEntity = dailyStepService.fetchDailyStep(anchorDate)!
-        return (Int(user.age), Int(goalStepEntity.goalStepCount))
+        let goalStepEntity = dailyStepService.fetchDailyStep(anchorDate)
+        print(goalStepEntity, "걸음 수 ------------------------------")
+        
+        return (Int(user.age), Int(goalStepEntity?.goalStepCount ?? 999))
 
 //        return (27, 5000)
     }
@@ -481,6 +483,7 @@ extension DashboardViewModel {
 }
 
 extension DashboardViewModel {
+
     func requestAlanToSummarizeTodayActivity() async throws -> String? {
         guard let prompt = try? await promptBuilderService.makePrompt(
             message: nil,
@@ -488,6 +491,8 @@ extension DashboardViewModel {
             option: .dailySummary
         ) else { return nil }
         let response = await alanService.sendQuestion(prompt)
+//        print(response)
+//        print(response?.removingMarkdown())
         return response
     }
 	
@@ -502,8 +507,8 @@ extension DashboardViewModel {
 
 extension DashboardViewModel {
 
-	func updateWidgetSnapshot() {
-		Task { await DashboardSnapshotStore.updateFromHealthKit() }
+	func updateWidgetSnapshot() async {
+		await DashboardSnapshotStore.updateFromHealthKit()
 	}
 }
 
