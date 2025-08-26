@@ -438,6 +438,7 @@ final class ChatbotViewController: CoreGradientViewController {
 		} completion: { _ in
 			Task { @MainActor in
 				try await Task.sleep(for: .milliseconds(40))
+				self.view.layoutIfNeeded()
 				if height > 0 {
 					self.scrollToTopOfLatestAIResponse(animated: true)
 				} else {
@@ -455,11 +456,10 @@ final class ChatbotViewController: CoreGradientViewController {
 	/// 입력창 하단 제약을 키보드 높이에 맞춰 조정
 	private func updateInputContainerConstraint(forKeyboardHeight h: CGFloat) {
 		let safe = view.safeAreaInsets.bottom
-		let isStackViewFirst = containerViewBottomConstraint.firstItem === chattingContainerStackView
-		if h <= 0 {
-			containerViewBottomConstraint.constant = isStackViewFirst ? -48 : 48
+		if h > 0 {
+			containerViewBottomConstraint.constant = -(h - safe)
 		} else {
-			containerViewBottomConstraint.constant = isStackViewFirst ? -(h - safe) : (h - safe)
+			containerViewBottomConstraint.constant = 0
 		}
 	}
 	
