@@ -32,7 +32,7 @@ class BodyInfoViewController: HealthNavigationController, Alertable {
         .init(iconName: "birthday.cake", title: "태어난 해", detail: "-"),
         .init(iconName: "scalemass", title: "체중", detail: "-"),
         .init(iconName: "ruler", title: "키", detail: "-"),
-        .init(iconName: "cross", title: "질병", detail: "-")
+        .init(iconName: "cross", title: "지병", detail: "-")
     ]
     
     override func setupAttribute() {
@@ -80,7 +80,7 @@ class BodyInfoViewController: HealthNavigationController, Alertable {
     }
     
     private func updateDiseaseText(with diseases: [Disease]) {
-        guard let diseaseIndex = items.firstIndex(where: { $0.title == "질병" }) else { return }
+        guard let diseaseIndex = items.firstIndex(where: { $0.title == "지병" }) else { return }
         
         if diseases.isEmpty {
             items[diseaseIndex].detail = "-"
@@ -330,7 +330,7 @@ extension BodyInfoViewController: UITableViewDelegate {
                     
                 }
             )
-        case "질병":
+        case "지병":
             showActionSheetForProfile(
                 buildView: {
                 let v = EditDiseaseView()
@@ -339,6 +339,7 @@ extension BodyInfoViewController: UITableViewDelegate {
                     }
                     return v
                 },
+                height: 600,
                 width: 800,
                 iPadLandscapeWidth: 700,
                 onConfirm: { [weak self] view in
