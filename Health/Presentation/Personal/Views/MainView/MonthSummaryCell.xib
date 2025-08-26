@@ -121,7 +121,7 @@
                         <constraints>
                             <constraint firstAttribute="bottom" secondItem="hlI-9J-yw7" secondAttribute="bottom" constant="16" id="4rO-ri-au3"/>
                             <constraint firstAttribute="trailing" secondItem="hlI-9J-yw7" secondAttribute="trailing" constant="16" id="I4i-Mv-Ezm"/>
-                            <constraint firstAttribute="height" constant="184.66999999999999" id="IxU-pD-Xev"/>
+                            <constraint firstAttribute="height" priority="999" constant="184.66999999999999" id="IxU-pD-Xev"/>
                             <constraint firstItem="hlI-9J-yw7" firstAttribute="leading" secondItem="aan-of-cHS" secondAttribute="leading" constant="16" id="JvO-lF-iDl"/>
                             <constraint firstItem="hlI-9J-yw7" firstAttribute="top" secondItem="aan-of-cHS" secondAttribute="top" constant="16" id="aOs-9J-6Am"/>
                         </constraints>
@@ -159,7 +159,7 @@
             <color red="0.95294117647058818" green="0.95294117647058818" blue="0.95294117647058818" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <systemColor name="secondaryLabelColor">
-            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

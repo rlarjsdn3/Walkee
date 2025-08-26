@@ -98,7 +98,7 @@
                         <color key="backgroundColor" name="boxBgColor"/>
                         <constraints>
                             <constraint firstAttribute="bottom" secondItem="Lkh-fO-DJs" secondAttribute="bottom" constant="16" id="9Hs-vB-eSe"/>
-                            <constraint firstAttribute="height" constant="254.66999999999999" id="DcG-0l-C2I"/>
+                            <constraint firstAttribute="height" priority="999" constant="254.66999999999999" id="DcG-0l-C2I"/>
                             <constraint firstItem="Lkh-fO-DJs" firstAttribute="leading" secondItem="aw2-2O-Rk7" secondAttribute="leading" constant="10" id="f3p-f7-ovn"/>
                             <constraint firstItem="Lkh-fO-DJs" firstAttribute="top" secondItem="aw2-2O-Rk7" secondAttribute="top" constant="16" id="mUo-bP-tFS"/>
                             <constraint firstAttribute="trailing" secondItem="Lkh-fO-DJs" secondAttribute="trailing" constant="10" id="spl-lg-Mig"/>
@@ -132,7 +132,7 @@
             <color red="0.95294117647058818" green="0.95294117647058818" blue="0.95294117647058818" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <systemColor name="secondaryLabelColor">
-            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
