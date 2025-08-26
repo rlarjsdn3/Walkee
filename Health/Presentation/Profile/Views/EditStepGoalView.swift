@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import QuartzCore
 
 final class EditStepGoalView: CoreView {
     
@@ -23,7 +24,22 @@ final class EditStepGoalView: CoreView {
     
     private var repeatTimer: Timer?
     
-    var step: Int = 500
+    private var accelTimer: DispatchSourceTimer?
+    private var pressStart: CFTimeInterval = 0
+    private var lastStep: CFTimeInterval = 0
+    private weak var acceleratingButton: UIButton?
+    
+    private let baseRepeatInterval: CFTimeInterval = 0.15  // 시작 간격(초)
+    private let minRepeatInterval: CFTimeInterval  = 0.05  // 최소 간격(초)
+    private let accelerationPerSec: CFTimeInterval = 0.03  // 초당 간격 감소폭(초)
+    private let pollingInterval: DispatchTimeInterval = .milliseconds(16)
+    
+    private let selectionFeedback = UISelectionFeedbackGenerator()
+    private var lastHaptic: CFTimeInterval = 0
+    private let minHapticInterval: CFTimeInterval = 0.07
+
+    
+    var step: Int = 100
     var minValue: Int = 500
     var maxValue: Int = 100_000
     var onValueChanged: ((Int) -> Void)?
@@ -97,6 +113,10 @@ final class EditStepGoalView: CoreView {
         ])
     }
     
+    deinit {
+        accelTimer?.cancel()
+    }
+    
     private func setupConfigure() {
         valueStack.axis = .vertical
         valueStack.alignment = .center
@@ -131,12 +151,7 @@ final class EditStepGoalView: CoreView {
             
             let buttonConfig = UIButton.Configuration.plain()
             b.configurationUpdateHandler = { button in
-                switch button.state {
-                case .highlighted:
-                    b.alpha = 0.75
-                default:
-                    b.alpha = 1.0
-                }
+                button.alpha = button.isHighlighted ? 0.75 : 1.0
             }
             b.configuration = buttonConfig
         }
@@ -146,8 +161,13 @@ final class EditStepGoalView: CoreView {
         
         let minusLong = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
         minusLong.minimumPressDuration = 0.4
+        minusLong.cancelsTouchesInView = false
+        minusLong.delaysTouchesBegan = false
+
         let plusLong = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
         plusLong.minimumPressDuration = 0.4
+        plusLong.cancelsTouchesInView = false
+        plusLong.delaysTouchesBegan = false
 
         minusButton.addGestureRecognizer(minusLong)
         plusButton.addGestureRecognizer(plusLong)
@@ -159,11 +179,56 @@ final class EditStepGoalView: CoreView {
         plusButton.isEnabled  = value < maxValue
     }
     
-    func configure(defaultValue: Int, step: Int = 500, min: Int = 500, max: Int = 100_000) {
+    func configure(defaultValue: Int, step: Int = 100, min: Int = 500, max: Int = 100_000) {
         self.step = step
         self.minValue = min
         self.maxValue = max
         self.value = defaultValue
+    }
+    
+    @MainActor
+    private func startAccelerating(for button: UIButton) {
+        stopAccelerating()
+        acceleratingButton = button
+        pressStart = CACurrentMediaTime()
+        lastStep = pressStart - baseRepeatInterval
+
+        let t = DispatchSource.makeTimerSource(queue: .main)
+        t.schedule(deadline: .now(), repeating: pollingInterval)
+
+        t.setEventHandler { [weak self] in
+            guard let self = self, let btn = self.acceleratingButton else { return }
+            let now = CACurrentMediaTime()
+            let elapsed = now - self.pressStart
+
+            let currentInterval = max(self.minRepeatInterval,
+                                      self.baseRepeatInterval - self.accelerationPerSec * elapsed)
+
+            if now - self.lastStep >= currentInterval {
+                Task { @MainActor in
+                    if btn === self.minusButton {
+                        self.decrease()
+                    } else {
+                        self.increase()
+                    }
+                }
+                self.lastStep = now
+
+                if !(btn.isEnabled) {
+                    self.stopAccelerating()
+                }
+            }
+        }
+
+        t.resume()
+        accelTimer = t
+    }
+
+    @MainActor
+    private func stopAccelerating() {
+        accelTimer?.cancel()
+        accelTimer = nil
+        acceleratingButton = nil
     }
     
     @objc private func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
@@ -171,35 +236,34 @@ final class EditStepGoalView: CoreView {
 
         switch gesture.state {
         case .began:
-            repeatTimer?.invalidate()
-            let t = Timer.scheduledTimer(withTimeInterval: 0.15, repeats: true) { [weak self] _ in
-                guard let self = self else { return }
-                Task { @MainActor in
-                    if button == self.minusButton {
-                        self.decrease()
-                    } else if button == self.plusButton {
-                        self.increase()
-                    }
-                }
-            }
-            RunLoop.current.add(t, forMode: .common)
-            repeatTimer = t
+            selectionFeedback.prepare()
+            startAccelerating(for: button)
 
         case .ended, .cancelled, .failed:
-            repeatTimer?.invalidate()
-            repeatTimer = nil
+            stopAccelerating()
 
         default:
             break
         }
     }
     
+    @MainActor
+    private func fireHaptic() {
+        let now = CACurrentMediaTime()
+        guard now - lastHaptic >= minHapticInterval else { return }
+        selectionFeedback.selectionChanged()
+        selectionFeedback.prepare() // 다음 진동 대비
+        lastHaptic = now
+    }
+    
     @objc private func decrease() {
         value -= step
+        fireHaptic()
     }
     
     @objc private func increase() {
         value += step
+        fireHaptic()
     }
     
     override var intrinsicContentSize: CGSize {

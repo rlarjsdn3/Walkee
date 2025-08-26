@@ -374,9 +374,6 @@ extension ProfileViewController: UITableViewDelegate {
                 buildView: {
                     let v = EditStepGoalView()
                     v.value = goalStep
-                    v.step = 500
-                    v.minValue = 500
-                    v.maxValue = 100_000
                     return v
                 },
                 onConfirm: { [weak self] view in
