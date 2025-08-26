@@ -23,20 +23,20 @@
                         <rect key="frame" x="0.0" y="0.0" width="402" height="43"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="750" verticalHuggingPriority="251" horizontalCompressionResistancePriority="1000" text="추천 걷기 코스" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="i7a-7B-Uef">
-                                <rect key="frame" x="0.0" y="15.999999999999998" width="96.666666666666671" height="20.333333333333329"/>
+                                <rect key="frame" x="0.0" y="17" width="96.666666666666671" height="20.333333333333329"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                 <color key="textColor" systemColor="secondaryLabelColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" showsMenuAsPrimaryAction="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gaj-bz-YeX">
-                                <rect key="frame" x="302" y="13" width="100" height="30"/>
+                                <rect key="frame" x="302" y="16" width="100" height="27"/>
                                 <color key="backgroundColor" name="boxBgColor"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="30" id="flh-fp-RZC"/>
+                                    <constraint firstAttribute="height" constant="27" id="flh-fp-RZC"/>
                                     <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="100" id="gYN-0z-3Md"/>
                                     <constraint firstAttribute="width" constant="100" id="nA1-eg-4mV"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" style="UICTFontTextStyleCaption1"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleCaption2"/>
                                 <color key="tintColor" systemColor="linkColor"/>
                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                 <menu key="menu" id="Xqt-q9-rX4">
@@ -76,10 +76,10 @@
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="linkColor">
-            <color red="0.0" green="0.47843137254901963" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="secondaryLabelColor">
-            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
