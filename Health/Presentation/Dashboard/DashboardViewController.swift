@@ -418,26 +418,14 @@ fileprivate extension DashboardViewController {
             context.cgContext.translateBy(x: -rect.origin.x, y: -rect.origin.y)
 
             let topColor = UIColor { traitCollection in
-                if DisplayModeView.loadSavedTheme() == .system {
-                    traitCollection.userInterfaceStyle == .dark
-                    ? UIColor(hex: "292A3D").withAlphaComponent(0.9)
-                    : UIColor.white
-                } else {
-                    DisplayModeView.loadSavedTheme() == .dark
-                    ? UIColor(hex: "292A3D").withAlphaComponent(0.9)
-                    : UIColor.white
-                }
+                traitCollection.userInterfaceStyle == .dark
+                ? UIColor(hex: "292A3D").withAlphaComponent(0.9)
+                : UIColor.white
             }.cgColor
             let bottomColor = UIColor { traitCollection in
-                if DisplayModeView.loadSavedTheme() == .system {
-                    traitCollection.userInterfaceStyle == .dark
-                    ? UIColor(hex: "000000").withAlphaComponent(0.9)
-                    : UIColor.white
-                } else {
-                    DisplayModeView.loadSavedTheme() == .dark
-                    ? UIColor(hex: "000000").withAlphaComponent(0.9)
-                    : UIColor.white
-                }
+                traitCollection.userInterfaceStyle == .dark
+                ? UIColor(hex: "000000").withAlphaComponent(0.9)
+                : UIColor.white
             }.cgColor
 
             let colorSpace = CGColorSpaceCreateDeviceRGB()
