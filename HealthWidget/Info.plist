@@ -9,5 +9,7 @@
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.widgetkit-extension</string>
 	</dict>
+	<key>Widget Bundle Identifier</key>
+	<string>$(WIDGET_BUNDLE_IDENTIFIER)</string>
 </dict>
 </plist>
