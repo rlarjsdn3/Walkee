@@ -17,13 +17,6 @@ struct ProfileCellModel {
     var switchState: Bool = UserDefaultsWrapper.shared.healthkitLinked
 }
 
-
-// TODO: - 건강 권한 끌때는 얼럿 없애기
-// 다 꺼져있을때만 스위치 OFF -> ON으로 할때 ALERT
-// 하나라도 켜져있으면 ALERT 없이 스위치만 변경
-// 알림에선 확인 -> 설정
-//        취소 -> 스위치 원상복구
-
 class ProfileViewController: HealthNavigationController, Alertable {
     
     @IBOutlet weak var tableView: UITableView!
@@ -121,7 +114,7 @@ class ProfileViewController: HealthNavigationController, Alertable {
         stopForegroundGrantSync()
         
         grantRecheckObserver = NotificationCenter.default.addObserver(
-            forName: UIApplication.didBecomeActiveNotification,
+            forName: UIApplication.willEnterForegroundNotification,
             object: nil,
             queue: .main
         ) { [weak self] _ in
@@ -150,7 +143,6 @@ class ProfileViewController: HealthNavigationController, Alertable {
     }
     
     // MARK: - UserDefaults는 쓸지안쓸지 아직모르겠음
-    // TODO: - 권한 있는지 없는지 Notification 뿌리기
     @objc private func switchChanged(_ sender: UISwitch) {
         if sender.isOn {
             // OFF -> ON
@@ -174,6 +166,13 @@ class ProfileViewController: HealthNavigationController, Alertable {
             UserDefaultsWrapper.shared.healthkitLinked = false
             updateSectionItemsForHealthSwitch(to: false)
         }
+
+        // 건강 앱 연동 스위치 상태가 변경되었음을 알림
+        NotificationCenter.default.post(
+            name: .didChangeHealthLinkStatusOnProfile,
+            object: nil,
+            userInfo: [.status: sender.isOn]
+        )
     }
     
     private func startGrantRecheckAfterReturning(switch sender: UISwitch) {
