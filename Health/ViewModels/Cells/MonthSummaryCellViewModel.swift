@@ -60,6 +60,12 @@ final class MonthSummaryCellViewModel: ObservableObject {
         state = .loading
 
         Task { @MainActor in
+
+            guard UserDefaultsWrapper.shared.healthkitLinked else {
+                state = .denied
+                return
+            }
+
             // 권한 체크 (걸음수 + 거리 + 칼로리 모두 필요)
             let hasStepPermission = await healthService.checkHasReadPermission(for: .stepCount)
             let hasDistancePermission = await healthService.checkHasReadPermission(for: .distanceWalkingRunning)

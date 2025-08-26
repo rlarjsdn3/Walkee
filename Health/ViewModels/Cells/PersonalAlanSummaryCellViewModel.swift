@@ -63,6 +63,22 @@ final class AIMonthlySummaryCellViewModel {
                 }
             }
             .store(in: &cancellables)
+
+        NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)
+            .sink { [weak self] _ in
+                Task {
+                    if UserDefaultsWrapper.shared.healthkitLinked {
+                        // 연동 ON
+                        await self?.loadMonthlySummary()
+                    } else {
+                        // 연동 OFF
+                        await MainActor.run {
+                            self?.setState(.denied)
+                        }
+                    }
+                }
+            }
+            .store(in: &cancellables)
     }
 
     // 상태 업데이트
@@ -78,6 +94,12 @@ extension AIMonthlySummaryCellViewModel {
     /// 월간 요약을 로딩합니다 (HealthDataViewModel 재사용)
     @MainActor
     func loadMonthlySummary() async {
+
+        guard UserDefaultsWrapper.shared.healthkitLinked else {
+            setState(.denied)
+            return
+        }
+
         setState(.loading)
 
         // 권한 체크
