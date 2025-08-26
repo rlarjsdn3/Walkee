@@ -14,8 +14,7 @@ import os
 final class ChatbotViewController: CoreGradientViewController {
 	// MARK: - Outlets & Dependencies
 	@Injected private var viewModel: ChatbotViewModel
-	private var headerHeight: CGFloat = 44
-	
+
 	@IBOutlet weak var headerView: ChatbotHeaderTitleView!
 	@IBOutlet private weak var tableView: UITableView!
 	@IBOutlet private weak var containerViewBottomConstraint: NSLayoutConstraint!
@@ -32,8 +31,6 @@ final class ChatbotViewController: CoreGradientViewController {
 	// MARK: - Properties & States
 	/// 현재 대화에 표시되는 메시지 목록
 	private var messages: [ChatMessage] = []
-	/// 고정 헤더 챗봇 타이틀
-	private let hasFixedHeader = true
 	/// 네트워크 상태
 	private var networkStatusObservationTask: Task<Void, Never>?
 	private var wasPreviouslyDisconnected: Bool = false
@@ -43,8 +40,6 @@ final class ChatbotViewController: CoreGradientViewController {
 	private var currentKeyboardHeight: CGFloat = 0
 	/// 직전 키보드 높이 — 최초 present 여부 판단에 사용
 	private var previousKeyboardHeight: CGFloat = 0
-	/// 키보드와 입력창 사이에 둘 여유 버퍼
-	private let bottomBuffer: CGFloat = 8
 	/// 응답 관련 속성
 	private var focusLatestAIHead = false
 	private var isWaitingResponse = false
@@ -56,7 +51,6 @@ final class ChatbotViewController: CoreGradientViewController {
 	private var currentWaitingText: String?
 	private var lastRelayout: CFAbsoluteTime = 0
 	private let relayoutMinInterval: CFTimeInterval = 0.05
-	
 	// 각주 관련 속성
 	private var inFootnote = false
 	private var pendingOpenBracket = false
@@ -140,7 +134,8 @@ final class ChatbotViewController: CoreGradientViewController {
 		}
 		chattingTextField.delegate = self
 		setupStackViewStyles()
-		automaticallyAdjustsScrollViewInsets = false
+		//automaticallyAdjustsScrollViewInsets = false
+		tableView.contentInsetAdjustmentBehavior = .never
 	}
 	
 	override func setupConstraints() {
@@ -347,9 +342,9 @@ final class ChatbotViewController: CoreGradientViewController {
 		let inputH = chattingContainerStackView.frame.height
 		let bottomPadding: CGFloat = 32
 		let bottomInset = (keyboardHeight > 0)
-			? (keyboardHeight + inputH + bottomPadding)
-			: (inputH + bottomPadding)
-		//let topInset = headerHeight + 8
+		? (keyboardHeight + inputH + bottomPadding)
+		: (inputH + bottomPadding)
+		
 		tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bottomInset, right: 0)
 		tableView.scrollIndicatorInsets = tableView.contentInset
 	}
@@ -367,11 +362,11 @@ final class ChatbotViewController: CoreGradientViewController {
 		tableView.contentInsetAdjustmentBehavior = .never
 		tableView.estimatedRowHeight = 80
 		tableView.rowHeight = UITableView.automaticDimension
-
+		
 		tableView.register(BubbleViewCell.nib, forCellReuseIdentifier: BubbleViewCell.id)
 		tableView.register(AIResponseCell.nib, forCellReuseIdentifier: AIResponseCell.id)
 		tableView.register(LoadingResponseCell.self, forCellReuseIdentifier: LoadingResponseCell.id)
-		tableView.register(LoadingResponseCell.self, forCellReuseIdentifier: LoadingResponseCell.id)		
+		tableView.register(LoadingResponseCell.self, forCellReuseIdentifier: LoadingResponseCell.id)
 		adjustTableInsets()
 	}
 
@@ -401,6 +396,7 @@ final class ChatbotViewController: CoreGradientViewController {
 				return
 			}
 		}
+		
 		if let lastAI = messages.lastIndex(where: { $0.type == .ai }) {
 			let ip = indexPathForMessage(at: lastAI)
 			if tableView.numberOfRows(inSection: 0) > ip.row {
@@ -415,7 +411,7 @@ final class ChatbotViewController: CoreGradientViewController {
 		guard focusLatestAIHead, !tableView.isDragging, !tableView.isDecelerating else { return }
 		scrollToTopOfLatestAIResponse(animated: animated)
 	}
-
+	
 	private func applyKeyboardChange(_ payload: KeyboardChangePayload) {
 		let endFrame = CGRect(x: payload.endX, y: payload.endY, width: payload.endW, height: payload.endH)
 		let height = view.convert(endFrame, from: nil).intersection(view.bounds).height
@@ -504,42 +500,63 @@ final class ChatbotViewController: CoreGradientViewController {
 	}
 	
 	// MARK: - Alan AI API - 응답값 관련 메서드
-	/// **일반 질문 요청값** - `/api/v1/question` APIEndPoint로 사용자 메시지를 추가하고 서버로 전송
+	/// **일반 질문 요청값** - `/api/v1/question/streaming` APIEndPoint로 사용자 메시지를 추가하고 서버로 전송
 	/// - 전송 후에는 무조건 최신 메시지로 스크롤
 	// MARK: - 실제 챗봇에서 사용하고 있는 SSE 응답 방식
+	@MainActor
 	private func sendMessageStreaming() {
+		// 0) 입력값 정리
 		guard let text = chattingTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines),
 			  !text.isEmpty else { return }
-		// 사용자 버블
+		
+		// 1) 사용자 버블 추가
 		messages.append(ChatMessage(text: text, type: .user))
 		chattingTextField.text = ""
+		
 		let userIP = IndexPath(row: messages.count - 1, section: 0)
-		tableView.insertRows(at: [userIP], with: .bottom)
-		scrollToBottomIfNeeded(force: true)
-		// 로딩
-		sendButton.isEnabled = false
-		sendButton.alpha = 0.5
-		// 빈 AI 버블(스트림 대상)
-//		messages.append(ChatMessage(text: "", type: .ai))
-//		streamingAIIndex = messages.count - 1
-//		focusLatestAIHead = true
-//		let aiIndexPath = indexPathForMessage(at: streamingAIIndex!)
-//		tableView.insertRows(at: [aiIndexPath], with: .bottom)
 		
-		showWaitingCell()
-		
-		// 응답 시작 부분이 보이도록 상단 고정
-//		Task { @MainActor in
-//			try? await Task.sleep(for: .milliseconds(60))
-//			self.tableView.scrollToRow(at: aiIndexPath, at: .top, animated: true)
-//		}
-		
-		inFootnote = false
-		pendingOpenBracket = false
-		// SSE 시작
-		viewModel.startPromptChatWithAutoReset(text)
+		// 테이블 반영 + 사용자 버블까지 먼저 스크롤
+		tableView.performBatchUpdates({
+			tableView.insertRows(at: [userIP], with: .none)
+		}, completion: { [weak self] _ in
+			guard let self else { return }
+			
+			// ✅ Concurrency로 한 프레임 뒤 안전 스크롤
+			Task { [weak self] in
+				guard let self else { return }
+				await self.scrollToRowAfterLayout(userIP, position: .bottom, animated: true)
+				
+				// 2) 로딩 상태 진입 (버튼 비활성화 + Waiting 셀 노출)
+				self.sendButton.isEnabled = false
+				self.sendButton.alpha = 0.5
+				self.showWaitingCell()
+				
+				// showWaitingCell() 안에서 self.waitingIndexPath 가 설정됨
+				if let wip = self.waitingIndexPath {
+					await self.scrollToRowAfterLayout(wip, position: .bottom, animated: true)
+				}
+				// 3) 스트리밍 상태 플래그 초기화
+				self.inFootnote = false
+				self.pendingOpenBracket = false
+				// 4) SSE 시작
+				self.viewModel.startPromptChatWithAutoReset(text)
+			}
+		})
 	}
-	
+	/// 레이아웃이 실제 반영된 다음 안전하게 스크롤.
+	/// - runloop 한 턴 양보(Task.yield) 후 인덱스 유효성 검증 → 스크롤
+	@MainActor
+	private func scrollToRowAfterLayout(_ indexPath: IndexPath,
+										position: UITableView.ScrollPosition,
+										animated: Bool) async {
+		tableView.layoutIfNeeded()
+		// 다음 runloop로 한 턴 양보(갱신 확정)
+		await Task.yield()
+		guard indexPath.section < tableView.numberOfSections,
+			  indexPath.row < tableView.numberOfRows(inSection: indexPath.section)
+		else { return }
+		tableView.scrollToRow(at: indexPath, at: position, animated: animated)
+	}
 	
 	// MARK: - 실시간 로딩 셀
 	private func updateWaitingCellText(_ text: String) {
@@ -552,14 +569,12 @@ final class ChatbotViewController: CoreGradientViewController {
 			relayoutRowIfNeeded(idx)
 			return
 		}
-		
 		// fallback: 혹시 재사용/가시성 타이밍 이슈면 visibleCells에서 찾아서 갱신
 		for case let loading as LoadingResponseCell in tableView.visibleCells {
 			loading.configure(text: text, animating: true)
 			if let ip = tableView.indexPath(for: loading) { relayoutRowIfNeeded(ip) }
 			return
 		}
-		
 		// 화면 밖이면 조용히 리로드
 		if let idx = waitingIndexPath {
 			UIView.performWithoutAnimation {
@@ -711,23 +726,6 @@ final class ChatbotViewController: CoreGradientViewController {
 		// 스트리밍 중 컨텐츠가 커질 때도 '첫 줄' 포커스 유지
 		maintainAIFocusIfNeeded()
 	}
-	
-	
-	private func hideWaitingCell() {
-		waitingHintTask?.cancel()
-		waitingHintTask = nil
-		guard isWaitingResponse else { return }
-		isWaitingResponse = false
-		defer { waitingIndexPath = nil }          //정리
-		currentWaitingText = nil
-		
-		if let idx = waitingIndexPath,
-		   tableView.numberOfRows(inSection: 0) > idx.row {
-			tableView.deleteRows(at: [idx], with: .fade)
-		} else {
-			tableView.reloadData()
-		}
-	}
 }
 
 // MARK: - UITableViewDataSource & UITableViewDelegate
@@ -818,7 +816,7 @@ extension ChatbotViewController: UITableViewDataSource, UITableViewDelegate {
 		switch message.type {
 		case .ai:
 			if message.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-				return 44   // 또는 36~52 사이로 팀 규격에 맞춰 조정
+				return 44
 			}
 			// 텍스트 길이에 따른 기존 로직
 			if message.text.count > 200 {

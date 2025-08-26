@@ -46,13 +46,6 @@ final class ChatbotHeaderTitleView: CoreView {
 		return button
 	}()
 	
-	private let dividerView: UIView = {
-		let view = UIView()
-		view.backgroundColor = .separator
-		view.translatesAutoresizingMaskIntoConstraints = false
-		return view
-	}()
-	
 	// MARK: - Initialization
 	override init(frame: CGRect) {
 		super.init(frame: frame)
@@ -77,7 +70,6 @@ final class ChatbotHeaderTitleView: CoreView {
 		addSubview(chatbotImageView)
 		addSubview(welcomeLabel)
 		addSubview(closeButton)
-		addSubview(dividerView)
 	}
 	
 	override func setupConstraints() {
@@ -99,12 +91,7 @@ final class ChatbotHeaderTitleView: CoreView {
 			closeButton.centerYAnchor.constraint(equalTo: centerYAnchor),
 			closeButton.widthAnchor.constraint(equalToConstant: 28),
 			closeButton.heightAnchor.constraint(equalToConstant: 28),
-			bottomAnchor.constraint(greaterThanOrEqualTo: chatbotImageView.bottomAnchor, constant: 12),
-			
-			dividerView.leadingAnchor.constraint(equalTo: leadingAnchor),
-			dividerView.trailingAnchor.constraint(equalTo: trailingAnchor),
-			dividerView.bottomAnchor.constraint(equalTo: bottomAnchor),
-			dividerView.heightAnchor.constraint(equalToConstant: 1)
+			bottomAnchor.constraint(greaterThanOrEqualTo: chatbotImageView.bottomAnchor, constant: 12)
 		])
 	}
 	
