@@ -9,6 +9,17 @@ import UIKit
 
 final class CourseInfoView: UIView {
 
+    // GuideView.Configuration과 동기화
+    struct Constants {
+        static let titleFont: UIFont = .preferredFont(forTextStyle: .headline)
+        static let descriptionFont: UIFont = .preferredFont(forTextStyle: .body)
+        static let titleColor: UIColor = .label
+        static let descritionColor: UIColor = .secondaryLabel
+        static let contentSpacing: CGFloat = 4
+        static let sectionSpacing: CGFloat = 16
+        static let margin: CGFloat = 8
+    }
+
     private let stackView = UIStackView()
 
     var course: WalkingCourse? = nil {
@@ -30,15 +41,15 @@ final class CourseInfoView: UIView {
 
         addSubview(stackView)
         stackView.axis = .vertical
-        stackView.spacing = 16
+        stackView.spacing = Constants.sectionSpacing
         stackView.alignment = .fill
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            stackView.topAnchor.constraint(equalTo: topAnchor, constant: 16),
-            stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5)
+            stackView.topAnchor.constraint(equalTo: topAnchor, constant: Constants.margin),
+            stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Constants.margin),
+            stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Constants.margin),
+            stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -Constants.margin)
         ])
     }
 
@@ -77,8 +88,8 @@ final class CourseInfoView: UIView {
         let containerView = UIView()
 
         let titleLabel = UILabel()
-        titleLabel.font = UIFont.preferredFont(forTextStyle: .headline)
-        titleLabel.textColor = .label
+        titleLabel.font = Constants.titleFont
+        titleLabel.textColor = Constants.titleColor
         titleLabel.text = title
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
@@ -89,8 +100,8 @@ final class CourseInfoView: UIView {
         let attributedString = NSAttributedString(
             string: content,
             attributes: [
-                .font: UIFont.preferredFont(forTextStyle: .body),
-                .foregroundColor: UIColor.secondaryLabel,
+                .font: Constants.descriptionFont,
+                .foregroundColor: Constants.descritionColor,
                 .paragraphStyle: paragraphStyle
             ]
         )
@@ -107,7 +118,7 @@ final class CourseInfoView: UIView {
             titleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
             titleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
 
-            contentLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 4),
+            contentLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: Constants.contentSpacing),
             contentLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
             contentLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
             contentLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
