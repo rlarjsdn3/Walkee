@@ -146,7 +146,7 @@ class ProfileViewController: HealthNavigationController, Alertable {
         UserDefaultsWrapper.shared.healthkitLinked = hasAny
         updateSectionItemsForHealthSwitch(to: hasAny)
     }
-
+    
     // MARK: - UserDefaults는 쓸지안쓸지 아직모르겠음
     // TODO: - 권한 있는지 없는지 Notification 뿌리기
     @objc private func switchChanged(_ sender: UISwitch) {
@@ -173,7 +173,6 @@ class ProfileViewController: HealthNavigationController, Alertable {
             updateSectionItemsForHealthSwitch(to: false)
         }
     }
-
     
     private func startGrantRecheckAfterReturning(switch sender: UISwitch) {
         // 기존 옵저버 제거
@@ -420,7 +419,6 @@ extension ProfileViewController: UITableViewDelegate {
         case "목표 걸음 설정":
             let goalStep = goalStepCountVM.goalStepCount(for: Date()).map(Int.init) ?? 0
             currentGoalCache = goalStep
-            print("[ProfileViewController] 현재 목표 걸음 수: \(goalStep)")
             showActionSheetForProfile(
                 buildView: {
                     let v = EditStepGoalView()
@@ -438,8 +436,6 @@ extension ProfileViewController: UITableViewDelegate {
                     self.currentGoalCache = v.value
                     
                     NotificationCenter.default.post(name: .didUpdateGoalStepCount, object: nil)
-                    
-                    print("[ProfileViewController] 변경된 목표 걸음 수: \(v.value)")
                 }
             )
             

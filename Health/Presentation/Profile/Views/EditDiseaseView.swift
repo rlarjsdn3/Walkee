@@ -47,19 +47,19 @@ class EditDiseaseView: CoreView {
         titleLabel.configureAsTitle("질병")
         
         collectionView.register(EditDiseaseCollectionViewCell.self, forCellWithReuseIdentifier: EditDiseaseCollectionViewCell.id)
+        collectionView.isScrollEnabled = false
         applySnapshot(animated: false)
         
         DispatchQueue.main.async { [weak self] in
             self?.updateCollectionViewSelectionIfNeeded()
         }
-        
     }
     
     override func setupConstraints() {
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 12),
+            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 8),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
             

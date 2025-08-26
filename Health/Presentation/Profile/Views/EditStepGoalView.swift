@@ -27,7 +27,6 @@ final class EditStepGoalView: CoreView {
     var onValueChanged: ((Int) -> Void)?
     
     private let buttonDiameter: CGFloat = 72
-    private let accentColor: UIColor = .accent
     private let valueFontSize: CGFloat = 88
     private let minusButton = UIButton(type: .system)
     private let plusButton = UIButton(type: .system)
@@ -78,9 +77,7 @@ final class EditStepGoalView: CoreView {
         setupConfigure()
         setupButtons()
         updateUI()
-        
     }
-    
     
     override func setupConstraints() {
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -88,14 +85,13 @@ final class EditStepGoalView: CoreView {
         let horizontalPadding: CGFloat = UIDevice.current.userInterfaceIdiom == .pad ? 160 : 16
         
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 12),
+            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 8),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
 
             hStack.centerYAnchor.constraint(equalTo: centerYAnchor),
             hStack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: horizontalPadding),
             hStack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -horizontalPadding)
-
         ])
     }
     
@@ -121,8 +117,7 @@ final class EditStepGoalView: CoreView {
         
         [minusButton, plusButton].forEach { b in
             b.translatesAutoresizingMaskIntoConstraints = false
-            b.tintColor = .white
-            b.backgroundColor = accentColor
+            b.backgroundColor = .accent
             b.tintColor = .systemBackground
             b.layer.cornerRadius = buttonDiameter / 2
             b.clipsToBounds = true
@@ -131,6 +126,17 @@ final class EditStepGoalView: CoreView {
             
             let config = UIImage.SymbolConfiguration(pointSize: 28, weight: .bold, scale: .large)
             b.setPreferredSymbolConfiguration(config, forImageIn: .normal)
+            
+            let buttonConfig = UIButton.Configuration.plain()
+            b.configurationUpdateHandler = { button in
+                switch button.state {
+                case .highlighted:
+                    b.alpha = 0.75
+                default:
+                    b.alpha = 1.0
+                }
+            }
+            b.configuration = buttonConfig
         }
         
         minusButton.addTarget(self, action: #selector(decrease), for: .touchUpInside)

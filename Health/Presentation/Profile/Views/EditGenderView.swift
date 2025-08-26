@@ -52,7 +52,7 @@ final class EditGenderView: CoreView {
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 12),
+            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 8),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
             
@@ -81,7 +81,7 @@ final class EditGenderView: CoreView {
         button.setTitleColor(.systemBackground, for: .normal)
         button.backgroundColor = .buttonBackground
         button.titleLabel?.font = UIDevice.current.userInterfaceIdiom == .pad
-        ? .preferredFont(forTextStyle: .largeTitle)
+        ? .preferredFont(forTextStyle: .largeTitle).withBoldTrait()
         : .systemFont(ofSize: 18, weight: .bold)
         button.titleLabel?.adjustsFontForContentSizeCategory = true
         button.clipsToBounds = true

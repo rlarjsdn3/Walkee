@@ -15,7 +15,7 @@ extension UILabel {
     func configureAsTitle(_ title: String) {
         self.text = title
         self.textColor = .label
-        self.font = .preferredFont(forTextStyle: .title2)
+        self.font = .preferredFont(forTextStyle: .headline)
         self.textAlignment = .center
         self.adjustsFontForContentSizeCategory = true
     }
