@@ -1,5 +1,5 @@
 //
-//  SelectAgeViewController.swift
+//  InputAgeViewController.swift
 //  Health
 //
 //  Created by 권도현 on 8/4/25.
@@ -31,15 +31,14 @@ class InputAgeViewController: CoreGradientViewController {
     private var userInfo: UserInfoEntity?
     private let context = CoreDataStack.shared.persistentContainer.viewContext
 
+    private var shouldPerformSegueAfterKeyboardHide = false
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
         setupContinueButton()
         setupTextField()
         setupUIValues()
-        
-        originalCenterY = ageInputFieldCenterY.constant
-        originalDescriptionTop = descriptionLabelTopConst.constant
         
         registerForKeyboardNotifications()
         setupTapGestureToDismissKeyboard()
@@ -63,7 +62,7 @@ class InputAgeViewController: CoreGradientViewController {
         updateContinueButtonConstraints()
         updateDescriptionTopConstraint()
     }
-    
+
     private func setupContinueButton() {
         applyBackgroundGradient(.midnightBlack)
         
@@ -99,37 +98,7 @@ class InputAgeViewController: CoreGradientViewController {
         originalCenterY = ageInputFieldCenterY.constant
         originalDescriptionTop = descriptionLabelTopConst.constant
     }
-    
-    private func updateContinueButtonConstraints() {
-        let isIpad = traitCollection.horizontalSizeClass == .regular &&
-                     traitCollection.verticalSizeClass == .regular
-        
-        if isIpad {
-            if iPadWidthConstraint == nil {
-                continueButtonLeading.isActive = false
-                continueButtonTrailing.isActive = false
-                
-                iPadWidthConstraint = continueButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7)
-                iPadCenterXConstraint = continueButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
-                
-                iPadWidthConstraint?.isActive = true
-                iPadCenterXConstraint?.isActive = true
-            }
-        } else {
-            if let iPadWidthConstraint = iPadWidthConstraint, iPadWidthConstraint.isActive {
-                iPadWidthConstraint.isActive = false
-                iPadCenterXConstraint?.isActive = false
-                continueButtonLeading.isActive = true
-                continueButtonTrailing.isActive = true
-            }
-        }
-    }
-   
-    private func updateDescriptionTopConstraint() {
-        let isLandscape = view.bounds.width > view.bounds.height
-        descriptionLabelTopConst.constant = originalDescriptionTop * (isLandscape ? 0.3 : 1.2)
-    }
-    
+
     private func registerForKeyboardNotifications() {
         NotificationCenter.default.addObserver(
             self,
@@ -141,6 +110,12 @@ class InputAgeViewController: CoreGradientViewController {
             self,
             selector: #selector(keyboardWillHide(_:)),
             name: UIResponder.keyboardWillHideNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardDidHide(_:)),
+            name: UIResponder.keyboardDidHideNotification,
             object: nil
         )
     }
@@ -172,35 +147,79 @@ class InputAgeViewController: CoreGradientViewController {
         UIView.animate(withDuration: duration) { self.view.layoutIfNeeded() }
     }
 
+    @objc private func keyboardDidHide(_ notification: Notification) {
+        if shouldPerformSegueAfterKeyboardHide {
+            shouldPerformSegueAfterKeyboardHide = false
+            self.performSegue(withIdentifier: "goToWeightInfo", sender: nil)
+        }
+    }
+    
     private func setupTapGestureToDismissKeyboard() {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tapGesture.cancelsTouchesInView = false
+        tapGesture.delegate = self
         view.addGestureRecognizer(tapGesture)
     }
     
     @objc private func dismissKeyboard() {
         view.endEditing(true)
     }
-    
+
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
-    
+
     @IBAction func continueButtonTapped(_ sender: UIButton) {
         guard continueButton.isEnabled else { return }
         guard let text = ageInputField.text, let birthYear = Int16(text) else { return }
         
-        // 현재 연도에서 계산하여 age 저장
-        let currentYear = Date().year
+        let currentYear = Calendar.current.component(.year, from: Date())
         let age = Int16(currentYear - Int(birthYear))
         userInfo?.age = age
-        
+
         do {
             try context.save()
-            print("💾 저장된 나이: \(userInfo?.age ?? 0)") // 저장된 값 출력
-            performSegue(withIdentifier: "goToWeightInfo", sender: nil)
+            print("💾 저장된 나이: \(userInfo?.age ?? 0)")
         } catch {
             print("Failed to save user info: \(error)")
+        }
+
+        if ageInputField.isFirstResponder {
+            shouldPerformSegueAfterKeyboardHide = true
+            view.endEditing(true)
+        } else {
+            performSegue(withIdentifier: "goToWeightInfo", sender: nil)
+        }
+    }
+
+    private func fetchAndDisplayUserInfo() {
+        let request: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
+        do {
+            let results = try context.fetch(request)
+            if let first = results.first {
+                self.userInfo = first
+                if first.age != 0 {
+                    let currentYear = Calendar.current.component(.year, from: Date())
+                    let birthYear = currentYear - Int(first.age)
+                    ageInputField.text = String(birthYear)
+                    validateInput()
+                } else {
+                    ageInputField.text = ""
+                    validateInput()
+                }
+            } else {
+                let newUser = UserInfoEntity(context: context)
+                newUser.id = UUID()
+                newUser.createdAt = Date()
+                self.userInfo = newUser
+                ageInputField.text = ""
+                validateInput()
+                try context.save()
+            }
+        } catch {
+            print("Failed to fetch or create user info: \(error)")
+            ageInputField.text = ""
+            validateInput()
         }
     }
 
@@ -209,8 +228,7 @@ class InputAgeViewController: CoreGradientViewController {
     }
     
     private func validateInput() {
-        guard let text = ageInputField.text,
-              !text.isEmpty else {
+        guard let text = ageInputField.text, !text.isEmpty else {
             disableContinueButton()
             hideError()
             return
@@ -244,7 +262,7 @@ class InputAgeViewController: CoreGradientViewController {
             showError()
         }
     }
-    
+
     private func showError(text: String = "1900 ~ 2025 사이의 값을 입력해주세요.") {
         errorLabel.isHidden = false
         errorLabel.text = text
@@ -267,28 +285,34 @@ class InputAgeViewController: CoreGradientViewController {
         ageInputField.textColor = .accent
     }
 
-    private func fetchAndDisplayUserInfo() {
-        let request: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
-        do {
-            let results = try context.fetch(request)
-            if let first = results.first {
-                self.userInfo = first
-                if first.age != 0 {
-                    let currentYear = Calendar.current.component(.year, from: Date())
-                    let birthYear = currentYear - Int(first.age)
-                    ageInputField.text = String(birthYear)
-                    validateInput()
-                }
-            } else {
-                let newUser = UserInfoEntity(context: context)
-                newUser.id = UUID()
-                newUser.createdAt = Date()
-                self.userInfo = newUser
-                try context.save()
+    private func updateContinueButtonConstraints() {
+        let isIpad = traitCollection.horizontalSizeClass == .regular &&
+                     traitCollection.verticalSizeClass == .regular
+        
+        if isIpad {
+            if iPadWidthConstraint == nil {
+                continueButtonLeading.isActive = false
+                continueButtonTrailing.isActive = false
+                
+                iPadWidthConstraint = continueButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7)
+                iPadCenterXConstraint = continueButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+                
+                iPadWidthConstraint?.isActive = true
+                iPadCenterXConstraint?.isActive = true
             }
-        } catch {
-            print("Failed to fetch or create user info: \(error)")
+        } else {
+            if let iPadWidthConstraint = iPadWidthConstraint, iPadWidthConstraint.isActive {
+                iPadWidthConstraint.isActive = false
+                iPadCenterXConstraint?.isActive = false
+                continueButtonLeading.isActive = true
+                continueButtonTrailing.isActive = true
+            }
         }
+    }
+    
+    private func updateDescriptionTopConstraint() {
+        let isLandscape = view.bounds.width > view.bounds.height
+        descriptionLabelTopConst.constant = originalDescriptionTop * (isLandscape ? 0.3 : 1.2)
     }
 }
 
@@ -303,6 +327,15 @@ extension InputAgeViewController: UITextFieldDelegate {
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
+        return true
+    }
+}
+
+extension InputAgeViewController: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        if touch.view is UIButton {
+            return false
+        }
         return true
     }
 }
