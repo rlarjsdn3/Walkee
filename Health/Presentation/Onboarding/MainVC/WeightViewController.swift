@@ -97,9 +97,20 @@ class WeightViewController: CoreGradientViewController {
     }
     
     private func updateDescriptionTopConstraint() {
+        // iPad 여부
+        let isIpad = traitCollection.horizontalSizeClass == .regular &&
+                     traitCollection.verticalSizeClass == .regular
         let isLandscape = view.bounds.width > view.bounds.height
-        descriptionLabelTopConst.constant = originalDescriptionTop * (isLandscape ? 0.3 : 1.2)
+
+        if isIpad {
+            // 아이패드 고정값 지정
+            descriptionLabelTopConst.constant = isLandscape ? 28 : 80
+        } else {
+            // 아이폰은 세로모드만 사용 → 스토리보드 제약 그대로 사용
+            descriptionLabelTopConst.constant = originalDescriptionTop
+        }
     }
+
     
     private func updateContinueButtonConstraints() {
         let isIpad = traitCollection.horizontalSizeClass == .regular &&

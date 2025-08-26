@@ -13,6 +13,7 @@ class InputAgeViewController: CoreGradientViewController {
     @IBOutlet weak var ageInputField: UITextField!
     @IBOutlet weak var errorLabel: UILabel!
     @IBOutlet weak var continueButton: UIButton!
+    @IBOutlet weak var yearLabel: UILabel!
     
     @IBOutlet weak var continueButtonLeading: NSLayoutConstraint!
     @IBOutlet weak var continueButtonTrailing: NSLayoutConstraint!
@@ -55,6 +56,7 @@ class InputAgeViewController: CoreGradientViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         fetchAndDisplayUserInfo()
+        navigationController?.setNavigationBarHidden(true, animated: false)
     }
     
     override func viewWillLayoutSubviews() {
@@ -311,9 +313,20 @@ class InputAgeViewController: CoreGradientViewController {
     }
     
     private func updateDescriptionTopConstraint() {
+        // iPad 여부
+        let isIpad = traitCollection.horizontalSizeClass == .regular &&
+                     traitCollection.verticalSizeClass == .regular
         let isLandscape = view.bounds.width > view.bounds.height
-        descriptionLabelTopConst.constant = originalDescriptionTop * (isLandscape ? 0.3 : 1.2)
+
+        if isIpad {
+            // 아이패드 고정값 지정
+            descriptionLabelTopConst.constant = isLandscape ? 28 : 80
+        } else {
+            // 아이폰은 세로모드만 사용 → 스토리보드 제약 그대로 사용
+            descriptionLabelTopConst.constant = originalDescriptionTop
+        }
     }
+
 }
 
 extension InputAgeViewController: UITextFieldDelegate {

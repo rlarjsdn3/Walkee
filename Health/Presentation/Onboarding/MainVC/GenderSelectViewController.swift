@@ -24,10 +24,13 @@ class GenderSelectViewController: CoreGradientViewController {
     @IBOutlet weak var continueButton: UIButton!
     @IBOutlet weak var continueButtonLeading: NSLayoutConstraint!
     @IBOutlet weak var continueButtonTrailing: NSLayoutConstraint!
-
+    @IBOutlet weak var descriptionTopConst: NSLayoutConstraint!
+    
+    
     private var iPadWidthConstraint: NSLayoutConstraint?
     private var iPadCenterXConstraint: NSLayoutConstraint?
     
+    private var originalDescriptionTop: CGFloat = 0
     private var originalFemaleWidth: CGFloat = 0
     private var originalFemaleHeight: CGFloat = 0
     private var originalMaleWidth: CGFloat = 0
@@ -80,11 +83,13 @@ class GenderSelectViewController: CoreGradientViewController {
         originalFemaleHeight = femaleHeight.constant
         originalMaleWidth = maleWidth.constant
         originalMaleHeight = maleHeight.constant
+        originalDescriptionTop = descriptionTopConst.constant
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         loadSavedGender()
+        navigationController?.setNavigationBarHidden(true, animated: false)
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -128,6 +133,8 @@ class GenderSelectViewController: CoreGradientViewController {
             maleWidth.constant = originalMaleWidth
             maleHeight.constant = originalMaleHeight
         }
+        
+        updateDescriptionTopConstraint()
     }
     
     override func setupHierarchy() {
@@ -176,6 +183,21 @@ class GenderSelectViewController: CoreGradientViewController {
         performSegue(withIdentifier: "goToAgeInfo", sender: self)
     }
 
+    private func updateDescriptionTopConstraint() {
+        // iPad 여부
+        let isIpad = traitCollection.horizontalSizeClass == .regular &&
+                     traitCollection.verticalSizeClass == .regular
+        let isLandscape = view.bounds.width > view.bounds.height
+
+        if isIpad {
+            // 아이패드 고정값 지정
+            descriptionTopConst.constant = isLandscape ? 28 : 80
+        } else {
+            // 아이폰은 세로모드만 사용 → 스토리보드 제약 그대로 사용
+            descriptionTopConst.constant = originalDescriptionTop
+        }
+    }
+    
     private func loadSavedGender() {
         let context = CoreDataStack.shared.viewContext
         let fetchRequest: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
@@ -207,12 +229,12 @@ class GenderSelectViewController: CoreGradientViewController {
         femaleButton.tintColor = (selectedGender == .female) ? .accent : .buttonBackground
         maleButton.tintColor = (selectedGender == .male) ? .accent : .buttonBackground
         
-        if let currentFont = femaleGender.font {
-            femaleGender.font = (selectedGender == .female) ? currentFont.withBoldTrait() : currentFont.withNormalTrait()
-        }
-        if let currentFont = maleGender.font {
-            maleGender.font = (selectedGender == .male) ? currentFont.withBoldTrait() : currentFont.withNormalTrait()
-        }
+//        if let currentFont = femaleGender.font {
+//            femaleGender.font = (selectedGender == .female) ? currentFont.withBoldTrait() : currentFont.withNormalTrait()
+//        }
+//        if let currentFont = maleGender.font {
+//            maleGender.font = (selectedGender == .male) ? currentFont.withBoldTrait() : currentFont.withNormalTrait()
+//        }
     }
     
     private func updateContinueButtonState() {

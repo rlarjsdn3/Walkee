@@ -10,7 +10,7 @@ import CoreData
 import HealthKit
 
 class StepGoalViewController: CoreGradientViewController {
-
+    
     @IBOutlet weak var continueButton: UIButton!
     @IBOutlet weak var continueButtonLeading: NSLayoutConstraint!
     @IBOutlet weak var continueButtonTrailing: NSLayoutConstraint!
@@ -18,10 +18,13 @@ class StepGoalViewController: CoreGradientViewController {
     @IBOutlet weak var stepGoalLeading: NSLayoutConstraint!
     @IBOutlet weak var stepGoalTrailing: NSLayoutConstraint!
     
+    @IBOutlet weak var descriptionLabel: UILabel!
+    @IBOutlet weak var descriptionTopConst: NSLayoutConstraint!
+    
+    private var originalDescriptionTop: CGFloat = 0
     private var iPadWidthConstraint: NSLayoutConstraint?
     private var iPadCenterXConstraint: NSLayoutConstraint?
     private var stepGoalViewWidthConstraint: NSLayoutConstraint?
-    
     private let healthService = DefaultHealthService()
     
     @Injected private var stepSyncService: StepSyncService
@@ -29,22 +32,24 @@ class StepGoalViewController: CoreGradientViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        stepGoalView.titleLabel.isHidden = true
         applyBackgroundGradient(.midnightBlack)
         continueButton.applyCornerStyle(.medium)
         continueButton.addTarget(self, action: #selector(buttonAction(_:)), for: .touchUpInside)
-
+        
         stepGoalView.onValueChanged = { [weak self] _ in
             self?.updateContinueButtonState()
         }
-
+        
         stepGoalView.value = 0
         updateContinueButtonState()
+        originalDescriptionTop = descriptionTopConst.constant
         
         if let parentVC = parent as? ProgressContainerViewController {
             parentVC.customNavigationBar.backButton.isHidden = true
         }
     }
-
+    
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
     }
@@ -54,7 +59,7 @@ class StepGoalViewController: CoreGradientViewController {
         super.viewWillLayoutSubviews()
         
         let isIpad = traitCollection.horizontalSizeClass == .regular &&
-                      traitCollection.verticalSizeClass == .regular
+        traitCollection.verticalSizeClass == .regular
         
         if isIpad {
             continueButtonLeading?.isActive = false
@@ -84,6 +89,22 @@ class StepGoalViewController: CoreGradientViewController {
             stepGoalLeading?.isActive = true
             stepGoalTrailing?.isActive = true
         }
+        updateDescriptionTopConstraint()
+    }
+    
+    private func updateDescriptionTopConstraint() {
+        // iPad 여부
+        let isIpad = traitCollection.horizontalSizeClass == .regular &&
+        traitCollection.verticalSizeClass == .regular
+        let isLandscape = view.bounds.width > view.bounds.height
+        
+        if isIpad {
+            // 아이패드 고정값 지정
+            descriptionTopConst.constant = isLandscape ? 28 : 80
+        } else {
+            // 아이폰은 세로모드만 사용 → 스토리보드 제약 그대로 사용
+            descriptionTopConst.constant = originalDescriptionTop
+        }
     }
     
     @objc private func updateContinueButtonState() {
@@ -99,7 +120,7 @@ class StepGoalViewController: CoreGradientViewController {
         var container = AttributeContainer()
         container.font = UIFont.preferredFont(forTextStyle: .headline)
         config.attributedTitle = AttributedString("다음", attributes: container)
-            
+        
         continueButton.configurationUpdateHandler = { [weak self] button in
             switch button.state
             {
@@ -142,9 +163,9 @@ class StepGoalViewController: CoreGradientViewController {
         } catch {
             print("목표 걸음 수 저장/불러오기 실패: \(error.localizedDescription)")
         }
-
+        
         UserDefaultsWrapper.shared.hasSeenOnboarding = true
-
+        
         Task {
             do {
                 try await stepSyncService.syncSteps()
@@ -153,7 +174,7 @@ class StepGoalViewController: CoreGradientViewController {
                 print("[stepGoalViewController] 온보딩 직후 동기화 실패: \(error.localizedDescription)")
             }
         }
-
+        
         if let window = UIApplication.shared.connectedScenes
             .compactMap({ $0 as? UIWindowScene })
             .flatMap({ $0.windows })

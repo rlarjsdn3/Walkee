@@ -17,7 +17,8 @@ class DiseaseViewController: CoreGradientViewController {
     
     @IBOutlet weak var continueButtonLeading: NSLayoutConstraint!
     @IBOutlet weak var continueButtonTrailing: NSLayoutConstraint!
-
+    @IBOutlet weak var descriptionTopConst: NSLayoutConstraint!
+    
     @IBOutlet weak var collectionViewTopConstraint: NSLayoutConstraint!
     @IBOutlet weak var collectionViewBottomConstraint: NSLayoutConstraint!
     @IBOutlet weak var collectionViewLeadingConstraint: NSLayoutConstraint!
@@ -30,12 +31,14 @@ class DiseaseViewController: CoreGradientViewController {
     private var iPadCollectionViewCenterY: NSLayoutConstraint?
     private var iPadCollectionViewWidth: NSLayoutConstraint?
     private var iPadCollectionViewHeight: NSLayoutConstraint?
+    private var originalDescriptionTop: CGFloat = 0
     
     private let progressIndicatorStackView = ProgressIndicatorStackView(totalPages: 4)
     private let defaultDiseases: [Disease] = Disease.allCases
     private var userDiseases: [Disease] = []
     private var userInfo: UserInfoEntity?
     private let context = CoreDataStack.shared.persistentContainer.viewContext
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -65,6 +68,7 @@ class DiseaseViewController: CoreGradientViewController {
         continueButton.configuration = config
         continueButton.applyCornerStyle(.medium)
         continueButton.isEnabled = false
+        originalDescriptionTop = descriptionTopConst.constant
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -72,7 +76,7 @@ class DiseaseViewController: CoreGradientViewController {
         fetchUserInfo()
         selectUserDiseases()
         updateContinueButtonState()
-        updateNavigationBarVisibility()
+        navigationController?.setNavigationBarHidden(true, animated: false)
     }
 
     override func viewWillLayoutSubviews() {
@@ -123,6 +127,8 @@ class DiseaseViewController: CoreGradientViewController {
             collectionViewLeadingConstraint?.isActive = true
             collectionViewTrailingConstraint?.isActive = true
         }
+        
+        updateDescriptionTopConstraint()
     }
 
     override func viewDidLayoutSubviews() {
@@ -130,13 +136,19 @@ class DiseaseViewController: CoreGradientViewController {
         diseaseCollectionView.collectionViewLayout.invalidateLayout()
     }
     
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        updateNavigationBarVisibility()
-    }
- 
-    private func updateNavigationBarVisibility() {
-        navigationController?.setNavigationBarHidden(traitCollection.userInterfaceIdiom == .pad, animated: false)
+    private func updateDescriptionTopConstraint() {
+        // iPad 여부
+        let isIpad = traitCollection.horizontalSizeClass == .regular &&
+                     traitCollection.verticalSizeClass == .regular
+        let isLandscape = view.bounds.width > view.bounds.height
+
+        if isIpad {
+            // 아이패드 고정값 지정
+            descriptionTopConst.constant = isLandscape ? 28 : 80
+        } else {
+            // 아이폰은 세로모드만 사용 → 스토리보드 제약 그대로 사용
+            descriptionTopConst.constant = originalDescriptionTop
+        }
     }
 
     private func fetchUserInfo() {
