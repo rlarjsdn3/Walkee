@@ -170,28 +170,28 @@ class StepGoalViewController: CoreGradientViewController {
             do {
                 try await stepSyncService.syncSteps()
                 print("[StepGoalViewController] 온보딩 직후 동기화 완료")
+
+                if let window = UIApplication.shared.connectedScenes
+                    .compactMap({ $0 as? UIWindowScene })
+                    .flatMap({ $0.windows })
+                    .first(where: { $0.isKeyWindow }) {
+
+                    let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                    guard let tabBarController = storyboard.instantiateInitialViewController() as? UITabBarController else {
+                        print("Main.storyboard 초기 VC가 UITabBarController가 아님")
+                        return
+                    }
+
+                    window.rootViewController = tabBarController
+                    window.makeKeyAndVisible()
+                    UIView.transition(with: window,
+                                      duration: 0.5,
+                                      options: [.transitionCrossDissolve],
+                                      animations: nil)
+                }
             } catch {
                 print("[stepGoalViewController] 온보딩 직후 동기화 실패: \(error.localizedDescription)")
             }
-        }
-        
-        if let window = UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene })
-            .flatMap({ $0.windows })
-            .first(where: { $0.isKeyWindow }) {
-            
-            let storyboard = UIStoryboard(name: "Main", bundle: nil)
-            guard let tabBarController = storyboard.instantiateInitialViewController() as? UITabBarController else {
-                print("Main.storyboard 초기 VC가 UITabBarController가 아님")
-                return
-            }
-            
-            window.rootViewController = tabBarController
-            window.makeKeyAndVisible()
-            UIView.transition(with: window,
-                              duration: 0.5,
-                              options: [.transitionCrossDissolve],
-                              animations: nil)
         }
     }
 }

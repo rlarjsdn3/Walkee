@@ -182,7 +182,7 @@ final class StatusProgressBarView: UIView {
         NSLayoutConstraint.activate([
             parentView.leadingAnchor.constraint(equalTo: progressBarView.leadingAnchor, constant: 12),
             parentView.trailingAnchor.constraint(equalTo: progressBarView.trailingAnchor, constant: -12),
-            parentView.bottomAnchor.constraint(equalTo: progressBarView.topAnchor, constant: -8),
+            parentView.bottomAnchor.constraint(equalTo: progressBarView.topAnchor, constant: -2),
             parentView.heightAnchor.constraint(equalToConstant: dotSize)
         ])
     }

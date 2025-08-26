@@ -39,11 +39,11 @@ class EditBirthdayView: CoreView {
         let pickerHeight: CGFloat = traitCollection.userInterfaceIdiom == .pad ? 300 : 216
         
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 8),
+            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: -48),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
             
-            pickerView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 24),
+            pickerView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 0),
             pickerView.leadingAnchor.constraint(equalTo: leadingAnchor),
             pickerView.trailingAnchor.constraint(equalTo: trailingAnchor),
             pickerView.heightAnchor.constraint(equalToConstant: pickerHeight),

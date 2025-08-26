@@ -56,8 +56,6 @@ final class EditDiseaseCollectionViewCell: CoreCollectionViewCell {
         contentView.backgroundColor = .boxBg
         contentView.layer.cornerRadius = 12
         contentView.layer.cornerCurve = .continuous
-        contentView.layer.borderWidth = 1
-//        contentView.layer.borderColor = .
                 
         updateUIForCurrentTrait()
     }

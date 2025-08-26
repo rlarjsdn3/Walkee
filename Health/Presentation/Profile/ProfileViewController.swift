@@ -17,13 +17,6 @@ struct ProfileCellModel {
     var switchState: Bool = UserDefaultsWrapper.shared.healthkitLinked
 }
 
-
-// TODO: - 건강 권한 끌때는 얼럿 없애기
-// 다 꺼져있을때만 스위치 OFF -> ON으로 할때 ALERT
-// 하나라도 켜져있으면 ALERT 없이 스위치만 변경
-// 알림에선 확인 -> 설정
-//        취소 -> 스위치 원상복구
-
 class ProfileViewController: HealthNavigationController, Alertable {
     
     @IBOutlet weak var tableView: UITableView!
@@ -35,6 +28,8 @@ class ProfileViewController: HealthNavigationController, Alertable {
     private var currentGoalCache: Int = 0
     
     private var grantRecheckObserver: NSObjectProtocol?
+    
+    private var isAuthenticating = false
     
     private let sectionTitles: [String?] = [
         nil,
@@ -119,7 +114,7 @@ class ProfileViewController: HealthNavigationController, Alertable {
         stopForegroundGrantSync()
         
         grantRecheckObserver = NotificationCenter.default.addObserver(
-            forName: UIApplication.didBecomeActiveNotification,
+            forName: UIApplication.willEnterForegroundNotification,
             object: nil,
             queue: .main
         ) { [weak self] _ in
@@ -148,7 +143,6 @@ class ProfileViewController: HealthNavigationController, Alertable {
     }
     
     // MARK: - UserDefaults는 쓸지안쓸지 아직모르겠음
-    // TODO: - 권한 있는지 없는지 Notification 뿌리기
     @objc private func switchChanged(_ sender: UISwitch) {
         if sender.isOn {
             // OFF -> ON
@@ -172,6 +166,13 @@ class ProfileViewController: HealthNavigationController, Alertable {
             UserDefaultsWrapper.shared.healthkitLinked = false
             updateSectionItemsForHealthSwitch(to: false)
         }
+
+        // 건강 앱 연동 스위치 상태가 변경되었음을 알림
+        NotificationCenter.default.post(
+            name: .didChangeHealthLinkStatusOnProfile,
+            object: nil,
+            userInfo: [.status: sender.isOn]
+        )
     }
     
     private func startGrantRecheckAfterReturning(switch sender: UISwitch) {
@@ -219,83 +220,27 @@ class ProfileViewController: HealthNavigationController, Alertable {
     
     @MainActor
     private func presentGrantAlert(for sender: UISwitch) {
-        let alert = TSAlertController(
-            title: "권한 설정 안내",
-            message:
-                """
-                건강 앱에서 권한을 직접 바꿀 수 있어요.
-                경로: 프로필(우측 상단) > 개인정보보호 > 앱 > Health
-                여기에서 이 앱의 데이터 접근 권한을 해제하거나 다시 켤 수 있습니다.
-                """,
-            preferredStyle: .alert
+        showAlert(
+            "권한 설정 안내",
+            message: """
+                     건강 앱에서 권한을 직접 바꿀 수 있어요.
+                     경로: 프로필(우측 상단) > 개인정보보호 > 앱 > Health
+                     여기에서 이 앱의 데이터 접근 권한을 해제하거나 다시 켤 수 있습니다.
+                     """,
+            primaryTitle: "열기",
+            onPrimaryAction: ({ [weak self] _ in
+                guard let self else { return }
+                self.openHealthApp()
+                self.startGrantRecheckAfterReturning(switch: sender)
+            }),
+            onCancelAction: ({ [weak self] _ in
+                guard let self else { return }
+                
+                sender.setOn(false, animated: true)
+                UserDefaultsWrapper.shared.healthkitLinked = false
+                self.updateSectionItemsForHealthSwitch(to: false)
+            })
         )
-        alert.viewConfiguration.titleAlignment = .center
-        alert.viewConfiguration.messageAlignment = .center
-        alert.viewConfiguration.size.width = .proportional(minimumRatio: 0.9)
-        
-        // 취소: 사용자가 거부 의사 → OFF
-        alert.addAction(TSAlertAction(title: "취소", style: .cancel) { [weak self] _ in
-            guard let self = self else { return }
-            sender.setOn(false, animated: true)
-            UserDefaultsWrapper.shared.healthkitLinked = false
-            self.updateSectionItemsForHealthSwitch(to: false)
-        })
-        // 열기: 건강앱 열어주고 돌아오면 권한 재확인
-        let action = TSAlertAction(title: "열기", style: .default) { [weak self] _ in
-            guard let self = self else { return }
-            self.openHealthApp()
-            self.startGrantRecheckAfterReturning(switch: sender)
-        }
-        
-        action.configuration.backgroundColor = .accent
-        action.configuration.titleAttributes = [
-            .font: UIFont.preferredFont(forTextStyle: .headline),
-            .foregroundColor: UIColor.systemBackground
-        ]
-        action.highlightType = .fadeIn
-        alert.addAction(action)
-        
-        present(alert, animated: true)
-    }
-    
-    private func presentDenyAlert(for sender: UISwitch) {
-        let alert = TSAlertController(
-            title: "권한 설정 안내",
-            message:
-                """
-                건강 앱에서 권한을 직접 바꿀 수 있어요.
-                경로: 프로필(우측 상단) > 개인정보보호 > 앱 > Health
-                여기에서 이 앱의 데이터 접근 권한을 해제하거나 다시 켤 수 있습니다.
-                """,
-            preferredStyle: .alert
-        )
-        alert.viewConfiguration.titleAlignment = .center
-        alert.viewConfiguration.messageAlignment = .center
-        alert.viewConfiguration.size.width = .proportional(minimumRatio: 0.9)
-        alert.addAction(TSAlertAction(title: "취소", style: .cancel) { [weak self] _ in
-            guard let self = self else { return }
-            // 취소: 스위치 복구
-            sender.setOn(true, animated: true)
-            UserDefaultsWrapper.shared.healthkitLinked = true
-            self.updateSectionItemsForHealthSwitch(to: true)
-        })
-        let action = TSAlertAction(title: "열기", style: .default) { [weak self] _ in
-            guard let self = self else { return }
-            
-            // 건강 앱 열기
-            self.openHealthApp()
-            
-            // 설정에서 돌아오면 권한을 재확인해 스위치 상태 동기화
-            self.startGrantRecheckAfterReturning(switch: sender)
-        }
-        action.configuration.backgroundColor = .accent
-        action.configuration.titleAttributes = [
-            .font: UIFont.preferredFont(forTextStyle: .headline),
-            .foregroundColor: UIColor.systemBackground
-        ]
-        action.highlightType = .fadeIn
-        alert.addAction(action)
-        present(alert, animated: true)
     }
     
     /// 건강(Health) 앱을 엽니다.
@@ -377,43 +322,46 @@ extension ProfileViewController: UITableViewDelegate {
         
         switch model.title {
         case "신체 정보":
+            guard !isAuthenticating else { return }
+            isAuthenticating = true
+            tableView.isUserInteractionEnabled = false
+            
             let context = LAContext()
-            context.localizedFallbackTitle = "" // "암호 입력" 버튼 문구 숨기고 싶으면 빈 문자열
+            context.localizedFallbackTitle = ""
             var error: NSError?
             
-            let canBio = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
+            let policy: LAPolicy = .deviceOwnerAuthentication
             
-            // 생체인증 가능하면 Face ID/Touch ID 시도
-            if canBio {
-                context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics,
-                                       localizedReason: "신체 정보에 접근하려면 Face ID 인증이 필요합니다.") { [weak self] success, evalError in
-                    guard let self else { return }
-                    DispatchQueue.main.async {
-                        if success {
-                            self.performSegue(withIdentifier: "bodyInfo", sender: nil)
-                        } else {
-                            self.showWarningToast(title: "인증 실패", message: "인증이 실패했습니다.")
-                        }
-                    }
-                }
+            guard context.canEvaluatePolicy(policy, error: &error) else {
+                isAuthenticating = false
+                tableView.isUserInteractionEnabled = true
+                showWarningToast(
+                    title: "인증 불가",
+                    message: "이 기기에서 인증을 사용할 수 없습니다. 설정에서 Face ID/암호를 설정하세요."
+                )
                 return
             }
             
-            // 생체인증이 없거나 미등록인 경우: 기기 암호로 대체 허용
-            if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
-                context.evaluatePolicy(.deviceOwnerAuthentication,
-                                       localizedReason: "신체 정보에 접근하려면 인증이 필요합니다.") { [weak self] success, _ in
+            context.evaluatePolicy(policy, localizedReason: "신체 정보에 접근하려면 인증이 필요합니다.") { [weak self] success, evalError in
+                Task { @MainActor in
                     guard let self else { return }
-                    DispatchQueue.main.async {
-                        if success {
-                            self.performSegue(withIdentifier: "bodyInfo", sender: nil)
-                        } else {
-                            self.showWarningToast(title: "인증 실패", message: "인증이 실패했습니다.")
+                    self.isAuthenticating = false
+                    tableView.isUserInteractionEnabled = true
+                    
+                    if success {
+                        self.performSegue(withIdentifier: "bodyInfo", sender: nil)
+                        return
+                    }
+                    
+                    if let laError = evalError as? LAError {
+                        switch laError.code {
+                        case .appCancel, .systemCancel, .userCancel, .userFallback:
+                            return
+                        default:
+                            break
                         }
                     }
                 }
-            } else {
-                self.showWarningToast(title: "인증 실패", message: "이 기기에서 인증을 사용할 수 없습니다. 설정 앱에서 Face ID 또는 기기 암호를 설정하세요")
             }
             
         case "목표 걸음 설정":
@@ -511,11 +459,11 @@ extension ProfileViewController: MFMailComposeViewControllerDelegate {
     func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: (any Error)?) {
         switch result {
         case .cancelled:
-            showToast(message: "작성 취소")
+            showToast(message: "메일 작성을 취소했습니다.")
         case .saved:
-            showToast(message: "임시 저장")
+            showToast(message: "메일을 임시 저장했습니다.")
         case .sent:
-            showToast(message: "메일 전송 완료")
+            showToast(message: "메일 전송을 완료 했습니다.")
         case .failed:
             showWarningToast(title: "전송 실패", message: "메일 전송에 실패했습니다.")
         @unknown default:
