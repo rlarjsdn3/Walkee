@@ -45,7 +45,7 @@ extension DashboardTopBarCollectionViewCell {
         weekDayLabel.text = date.formatted(using: .weekday)
 
         if date.isEqual(with: .now) {
-            anchorDateLabel.text = "(\(Date.now.formatted(using: .aHHmm)) 기준)"
+            anchorDateLabel.text = "\(Date.now.formatted(using: .aHHmm)) 기준"
         }
     }
 }
