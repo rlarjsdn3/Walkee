@@ -132,11 +132,16 @@ extension HealthInfoStackCollectionViewCell {
     }
 
     private func formatValue(kind: DashboardStackKind, value: Double) -> String {
-        switch kind {
-        case .appleExerciseTime:
-            return String(format: "%.0f", value)
-        default:
-            return String(format: "%.1f", value)
+        if value == 0.0 {
+            return "0"
+        } else {
+            switch kind {
+            case .appleExerciseTime:
+                return String(format: "%.0f", value)
+            default:
+                return String(format: "%.1f", value)
+            }
+
         }
     }
 

@@ -332,7 +332,7 @@ extension Alertable where Self: UIViewController {
     
     func showActionSheetForProfile(
         buildView: () -> UIView,
-        height: CGFloat = 500,
+        height: CGFloat = 400,
         width: CGFloat = 500,
         iPadLandscapeHeight: CGFloat = 700,
         iPadLandscapeWidth: CGFloat = 700,
@@ -383,7 +383,7 @@ extension Alertable where Self: UIViewController {
             verticalFittingPriority: .fittingSizeLevel
         )
 
-        let iPhoneSheetHeight: CGFloat = 400
+        let iPhoneSheetHeight: CGFloat = height
         let minContentHeight: CGFloat = iPhoneSheetHeight + 44
         let contentBasedHeight = min(max(fitted.height + 12, minContentHeight), maxHeight)
 

@@ -46,6 +46,20 @@ final class DailyStepViewModel: ObservableObject {
         }
     }
 
+    func fetchDailyStep(_ date: Date) -> DailyStepEntity? {
+        let normalizedDate = date.startOfDay()
+        let request: NSFetchRequest<DailyStepEntity> = DailyStepEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "date == %@", normalizedDate as CVarArg)
+        request.fetchLimit = 1
+
+        do {
+            return try context.fetch(request).first
+        } catch {
+            errorMessage = "특정 날짜에 맞는 Daily Step 불러오기 실패: \(error.localizedDescription)"
+            return nil
+        }
+    }
+
     // 새 DailyStepEntity 저장 또는 기존 업데이트
     func saveDailyStep(
         id: UUID? = nil,

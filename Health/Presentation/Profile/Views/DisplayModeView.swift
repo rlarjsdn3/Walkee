@@ -73,8 +73,8 @@ class DisplayModeView: CoreView {
             titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
             
             stackView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 24),
-            stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+            stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 4),
+            stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -4),
             stackView.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -16)
         ])
     }

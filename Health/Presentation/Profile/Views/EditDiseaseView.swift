@@ -44,7 +44,7 @@ class EditDiseaseView: CoreView {
     override func setupAttribute() {
         super.setupAttribute()
         backgroundColor = .clear
-        titleLabel.configureAsTitle("질병")
+        titleLabel.configureAsTitle("지병")
         
         collectionView.register(EditDiseaseCollectionViewCell.self, forCellWithReuseIdentifier: EditDiseaseCollectionViewCell.id)
         collectionView.isScrollEnabled = false
@@ -64,8 +64,8 @@ class EditDiseaseView: CoreView {
             titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
             
             collectionView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 24),
-            collectionView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            collectionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+            collectionView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 4),
+            collectionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -4),
             collectionView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -16)
         ])
     }
@@ -275,16 +275,13 @@ class EditDiseaseView: CoreView {
         if !userDiseases.contains(disease) {
             userDiseases.append(disease)
         }
-        print(userDiseases)
         
     }
     
     private func removeDisease(_ disease: Disease) {
         if let idx = userDiseases.firstIndex(of: disease) {
             userDiseases.remove(at: idx)
-        }
-        print(userDiseases)
-        
+        }        
     }
 }
 

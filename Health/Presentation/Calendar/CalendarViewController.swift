@@ -83,6 +83,13 @@ private extension CalendarViewController {
             name: .didChangeHKSharingAuthorizationStatus,
             object: nil
         )
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(reloadCalendar),
+            name: .didChangeHealthLinkStatusOnProfile,
+            object: nil
+        )
     }
 
     func updateAuthorizationAndReload() {
@@ -163,11 +170,23 @@ private extension CalendarViewController {
     }
 
     @objc func reloadCalendar(_ notification: Notification) {
-        // 건강 앱 연동 상태가 바뀌었을 때만 걸음 연동 체크 후 달력 데이터 갱신
-        if notification.name == .didChangeHKSharingAuthorizationStatus {
-            updateAuthorizationAndReload()
-        } else {
-            dataManager.reloadData()
+        Task { @MainActor in
+            switch notification.name {
+                // 프로필 탭에서 건강 연동 상태가 바뀌는 경우
+                case .didChangeHealthLinkStatusOnProfile:
+                    guard let status = notification.userInfo?[.status] as? Bool else { return }
+                    isStepCountAuthorized = status
+                    dataManager.reloadData()
+
+                // 건강 앱 연동 상태가 바뀌는 경우
+                case .didChangeHKSharingAuthorizationStatus:
+                    let hasPermission = await healthService.checkHasReadPermission(for: .stepCount)
+                    isStepCountAuthorized = hasPermission
+                    dataManager.reloadData()
+
+                default:
+                    dataManager.reloadData()
+            }
         }
     }
 }

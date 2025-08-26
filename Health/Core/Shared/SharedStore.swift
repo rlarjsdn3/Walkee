@@ -10,7 +10,7 @@ import Foundation
 enum SharedStore {
 	// NOTE: - 반드시 suiteID에 본인의 group.com.myWidgetSuiteName.walking으로 바꿔주세요.
 	// 앱그룹의 번들 아이디는 중복이 되면 아예 빌드가 안되는 문제도 있습니다.
-    static let suiteID = "group.com.kunwoo.walking"
+    static let suiteID = "group.com.seohyun2.walking"
 
 	private static var ud: UserDefaults {
 		guard let u = UserDefaults(suiteName: suiteID) else {
