@@ -21,6 +21,8 @@ final class EditStepGoalView: CoreView {
         }
     }
     
+    private var repeatTimer: Timer?
+    
     var step: Int = 500
     var minValue: Int = 500
     var maxValue: Int = 100_000
@@ -42,7 +44,7 @@ final class EditStepGoalView: CoreView {
         let l = UILabel()
         l.textAlignment = .center
         l.adjustsFontSizeToFitWidth = true
-        l.minimumScaleFactor = 0.5
+        l.font = UIFont.preferredFont(forTextStyle: .title1)
         l.numberOfLines = 1
         return l
     }()
@@ -141,6 +143,14 @@ final class EditStepGoalView: CoreView {
         
         minusButton.addTarget(self, action: #selector(decrease), for: .touchUpInside)
         plusButton.addTarget(self, action: #selector(increase), for: .touchUpInside)
+        
+        let minusLong = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
+        minusLong.minimumPressDuration = 0.4
+        let plusLong = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
+        plusLong.minimumPressDuration = 0.4
+
+        minusButton.addGestureRecognizer(minusLong)
+        plusButton.addGestureRecognizer(plusLong)
     }
     
     private func updateUI() {
@@ -154,6 +164,34 @@ final class EditStepGoalView: CoreView {
         self.minValue = min
         self.maxValue = max
         self.value = defaultValue
+    }
+    
+    @objc private func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
+        guard let button = gesture.view as? UIButton else { return }
+
+        switch gesture.state {
+        case .began:
+            repeatTimer?.invalidate()
+            let t = Timer.scheduledTimer(withTimeInterval: 0.15, repeats: true) { [weak self] _ in
+                guard let self = self else { return }
+                Task { @MainActor in
+                    if button == self.minusButton {
+                        self.decrease()
+                    } else if button == self.plusButton {
+                        self.increase()
+                    }
+                }
+            }
+            RunLoop.current.add(t, forMode: .common)
+            repeatTimer = t
+
+        case .ended, .cancelled, .failed:
+            repeatTimer?.invalidate()
+            repeatTimer = nil
+
+        default:
+            break
+        }
     }
     
     @objc private func decrease() {
