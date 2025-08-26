@@ -14,7 +14,7 @@ final class CourseInfoView: UIView {
         static let titleFont: UIFont = .preferredFont(forTextStyle: .headline)
         static let descriptionFont: UIFont = .preferredFont(forTextStyle: .body)
         static let titleColor: UIColor = .label
-        static let descritionColor: UIColor = .secondaryLabel
+        static let descriptionColor: UIColor = .secondaryLabel
         static let contentSpacing: CGFloat = 4
         static let sectionSpacing: CGFloat = 16
         static let margin: CGFloat = 8
@@ -101,7 +101,7 @@ final class CourseInfoView: UIView {
             string: content,
             attributes: [
                 .font: Constants.descriptionFont,
-                .foregroundColor: Constants.descritionColor,
+                .foregroundColor: Constants.descriptionColor,
                 .paragraphStyle: paragraphStyle
             ]
         )
