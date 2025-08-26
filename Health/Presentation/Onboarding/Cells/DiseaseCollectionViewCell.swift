@@ -40,11 +40,11 @@ class DiseaseCollectionViewCell: CoreCollectionViewCell {
         
         if isSelected {
             contentView.backgroundColor = .accent
-            diseaseLabel.textColor = .black
+            diseaseLabel.textColor = .systemBackground
             diseaseLabel.font = diseaseLabel.font.withBoldTrait()
         } else {
             contentView.backgroundColor = .boxBg
-            diseaseLabel.textColor = isDarkMode ? .white : UIColor(white: 0.2, alpha: 1)
+            diseaseLabel.textColor = isDarkMode ? .label : UIColor(white: 0.2, alpha: 1)
             diseaseLabel.font = diseaseLabel.font.withNormalTrait()
         }
     }

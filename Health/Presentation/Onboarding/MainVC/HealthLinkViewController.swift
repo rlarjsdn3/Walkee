@@ -200,15 +200,6 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
         UIApplication.shared.open(healthURL, options: [:])
     }
     
-    /*
-     
-    - 사용자가 건강 권한을 받는 시트에서 모두 비허용 시, “건강 권한 비허용 시, 앱 사용에 지장을 줄 수 있다”는 경고와 함께 1️⃣설정 화면으로 이동할지 2️⃣계속 온보딩을 진행할지 묻는 알림창 띄우는 로직으로 변경
-    
-    - 사용자가 아무런 데이터를 허용하지 않고, 다시 스위치를 Off → On으로 변경 시, “설정 화면으로 이동해서 허용해야 한다”는 알림과 함께 1️⃣설정 화면으로 이동할지 2️⃣계속 온보딩을 진행할지 묻는 알림창 띄우기
-     
-     - 기존로직과 혼동하지말것 ⚠️
-     */
-    
     private func requestHealthKitAuthorization() async {
         do {
             let granted = try await healthService.requestAuthorization()
@@ -219,20 +210,6 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
                 } else {
                     linkedSwitch.isOn = false
                     UserDefaultsWrapper.shared.healthkitLinked = false
-                  
-                    showAlert(
-                        "권한 설정",
-                        message: "건강앱 연동없이 앱 실행시, 일부기능이 제한될 수 있습니다. 건강 앱 화면으로 이동하시겠습니까?",
-                        primaryTitle: "열기",
-                        onPrimaryAction: { _ in
-                            // 오후 회의 이후 어느경로로 이동하는지 정하는거로
-//                            self.openAppSettings()
-                            self.openHealthApp()
-                        },
-                        cancelTitle: "취소",
-                        onCancelAction: { _ in
-                        }
-                    )
                 }
             }
         } catch {
@@ -252,8 +229,24 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
 
     
     @IBAction private func continueButtonTapped(_ sender: Any) {
+        if linkedSwitch.isOn {
             performSegue(withIdentifier: "goToGenderInfo", sender: nil)
+        } else {
+            showAlert(
+                "권한 설정",
+                message: "건강앱 연동 없이 앱 실행 시 일부 기능이 제한될 수 있습니다.\n건강 앱 화면으로 이동하시겠습니까?",
+                primaryTitle: "열기",
+                onPrimaryAction: { [weak self] _ in
+                    self?.openHealthApp()
+                },
+                cancelTitle: "계속",
+                onCancelAction: { [weak self] _ in
+                    self?.performSegue(withIdentifier: "goToGenderInfo", sender: nil)
+                }
+            )
+        }
     }
+
 
 
     @IBAction private func linkAction(_ sender: UISwitch) {
