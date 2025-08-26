@@ -97,8 +97,7 @@ final class CalendarDateCell: CoreCollectionViewCell {
         dateLabel.text = "\(date.day)"
 
         // 데이터 없음 처리
-        // 현재 걸음 수가 0이라면 테두리를 아예 그리지 않도록 합니다. (앱 최초 실행 시, 현재 걸음 수가 0인 임의의 데이터가 생성됩니다)
-        guard let current = currentSteps, current != 0, let goal = goalSteps else {
+        guard let current = currentSteps, let goal = goalSteps else {
             circleView.backgroundColor = UIColor.boxBg
             progressBar.isHidden = true
             updateBorderLayer()
