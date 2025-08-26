@@ -328,7 +328,7 @@ final class ChatbotViewController: CoreGradientViewController {
 		if traitCollection.userInterfaceStyle == .dark {
 			chattingInputStackView.layer.borderColor = UIColor.buttonText.cgColor
 			chattingInputStackView.layer.borderWidth = 1
-			chattingInputStackView.layer.shadowOpacity = 0  // 그림자 제거
+			chattingInputStackView.layer.shadowOpacity = 0
 		} else {
 			chattingInputStackView.layer.borderColor = UIColor.boxBgLightModeStroke.cgColor
 			BackgroundHeightUtils.setupShadow(for: chattingInputStackView)
@@ -371,8 +371,7 @@ final class ChatbotViewController: CoreGradientViewController {
 		tableView.register(BubbleViewCell.nib, forCellReuseIdentifier: BubbleViewCell.id)
 		tableView.register(AIResponseCell.nib, forCellReuseIdentifier: AIResponseCell.id)
 		tableView.register(LoadingResponseCell.self, forCellReuseIdentifier: LoadingResponseCell.id)
-		tableView.register(UITableViewCell.self, forCellReuseIdentifier: "SpacerCell")
-		
+		tableView.register(LoadingResponseCell.self, forCellReuseIdentifier: LoadingResponseCell.id)		
 		adjustTableInsets()
 	}
 
@@ -771,8 +770,8 @@ extension ChatbotViewController: UITableViewDataSource, UITableViewDelegate {
 			}
 			
 			let isStreamingRow = (streamingAIIndex == messageIndex)
-			//cell.configure(with: message.text)
-			// 🔹 재사용 시에도 seed만 (이미 appendText가 실시간 추가)
+			// cell.configure(with: message.text)
+			// 재사용 시에도 seed만 (이미 appendText가 실시간 추가)
 			cell.configure(with: message.text, isFinal: !isStreamingRow)
 			
 			cell.onContentGrew = { [weak self] in

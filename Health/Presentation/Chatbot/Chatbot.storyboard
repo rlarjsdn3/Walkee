@@ -18,7 +18,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="Sjn-mm-DvB">
-                                <rect key="frame" x="0.0" y="182" width="393" height="522"/>
+                                <rect key="frame" x="0.0" y="168" width="393" height="536"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <color key="sectionIndexBackgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <connections>
@@ -71,10 +71,10 @@
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </stackView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pb1-hy-Jgy" customClass="ChatbotHeaderTitleView" customModule="Health" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="118" width="393" height="64"/>
+                                <rect key="frame" x="0.0" y="118" width="393" height="50"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="64" id="uqz-Fr-Z5Y"/>
+                                    <constraint firstAttribute="height" constant="50" id="uqz-Fr-Z5Y"/>
                                 </constraints>
                             </view>
                         </subviews>
