@@ -43,6 +43,7 @@ final class DashboardViewModel {
     @AppStorage(\.healthkitLinked) var hasHealthKitLinked: Bool
 
     private let alanService = AlanViewModel()
+    @Injected private var dailyStepService: DailyStepViewModel
     @Injected private var goalStepService: GoalStepCountViewModel
     @Injected private var coreDataUserService: (any CoreDataUserService)
     @Injected private var healthService: (any HealthService)
@@ -430,8 +431,8 @@ extension DashboardViewModel {
     func fetchCoreDataUser() -> (age: Int, goalStep: Int) {
         // ⚠️ 사용자 및 목표 걸음 수가 제대로 등록되어 있으면 않으면 크래시
         let user = try! coreDataUserService.fetchUserInfo()
-        let goalStepCount = goalStepService.goalStepCount(for: anchorDate.endOfDay())!
-        return (Int(user.age), Int(goalStepCount))
+        let goalStepEntity = dailyStepService.fetchDailyStep(anchorDate)!
+        return (Int(user.age), Int(goalStepEntity.goalStepCount))
 
 //        return (27, 5000)
     }
