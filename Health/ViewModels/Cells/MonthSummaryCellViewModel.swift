@@ -39,6 +39,20 @@ final class MonthSummaryCellViewModel: ObservableObject {
                 self?.loadMonthlyData()
             }
             .store(in: &cancellables)
+
+        NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)
+            .sink { [weak self] _ in
+                let isLinked = UserDefaultsWrapper.shared.healthkitLinked
+
+                if isLinked {
+                    // 연동 ON
+                    self?.loadMonthlyData()
+                } else {
+                    // 연동 OFF
+                    self?.state = .denied
+                }
+            }
+            .store(in: &cancellables)
     }
 
     /// 월간 데이터 로드

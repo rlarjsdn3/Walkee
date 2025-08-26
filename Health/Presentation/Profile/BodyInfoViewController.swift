@@ -16,17 +16,18 @@ struct BodyInfoItem {
 }
 
 class BodyInfoViewController: HealthNavigationController, Alertable {
-    
+
     @IBOutlet weak var tableView: UITableView!
-    
+
     @Injected private var userVM: UserInfoViewModel
-    
+    @Injected private var userService: (any CoreDataUserService)
+
     private var currentUser: UserInfoEntity?
-    
+
     private var profileSheetHeightConstraint: NSLayoutConstraint?
     private weak var profileSheet: TSAlertController?
-    
-    
+
+
     private var items: [BodyInfoItem] = [
         .init(iconName: "figure.stand.dress.line.vertical.figure", title: "성별", detail: "-"),
         .init(iconName: "birthday.cake", title: "태어난 해", detail: "-"),
@@ -34,10 +35,10 @@ class BodyInfoViewController: HealthNavigationController, Alertable {
         .init(iconName: "ruler", title: "키", detail: "-"),
         .init(iconName: "cross", title: "지병", detail: "-")
     ]
-    
+
     override func setupAttribute() {
         super.setupAttribute()
-        
+
         healthNavigationBar.title = "신체 정보"
 
         applyBackgroundGradient(.midnightBlack)
@@ -46,10 +47,10 @@ class BodyInfoViewController: HealthNavigationController, Alertable {
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "bodyInfoCell")
         tableView.backgroundColor = .clear
         tableView.rowHeight = 68
-        
+
         fetchUserInfoAndSetupUI()
     }
-    
+
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
 
@@ -72,16 +73,16 @@ class BodyInfoViewController: HealthNavigationController, Alertable {
 
         alert.view.layoutIfNeeded()
     }
-    
+
     private func isPadLandscapeNow() -> Bool {
         let isPad = traitCollection.userInterfaceIdiom == .pad
         let iface = view.window?.windowScene?.interfaceOrientation
         return isPad && (iface?.isLandscape == true)
     }
-    
+
     private func updateDiseaseText(with diseases: [Disease]) {
         guard let diseaseIndex = items.firstIndex(where: { $0.title == "지병" }) else { return }
-        
+
         if diseases.isEmpty {
             items[diseaseIndex].detail = "-"
         } else if diseases.first == Disease.none {
@@ -90,7 +91,7 @@ class BodyInfoViewController: HealthNavigationController, Alertable {
             items[diseaseIndex].detail = "\(diseases.count)개"
         }
     }
-    
+
     private func fetchUserInfoAndSetupUI() {
         userVM.fetchUsers()
         currentUser = userVM.users.first
@@ -99,7 +100,7 @@ class BodyInfoViewController: HealthNavigationController, Alertable {
             if items.indices.contains(0) {
                 items[0].detail = genderText
             }
-            
+
             if items.indices.contains(1) {
                 let age = Int(u.age)
                 if age > 0 {
@@ -109,15 +110,15 @@ class BodyInfoViewController: HealthNavigationController, Alertable {
                     items[1].detail = "-"
                 }
             }
-            
+
             if items.indices.contains(2), u.weight > 0 {
                 items[2].detail = "\(Int(u.weight))kg"
             }
-            
+
             if items.indices.contains(3), u.height > 0 {
                 items[3].detail = "\(Int(u.height))cm"
             }
-            
+
             if items.indices.contains(4) {
                 if let diseases = u.diseases {
                     updateDiseaseText(with: diseases)
@@ -126,46 +127,46 @@ class BodyInfoViewController: HealthNavigationController, Alertable {
                 }
             }
         }
-        
+
         tableView.reloadData()
     }
-    
+
 }
 
 extension BodyInfoViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return items.count
     }
-    
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "bodyInfoCell", for: indexPath)
         let item = items[indexPath.row]
-        
+
         var content = cell.defaultContentConfiguration()
         content.image = UIImage(systemName: item.iconName)
         content.text = item.title
         content.textProperties.color = .systemGray
         content.imageProperties.tintColor = .systemGray
         cell.contentConfiguration = content
-        
+
         let detailLabel = UILabel()
         detailLabel.text = item.detail
         detailLabel.textColor = .label
         detailLabel.sizeToFit()
-        
+
         cell.accessoryView = detailLabel
         cell.selectionStyle = .none
         cell.backgroundColor = UIColor.buttonText.withAlphaComponent(0.1)
-        
+
         return cell
     }
 }
 
 extension BodyInfoViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
+
         let title = items[indexPath.row].title
-        
+
         switch title {
         case "성별":
             let currentGender: EditGenderView.Gender? = {
@@ -188,7 +189,7 @@ extension BodyInfoViewController: UITableViewDelegate {
                     guard let self,
                           let v = view as? EditGenderView,
                           let selected = v.selectedGender else { return }
-                    
+
                     let u = self.currentUser
                     self.userVM.saveUser(
                         age: u?.age ?? 0,
@@ -197,6 +198,20 @@ extension BodyInfoViewController: UITableViewDelegate {
                         weight: u?.weight ?? 0,
                         diseases: u?.diseases as? [Disease]
                     )
+                    Task {
+                        do {
+                            try await self.userService.updateUserInfo(
+                                age: Int(u?.age ?? 0),
+                                gender: selected.rawValue,
+                                height: u?.height ?? 0,
+                                weight: u?.weight ?? 0,
+                                diseases: u?.diseases
+                            )
+                            print("성별 저장 성공")
+                        } catch {
+                            print("성별 저장 실패: \(error)")
+                        }
+                    }
                     self.fetchUserInfoAndSetupUI()
                 }
             )
@@ -220,7 +235,7 @@ extension BodyInfoViewController: UITableViewDelegate {
 
                 return currentYear
             }()
-            
+
             showActionSheetForProfile(
                 buildView: {
                     let v = EditBirthdayView()
@@ -239,12 +254,27 @@ extension BodyInfoViewController: UITableViewDelegate {
                         weight: u?.weight ?? 0,
                         diseases: u?.diseases as? [Disease]
                     )
-                    
+
+                    Task {
+                        do {
+                            try await self.userService.updateUserInfo(
+                                age: age,
+                                gender: u?.gender,
+                                height: u?.height,
+                                weight: u?.weight,
+                                diseases: u?.diseases
+                            )
+                            print("나이 저장 성공")
+                        } catch {
+                            print("나이 저장 실패: \(error)")
+                        }
+                    }
+
                     if self.items.indices.contains(indexPath.row) {
                         // Core Data에서 나이를 다시 가져와서 태어난 년도 계산하여 detail에 설정
                         let context = CoreDataStack.shared.viewContext
                         let request: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
-                        
+
                         do {
                             if let userInfo = try context.fetch(request).first, userInfo.age > 0 {
                                 let birthYear = currentYear - Int(userInfo.age)
@@ -260,7 +290,7 @@ extension BodyInfoViewController: UITableViewDelegate {
                     self.fetchUserInfoAndSetupUI()
                 }
             )
-          
+
         case "체중":
             let userWeight = currentUser?.weight ?? 0
             let cellWeight: Int = {
@@ -269,7 +299,7 @@ extension BodyInfoViewController: UITableViewDelegate {
                 return Int(digits) ?? 70
             }()
             let defaultWeight = userWeight > 0 ? Int(userWeight) : cellWeight
-            
+
             showActionSheetForProfile(
                 buildView: {
                     let v = EditWeightView()
@@ -279,7 +309,7 @@ extension BodyInfoViewController: UITableViewDelegate {
                     guard let self, let v = view as? EditWeightView else { return }
                     let newWeight = v.selectedWeight
                     let u = self.currentUser
-                    
+
                     self.userVM.saveUser(
                         age: u?.age ?? 0,
                         gender: u?.gender ?? "",
@@ -287,15 +317,30 @@ extension BodyInfoViewController: UITableViewDelegate {
                         weight: Double(newWeight),
                         diseases: u?.diseases as? [Disease]
                     )
-                    
+
+                    Task {
+                        do {
+                            try await self.userService.updateUserInfo(
+                                age: Int(u?.age ?? 0),
+                                gender: u?.gender,
+                                height: u?.height,
+                                weight: Double(newWeight),
+                                diseases: u?.diseases
+                            )
+                            print("체중 저장 성공")
+                        } catch {
+                            print("체중 저장 실패: \(error)")
+                        }
+                    }
+
                     if self.items.indices.contains(indexPath.row) {
                         self.items[indexPath.row].detail = "\(Int(newWeight))kg"
-                        
+
                     }
                     self.fetchUserInfoAndSetupUI()
                 }
             )
-          
+
         case "키":
             let userHeight = currentUser?.height ?? 0
             let cellHeight: Int = {
@@ -304,7 +349,7 @@ extension BodyInfoViewController: UITableViewDelegate {
                 return Int(digits) ?? 170
             }()
             let defaultHeight = userHeight > 0 ? Int(userHeight) : cellHeight
-           
+
             showActionSheetForProfile(
                 buildView: {
                     let v = EditHeightView()
@@ -314,7 +359,7 @@ extension BodyInfoViewController: UITableViewDelegate {
                     guard let self, let v = view as? EditHeightView else { return }
                     let newHeight = v.selectedHeight
                     let u = self.currentUser
-                    
+
                     self.userVM.saveUser(
                         age: u?.age ?? 0,
                         gender: u?.gender ?? "",
@@ -322,18 +367,33 @@ extension BodyInfoViewController: UITableViewDelegate {
                         weight: u?.weight ?? 0,
                         diseases: u?.diseases as? [Disease]
                     )
-                    
+
+                    Task {
+                        do {
+                            try await self.userService.updateUserInfo(
+                                age: Int(u?.age ?? 0),
+                                gender: u?.gender,
+                                height: Double(newHeight),
+                                weight: u?.weight,
+                                diseases: u?.diseases
+                            )
+                            print("키 저장 성공")
+                        } catch {
+                            print("키 저장 실패: \(error)")
+                        }
+                    }
+
                     if self.items.indices.contains(indexPath.row) {
                         self.items[indexPath.row].detail = "\(Int(newHeight))cm"
                     }
                     self.fetchUserInfoAndSetupUI()
-                    
+
                 }
             )
         case "지병":
             showActionSheetForProfile(
                 buildView: {
-                let v = EditDiseaseView()
+                    let v = EditDiseaseView()
                     if let currentDisease = self.currentUser?.diseases as? [Disease] {
                         v.setSelectedDiseases(currentDisease)
                     }
@@ -343,11 +403,11 @@ extension BodyInfoViewController: UITableViewDelegate {
                 width: 800,
                 iPadLandscapeWidth: 700,
                 onConfirm: { [weak self] view in
-                guard let self, let v = view as? EditDiseaseView else { return }
-                    
+                    guard let self, let v = view as? EditDiseaseView else { return }
+
                     let selectedDiseases = v.getSelectedDiseases()
                     let u = self.currentUser
-                    
+
                     self.userVM.saveUser(
                         age: u?.age ?? 0,
                         gender: u?.gender ?? "",
@@ -355,10 +415,25 @@ extension BodyInfoViewController: UITableViewDelegate {
                         weight: u?.weight ?? 0,
                         diseases: selectedDiseases
                     )
-                    
+
+                    Task {
+                        do {
+                            try await self.userService.updateUserInfo(
+                                age: Int(u?.age ?? 0),
+                                gender: u?.gender,
+                                height: u?.height,
+                                weight: u?.weight,
+                                diseases: selectedDiseases
+                            )
+                            print("지병 저장 성공")
+                        } catch {
+                            print("지병 저장 실패: \(error)")
+                        }
+                    }
+
                     self.updateDiseaseText(with: selectedDiseases)
                     self.fetchUserInfoAndSetupUI()
-            }
+                }
             )
         default:
             break

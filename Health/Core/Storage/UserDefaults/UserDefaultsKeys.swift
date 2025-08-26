@@ -56,5 +56,12 @@ extension UserDefaultsKeys {
             defaultValue: nil
         )
     }
-	
+
+    /// 사용자 정보 변경 감지를 위한 해시값 저장
+    var lastUserInfoHash: UserDefaultsKey<String?> {
+        UserDefaultsKey<String?>(
+            "LastUserInfoHash",
+            defaultValue: nil
+        )
+    }
 }
