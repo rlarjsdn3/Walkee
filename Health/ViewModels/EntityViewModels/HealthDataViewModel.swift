@@ -32,7 +32,7 @@ final class HealthDataViewModel: ObservableObject {
         }
 
         // 기본 더미 데이터 (건강 데이터 없을 때)
-        var dailySteps = [10, 10, 10, 10, 10, 10, 10]        // 걸음수 배열
+        var dailySteps = [0, 0, 0, 0, 0, 0, 0]        // 걸음수 배열
         var dailyDistances = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]  // 거리 배열
 
         // 오늘부터 지난 6일까지 총 7일 데이터 가져오기

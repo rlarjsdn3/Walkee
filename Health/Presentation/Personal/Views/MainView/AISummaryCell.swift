@@ -10,17 +10,17 @@ import Combine
 
 class AISummaryCell: CoreCollectionViewCell {
 
+    @IBOutlet weak var chatbotView: UIImageView!
+    @IBOutlet weak var aiSummaryLabel: UILabel!
     @IBOutlet weak var summaryBackgroundView: UIView!
     @IBOutlet weak var backgroundHeight: NSLayoutConstraint!
     
     private let loadingIndicatorView = AlanLoadingIndicatorView()
     private var viewModel: AIMonthlySummaryCellViewModel?
     private var cancellables = Set<AnyCancellable>()
-    private let aiSummaryLabel = AISummaryLabel()
 
     override func awakeFromNib() {
         super.awakeFromNib()
-        setupAISummaryLabel()
         Task { @MainActor in
             setupLoadingIndicator()
         }
@@ -33,19 +33,6 @@ class AISummaryCell: CoreCollectionViewCell {
         BackgroundHeightUtils.setupDarkModeBorder(for: summaryBackgroundView)
     }
 
-    private func setupAISummaryLabel() {
-        summaryBackgroundView.addSubview(aiSummaryLabel)
-        aiSummaryLabel.translatesAutoresizingMaskIntoConstraints = false
-        aiSummaryLabel.isHidden = true
-
-        NSLayoutConstraint.activate([
-            aiSummaryLabel.topAnchor.constraint(equalTo: summaryBackgroundView.topAnchor, constant: 10),
-            aiSummaryLabel.leadingAnchor.constraint(equalTo: summaryBackgroundView.leadingAnchor, constant: 10),
-            aiSummaryLabel.trailingAnchor.constraint(equalTo: summaryBackgroundView.trailingAnchor, constant: -10),
-            aiSummaryLabel.bottomAnchor.constraint(equalTo: summaryBackgroundView.bottomAnchor, constant: 10)
-        ])
-    }
-
     private func setupLoadingIndicator() {
         summaryBackgroundView.addSubview(loadingIndicatorView)
         loadingIndicatorView.translatesAutoresizingMaskIntoConstraints = false
@@ -53,8 +40,8 @@ class AISummaryCell: CoreCollectionViewCell {
         NSLayoutConstraint.activate([
             loadingIndicatorView.centerXAnchor.constraint(equalTo: summaryBackgroundView.centerXAnchor),
             loadingIndicatorView.centerYAnchor.constraint(equalTo: summaryBackgroundView.centerYAnchor),
-            loadingIndicatorView.leadingAnchor.constraint(greaterThanOrEqualTo: summaryBackgroundView.leadingAnchor, constant: 0),
-            loadingIndicatorView.trailingAnchor.constraint(lessThanOrEqualTo: summaryBackgroundView.trailingAnchor, constant: 0)
+            loadingIndicatorView.leadingAnchor.constraint(greaterThanOrEqualTo: summaryBackgroundView.leadingAnchor, constant: 16),
+            loadingIndicatorView.trailingAnchor.constraint(lessThanOrEqualTo: summaryBackgroundView.trailingAnchor, constant: -16)
         ])
     }
     
@@ -100,27 +87,32 @@ class AISummaryCell: CoreCollectionViewCell {
             aiSummaryLabel.isHidden = true
             loadingIndicatorView.isHidden = false
             loadingIndicatorView.setState(.loading)
-            
+            chatbotView.isHidden = true
+
         case .loading:
             aiSummaryLabel.isHidden = true
             loadingIndicatorView.isHidden = false
             loadingIndicatorView.setState(.loading)
-            
+            chatbotView.isHidden = true
+
         case .success(let content):
-            loadingIndicatorView.setState(.success) // 이게 인디케이터를 숨김
+            loadingIndicatorView.setState(.success)
             aiSummaryLabel.isHidden = false
             aiSummaryLabel.text = content.message
-            
+            chatbotView.isHidden = false
+
         case .failure(let error):
             aiSummaryLabel.isHidden = true
             loadingIndicatorView.isHidden = false
             loadingIndicatorView.setState(.failed)
-            
+            chatbotView.isHidden = true
+
         case .denied:
             aiSummaryLabel.isHidden = true
             aiSummaryLabel.text = nil
             loadingIndicatorView.isHidden = false
             loadingIndicatorView.setState(.denied)
+            chatbotView.isHidden = true
         }
     }
     

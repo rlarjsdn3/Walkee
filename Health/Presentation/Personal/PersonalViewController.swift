@@ -453,7 +453,7 @@ class PersonalViewController: HealthNavigationController, Alertable, ScrollableT
         currentSortType = sortType
 
         switch sortType {
-        case "가까운순":
+        case "가까운 순":
             //가까운순 정렬: 사용자위치와 추천코스와의 거리가 짧은 순서대로 정렬
             courses = courses.sorted { course1, course2 in
                 let distance1 = distanceViewModel.getCachedDistance(for: course1.gpxpath) ?? "0km"
@@ -462,7 +462,7 @@ class PersonalViewController: HealthNavigationController, Alertable, ScrollableT
                 return distance1.localizedStandardCompare(distance2) == .orderedAscending
             }
 
-        case "코스길이순":
+        case "코스 길이 순":
             // 코스길이순: 짧은 거리부터 긴 거리 순으로 정렬
             courses = courses.sorted { course1, course2 in
                 let distance1 = Int(course1.crsDstnc) ?? 0

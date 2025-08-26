@@ -124,7 +124,7 @@ extension PersonalContent.Section {
         if isPad && isLandscape {
             // iPad 가로: 3개
             itemsPerRow = 3
-            interItemSpacing = 16
+            interItemSpacing = 10
         } else if isPad {
             // iPad 세로: 2개
             itemsPerRow = 2
@@ -132,7 +132,7 @@ extension PersonalContent.Section {
         } else {
             // iPhone: 1개
             itemsPerRow = 1
-            interItemSpacing = 0
+            interItemSpacing = 10
         }
 
         let totalSpacing = horizontalInset * 2 + interItemSpacing * (itemsPerRow - 1)
@@ -178,29 +178,6 @@ extension PersonalContent.Section {
         return section
     }
 
-//    private func buildHeaderLayout(_ environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
-//        let itemSize = NSCollectionLayoutSize(
-//            widthDimension: .fractionalWidth(1.0),
-//            heightDimension: .estimated(80)
-//        )
-//        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-//
-//        let groupSize = NSCollectionLayoutSize(
-//            widthDimension: .fractionalWidth(1.0),
-//            heightDimension: .estimated(80)
-//        )
-//        let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
-//
-//        let section = NSCollectionLayoutSection(group: group)
-//        section.contentInsets = NSDirectionalEdgeInsets(
-//            top: 0,
-//            leading: UICollectionViewConstant.defaultInset,
-//            bottom: 0,
-//            trailing: 0
-//        )
-//        return section
-//    }
-
     //필터 버튼 레이아웃
     private func buildFilterLayout(_ environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
 
@@ -245,11 +222,11 @@ extension PersonalContent.Section {
         if isPad {
             if isLandscape {
                 columnsCount = 3     // iPad 가로: 2열
-                horizontalSpacing = 16
+                horizontalSpacing = 10
 
             } else {
                 columnsCount = 2     // iPad 세로: 2열
-                horizontalSpacing = 16
+                horizontalSpacing = 10
 
             }
         } else {
@@ -289,11 +266,11 @@ extension PersonalContent.Section {
         }
 
         let section = NSCollectionLayoutSection(group: group)
-        section.interGroupSpacing = 12  // 각 그룹(행) 사이의 간격
+        section.interGroupSpacing = UICollectionViewConstant.defaultItemInset  // 각 그룹(행) 사이의 간격
         section.contentInsets = NSDirectionalEdgeInsets(
             top: -10,
             leading: UICollectionViewConstant.defaultInset,
-            bottom: 20,
+            bottom: 40,
             trailing: UICollectionViewConstant.defaultInset
         )
         return section
@@ -302,7 +279,7 @@ extension PersonalContent.Section {
     private func buildLoadingLayout(_ environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(200) // 충분한 높이
+            heightDimension: .estimated(200)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
 

@@ -75,10 +75,19 @@ class WalkingLoadingView: UIView {
             print("   → 실패 상태로 변경")
             activityIndicator.stopAnimating()
             activityIndicator.isHidden = true
-            errorImageView.isHidden = false
-            errorImageView.image = UIImage(systemName: "exclamationmark.circle.fill")
-            errorImageView.tintColor = .systemRed
-            messageLabel.text = "불러오지 못했습니다"
+            errorImageView.isHidden = true // 스택뷰의 이미지는 숨김
+
+            let warningIcon = UIImage(systemName: "exclamationmark.circle.fill")?.withTintColor(.systemRed, renderingMode: .alwaysOriginal)
+
+            let attachment = NSTextAttachment()
+            attachment.image = warningIcon
+            attachment.bounds = CGRect(x: 0, y: -2, width: 16, height: 16)
+
+            let attributedString = NSMutableAttributedString()
+            attributedString.append(NSAttributedString(attachment: attachment))
+            attributedString.append(NSAttributedString(string: " 불러오지 못했습니다.\n쉬운 코스를 기본으로 보여드릴게요."))
+
+            messageLabel.attributedText = attributedString
 
         case .networkError:
             print("   → 네트워크 오류 상태로 변경")
