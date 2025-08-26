@@ -431,10 +431,9 @@ extension DashboardViewModel {
     func fetchCoreDataUser() -> (age: Int, goalStep: Int) {
         // ⚠️ 사용자 및 목표 걸음 수가 제대로 등록되어 있으면 않으면 크래시
         let user = try! coreDataUserService.fetchUserInfo()
-        let goalStepEntity = dailyStepService.fetchDailyStep(anchorDate)
-        print(goalStepEntity, "걸음 수 ------------------------------")
+        let goalStep = dailyStepService.fetchDailyStep(anchorDate)
         
-        return (Int(user.age), Int(goalStepEntity?.goalStepCount ?? 999))
+        return (Int(user.age), Int(goalStep?.goalStepCount ?? 1_000))
 
 //        return (27, 5000)
     }
