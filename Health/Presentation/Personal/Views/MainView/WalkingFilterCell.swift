@@ -43,8 +43,8 @@ class WalkingFilterCell: CoreCollectionViewCell {
 
         // 메뉴에 맞춰 액션을 생성.
         let actions = [
-            UIAction(title: "코스길이순", handler: actionHandler),
-            UIAction(title: "가까운순", handler: actionHandler)
+            UIAction(title: "코스 길이 순", handler: actionHandler),
+            UIAction(title: "가까운 순", handler: actionHandler)
         ]
 
         // 액션들로 메뉴를 생성.

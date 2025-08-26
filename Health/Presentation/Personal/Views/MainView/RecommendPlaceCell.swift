@@ -26,7 +26,6 @@ class RecommendPlaceCell: CoreCollectionViewCell {
     @IBOutlet weak var levelLabel: UILabel!
     @IBOutlet weak var levelImage: UIImageView!
     @IBOutlet weak var infoButton: InfoDetailButton!
-    @IBOutlet weak var userBackgroundView: UIView!
 
     private var currentGPXURL: String?
     private var thumbnailTask: Task<Void, Never>?
@@ -45,7 +44,6 @@ class RecommendPlaceCell: CoreCollectionViewCell {
         BackgroundHeightUtils.setupShadow(for: self)
         BackgroundHeightUtils.setupDarkModeBorder(for: placeBackground)
         placeBackground.applyCornerStyle(.medium)
-        userBackgroundView.applyCornerStyle(.medium)
     }
 
     override func prepareForReuse() {
@@ -102,7 +100,10 @@ class RecommendPlaceCell: CoreCollectionViewCell {
                 hideSkeletonView()
             } else {
                 courseImage.image = nil
-                showSkeletonView()
+                courseImage.image = UIImage(systemName: "mappin.slash.circle")
+                courseImage.tintColor = .systemGray3
+                courseImage.contentMode = .scaleAspectFit
+                hideSkeletonView()
             }
         }
     }
