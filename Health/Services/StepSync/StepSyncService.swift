@@ -40,8 +40,23 @@ final class DefaultStepSyncService: StepSyncService {
                 unit: .count()
             )
 
+            let count = countDailyStep()
+            
             // Core Data에 데이터 저장 (백그라운드 스레드에서 실행)
             try await CoreDataStack.shared.performBackgroundTask { context in
+                // 앱 최초 실행 시(걸음 수 데이터가 없으면), 대시보드에 목표 걸음 수를 보여주기 위해 임의의 데이터를 삽입합니다.
+                if statistics.isEmpty && count == 0 {
+                    let startOfDay = startDate.startOfDay()
+
+                    let dailyStepEntity = DailyStepEntity(context: context)
+                    dailyStepEntity.id = UUID()
+                    dailyStepEntity.date = startOfDay
+                    dailyStepEntity.stepCount = Int32(0)
+
+                    let goalStepEntity = try self.fetchLatestGoalStep(on: startOfDay, in: context)
+                    dailyStepEntity.goalStepCount = goalStepEntity.goalStepCount
+                }
+
                 for daily in statistics {
                     try self.upsertDailyStep(
                         date: daily.startDate,
@@ -66,6 +81,11 @@ final class DefaultStepSyncService: StepSyncService {
 }
 
 private extension DefaultStepSyncService {
+
+    func countDailyStep() -> Int {
+        let request = DailyStepEntity.fetchRequest()
+        return (try? CoreDataStack.shared.viewContext.count(for: request)) ?? 0
+    }
 
     /// 가장 이른 목표 걸음 수 설정 날짜를 조회합니다.
     ///
