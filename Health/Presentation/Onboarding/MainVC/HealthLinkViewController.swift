@@ -15,6 +15,8 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
     @IBOutlet weak var healthAppIcon: UIImageView!
     @IBOutlet weak var linkedSwitch: UISwitch!
     @IBOutlet weak var supUserDescriptionLabel: UILabel!
+    @IBOutlet weak var descriptionTopConst: NSLayoutConstraint!
+    
     @IBOutlet weak var linkSettingView: UIView!
     @IBOutlet weak var linkSettingHeight: NSLayoutConstraint!
     
@@ -31,10 +33,10 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
     
     private var iPadWidthConstraint: NSLayoutConstraint?
     private var iPadCenterXConstraint: NSLayoutConstraint?
-    
     private var iPadLinkWidthConstraint: NSLayoutConstraint?
     private var iPadLinkCenterXConstraint: NSLayoutConstraint?
     
+    private var originalDescriptionTop: CGFloat = 0
     private var originalLinkHeight: CGFloat = 0
     private var originalAppleLogoLeading: CGFloat = 0
     private var originalLinkSwitchTrailing: CGFloat = 0
@@ -44,7 +46,7 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
     override func viewDidLoad() {
         super.viewDidLoad()
         applyBackgroundGradient(.midnightBlack)
-        
+        originalDescriptionTop = descriptionTopConst.constant
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(handleAppWillEnterForeground),
                                                name: UIApplication.willEnterForegroundNotification,
@@ -71,13 +73,14 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
             }
         }
         
+        
         continueButton.configuration = config
         continueButton.applyCornerStyle(.medium)
         continueButton.addTarget(self, action: #selector(continueButtonTapped(_:)), for: .touchUpInside)
         
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
         
-        healthAppIcon.image = UIImage(systemName: "heart.fill")
+        healthAppIcon.image = UIImage(named: "HealthAppIcon")
         appleLogo.image = UIImage(systemName: "applelogo")
         
         originalLinkHeight = linkSettingHeight.constant
@@ -86,6 +89,11 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
         
         setupAttribute()
         checkHealthKitPermissionStatus()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: false)
     }
     
     override func viewWillLayoutSubviews() {
@@ -137,6 +145,8 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
             
             linkSettingView.applyCornerStyle(.medium)
         }
+        
+        updateDescriptionTopConstraint()
     }
     
     deinit {
@@ -153,6 +163,21 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
     
     @objc private func handleAppWillEnterForeground() {
         checkHealthKitPermissionStatus()
+    }
+    
+    private func updateDescriptionTopConstraint() {
+        // iPad 여부
+        let isIpad = traitCollection.horizontalSizeClass == .regular &&
+                     traitCollection.verticalSizeClass == .regular
+        let isLandscape = view.bounds.width > view.bounds.height
+
+        if isIpad {
+            // 아이패드 고정값 지정
+            descriptionTopConst.constant = isLandscape ? 28 : 80
+        } else {
+            // 아이폰은 세로모드만 사용 → 스토리보드 제약 그대로 사용
+            descriptionTopConst.constant = originalDescriptionTop
+        }
     }
     
     private func checkHealthKitPermissionStatus() {
@@ -175,15 +200,6 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
         UIApplication.shared.open(healthURL, options: [:])
     }
     
-    /*
-     
-    - 사용자가 건강 권한을 받는 시트에서 모두 비허용 시, “건강 권한 비허용 시, 앱 사용에 지장을 줄 수 있다”는 경고와 함께 1️⃣설정 화면으로 이동할지 2️⃣계속 온보딩을 진행할지 묻는 알림창 띄우는 로직으로 변경
-    
-    - 사용자가 아무런 데이터를 허용하지 않고, 다시 스위치를 Off → On으로 변경 시, “설정 화면으로 이동해서 허용해야 한다”는 알림과 함께 1️⃣설정 화면으로 이동할지 2️⃣계속 온보딩을 진행할지 묻는 알림창 띄우기
-     
-     - 기존로직과 혼동하지말것 ⚠️
-     */
-    
     private func requestHealthKitAuthorization() async {
         do {
             let granted = try await healthService.requestAuthorization()
@@ -194,20 +210,6 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
                 } else {
                     linkedSwitch.isOn = false
                     UserDefaultsWrapper.shared.healthkitLinked = false
-                  
-                    showAlert(
-                        "권한 설정",
-                        message: "건강앱 연동없이 앱 실행시, 일부기능이 제한될 수 있습니다. 건강 앱 화면으로 이동하시겠습니까?",
-                        primaryTitle: "열기",
-                        onPrimaryAction: { _ in
-                            // 오후 회의 이후 어느경로로 이동하는지 정하는거로
-//                            self.openAppSettings()
-                            self.openHealthApp()
-                        },
-                        cancelTitle: "취소",
-                        onCancelAction: { _ in
-                        }
-                    )
                 }
             }
         } catch {
@@ -227,8 +229,24 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
 
     
     @IBAction private func continueButtonTapped(_ sender: Any) {
+        if linkedSwitch.isOn {
             performSegue(withIdentifier: "goToGenderInfo", sender: nil)
+        } else {
+            showAlert(
+                "권한 설정",
+                message: "건강앱 연동 없이 앱 실행 시 일부 기능이 제한될 수 있습니다.\n건강 앱 화면으로 이동하시겠습니까?",
+                primaryTitle: "열기",
+                onPrimaryAction: { [weak self] _ in
+                    self?.openHealthApp()
+                },
+                cancelTitle: "계속",
+                onCancelAction: { [weak self] _ in
+                    self?.performSegue(withIdentifier: "goToGenderInfo", sender: nil)
+                }
+            )
+        }
     }
+
 
 
     @IBAction private func linkAction(_ sender: UISwitch) {
