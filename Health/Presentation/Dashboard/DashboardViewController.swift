@@ -99,6 +99,7 @@ final class DashboardViewController: HealthNavigationController, Alertable, Scro
             bottom: 24, right: .zero
         )
         dashboardCollectionView.refreshControl = refreshControl
+        dashboardCollectionView.showsVerticalScrollIndicator = false
     }
 
     private func registerNotification() {
@@ -124,7 +125,6 @@ final class DashboardViewController: HealthNavigationController, Alertable, Scro
     }
 
     @objc private func refreshHKData() {
-
         viewModel.loadHKData(includeAI: true, updateAnchorDate: true)
 		viewModel.updateWidgetSnapshot()
         Task.delay(for: 1.0) { @MainActor in refreshControl.endRefreshing() }
@@ -418,14 +418,26 @@ fileprivate extension DashboardViewController {
             context.cgContext.translateBy(x: -rect.origin.x, y: -rect.origin.y)
 
             let topColor = UIColor { traitCollection in
-                traitCollection.userInterfaceStyle == .dark
-                ? UIColor(hex: "292A3D").withAlphaComponent(0.9)
-                : UIColor.systemBackground
+                if DisplayModeView.loadSavedTheme() == .system {
+                    traitCollection.userInterfaceStyle == .dark
+                    ? UIColor(hex: "292A3D").withAlphaComponent(0.9)
+                    : UIColor.white
+                } else {
+                    DisplayModeView.loadSavedTheme() == .dark
+                    ? UIColor(hex: "292A3D").withAlphaComponent(0.9)
+                    : UIColor.white
+                }
             }.cgColor
             let bottomColor = UIColor { traitCollection in
-                traitCollection.userInterfaceStyle == .dark
-                ? UIColor(hex: "000000").withAlphaComponent(0.9)
-                : UIColor.systemBackground
+                if DisplayModeView.loadSavedTheme() == .system {
+                    traitCollection.userInterfaceStyle == .dark
+                    ? UIColor(hex: "000000").withAlphaComponent(0.9)
+                    : UIColor.white
+                } else {
+                    DisplayModeView.loadSavedTheme() == .dark
+                    ? UIColor(hex: "000000").withAlphaComponent(0.9)
+                    : UIColor.white
+                }
             }.cgColor
 
             let colorSpace = CGColorSpaceCreateDeviceRGB()
