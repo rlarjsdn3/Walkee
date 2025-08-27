@@ -22,7 +22,16 @@ class CourseDistanceViewModel {
     var onCacheNeedsRefresh: (() -> Void)?
 
     // 거리 계산을 준비하는 메서드
-    func prepareAndCalculateDistances(for courses: [WalkingCourse]) async {
+    func prepareAndCalculateDistances(for courses: [WalkingCourse], isNetworkAvailable: Bool = true) async {
+
+        guard isNetworkAvailable else {
+               for course in courses {
+                   courseDistances[course.gpxpath] = "네트워크 오류"
+                   onDistanceUpdated?(course.gpxpath, "네트워크 오류")
+               }
+               return
+           }
+
         // 권한 확인
         guard locationService.checkCurrentPermissionStatus() else {
 

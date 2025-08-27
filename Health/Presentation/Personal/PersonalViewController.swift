@@ -166,7 +166,12 @@ class PersonalViewController: HealthNavigationController, Alertable, ScrollableT
             // 기본 설정
             cell.configure(with: course, isNetworkAvailable: self?.isNetworkConnected ?? true)
 
-            //뷰모델에서 캐시된 거리 확인 후 설정
+            guard let isConnected = self?.isNetworkConnected, isConnected else {
+                cell.updateDistance("네트워크 오류")
+                return
+            }
+
+            // 네트워크가 있을 때만 캐시된 거리 확인 후 설정
             if let distanceText = self?.distanceViewModel.getCachedDistance(for: course.gpxpath) {
                 // 이미 계산된 결과가 있으면 바로 표시 (에러 메시지 포함)
                 cell.updateDistance(distanceText)
@@ -330,7 +335,7 @@ class PersonalViewController: HealthNavigationController, Alertable, ScrollableT
         }
 
         Task {
-            await distanceViewModel.prepareAndCalculateDistances(for: self.courses)
+            await distanceViewModel.prepareAndCalculateDistances(for: self.courses, isNetworkAvailable: isNetworkConnected)
         }
     }
 
@@ -472,7 +477,7 @@ class PersonalViewController: HealthNavigationController, Alertable, ScrollableT
     private func startNetworkMonitoring() {
         networkMonitor.pathUpdateHandler = { [weak self] path in
             Task { @MainActor in
-                self?.isNetworkConnected = (path.status == .satisfied)  // 이 줄 추가
+                self?.isNetworkConnected = (path.status == .satisfied)
             }
 
             if path.status == .satisfied {
@@ -562,7 +567,7 @@ class PersonalViewController: HealthNavigationController, Alertable, ScrollableT
 }
 
 extension PersonalViewController: @preconcurrency RecommendPlaceCellDelegate {
-    
+
     func didTapInfoButton(for course: WalkingCourse) {
 
         showCourseInfoSheet(for: course)
