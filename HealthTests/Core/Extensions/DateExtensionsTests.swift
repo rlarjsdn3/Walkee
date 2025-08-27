@@ -117,7 +117,7 @@ final class DateExtensionsTests: XCTestCase {
     
     func testNextDate() {
         let date = calendar.date(from: DateComponents(year: 2025, month: 8, day: 27))!
-        let nextMonday = date.next(DateComponents(weekday: 2), direciton: .forward)!
+        let nextMonday = date.next(DateComponents(weekday: 2), direction: .forward)!
         XCTAssertEqual(calendar.component(.weekday, from: nextMonday), 2)
     }
 }

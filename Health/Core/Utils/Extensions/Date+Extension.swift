@@ -225,14 +225,14 @@ extension Date {
     /// - Returns: 구성 요소와 일치하는 다음 날짜. 계산에 실패한 경우 nil을 반환할 수 있습니다.
     func next(
         _ components: DateComponents,
-        direciton: Calendar.SearchDirection = .backward
+        direction: Calendar.SearchDirection = .backward
     ) -> Date? {
         calendar.nextDate(
             after: self,
             matching: components,
             matchingPolicy: .nextTime,
             repeatedTimePolicy: .first,
-            direction: direciton
+            direction: direction
         )
     }
 }
