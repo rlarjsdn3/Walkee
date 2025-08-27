@@ -8,7 +8,7 @@
 import UIKit
 import Network
 import os
-/// Alan ai 활용한 챗봇 화면 컨트롤러.
+
 
 private extension Duration {
 	var milliseconds: Double {
@@ -16,7 +16,7 @@ private extension Duration {
 		return Double(s) * 1000.0 + Double(attos) / 1e15
 	}
 }
-
+/// Alan ai 활용한 챗봇 화면 컨트롤러.
 @MainActor
 final class ChatbotViewController: CoreGradientViewController {
 	// MARK: - Outlets & Dependencies

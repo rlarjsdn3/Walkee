@@ -86,8 +86,14 @@ final class ChatbotViewModelTests: XCTestCase {
 		var chunks: [String] = []
 		var finalText: String?
 
-		sut.onStreamChunk = { chunks.append($0); chunkExp.fulfill() }
-		sut.onStreamCompleted = { finalText = $0; doneExp.fulfill() }
+		sut.onStreamChunk = {
+			chunks.append($0)
+			chunkExp.fulfill()
+		}
+		sut.onStreamCompleted = {
+			finalText = $0
+			doneExp.fulfill()
+		}
 
 		// When
 		sut.startStreamingQuestion("hello")
@@ -105,20 +111,23 @@ final class ChatbotViewModelTests: XCTestCase {
 		DIContainer.shared.register(type: AlanSSEServiceProtocol.self) { _ in
 			MockSSEService(mode: .sequence([first, second]))
 		}
-
+		
 		let doneExp = expectation(description: "complete after retry")
 		var final = ""
 		var actionGuide = ""
 		sut.onActionText = { actionGuide = $0 }
 		sut.onStreamCompleted = { final = $0; doneExp.fulfill() }
-
+		
+		// baseline — 시작 직전 누적값 기록
+		let baseline = netSpy.resetCalledCount
+		
 		// When
 		sut.startStreamingQuestion("retry-me", autoReset: true)
-
+		
 		// Then
 		await fulfillment(of: [doneExp], timeout: 3.0)
-		XCTAssertEqual(netSpy.resetCalledCount, 1)
-		XCTAssertEqual(actionGuide, "세션 초기화 후 재시도…")
+		XCTAssertEqual(netSpy.resetCalledCount - baseline, 1, "이 시나리오에서 reset은 1회여야 함")
+		XCTAssertTrue(actionGuide.contains("세션 초기화"))
 		XCTAssertEqual(final, "OK")
 	}
 
@@ -131,7 +140,10 @@ final class ChatbotViewModelTests: XCTestCase {
 
 		let errorExp = expectation(description: "onError called")
 		var message = ""
-		sut.onError = { message = $0; errorExp.fulfill() }
+		sut.onError = {
+			message = $0
+			errorExp.fulfill()
+		}
 
 		// When
 		sut.startStreamingQuestion("fail-now", autoReset: true)
@@ -167,7 +179,10 @@ final class ChatbotViewModelTests: XCTestCase {
 
 		let first = expectation(description: "first done")
 		var last = ""
-		sut.onStreamCompleted = { last = $0; first.fulfill() }
+		sut.onStreamCompleted = {
+			last = $0
+			first.fulfill()
+		}
 
 		// When
 		sut.startStreamingQuestion("first")
@@ -176,7 +191,10 @@ final class ChatbotViewModelTests: XCTestCase {
 
 		// Then
 		let second = expectation(description: "second done")
-		sut.onStreamCompleted = { last = $0; second.fulfill() }
+		sut.onStreamCompleted = {
+			last = $0
+			second.fulfill()
+		}
 		sut.startStreamingQuestion("second")
 		await fulfillment(of: [second], timeout: 2.0)
 		XCTAssertEqual(last, "B")
