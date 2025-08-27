@@ -13,34 +13,58 @@ final class ChatbotViewModelTests: XCTestCase {
 
 	private var sut: ChatbotViewModel!
 	private var netSpy: ResetCountingNetworkService!
-
+	/// 이 테스트에서 오버라이드한 의존성만 복원하는 클로저들
+	private var restoreClosures: [() -> Void] = []
+	
 	override func setUp() {
 		super.setUp()
-		DIContainer.shared.removeAllDependencies()
-		registerChatbotDeps()
+		restoreClosures = []
+		
+		// 1) 의존성 스코프 오버라이드 (원래 바인딩 저장 → 테스트용으로 덮어쓰기)
+		let appMock = MockNetworkService()
+		netSpy = ResetCountingNetworkService(wrapping: appMock)
+		overrideDep(NetworkService.self, with: netSpy)
+		overrideDep(PromptBuilderService.self, with: MockPromptBuilderService())
+		overrideDep(AlanSSEServiceProtocol.self, with: MockSSEService(mode: .yield([])))
+		overrideDep(HealthService.self, with: TestHealthService())
+		
+		// 2) 등록 누락 방지 프리플라이트
+		preflightResolve()
+		
+		// 3) SUT 생성 (등록 이후)
 		sut = ChatbotViewModel()
 	}
-
+	
 	override func tearDown() {
+		for restore in restoreClosures.reversed() { restore() }
+		restoreClosures.removeAll()
 		sut = nil
 		netSpy = nil
-		DIContainer.shared.removeAllDependencies()
 		super.tearDown()
 	}
 	
-	private func registerChatbotDeps() {
-		// NetworkService: 앱의 MockNetworkService(로컬 JSON 로더)를 감싼 Spy
-		let appMock = MockNetworkService()
-		netSpy = ResetCountingNetworkService(wrapping: appMock)
-		DIContainer.shared.register(type: NetworkService.self) { _ in self.netSpy }
+	
+	private func preflightResolve() {
+		XCTAssertNotNil(try? DIContainer.shared.resolve(.by(type: NetworkService.self)))
+		XCTAssertNotNil(try? DIContainer.shared.resolve(.by(type: PromptBuilderService.self)))
+		XCTAssertNotNil(try? DIContainer.shared.resolve(.by(type: AlanSSEServiceProtocol.self)))
+		XCTAssertNotNil(try? DIContainer.shared.resolve(.by(type: HealthService.self)))
+	}
+	
+	/// 타입별로 기존 바인딩을 저장해 두고, 테스트용 인스턴스
+	private func overrideDep<T>(_ type: T.Type, with instance: T) {
+		let id = InjectIdentifier.by(type: T.self)
+		let previous: T? = try? DIContainer.shared.resolve(id)
 		
-		// PromptBuilderService (프로토콜 시그니처 일치하는 목) - HealthService와 같은 PromptBuildService 사용
-		DIContainer.shared.register(type: PromptBuilderService.self) { _ in MockPromptBuilderService() }
+		// 덮어쓰기
+		DIContainer.shared.register(type: T.self) { _ in instance }
 		
-		DIContainer.shared.register(type: HealthService.self) { _ in TestHealthService() }
-		
-		// AlanSSEServiceProtocol (기본은 빈 스트림; 각 테스트에서 재등록해 시나리오 주입)
-		DIContainer.shared.register(type: AlanSSEServiceProtocol.self) { _ in MockSSEService(mode: .yield([])) }
+		// 복원 클로저 등록
+		restoreClosures.append {
+			if let prev = previous {
+				DIContainer.shared.register(type: T.self) { _ in prev }
+			}
+		}
 	}
 
 	func testStartStreamingQuestion_WhenContinueThenComplete_ThenEmitsChunksAndFinalOnce() async {
