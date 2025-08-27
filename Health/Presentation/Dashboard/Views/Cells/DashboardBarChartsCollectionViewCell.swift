@@ -38,9 +38,9 @@ final class DashboardBarChartsCollectionViewCell: CoreCollectionViewCell {
         chartsContainerView.layer.masksToBounds = false
         chartsContainerView.layer.borderColor = UIColor.boxBgLightModeStroke.cgColor
         chartsContainerView.layer.shadowColor = UIColor.black.cgColor
-        chartsContainerView.layer.shadowOpacity = 0.15
+        chartsContainerView.layer.shadowOpacity = 0.05
         chartsContainerView.layer.shadowOffset = CGSize(width: 2, height: 2)
-        chartsContainerView.layer.shadowRadius = 5
+        chartsContainerView.layer.shadowRadius = 4
         chartsContainerView.layer.borderWidth = borderWidth
 
         averageTitleLabel.font = .systemFont(ofSize: 13, weight: .semibold)

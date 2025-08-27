@@ -54,9 +54,9 @@ final class HealthInfoStackCollectionViewCell: CoreCollectionViewCell {
         self.layer.masksToBounds = false
         self.layer.borderColor = UIColor.boxBgLightModeStroke.cgColor
         self.layer.shadowColor = UIColor.black.cgColor
-        self.layer.shadowOpacity = 0.15
+        self.layer.shadowOpacity = 0.05
         self.layer.shadowOffset = CGSize(width: 2, height: 2)
-        self.layer.shadowRadius = 5
+        self.layer.shadowRadius = 4
         self.layer.borderWidth = borderWidth
 
         symbolContainerView.backgroundColor = .systemGray5
@@ -95,7 +95,6 @@ extension HealthInfoStackCollectionViewCell {
             .store(in: &cancellable)
     }
 
-    // TODO: - 상태 코드 별로 함수로 나누는 리팩토링하기
     private func render(_ new: LoadState<InfoStackContent>, parent: UIViewController?) {
         titleLabel.text = viewModel.itemID.kind.title
         unitLabel.text = viewModel.itemID.kind.unitString
