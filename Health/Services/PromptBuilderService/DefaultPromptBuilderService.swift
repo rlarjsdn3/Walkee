@@ -71,6 +71,7 @@ final class DefaultPromptBuilderService: PromptBuilderService {
 
         var prompt = promptTemplateRenderService.render(with: ctx, option: option)
         prompt.append(extraInstructions ?? "")
+        print("생성된 프롬프트:", prompt)
         return prompt
     }
 }
