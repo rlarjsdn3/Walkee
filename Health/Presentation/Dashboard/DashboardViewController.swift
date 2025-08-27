@@ -378,7 +378,7 @@ fileprivate extension DashboardViewController {
                          
                          아래 경로에서 앱의 건강 데이터 접근 권한을 해제하거나 다시 활성화할 수 있습니다.
                          
-                         프로필(우측 상단) ⏵ 개인정보 보호 ⏵ 앱 ⏵ Health 
+                         프로필 ⏵ 개인정보 보호 ⏵ 앱 ⏵ Walkee 
                          """,
                 primaryTitle: "열기",
                 onPrimaryAction: ({ [weak self] _ in
