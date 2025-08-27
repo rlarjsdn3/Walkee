@@ -41,14 +41,6 @@ extension UserDefaultsKeys {
         )
     }
 
-    var appThemeStyle: UserDefaultsKey<Int> {
-        UserDefaultsKey<Int>(
-            "appThemeStyle",
-            defaultValue: AppTheme.system.rawValue
-
-        )
-    }
-
     /// LLM 추천코스 난이도 배열
     var llmRecommendedCourseLevels: UserDefaultsKey<[String]?> {
         UserDefaultsKey<[String]?>(
