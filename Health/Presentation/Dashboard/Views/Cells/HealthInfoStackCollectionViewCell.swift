@@ -111,7 +111,7 @@ extension HealthInfoStackCollectionViewCell {
 
             if let charts = content.charts, !charts.isEmpty {
                 sizeClasses(vRhR: {
-                        self.addChartsHostingController(with: charts, parent: parent)
+                    self.addChartsHostingController(with: charts, parent: parent)
                 })
             }
 
@@ -132,7 +132,7 @@ extension HealthInfoStackCollectionViewCell {
     }
 
     private func formatValue(kind: DashboardStackKind, value: Double) -> String {
-        if value == 0.0 {
+        if value < 0.1 {
             return "0"
         } else {
             switch kind {

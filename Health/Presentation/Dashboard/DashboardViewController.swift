@@ -120,7 +120,7 @@ final class DashboardViewController: HealthNavigationController, Alertable, Scro
         
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(reloadHKData(_:)),
+            selector: #selector(refreshHKData),
             name: .didChangeHealthLinkStatusOnProfile,
             object: nil
         )
@@ -134,13 +134,7 @@ final class DashboardViewController: HealthNavigationController, Alertable, Scro
     @objc private func refreshHKData() {
         viewModel.loadHKData(includeAI: true, updateAnchorDate: true)
         Task.detached { await self.viewModel.updateWidgetSnapshot() }
-        Task.delay(for: 1.0) { @MainActor in refreshControl.endRefreshing() }
-    }
-    
-    @objc private func reloadHKData(_ notification: Notification) {
-        guard let userInfo = notification.userInfo,
-              let state = userInfo["status"] as? Bool else { return }
-        if !state { refreshHKData() }
+        Task.delay(for: 0.6) { @MainActor in refreshControl.endRefreshing() }
     }
 
 
