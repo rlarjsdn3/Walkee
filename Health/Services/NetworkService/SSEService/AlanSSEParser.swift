@@ -7,22 +7,51 @@
 
 import Foundation
 
+extension Notification.Name {
+	static let sseParseDidRecord = Notification.Name("SSEParseDidRecord")
+}
+
+private extension Duration {
+	var milliseconds: Double {
+		let (s, attos) = components
+		return Double(s) * 1000.0 + Double(attos) / 1e15
+	}
+}
 /// SSE `data:` 페이로드(JSON 텍스트)를 AlanStreamingResponse로 디코딩.
 /// 서버가 싱글쿼트를 섞는 등 비표준 JSON을 보낼 경우를 보정.
 enum AlanSSEParser {
 	/// 일반 디코딩 → 실패 시 싱글쿼트/키 보정 후 재시도
+	/*
+	 static func decodeEvent(_ json: String,
+							 using decoder: JSONDecoder = JSONDecoder()) throws -> AlanStreamingResponse {
+		 if let data = json.data(using: .utf8),
+			let dto = try? decoder.decode(AlanStreamingResponse.self, from: data) {
+			 return dto
+		 }
+		 let fixed = coerceSingleQuotedJSON(json)
+		 guard let fixedData = fixed.data(using: .utf8) else {
+			 throw NSError(domain: "SSE",
+						   code: -10,
+						   userInfo: [NSLocalizedDescriptionKey:"invalid encoding"])
+		 }
+		 return try decoder.decode(AlanStreamingResponse.self, from: fixedData)
+	 }
+	 */
+	// 파싱 속도 체크를 위한 임시 메서드 코드 
 	static func decodeEvent(_ json: String,
 							using decoder: JSONDecoder = JSONDecoder()) throws -> AlanStreamingResponse {
+		let t0 = ContinuousClock.now
+		defer {
+			let ms = t0.duration(to: .now).milliseconds
+			NotificationCenter.default.post(name: .sseParseDidRecord, object: nil, userInfo: ["ms": ms])
+		}
+		
 		if let data = json.data(using: .utf8),
 		   let dto = try? decoder.decode(AlanStreamingResponse.self, from: data) {
 			return dto
 		}
 		let fixed = coerceSingleQuotedJSON(json)
-		guard let fixedData = fixed.data(using: .utf8) else {
-			throw NSError(domain: "SSE",
-						  code: -10,
-						  userInfo: [NSLocalizedDescriptionKey:"invalid encoding"])
-		}
+		let fixedData = fixed.data(using: .utf8)!
 		return try decoder.decode(AlanStreamingResponse.self, from: fixedData)
 	}
 	

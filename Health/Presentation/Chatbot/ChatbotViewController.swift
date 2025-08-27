@@ -9,7 +9,14 @@ import UIKit
 import Network
 import os
 /// Alan ai 활용한 챗봇 화면 컨트롤러.
-///
+
+private extension Duration {
+	var milliseconds: Double {
+		let (s, attos) = components
+		return Double(s) * 1000.0 + Double(attos) / 1e15
+	}
+}
+
 @MainActor
 final class ChatbotViewController: CoreGradientViewController {
 	// MARK: - Outlets & Dependencies
@@ -56,6 +63,9 @@ final class ChatbotViewController: CoreGradientViewController {
 	private var pendingOpenBracket = false
 	
 	private var isRelayoutInProgress = false
+	// 코드 내에서 응답값 파싱 확인을 위한 속성
+	private var e2eStart: ContinuousClock.Instant?
+	private var ttfbLogged = false
 	
 	// MARK: - Lifecycle
 	override func viewDidLoad() {
@@ -227,6 +237,13 @@ final class ChatbotViewController: CoreGradientViewController {
 		// 스트림 청크
 		viewModel.onStreamChunk = { [weak self] chunk in
 			guard let self else { return }
+			
+			if !ttfbLogged, let t0 = self.e2eStart {
+				let ms = t0.duration(to: .now).milliseconds
+				print(String(format: "ttfb: %.3f ms", ms))  // 첫 청크 도착까지
+				ttfbLogged = true
+			}
+			
 			if self.streamingAIIndex == nil {
 				// 로딩 셀이 있던 자리(= messages.count)에서 AI 셀로 교체
 				let insertRow = self.messages.count
@@ -292,6 +309,7 @@ final class ChatbotViewController: CoreGradientViewController {
 			}
 			
 			// 3. UI 상태 정리
+			self.endE2E()
 			self.cleanupStreamingState()
 		}
 		viewModel.onError = { [weak self] errorText in
@@ -300,9 +318,24 @@ final class ChatbotViewController: CoreGradientViewController {
 			Task { @MainActor in
 				self.updateWaitingCellText(errorText)
 				try await Task.sleep(for: .seconds(2))
+				self.endE2E()
 				self.cleanupStreamingState()
 			}
 		}
+	}
+	// MARK: - 응답값 파싱 확인을 위한 함수 `startE2E` 와 `endE2E`
+	/// 질문 전송 직전 호출
+	private func startE2E() {
+		e2eStart = .now
+		ttfbLogged = false
+	}
+	
+	/// 완료 콜백에서 총 소요시간(ms) 출력
+	private func endE2E() {
+		guard let t0 = e2eStart else { return }
+		let ms = t0.duration(to: .now)
+		print(String(format: "e2e: %.3f ms", ms.milliseconds))
+		e2eStart = nil
 	}
 
 	private func indexPathForMessage(at messageIndex: Int) -> IndexPath {
@@ -539,6 +572,7 @@ final class ChatbotViewController: CoreGradientViewController {
 				self.inFootnote = false
 				self.pendingOpenBracket = false
 				// 4) SSE 시작
+				self.startE2E()
 				self.viewModel.startPromptChatWithAutoReset(text)
 			}
 		})
@@ -879,3 +913,4 @@ extension ChatbotViewController: UITextFieldDelegate {
 		return true
 	}
 }
+
