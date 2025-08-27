@@ -58,7 +58,7 @@ class EditBirthdayView: CoreView {
     
     private func setupYears() {
         let currentYear = Calendar.current.component(.year, from: Date())
-        years = Array(1900...currentYear)
+        years = Array(1900...(currentYear - 1))
     }
     
     private func setupPicker() {
