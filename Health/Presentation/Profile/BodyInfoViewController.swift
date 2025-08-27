@@ -19,7 +19,6 @@ class BodyInfoViewController: HealthNavigationController, Alertable {
 
     @IBOutlet weak var tableView: UITableView!
 
-    @Injected private var userVM: UserInfoViewModel
     @Injected private var userService: (any CoreDataUserService)
 
     private var currentUser: UserInfoEntity?
@@ -56,7 +55,6 @@ class BodyInfoViewController: HealthNavigationController, Alertable {
 
         guard let alert = profileSheet else { return }
 
-        // 원하는 비율 재계산
         let padLand = isPadLandscapeNow()
         let baseH: CGFloat = 0.33
         let baseW: CGFloat = 0.9
@@ -91,44 +89,55 @@ class BodyInfoViewController: HealthNavigationController, Alertable {
             items[diseaseIndex].detail = "\(diseases.count)개"
         }
     }
-
+    
+    @MainActor
     private func fetchUserInfoAndSetupUI() {
-        userVM.fetchUsers()
-        currentUser = userVM.users.first
-        if let u = currentUser {
-            let genderText = (u.gender ?? "").isEmpty ? "-" : (u.gender ?? "")
-            if items.indices.contains(0) {
-                items[0].detail = genderText
+        setDetail("-", at: 0) // 성별
+        setDetail("-", at: 1) // 출생년도
+        setDetail("-", at: 2) // 몸무게
+        setDetail("-", at: 3) // 키
+        setDetail("-", at: 4) // 질병
+
+        do {
+            let u = try userService.fetchUserInfo()
+            currentUser = u
+
+            // 성별
+            let genderText = (u.gender ?? "").isEmpty ? "-" : (u.gender ?? "-")
+            setDetail(genderText, at: 0)
+
+            // 태어난 해
+            let age = Int(u.age)
+            if age > 0 {
+                let year = Calendar.current.component(.year, from: Date()) - age
+                setDetail("\(year)년", at: 1)
             }
 
-            if items.indices.contains(1) {
-                let age = Int(u.age)
-                if age > 0 {
-                    let year = Calendar.current.component(.year, from: Date()) - age
-                    items[1].detail = "\(year)년"
-                } else {
-                    items[1].detail = "-"
-                }
+            // 체중
+            if u.weight > 0 {
+                setDetail("\(Int(u.weight))kg", at: 2)
+            }
+            
+            // 키
+            if u.height > 0 {
+                setDetail("\(Int(u.height))cm", at: 3)
+            }
+            
+            // 지병
+            if let diseases = u.diseases, !diseases.isEmpty {
+                updateDiseaseText(with: diseases)
             }
 
-            if items.indices.contains(2), u.weight > 0 {
-                items[2].detail = "\(Int(u.weight))kg"
-            }
-
-            if items.indices.contains(3), u.height > 0 {
-                items[3].detail = "\(Int(u.height))cm"
-            }
-
-            if items.indices.contains(4) {
-                if let diseases = u.diseases {
-                    updateDiseaseText(with: diseases)
-                } else {
-                    items[4].detail = "-"
-                }
-            }
+        } catch {
+            print("fetchUserInfo 실패: \(error)")
         }
 
         tableView.reloadData()
+    }
+
+    private func setDetail(_ text: String, at index: Int) {
+        guard items.indices.contains(index) else { return }
+        items[index].detail = text
     }
 
 }
@@ -191,13 +200,7 @@ extension BodyInfoViewController: UITableViewDelegate {
                           let selected = v.selectedGender else { return }
 
                     let u = self.currentUser
-                    self.userVM.saveUser(
-                        age: u?.age ?? 0,
-                        gender: selected.rawValue,
-                        height: u?.height ?? 0,
-                        weight: u?.weight ?? 0,
-                        diseases: u?.diseases as? [Disease]
-                    )
+
                     Task {
                         do {
                             try await self.userService.updateUserInfo(
@@ -208,11 +211,13 @@ extension BodyInfoViewController: UITableViewDelegate {
                                 diseases: u?.diseases
                             )
                             print("성별 저장 성공")
+                            await MainActor.run {
+                                self.fetchUserInfoAndSetupUI()
+                            }
                         } catch {
                             print("성별 저장 실패: \(error)")
                         }
                     }
-                    self.fetchUserInfoAndSetupUI()
                 }
             )
         case "태어난 해":
@@ -247,13 +252,6 @@ extension BodyInfoViewController: UITableViewDelegate {
                     let selectedYear = v.getSelectedYear()
                     let age = currentYear - selectedYear
                     let u = self.currentUser
-                    self.userVM.saveUser(
-                        age: Int16(age),
-                        gender: u?.gender ?? "",
-                        height: u?.height ?? 0,
-                        weight: u?.weight ?? 0,
-                        diseases: u?.diseases as? [Disease]
-                    )
 
                     Task {
                         do {
@@ -265,6 +263,12 @@ extension BodyInfoViewController: UITableViewDelegate {
                                 diseases: u?.diseases
                             )
                             print("나이 저장 성공")
+                            if let user = self.currentUser {
+                                print(user.age)
+                            }
+                            await MainActor.run {
+                                self.fetchUserInfoAndSetupUI()
+                            }
                         } catch {
                             print("나이 저장 실패: \(error)")
                         }
@@ -287,7 +291,6 @@ extension BodyInfoViewController: UITableViewDelegate {
                             self.items[indexPath.row].detail = "\(selectedYear)년"
                         }
                     }
-                    self.fetchUserInfoAndSetupUI()
                 }
             )
 
@@ -310,14 +313,6 @@ extension BodyInfoViewController: UITableViewDelegate {
                     let newWeight = v.selectedWeight
                     let u = self.currentUser
 
-                    self.userVM.saveUser(
-                        age: u?.age ?? 0,
-                        gender: u?.gender ?? "",
-                        height: u?.height ?? 0,
-                        weight: Double(newWeight),
-                        diseases: u?.diseases as? [Disease]
-                    )
-
                     Task {
                         do {
                             try await self.userService.updateUserInfo(
@@ -328,16 +323,13 @@ extension BodyInfoViewController: UITableViewDelegate {
                                 diseases: u?.diseases
                             )
                             print("체중 저장 성공")
+                            await MainActor.run {
+                                self.fetchUserInfoAndSetupUI()
+                            }
                         } catch {
                             print("체중 저장 실패: \(error)")
                         }
                     }
-
-                    if self.items.indices.contains(indexPath.row) {
-                        self.items[indexPath.row].detail = "\(Int(newWeight))kg"
-
-                    }
-                    self.fetchUserInfoAndSetupUI()
                 }
             )
 
@@ -360,14 +352,6 @@ extension BodyInfoViewController: UITableViewDelegate {
                     let newHeight = v.selectedHeight
                     let u = self.currentUser
 
-                    self.userVM.saveUser(
-                        age: u?.age ?? 0,
-                        gender: u?.gender ?? "",
-                        height: Double(newHeight),
-                        weight: u?.weight ?? 0,
-                        diseases: u?.diseases as? [Disease]
-                    )
-
                     Task {
                         do {
                             try await self.userService.updateUserInfo(
@@ -378,16 +362,13 @@ extension BodyInfoViewController: UITableViewDelegate {
                                 diseases: u?.diseases
                             )
                             print("키 저장 성공")
+                            await MainActor.run {
+                                self.fetchUserInfoAndSetupUI()
+                            }
                         } catch {
                             print("키 저장 실패: \(error)")
                         }
                     }
-
-                    if self.items.indices.contains(indexPath.row) {
-                        self.items[indexPath.row].detail = "\(Int(newHeight))cm"
-                    }
-                    self.fetchUserInfoAndSetupUI()
-
                 }
             )
         case "지병":
@@ -408,14 +389,6 @@ extension BodyInfoViewController: UITableViewDelegate {
                     let selectedDiseases = v.getSelectedDiseases()
                     let u = self.currentUser
 
-                    self.userVM.saveUser(
-                        age: u?.age ?? 0,
-                        gender: u?.gender ?? "",
-                        height: u?.height ?? 0,
-                        weight: u?.weight ?? 0,
-                        diseases: selectedDiseases
-                    )
-
                     Task {
                         do {
                             try await self.userService.updateUserInfo(
@@ -426,13 +399,14 @@ extension BodyInfoViewController: UITableViewDelegate {
                                 diseases: selectedDiseases
                             )
                             print("지병 저장 성공")
+                            await MainActor.run {
+                                self.fetchUserInfoAndSetupUI()
+                            }
                         } catch {
                             print("지병 저장 실패: \(error)")
                         }
                     }
-
                     self.updateDiseaseText(with: selectedDiseases)
-                    self.fetchUserInfoAndSetupUI()
                 }
             )
         default:
