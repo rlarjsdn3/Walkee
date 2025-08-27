@@ -6,7 +6,10 @@ final class CalendarProgressBar: CoreView {
 
     var progress: CGFloat = 0 {
         didSet {
+            CATransaction.begin()
+            CATransaction.setDisableActions(true) // 암시적 애니메이션 제거
             progressLayer.strokeEnd = min(max(progress, 0), 1)
+            CATransaction.commit()
         }
     }
 
