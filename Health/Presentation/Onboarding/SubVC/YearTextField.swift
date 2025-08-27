@@ -1,14 +1,13 @@
 //
-//  DynamicWidthTextField.swift
+//  YearTextField.swift
 //  Health
 //
-//  Created by 권도현 on 8/25/25.
+//  Created by 권도현 on 8/27/25.
 //
-
 
 import UIKit
 
-class DynamicWidthTextField: UITextField {
+class YearTextField: UITextField {
 
     override var text: String? {
         didSet { invalidateIntrinsicContentSize() }
@@ -24,8 +23,8 @@ class DynamicWidthTextField: UITextField {
         }
         let textWidth = (text as NSString).size(withAttributes: [.font: font]).width
         let padding: CGFloat = 0
-        let minWidth: CGFloat = 70
-        let maxWidth: CGFloat = 100
+        let minWidth: CGFloat = 90
+        let maxWidth: CGFloat = 110
         
         let finalWidth = min(max(textWidth + padding, minWidth), maxWidth)
         return CGSize(width: finalWidth, height: super.intrinsicContentSize.height)
