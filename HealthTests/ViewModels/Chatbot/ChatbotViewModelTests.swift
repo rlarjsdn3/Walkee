@@ -34,7 +34,7 @@ final class ChatbotViewModelTests: XCTestCase {
 		netSpy = ResetCountingNetworkService(wrapping: appMock)
 		DIContainer.shared.register(type: NetworkService.self) { _ in self.netSpy }
 		
-		// PromptBuilderService (프로토콜 시그니처 일치하는 목)
+		// PromptBuilderService (프로토콜 시그니처 일치하는 목) - HealthService와 같은 PromptBuildService 사용
 		DIContainer.shared.register(type: PromptBuilderService.self) { _ in MockPromptBuilderService() }
 		
 		DIContainer.shared.register(type: HealthService.self) { _ in TestHealthService() }
