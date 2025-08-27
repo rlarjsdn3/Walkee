@@ -13,7 +13,7 @@ final class EditHeightView: CoreView {
     
     private let pickerView = UIPickerView()
     
-    private let heights: [Int] = Array(120...220)
+    private let heights: [Int] = Array(100...230)
     var selectedHeight: Int = 170
     
     override func setupHierarchy() {

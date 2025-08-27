@@ -88,11 +88,18 @@ class ProfileViewController: HealthNavigationController, Alertable {
         super.viewWillAppear(animated)
         let latest = goalStepCountVM.goalStepCount(for: Date()).map(Int.init) ?? 0
         currentGoalCache = latest
+        tabBarController?.tabBar.isHidden = false
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         startForegroundGrantSync()
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "bodyInfo" {
+            tabBarController?.tabBar.isHidden = true
+        }
     }
     
     /// 앱이 포어그라운드로 복귀할 때마다 HealthKit 권한을 재확인하도록 옵저버를 등록합니다.
@@ -195,7 +202,7 @@ class ProfileViewController: HealthNavigationController, Alertable {
         showAlert(
             "권한 설정 필요",
             message: """
-                     앱이 접근할 수 있는 건강 데이터가 없습니다.\n\n아래 경로에서 앱의 건강 데이터 접근 권한을 해제하거나 다시 활성화할 수 있습니다.\n\n 프로필(우측 상단) ⏵ 개인정보 보호 ⏵ 앱 ⏵ Walkee
+                     앱이 접근할 수 있는 건강 데이터가 없습니다.\n\n아래 경로에서 앱의 건강 데이터 접근 권한을 해제하거나 다시 활성화할 수 있습니다.\n\n 프로필 ⏵ 개인정보 보호 ⏵ 앱 ⏵ Walkee
                      """,
             primaryTitle: "열기",
             onPrimaryAction: ({ [weak self] _ in
