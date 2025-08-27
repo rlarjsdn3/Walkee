@@ -249,7 +249,7 @@ class InputAgeViewController: CoreGradientViewController {
                 disableContinueButton()
                 hideError()
             case 4:
-                if (1900...2024).contains(year) {
+                if (1900...(Date.now.year - 1)).contains(year) {
                     enableContinueButton()
                     hideError()
                 } else {
