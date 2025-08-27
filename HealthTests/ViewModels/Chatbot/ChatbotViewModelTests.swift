@@ -159,13 +159,18 @@ final class ChatbotViewModelTests: XCTestCase {
 		DIContainer.shared.register(type: AlanSSEServiceProtocol.self) { _ in
 			MockSSEService(mode: .yield([ .continue("…") ]))
 		}
-
+		
+		let before = netSpy.resetCalledCount
+		
 		// When
 		sut.resetSessionOnExit()
-
-		// Then
-		try? await Task.sleep(nanoseconds: 200_000_000)
-		XCTAssertEqual(netSpy.resetCalledCount, 1)
+		
+		// Then: 800ms 스로틀 환경도 고려해 1초 내에 1회 증가를 폴링
+		let deadline = Date().addingTimeInterval(1.0)
+		while Date() < deadline, netSpy.resetCalledCount == before {
+			try? await Task.sleep(nanoseconds: 30_000_000) // 30ms
+		}
+		XCTAssertEqual(netSpy.resetCalledCount - before, 1)
 	}
 
 	func testStartStreamingQuestion_WhenSecondSession_ThenBufferIsCleared() async {
@@ -211,5 +216,28 @@ final class ChatbotViewModelTests: XCTestCase {
 				_ = try? decoder.decode(AlanStreamingResponse.self, from: json)
 			}
 		}
+	}
+	
+	func testStartStreamingQuestion_WhenContinueContentIsNil_ThenSkipsChunk() async {
+		// Given
+		let events: [AlanStreamingResponse] = [
+			.init(type: .continue, data: .init(content: nil, speak: nil)),
+			.init(type: .complete, data: .init(content: "done", speak: nil)),
+		]
+		DIContainer.shared.register(type: AlanSSEServiceProtocol.self) { _ in
+			MockSSEService(mode: .yield(events))
+		}
+
+		let done = expectation(description: "complete")
+		var chunks: [String] = []
+		sut.onStreamChunk = { chunks.append($0) }
+		sut.onStreamCompleted = { _ in done.fulfill() }
+
+		// When
+		sut.startStreamingQuestion("q")
+
+		// Then
+		await fulfillment(of: [done], timeout: 2.0)
+		XCTAssertTrue(chunks.isEmpty)
 	}
 }
