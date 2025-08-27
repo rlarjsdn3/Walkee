@@ -10,7 +10,7 @@ import CoreData
 
 class InputAgeViewController: CoreGradientViewController {
 
-    @IBOutlet weak var ageInputField: UITextField!
+    @IBOutlet weak var ageInputField: YearTextField!
     @IBOutlet weak var errorLabel: UILabel!
     @IBOutlet weak var continueButton: UIButton!
     @IBOutlet weak var yearLabel: UILabel!
@@ -91,10 +91,11 @@ class InputAgeViewController: CoreGradientViewController {
     private func setupTextField() {
         ageInputField.delegate = self
         ageInputField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
-        
+
         errorLabel.isHidden = true
         errorLabel.textColor = .red
     }
+
     
     private func setupUIValues() {
         originalCenterY = ageInputFieldCenterY.constant
@@ -248,7 +249,7 @@ class InputAgeViewController: CoreGradientViewController {
                 disableContinueButton()
                 hideError()
             case 4:
-                if (1900...2025).contains(year) {
+                if (1900...2024).contains(year) {
                     enableContinueButton()
                     hideError()
                 } else {
@@ -265,7 +266,7 @@ class InputAgeViewController: CoreGradientViewController {
         }
     }
 
-    private func showError(text: String = "1900 ~ 2025 사이의 값을 입력해주세요.") {
+    private func showError(text: String = "1900 ~ 2024 사이의 값을 입력해주세요.") {
         errorLabel.isHidden = false
         errorLabel.text = text
     }
