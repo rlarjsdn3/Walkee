@@ -36,6 +36,7 @@ final class DashboardViewController: HealthNavigationController, Alertable, Scro
 
         buildLayout()
 //        loadData() // 생명주기 메서드에서 데이터를 로드하는 대신, 프로필 화면에서 노티피케이션 신호를 받으면 데이터를 로드합니다.
+        loadDataIfNeeded()
         setupDataSource()
         applySnapshot()
 
@@ -60,8 +61,9 @@ final class DashboardViewController: HealthNavigationController, Alertable, Scro
         hasBuiltLayout = true
     }
 
-    private func loadData() {
-        guard !hasLoadedData else { return }
+    private func loadDataIfNeeded() {
+        // 처음 데이터를 불러오고, 캘린더에서 대시보드로 이동하였다면
+        guard !hasLoadedData && viewModel.fromCalendar else { return }
 
         viewModel.loadHKData()
         hasLoadedData = true

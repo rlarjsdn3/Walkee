@@ -16,6 +16,7 @@ final class DashboardViewModel {
     }
 
     let anchorDate: Date
+    let fromCalendar: Bool
 
     private(set) var topIDs: [DashboardTopBarViewModel.ItemID] = []
     private(set) var topCells: [DashboardTopBarViewModel.ItemID: DashboardTopBarViewModel] = [:]
@@ -50,8 +51,9 @@ final class DashboardViewModel {
     @Injected private var promptBuilderService: (any PromptBuilderService)
 
     ///
-    init(anchorDate: Date = .now) {
+    init(anchorDate: Date = .now, fromCalendar: Bool = false) {
         self.anchorDate = anchorDate
+        self.fromCalendar = fromCalendar
     }
 
 
@@ -432,7 +434,7 @@ extension DashboardViewModel {
         // ⚠️ 사용자 및 목표 걸음 수가 제대로 등록되어 있으면 않으면 크래시
         let user = try! coreDataUserService.fetchUserInfo()
         let goalStep = dailyStepService.fetchDailyStep(anchorDate)
-        
+        print("GoalStep", goalStep?.goalStepCount)
         return (Int(user.age), Int(goalStep?.goalStepCount ?? 1_000))
 
 //        return (27, 5000)
