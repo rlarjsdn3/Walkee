@@ -39,7 +39,7 @@ final class EditStepGoalView: CoreView {
     private let minHapticInterval: CFTimeInterval = 0.07
 
     
-    var step: Int = 100
+    var step: Int = 500
     var minValue: Int = 500
     var maxValue: Int = 100_000
     var onValueChanged: ((Int) -> Void)?
@@ -179,7 +179,7 @@ final class EditStepGoalView: CoreView {
         plusButton.isEnabled  = value < maxValue
     }
     
-    func configure(defaultValue: Int, step: Int = 100, min: Int = 500, max: Int = 100_000) {
+    func configure(defaultValue: Int, step: Int = 500, min: Int = 500, max: Int = 100_000) {
         self.step = step
         self.minValue = min
         self.maxValue = max
