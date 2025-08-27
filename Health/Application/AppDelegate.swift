@@ -20,6 +20,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
+        sleep(3) // TODO: - 런치스크린 확인용, 추후 삭제
+        
 		// MARK: - NetworkMonitor 싱글톤 인스턴스를 생성하고 모니터링 시작
 		Task {
 			await NetworkMonitor.shared.startMonitoring()
