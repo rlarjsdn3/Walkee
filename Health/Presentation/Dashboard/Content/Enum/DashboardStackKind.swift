@@ -17,6 +17,8 @@ enum DashboardStackKind: CaseIterable {
     case activeEnergyBurned
     ///
     case basalEnergyBurned
+    ///
+    case flightsClimbed
 }
 
 extension DashboardStackKind {
@@ -28,6 +30,7 @@ extension DashboardStackKind {
         case .appleExerciseTime:                return "운동 시간"
         case .activeEnergyBurned:               return "활동 에너지"
         case .basalEnergyBurned:                return "휴식 에너지"
+        case .flightsClimbed:                   return "오른 층수"
         }
     }
 
@@ -38,6 +41,7 @@ extension DashboardStackKind {
         case .appleExerciseTime:                return "timer"
         case .activeEnergyBurned:               return "flame.fill"
         case .basalEnergyBurned:                return "sleep.circle.fill"
+        case .flightsClimbed:                   return "figure.stairs"
         }
     }
 
@@ -48,6 +52,7 @@ extension DashboardStackKind {
         case .appleExerciseTime:              return HKUnit.minute()
         case .activeEnergyBurned:             return HKUnit.kilocalorie()
         case .basalEnergyBurned:              return HKUnit.kilocalorie()
+        case .flightsClimbed:                 return HKUnit.count()
         }
     }
 
@@ -58,6 +63,7 @@ extension DashboardStackKind {
         case .appleExerciseTime:              return "분"
         case .activeEnergyBurned:             return "kcal"
         case .basalEnergyBurned:              return "kcal"
+        case .flightsClimbed:                 return "층"
         }
     }
 
@@ -68,6 +74,7 @@ extension DashboardStackKind {
         case .appleExerciseTime:                return .appleExerciseTime
         case .activeEnergyBurned:               return .activeEnergyBurned
         case .basalEnergyBurned:                return .basalEnergyBurned
+        case .flightsClimbed:                   return .flightsClimbed
         }
     }
 }

@@ -94,6 +94,8 @@ class ProfileViewController: HealthNavigationController, Alertable {
     override func viewDidLoad() {
         super.viewDidLoad()
         startForegroundGrantSync()
+
+        Task { await recheckGrantAndSave() }
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -123,11 +125,16 @@ class ProfileViewController: HealthNavigationController, Alertable {
     /// 현재 HealthKit 읽기 권한을 비동기로 재확인하고, UI/모델/저장을 동기화합니다.
     @MainActor
     private func recheckGrantAndSave() async {
-        print(#function, #line)
         let hasAny = await healthService.checkHasAnyReadPermission()
         UserDefaultsWrapper.shared.healthkitLinked = hasAny
         updateSectionItemsForHealthSwitch(to: hasAny)
         tableView.reloadData()
+        
+        NotificationCenter.default.post(
+            name: .didChangeHealthLinkStatusOnProfile,
+            object: nil,
+            userInfo: [.status: hasAny]
+        )
     }
     
     // MARK: - UserDefaults는 쓸지안쓸지 아직모르겠음

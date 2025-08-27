@@ -98,6 +98,8 @@ final class CircleProgressView: CoreView {
     // 이 시점에서 기존 레이어를 제거하고 경로(Path)를 다시 그립니다.
     // 레이블 텍스트도 이와 함께 갱신합니다. (다른 적절한 업데이트 시점이 없기 때문입니다)
     override func layoutSubviews() {
+        super.layoutSubviews()
+
         drawStrokeCircle()
 
         if let currentValue = currentValue {
@@ -190,6 +192,9 @@ final class CircleProgressView: CoreView {
     }
 
     private func drawStrokeCircle() {
+        backgroundGradientLayer?.removeFromSuperlayer()
+        foregroundGradientLayer?.removeFromSuperlayer()
+
         let adjustedStartAngle = -90.radian
         
         drawStrokeCircle(
@@ -226,8 +231,6 @@ extension CircleProgressView {
         lineWidth: CGFloat
     ) {
         assert(!lightStrokeColors.isEmpty || !darkStrokeColors.isEmpty)
-
-        layer?.removeFromSuperlayer()
 
         let diameter = min(bounds.width, bounds.height)
         let center = CGPoint(x: bounds.midX, y: bounds.midY)

@@ -97,7 +97,7 @@ final class DashboardViewModel {
     private func buildStackCells() {
         let newIDs = [
             HealthInfoStackCellViewModel.ItemID(kind: .distanceWalkingRunning),
-            HealthInfoStackCellViewModel.ItemID(kind: .appleExerciseTime),
+            HealthInfoStackCellViewModel.ItemID(kind: .flightsClimbed),
             HealthInfoStackCellViewModel.ItemID(kind: .activeEnergyBurned),
             HealthInfoStackCellViewModel.ItemID(kind: .basalEnergyBurned),
         ]
@@ -179,7 +179,7 @@ extension DashboardViewModel {
 
     func loadHKData(includeAI: Bool = true, updateAnchorDate: Bool = false) {
         loadAnchorDateForTopCell(updateAnchorDate: updateAnchorDate)
-        loadHKDataForGoalRingCells()
+        loadHKDataForActivityRingCells()
         loadHKDataForStackCells()
         loadHKDataForCardCells()
         loadHKDataForBarChartsCells()
@@ -196,7 +196,7 @@ extension DashboardViewModel {
         }
     }
 
-    func loadHKDataForGoalRingCells() {
+    func loadHKDataForActivityRingCells() {
         let (_, goalStepCount) = fetchCoreDataUser()
         
         Task {
@@ -248,8 +248,8 @@ extension DashboardViewModel {
                     continue
                 }
 
-                // 지난 7일 간 라인 차트를 그리기 위해 30일 전 시간 구하기
-                guard let startDate: Date = anchorDate.endOfDay().addingDays(-14) else {
+                // 지난 7일 간 라인 차트를 그리기 위해 100일 전 시간 구하기
+                guard let startDate: Date = anchorDate.endOfDay().addingDays(-100) else {
                     vm.setState(.failure(nil))
                     continue
                 }
@@ -490,8 +490,6 @@ extension DashboardViewModel {
             option: .dailySummary
         ) else { return nil }
         let response = await alanService.sendQuestion(prompt)
-//        print(response)
-//        print(response?.removingMarkdown())
         return response
     }
 	
