@@ -8,6 +8,7 @@ import UIKit
 import CoreLocation
 import Combine
 import TSAlertController
+import Network
 
 class PersonalViewController: HealthNavigationController, Alertable, ScrollableToTop, UICollectionViewDelegate {
 
@@ -30,10 +31,15 @@ class PersonalViewController: HealthNavigationController, Alertable, ScrollableT
     private var llmViewModel = LLMRecommendationViewModel()
     private var cancellables = Set<AnyCancellable>()
 
+    private let networkMonitor = NWPathMonitor()
+    private let networkQueue = DispatchQueue(label: "Network")
+    private var isNetworkConnected = true
+
     override func initVM() { }
 
     // 메모리 해제 시 옵저버 제거
     deinit {
+        networkMonitor.cancel()
         NotificationCenter.default.removeObserver(
             self,
             name: UIApplication.willEnterForegroundNotification,
@@ -43,11 +49,13 @@ class PersonalViewController: HealthNavigationController, Alertable, ScrollableT
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        collectionView.delegate = self
         setupDataSource()
         setupDistanceViewModel()
         setupLLMViewModel()
         applyInitialSnapshot()
         previousLocationPermission = LocationPermissionService.shared.checkCurrentPermissionStatus()
+        startNetworkMonitoring()
 
         NotificationCenter.default.addObserver(
             self,
@@ -88,7 +96,7 @@ class PersonalViewController: HealthNavigationController, Alertable, ScrollableT
         ]
 
         collectionView.backgroundColor = .clear
-        collectionView.delegate = self
+        //collectionView.delegate = self
         collectionView.setCollectionViewLayout(createCollectionViewLayout(), animated: false)
     }
 
@@ -156,9 +164,14 @@ class PersonalViewController: HealthNavigationController, Alertable, ScrollableT
             cell.delegate = self
 
             // 기본 설정
-            cell.configure(with: course)
+            cell.configure(with: course, isNetworkAvailable: self?.isNetworkConnected ?? true)
 
-            //뷰모델에서 캐시된 거리 확인 후 설정
+            guard let isConnected = self?.isNetworkConnected, isConnected else {
+                cell.updateDistance("네트워크 오류")
+                return
+            }
+
+            // 네트워크가 있을 때만 캐시된 거리 확인 후 설정
             if let distanceText = self?.distanceViewModel.getCachedDistance(for: course.gpxpath) {
                 // 이미 계산된 결과가 있으면 바로 표시 (에러 메시지 포함)
                 cell.updateDistance(distanceText)
@@ -260,11 +273,14 @@ class PersonalViewController: HealthNavigationController, Alertable, ScrollableT
                 self?.isLoadingLLMData = isLoading
 
                 if isLoading {
-                    // 로딩 중이면 현재 상태에 따라 화면 표시
                     self?.applyLoadingSnapshot(state: loadingState)
                 } else {
-                    // 로딩 완료면 데이터 화면 표시
-                    self?.applyDataSnapshot()
+                    // 에러 상황에서는 기본 코스 표시
+                    if loadingState == .networkError || loadingState == .failed {
+                        self?.handleLLMError()
+                    } else {
+                        self?.applyDataSnapshot()
+                    }
                 }
             }
             .store(in: &cancellables)
@@ -273,11 +289,19 @@ class PersonalViewController: HealthNavigationController, Alertable, ScrollableT
         llmViewModel.$recommendedLevels
             .receive(on: DispatchQueue.main)
             .sink { [weak self] levels in
+                guard !levels.isEmpty else { return }
                 print("ViewController에서 받은 추천 난이도: \(levels)")
                 self?.llmRecommendedLevels = levels
                 self?.updateCoursesWithLLMResults()
             }
             .store(in: &cancellables)
+    }
+
+    private func handleLLMError() {
+        // 기본 easy 코스만 사용
+        llmRecommendedLevels = ["1"]
+        updateCoursesWithLLMResults()
+        applyDataSnapshot()
     }
 
     private func setupDistanceViewModel() {
@@ -311,7 +335,7 @@ class PersonalViewController: HealthNavigationController, Alertable, ScrollableT
         }
 
         Task {
-            await distanceViewModel.prepareAndCalculateDistances(for: self.courses)
+            await distanceViewModel.prepareAndCalculateDistances(for: self.courses, isNetworkAvailable: isNetworkConnected)
         }
     }
 
@@ -450,6 +474,29 @@ class PersonalViewController: HealthNavigationController, Alertable, ScrollableT
         }
     }
 
+    private func startNetworkMonitoring() {
+        networkMonitor.pathUpdateHandler = { [weak self] path in
+            Task { @MainActor in
+                self?.isNetworkConnected = (path.status == .satisfied)
+            }
+
+            if path.status == .satisfied {
+                Task { @MainActor in
+                    self?.recalculateDistances()
+                }
+            }
+        }
+        networkMonitor.start(queue: networkQueue)
+    }
+
+    private func recalculateDistances() {
+        guard !courses.isEmpty else { return }
+        distanceViewModel.clearDistanceCache()
+        Task {
+            await distanceViewModel.prepareAndCalculateDistances(for: courses) // 재계산
+        }
+    }
+
     //MARK: - Sorting
     @MainActor
     private func applySorting(sortType: String) {
@@ -506,6 +553,7 @@ class PersonalViewController: HealthNavigationController, Alertable, ScrollableT
         showAlert(
             "위치 권한 필요",
             message: "추천 코스 기능을 사용하려면 위치 권한이 필요합니다. 설정에서 위치 권한을 허용해 주세요.",
+            primaryTitle: "열기",
             onPrimaryAction: { _ in
                 // "확인" 버튼 눌렀을 때 → 설정 앱으로 이동
                 if let settingsURL = URL(string: UIApplication.openSettingsURLString) {

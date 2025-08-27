@@ -17,6 +17,14 @@ class SkeletonView: UIView {
         setupSkeletonView()
     }
 
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        if self.traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            updateGradientColors()
+        }
+    }
+
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         setupSkeletonView()
@@ -26,11 +34,7 @@ class SkeletonView: UIView {
         backgroundColor = UIColor.systemGray4
 
         // 그라데이션 레이어 설정
-        gradientLayer.colors = [
-            UIColor.systemGray4.cgColor,
-            UIColor.systemGray3.cgColor,
-            UIColor.systemGray4.cgColor
-        ]
+        updateGradientColors()
         gradientLayer.locations = [0, 0.5, 1]
         gradientLayer.startPoint = CGPoint(x: 0, y: 0.5)
         gradientLayer.endPoint = CGPoint(x: 1, y: 0.5)
@@ -41,9 +45,17 @@ class SkeletonView: UIView {
         setupIconImageView()
     }
 
+    private func updateGradientColors() {
+        gradientLayer.colors = [
+            UIColor.systemGray4.cgColor,
+            UIColor.systemGray3.cgColor,
+            UIColor.systemGray4.cgColor
+        ]
+    }
+
     private func setupIconImageView() {
-        iconImageView.image = UIImage(named: "destination") //
-        iconImageView.tintColor = UIColor.systemGray
+        iconImageView.image = UIImage(named: "destination")
+        iconImageView.tintColor = UIColor.secondaryLabel
         iconImageView.contentMode = .scaleAspectFit
         iconImageView.translatesAutoresizingMaskIntoConstraints = false
 
