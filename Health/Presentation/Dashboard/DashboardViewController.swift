@@ -114,16 +114,16 @@ final class DashboardViewController: HealthNavigationController, Alertable, Scro
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(refreshHKData),
-            name: .didChangeHKSharingAuthorizationStatus,
-            object: nil
-        )
-        
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(refreshHKData),
             name: .didChangeHealthLinkStatusOnProfile,
             object: nil
         )
+        
+        //        NotificationCenter.default.addObserver(
+        //            self,
+        //            selector: #selector(refreshHKData),
+        //            name: .didChangeHKSharingAuthorizationStatus,
+        //            object: nil
+        //        )
     }
 
     private func shareActivityRingImage() {
