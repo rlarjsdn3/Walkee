@@ -101,7 +101,14 @@ extension HealthInfoCardCollectionViewCell {
             
         case let .success(content):
             let status = viewModel.evaluateGaitStatus(content.value)
-            statusProgressBarView.currentValue = content.value
+            statusProgressBarView.currentValue = {
+                switch viewModel.itemID.kind {
+                case .walkingSpeed, .walkingStepLength:
+                    return (content.value * 10).rounded() / 10.0
+                case .walkingAsymmetryPercentage, .walkingDoubleSupportPercentage:
+                    return content.value
+                }
+            }()
             statusProgressBarView.numberFormatter = {
                 switch viewModel.itemID.kind {
                 case .walkingSpeed:
