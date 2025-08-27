@@ -42,6 +42,8 @@ final class ChatbotViewModel {
 		}
 	}
 	
+	/// 자동 리셋처리 되면서 비식별화와 걷기 프롬프트 설계로 Streaming 요청에 응답
+	/// - Parameter rawMessage: 원문 사용자 요청값 메시지
 	func startPromptChatWithAutoReset(_ rawMessage: String) {
 		streamTask?.cancel()
 		streamTask = Task { [weak self] in
