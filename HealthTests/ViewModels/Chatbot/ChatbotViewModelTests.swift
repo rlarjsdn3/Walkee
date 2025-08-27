@@ -17,26 +17,30 @@ final class ChatbotViewModelTests: XCTestCase {
 	override func setUp() {
 		super.setUp()
 		DIContainer.shared.removeAllDependencies()
-
-		// 앱의 MockNetworkService를 감싸 reset 호출 횟수만 추적
-		let appMock = MockNetworkService()
-		netSpy = ResetCountingNetworkService(wrapping: appMock)
-		DIContainer.shared.register(type: NetworkService.self) { _ in self.netSpy }
-
-		// 테스트용 PromptBuilder 목
-		DIContainer.shared.register(type: PromptBuilderService.self) { _ in MockPromptBuilderService() }
-
-		// 기본 SSE 목(빈 스트림)
-		DIContainer.shared.register(type: AlanSSEServiceProtocol.self) { _ in MockSSEService(mode: .yield([])) }
-
+		registerChatbotDeps()
 		sut = ChatbotViewModel()
 	}
 
 	override func tearDown() {
-		DIContainer.shared.removeAllDependencies()
 		sut = nil
 		netSpy = nil
+		DIContainer.shared.removeAllDependencies()
 		super.tearDown()
+	}
+	
+	private func registerChatbotDeps() {
+		// NetworkService: 앱의 MockNetworkService(로컬 JSON 로더)를 감싼 Spy
+		let appMock = MockNetworkService()
+		netSpy = ResetCountingNetworkService(wrapping: appMock)
+		DIContainer.shared.register(type: NetworkService.self) { _ in self.netSpy }
+		
+		// PromptBuilderService (프로토콜 시그니처 일치하는 목)
+		DIContainer.shared.register(type: PromptBuilderService.self) { _ in MockPromptBuilderService() }
+		
+		DIContainer.shared.register(type: HealthService.self) { _ in TestHealthService() }
+		
+		// AlanSSEServiceProtocol (기본은 빈 스트림; 각 테스트에서 재등록해 시나리오 주입)
+		DIContainer.shared.register(type: AlanSSEServiceProtocol.self) { _ in MockSSEService(mode: .yield([])) }
 	}
 
 	func testStartStreamingQuestion_WhenContinueThenComplete_ThenEmitsChunksAndFinalOnce() async {

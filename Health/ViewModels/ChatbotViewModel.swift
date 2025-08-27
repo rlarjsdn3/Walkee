@@ -130,7 +130,7 @@ final class ChatbotViewModel {
 					self.streamingBuffer.append(completeText)
 					Log.net.info("[SSE COMPLETE] content=\(completeText, privacy: .public)")
 					// 최종 렌더링
-					let finalRendered = ChatMarkdownRenderer.renderFinalMarkdown(self.streamingBuffer)
+					let _ = ChatMarkdownRenderer.renderFinalMarkdown(self.streamingBuffer)
 					onStreamCompleted?(self.streamingBuffer)
 					self.streamingBuffer = ""
 					callComplete = false
