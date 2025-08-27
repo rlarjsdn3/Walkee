@@ -147,10 +147,10 @@ extension DashboardCardKind {
         switch age {  // higher is better
         case (..<20):   return [1.0, 1.2, 1.4, 1.6]     // 10대
         case (20..<30): return [1.0, 1.2, 1.4, 1.6]     // 20대
-        case (30..<40): return [0.95, 1.15, 1.35, 1.55] // 30대
+        case (30..<40): return [0.9, 1.1, 1.3, 1.5]     // 30대
         case (40..<50): return [0.9, 1.1, 1.3, 1.5]     // 40대
-        case (50..<60): return [0.75, 1.0, 1.25, 1.5]   // 50대
-        case (60..<70): return [0.7, 0.9, 1.1, 1.3]     // 60대
+        case (50..<60): return [0.8, 1.0, 1.2, 1.4]     // 50대
+        case (60..<70): return [0.8, 1.0, 1.2, 1.4]     // 60대
         default: return [0.6, 0.8, 1.0, 1.2]            // 70대
         }
     }
