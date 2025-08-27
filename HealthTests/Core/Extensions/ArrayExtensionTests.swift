@@ -10,8 +10,8 @@ import XCTest
 
 final class ArrayExtensionTests: XCTestCase {
     
-    func testArryExtension_WhenIndexingOutofBounds_ThenReturnNil() {
-        
+    func testArrayExtension_WhenIndexingOutofBounds_ThenReturnNil() {
+
         //배열 선언
         let array = [1, 2, 3, 4, 5]
         
@@ -21,7 +21,7 @@ final class ArrayExtensionTests: XCTestCase {
         XCTAssertNil(num)
     }
     
-    func testArryExtension_WhenIndexingOutofBounds_ThenReturnElement() {
+    func testArrayExtension_WhenIndexingOutofBounds_ThenReturnElement() {
         
         //배열 선언
         let array = [1, 2, 3, 4, 5]
