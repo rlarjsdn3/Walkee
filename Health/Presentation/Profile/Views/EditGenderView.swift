@@ -103,8 +103,13 @@ final class EditGenderView: CoreView {
     }
     
     private func updateButtonConfig() {
-        femaleButton.backgroundColor = (selectedGender == .female) ? .accent : .buttonBackground
-        maleButton.backgroundColor = (selectedGender == .male) ? .accent : .buttonBackground
+        let selectedTextColor = UIColor.systemBackground
+        let defaultTextColor = UIColor.label
+        
+        femaleButton.backgroundColor = (selectedGender == .female) ? .accent : .boxBg
+        maleButton.backgroundColor = (selectedGender == .male) ? .accent : .boxBg
+        
+        femaleButton.setTitleColor((selectedGender == .female) ? selectedTextColor : defaultTextColor, for: .normal)
+        maleButton.setTitleColor((selectedGender == .male) ? selectedTextColor : defaultTextColor, for: .normal)
     }
-    
 }
