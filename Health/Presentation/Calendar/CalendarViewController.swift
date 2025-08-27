@@ -65,28 +65,35 @@ private extension CalendarViewController {
     func setupNotifications() {
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(reloadCalendar),
+            selector: #selector(handleWillEnterForeground),
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleDataNotification),
             name: .didSyncStepData,
             object: nil
         )
 
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(reloadCalendar),
+            selector: #selector(handleDataNotification),
             name: .didUpdateGoalStepCount,
             object: nil
         )
 
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(reloadCalendar),
+            selector: #selector(handleHealthNotification),
             name: .didChangeHKSharingAuthorizationStatus,
             object: nil
         )
 
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(reloadCalendar),
+            selector: #selector(handleHealthNotification),
             name: .didChangeHealthLinkStatusOnProfile,
             object: nil
         )
@@ -169,25 +176,47 @@ private extension CalendarViewController {
         navigationController?.pushViewController(dashboardVC, animated: true)
     }
 
-    @objc func reloadCalendar(_ notification: Notification) {
+    @objc func handleWillEnterForeground() {
+        Task {
+            await refreshAuthorizationAndReload()
+        }
+    }
+
+    @objc func handleDataNotification() {
+        Task {
+            reloadData()
+        }
+    }
+
+    @objc func handleHealthNotification(_ notification: Notification) {
         Task { @MainActor in
             switch notification.name {
                 // 프로필 탭에서 건강 연동 상태가 바뀌는 경우
                 case .didChangeHealthLinkStatusOnProfile:
                     guard let status = notification.userInfo?[.status] as? Bool else { return }
                     isStepCountAuthorized = status
-                    dataManager.reloadData()
+                    reloadData()
 
                 // 건강 앱 연동 상태가 바뀌는 경우
                 case .didChangeHKSharingAuthorizationStatus:
-                    let hasPermission = await healthService.checkHasReadPermission(for: .stepCount)
-                    isStepCountAuthorized = hasPermission
-                    dataManager.reloadData()
+                    await refreshAuthorizationAndReload()
 
                 default:
-                    dataManager.reloadData()
+                    reloadData()
             }
         }
+    }
+
+    @MainActor
+    func refreshAuthorizationAndReload() async {
+        let status = await healthService.checkHasReadPermission(for: .stepCount)
+        isStepCountAuthorized = status
+        dataManager.reloadData()
+    }
+
+    @MainActor
+    func reloadData() {
+        dataManager.reloadData()
     }
 }
 
