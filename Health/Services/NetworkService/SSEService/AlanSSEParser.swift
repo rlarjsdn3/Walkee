@@ -7,10 +7,6 @@
 
 import Foundation
 
-extension Notification.Name {
-	static let sseParseDidRecord = Notification.Name("SSEParseDidRecord")
-}
-
 private extension Duration {
 	var milliseconds: Double {
 		let (s, attos) = components
