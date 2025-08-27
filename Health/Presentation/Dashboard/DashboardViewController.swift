@@ -134,7 +134,7 @@ final class DashboardViewController: HealthNavigationController, Alertable, Scro
     @objc private func refreshHKData() {
         viewModel.loadHKData(includeAI: true, updateAnchorDate: true)
         Task.detached { await self.viewModel.updateWidgetSnapshot() }
-        Task.delay(for: 1.0) { @MainActor in refreshControl.endRefreshing() }
+        Task.delay(for: 0.6) { @MainActor in refreshControl.endRefreshing() }
     }
 
 
