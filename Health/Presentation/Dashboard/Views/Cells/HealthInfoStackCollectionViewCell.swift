@@ -135,7 +135,7 @@ extension HealthInfoStackCollectionViewCell {
             return "0"
         } else {
             switch kind {
-            case .appleExerciseTime:
+            case .appleExerciseTime, .flightsClimbed:
                 return String(format: "%.0f", value)
             default:
                 return String(format: "%.1f", value)

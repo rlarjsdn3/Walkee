@@ -74,6 +74,7 @@ final class MockHealthService: HealthService {
             .distanceWalkingRunning: 80.0,        // 걷기+달리기 거리 (km )
             .appleExerciseTime: 42.0,             // 운동 시간 (분)
             .stepCount: 8_540,                    // 걸음 수
+            .flightsClimbed: 13,                  // 오른 층수
             .walkingStepLength: 72,               // 보행 보폭 (cm)
             .walkingAsymmetryPercentage: 0.27,    // 보행 비대칭성 (%)
             .walkingSpeed: 1.32,                  // 보행 속도 (m/s)

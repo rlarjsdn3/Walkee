@@ -31,7 +31,8 @@ final class DefaultHealthService: HealthService  {
             HKQuantityType(.walkingStepLength),                 // 보행 보폭
             HKQuantityType(.walkingAsymmetryPercentage),        // 보행 비대칭성
             HKQuantityType(.walkingSpeed),                      // 보행 속도
-            HKQuantityType(.walkingDoubleSupportPercentage)     // 이중 지지 시간
+            HKQuantityType(.walkingDoubleSupportPercentage),    // 이중 지지 시간
+            HKQuantityType(.flightsClimbed)                     // 오른 층수
         ]
     }
     
