@@ -28,8 +28,6 @@ class ProfileViewController: HealthNavigationController, Alertable {
     
     private var currentGoalCache: Int = 0
     
-    private var grantRecheckObserver: NSObjectProtocol?
-    
     private var isAuthenticating = false
     
     private let sectionTitles: [String?] = [
@@ -88,18 +86,13 @@ class ProfileViewController: HealthNavigationController, Alertable {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        startForegroundGrantSync()
         let latest = goalStepCountVM.goalStepCount(for: Date()).map(Int.init) ?? 0
         currentGoalCache = latest
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        stopForegroundGrantSync()
-    }
-    
-    deinit {
-        stopForegroundGrantSync()
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        startForegroundGrantSync()
     }
     
     /// 앱이 포어그라운드로 복귀할 때마다 HealthKit 권한을 재확인하도록 옵저버를 등록합니다.
@@ -107,10 +100,9 @@ class ProfileViewController: HealthNavigationController, Alertable {
     /// - Important: Swift 6 기준 `MainActor` 격리를 위해 클로저 내부에서 `Task { @MainActor in ... }`로 hop 합니다.
     @MainActor
     private func startForegroundGrantSync() {
-        stopForegroundGrantSync()
         
-        grantRecheckObserver = NotificationCenter.default.addObserver(
-            forName: UIApplication.willEnterForegroundNotification,
+        NotificationCenter.default.addObserver(
+            forName: .didChangeHKSharingAuthorizationStatus,
             object: nil,
             queue: .main
         ) { [weak self] _ in
@@ -120,22 +112,15 @@ class ProfileViewController: HealthNavigationController, Alertable {
         }
     }
     
-    /// 포어그라운드 권한 확인하는 옵저버를 제거합니다.
-    ///
-    /// - Note: 옵저버가 중복 등록되지 않도록 옵저버를 등록하기 전에 호출합니다.
-    private func stopForegroundGrantSync() {
-        if let obs = grantRecheckObserver {
-            NotificationCenter.default.removeObserver(obs)
-            grantRecheckObserver = nil
-        }
-    }
     
     /// 현재 HealthKit 읽기 권한을 비동기로 재확인하고, UI/모델/저장을 동기화합니다.
     @MainActor
     private func recheckGrantAndSave() async {
+        print(#function, #line)
         let hasAny = await healthService.checkHasAnyReadPermission()
         UserDefaultsWrapper.shared.healthkitLinked = hasAny
         updateSectionItemsForHealthSwitch(to: hasAny)
+        tableView.reloadData()
     }
     
     // MARK: - UserDefaults는 쓸지안쓸지 아직모르겠음
@@ -155,14 +140,14 @@ class ProfileViewController: HealthNavigationController, Alertable {
                         presentGrantAlert(for: sender)
                     }
                 }
-
+                
                 try? await syncStepService.syncSteps()
             } else {
                 // ON -> OFF: 알럿 없이 바로 반영
                 UserDefaultsWrapper.shared.healthkitLinked = false
                 updateSectionItemsForHealthSwitch(to: false)
             }
-
+            
             // 건강 앱 연동 스위치 상태가 변경되었음을 알림
             // healthkitLinked 값이 완전히 바뀐 후에 Notification 신호를 날립니다.
             NotificationCenter.default.post(
@@ -172,15 +157,9 @@ class ProfileViewController: HealthNavigationController, Alertable {
             )
         }
     }
-
+    
     private func startGrantRecheckAfterReturning(switch sender: UISwitch) {
-        // 기존 옵저버 제거
-        if let obs = grantRecheckObserver {
-            NotificationCenter.default.removeObserver(obs)
-            grantRecheckObserver = nil
-        }
-        
-        grantRecheckObserver = NotificationCenter.default.addObserver(
+        NotificationCenter.default.addObserver(
             forName: UIApplication.didBecomeActiveNotification,
             object: nil,
             queue: .main
@@ -194,11 +173,6 @@ class ProfileViewController: HealthNavigationController, Alertable {
     
     @MainActor
     private func recheckGrantAndSyncSwitch(_ sender: UISwitch) {
-        if let obs = grantRecheckObserver {
-            NotificationCenter.default.removeObserver(obs)
-            grantRecheckObserver = nil
-        }
-        
         Task { @MainActor [weak self] in
             guard let self = self else { return }
             let hasAny = await self.healthService.checkHasAnyReadPermission()
@@ -221,9 +195,7 @@ class ProfileViewController: HealthNavigationController, Alertable {
         showAlert(
             "권한 설정 안내",
             message: """
-                     건강 앱에서 권한을 직접 바꿀 수 있어요.
-                     경로: 프로필(우측 상단) > 개인정보보호 > 앱 > Health
-                     여기에서 이 앱의 데이터 접근 권한을 해제하거나 다시 켤 수 있습니다.
+                     앱이 접근할 수 있는 건강 데이터가 없습니다.\n\n아래 경로에서 앱의 건강 데이터 접근 권한을 해제하거나 다시 활성화할 수 있습니다.\n\n 프로필(우측 상단) ⏵ 개인정보 보호 ⏵ 앱 ⏵ Walkee
                      """,
             primaryTitle: "열기",
             onPrimaryAction: ({ [weak self] _ in
