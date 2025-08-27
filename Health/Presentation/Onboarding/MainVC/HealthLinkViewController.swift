@@ -154,8 +154,8 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
     }
     
     override func setupAttribute() {
-        userDescriptionLabel.text = "사용자 데이터 입력 및 \n건강 앱 정보 가져오기 권한 설정"
-        supUserDescriptionLabel.text = "신체 측정값을 가져와서 걸음 수를 Apple 건강 앱과 지속적으로 동기화 할 수 있습니다."
+        userDescriptionLabel.text = "사용자 정보 입력 및 \n건강 데이터 접근 권한 요청"
+        supUserDescriptionLabel.text = "AI가 걷기·활동 데이터를 분석해 맞춤 건강 정보를 제공합니다. 일일 걸음 수, 거리, 에너지를 기반으로 건강 상태를 파악하고 개인화된 추천을 위해 건강 데이터 접근이 필요합니다."
         linkSettingView.backgroundColor = UIColor(named: "boxBgColor")
         linkSettingView.applyCornerStyle(.medium)
         linkSettingView.clipsToBounds = true
@@ -221,8 +221,8 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
                     UserDefaultsWrapper.shared.healthkitLinked = false
                   
                     showAlert(
-                        "권한 설정",
-                        message: "건강앱 연동없이 앱 실행시, 일부기능이 제한될 수 있습니다. 건강 앱 화면으로 이동하시겠습니까?",
+                        "권한 설정 필요",
+                        message: "앱이 접근할 수 있는 건강 데이터가 없습니다.\n\n아래 경로에서 앱의 건강 데이터 접근 권한을 해제하거나 다시 활성화할 수 있습니다.\n\n프로필(우측 상단) ⏵ 개인정보 보호 ⏵ 앱 ⏵ Walkee",
                         primaryTitle: "열기",
                         onPrimaryAction: { _ in
                             self.openHealthApp()
