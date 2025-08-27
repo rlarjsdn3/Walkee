@@ -50,14 +50,9 @@ final class ChatbotViewModel {
 			guard let self else { return }
 			
 			let masked = PrivacyService.maskSensitiveInfo(in: rawMessage)
-			
-			print("=== 마스킹 디버그 ===")
-			print("[Chatbot] Original: \(rawMessage)")
-			print("[Chatbot] Masked  : \(masked)")
-			print("==================")
-			
-			Log.privacy.info("Original: \(rawMessage, privacy: .public)")
-			Log.privacy.info("Masked  : \(masked, privacy: .public)")
+			//print("🗣️ 사용자 원문 요청 질문값", rawMessage)
+			//Log.privacy.info("[Chatbot] Original: \(rawMessage, privacy: .public)")
+			Log.privacy.info("[Chatbot] Masked  : \(masked, privacy: .public)")
 			
 #if DEBUG
 			// DEBUG 모드: 목 데이터로 테스트 스트리밍
@@ -163,7 +158,7 @@ final class ChatbotViewModel {
 				case .complete:
 					let completeText = event.data.content ?? ""
 					self.streamingBuffer.append(completeText)
-					Log.net.info("[SSE COMPLETE] content=\(completeText, privacy: .public)")
+//					Log.net.info("[SSE COMPLETE] content=\(completeText, privacy: .public)")
 					// 최종 렌더링
 					let _ = ChatMarkdownRenderer.renderFinalMarkdown(self.streamingBuffer)
 					onStreamCompleted?(self.streamingBuffer)
