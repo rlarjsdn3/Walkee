@@ -41,7 +41,7 @@ class CoreGradientViewController: CoreViewController {
 		view.applyGradientBackground(gradientType)
 		
 		if #available(iOS 13.0, *) {
-			let isDarkMode = traitCollection.userInterfaceStyle == .dark
+			let _ = traitCollection.userInterfaceStyle == .dark
 		}
 	}
 	

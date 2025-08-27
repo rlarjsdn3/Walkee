@@ -27,6 +27,10 @@ final class ChatbotViewModel {
 	
 	private var streamingBuffer: String = "" // 변경: 스트리밍 버퍼 추가
 	
+	// 중복 reset 방지용
+	private var lastResetAt: ContinuousClock.Instant?
+	private var resetInFlight = false
+	
 	deinit { streamTask?.cancel() }
 	
 	// 단순 스트리밍
@@ -86,9 +90,38 @@ final class ChatbotViewModel {
 		Log.chat.info("view exit detected > cancel SSE & call reset-state")
 		Task { [weak self] in
 			guard let self else { return }
-			await resetAgentState() // 내부에서 Alan reset-state 호출
+//			await resetAgentState() // 내부에서 Alan reset-state 호출
+			await self.resetAgentState(throttle: .milliseconds(800))
 		}
 	}
+	
+	/// 서버/화면 종료 등에서 호출되는 리셋
+	/// - Parameter throttle: 지정하면 최근 reset 시각으로부터 주어진 시간 내 호출은 스킵
+	private func resetAgentState(throttle: Duration?) async {
+		// 1) 근접 호출 스킵
+		if let t = throttle, let last = lastResetAt, last + t > .now {
+			Log.chat.info("skip reset (throttled)")
+			return
+		}
+		// 2) 동시호출 스킵
+		if resetInFlight { return }
+		resetInFlight = true
+		defer { resetInFlight = false }
+
+		// 3) 의존성 캡처(테스트/DI 안전)
+		let svc = networkService
+		let ep = APIEndpoint.resetState(clientID: clientID)
+
+		do {
+			_ = try await svc.request(endpoint: ep, as: AlanResetStateResponse.self)
+			lastResetAt = .now
+			Log.chat.info("reset-state success for clientID=\(self.clientID, privacy: .public)")
+		} catch {
+			Log.chat.error("reset-state failed: \(error.localizedDescription, privacy: .public)")
+			onError?("세션 초기화 실패: \(error.localizedDescription)")
+		}
+	}
+
 	
 	/// 서버 500 등 복구 가능 오류 시 1회 reset 후 재시도
 	func startStreamingQuestionWithAutoReset(_ content: String) {
@@ -130,7 +163,7 @@ final class ChatbotViewModel {
 					self.streamingBuffer.append(completeText)
 					Log.net.info("[SSE COMPLETE] content=\(completeText, privacy: .public)")
 					// 최종 렌더링
-					let finalRendered = ChatMarkdownRenderer.renderFinalMarkdown(self.streamingBuffer)
+					let _ = ChatMarkdownRenderer.renderFinalMarkdown(self.streamingBuffer)
 					onStreamCompleted?(self.streamingBuffer)
 					self.streamingBuffer = ""
 					callComplete = false
@@ -141,7 +174,8 @@ final class ChatbotViewModel {
 			if canRetry, isRecoverable(error) {
 				callComplete = false
 				onActionText?("세션 초기화 후 재시도…")
-				await resetAgentState()
+				// 500 복구 스로틀 없이 1회 수행
+				await resetAgentState(throttle: nil)
 				try? await Task.sleep(nanoseconds: 300_000_000)
 				await _startStreaming(content: content, canRetry: false)
 				return

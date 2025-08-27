@@ -27,4 +27,6 @@ extension Notification.Name {
     /// `false`라면 하나 이상의 권한이 부족하여 일부 데이터를 읽을 수 없음을 의미합니다.
     /// 최초 앱 실행 시에는 전달되지 않으며, 앱 내부 또는 외부에서 권한 상태가 실제로 변경되었을 때만 게시됩니다.
     static let didChangeHKSharingAuthorizationStatus = Notification.Name("didChangeHKAuthorizationStatus")
+	
+	static let sseParseDidRecord = Notification.Name("SSEParseDidRecord")
 }
