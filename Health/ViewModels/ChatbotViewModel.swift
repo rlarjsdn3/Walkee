@@ -46,10 +46,15 @@ final class ChatbotViewModel {
 			guard let self else { return }
 			
 			let masked = PrivacyService.maskSensitiveInfo(in: rawMessage)
+			
 			print("=== 마스킹 디버그 ===")
 			print("[Chatbot] Original: \(rawMessage)")
 			print("[Chatbot] Masked  : \(masked)")
 			print("==================")
+			
+			Log.privacy.info("Original: \(rawMessage, privacy: .public)")
+			Log.privacy.info("Masked  : \(masked, privacy: .public)")
+			
 #if DEBUG
 			let isUnitTest = NSClassFromString("XCTestCase") != nil
 			if !isUnitTest {
@@ -145,17 +150,13 @@ final class ChatbotViewModel {
 				case .continue:
 					if let c = event.data.content, !c.isEmpty { onStreamChunk?(c) }
 				case .complete:
-					let tail = event.data.content ?? ""
-					streamingBuffer.append(tail)
-					
-					// 마크다운 렌더 → 한 번만 표시
-					let attributed = ChatMarkdownRenderer.renderFinalMarkdown(streamingBuffer)
-					onFinalRender?(attributed)
-					
-					// plain 최종도 한 번
-					onStreamCompleted?(streamingBuffer)
-					
-					streamingBuffer = ""
+					let completeText = event.data.content ?? ""
+					self.streamingBuffer.append(completeText)
+					Log.net.info("[SSE COMPLETE] content=\(completeText, privacy: .public)")
+					// 최종 렌더링
+					let _ = ChatMarkdownRenderer.renderFinalMarkdown(self.streamingBuffer)
+					onStreamCompleted?(self.streamingBuffer)
+					self.streamingBuffer = ""
 					callComplete = false
 					break streamLoop
 				}
