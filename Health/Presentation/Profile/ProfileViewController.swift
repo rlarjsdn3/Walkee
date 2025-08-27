@@ -93,6 +93,8 @@ class ProfileViewController: HealthNavigationController, Alertable {
     override func viewDidLoad() {
         super.viewDidLoad()
         startForegroundGrantSync()
+
+        Task { await recheckGrantAndSave() }
     }
     
     /// 앱이 포어그라운드로 복귀할 때마다 HealthKit 권한을 재확인하도록 옵저버를 등록합니다.

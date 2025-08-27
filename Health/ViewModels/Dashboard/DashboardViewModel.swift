@@ -490,8 +490,6 @@ extension DashboardViewModel {
             option: .dailySummary
         ) else { return nil }
         let response = await alanService.sendQuestion(prompt)
-//        print(response)
-//        print(response?.removingMarkdown())
         return response
     }
 	

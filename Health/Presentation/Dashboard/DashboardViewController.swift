@@ -35,7 +35,7 @@ final class DashboardViewController: HealthNavigationController, Alertable, Scro
         super.viewIsAppearing(animated)
 
         buildLayout()
-        loadData()
+//        loadData() // 생명주기 메서드에서 데이터를 로드하는 대신, 프로필 화면에서 노티피케이션 신호를 받으면 데이터를 로드합니다.
         setupDataSource()
         applySnapshot()
 
@@ -110,14 +110,15 @@ final class DashboardViewController: HealthNavigationController, Alertable, Scro
             name: .didUpdateGoalStepCount,
             object: nil
         )
-        
+
+        // 생명주기 메서드에서 데이터를 로드하는 대신, 프로필 화면에서 노티피케이션 신호를 받으면 데이터를 로드합니다.
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(refreshHKData),
             name: .didChangeHealthLinkStatusOnProfile,
             object: nil
         )
-        
+
         //        NotificationCenter.default.addObserver(
         //            self,
         //            selector: #selector(refreshHKData),
