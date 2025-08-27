@@ -140,39 +140,39 @@ class ProfileViewController: HealthNavigationController, Alertable {
     
     // MARK: - UserDefaults는 쓸지안쓸지 아직모르겠음
     @objc private func switchChanged(_ sender: UISwitch) {
-        if sender.isOn {
-            // OFF -> ON
-            Task { [weak self] in
-                guard let self = self else { return }
-                let hasAny = try await self.healthService.requestAuthorization()
+        Task {
+            if sender.isOn {
+                // OFF -> ON
+                let hasAny = try await healthService.requestAuthorization()
                 await MainActor.run {
                     if hasAny {
                         // 하나라도 권한이 있으면 alert 없이 ON
                         UserDefaultsWrapper.shared.healthkitLinked = true
-                        self.updateSectionItemsForHealthSwitch(to: true)
+                        updateSectionItemsForHealthSwitch(to: true)
                     } else {
                         // 권한이 하나도 없으면 설정 유도 alert
                         sender.setOn(false, animated: true) // 일단 원복
-                        self.presentGrantAlert(for: sender)
+                        presentGrantAlert(for: sender)
                     }
                 }
-                
-                try? await syncStepService.syncSteps()
-            }
-        } else {
-            // ON -> OFF: 알럿 없이 바로 반영
-            UserDefaultsWrapper.shared.healthkitLinked = false
-            updateSectionItemsForHealthSwitch(to: false)
-        }
 
-        // 건강 앱 연동 스위치 상태가 변경되었음을 알림
-        NotificationCenter.default.post(
-            name: .didChangeHealthLinkStatusOnProfile,
-            object: nil,
-            userInfo: [.status: sender.isOn]
-        )
+                try? await syncStepService.syncSteps()
+            } else {
+                // ON -> OFF: 알럿 없이 바로 반영
+                UserDefaultsWrapper.shared.healthkitLinked = false
+                updateSectionItemsForHealthSwitch(to: false)
+            }
+
+            // 건강 앱 연동 스위치 상태가 변경되었음을 알림
+            // healthkitLinked 값이 완전히 바뀐 후에 Notification 신호를 날립니다.
+            NotificationCenter.default.post(
+                name: .didChangeHealthLinkStatusOnProfile,
+                object: nil,
+                userInfo: [.status: sender.isOn]
+            )
+        }
     }
-    
+
     private func startGrantRecheckAfterReturning(switch sender: UISwitch) {
         // 기존 옵저버 제거
         if let obs = grantRecheckObserver {
