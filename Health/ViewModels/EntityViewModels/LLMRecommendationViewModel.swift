@@ -138,6 +138,7 @@ class LLMRecommendationViewModel: ObservableObject {
         // 로딩 상태 시작
         isLoading = true
         error = nil
+        loadingState = .loading
 
         do {
             // 사용자 정보 가져오기
