@@ -52,11 +52,6 @@ class ProfileViewController: HealthNavigationController, Alertable {
                 title: "목표 걸음 설정",
                 iconName: "figure.walk",
                 isSwitch: false
-            ),
-            ProfileCellModel(
-                title: "화면 모드 설정",
-                iconName: "iphone.motion",
-                isSwitch: false
             )
         ],
         [
@@ -301,7 +296,7 @@ extension ProfileViewController: UITableViewDataSource {
             toggle.addTarget(self, action: #selector(switchChanged(_:)), for: .valueChanged)
             cell.accessoryView = toggle
             cell.selectionStyle = .none
-        } else if model.title == "목표 걸음 설정" || model.title == "화면 모드 설정" {
+        } else if model.title == "목표 걸음 설정" {
             cell.accessoryView = nil
             cell.accessoryType = .none
             cell.selectionStyle = .default
@@ -386,13 +381,6 @@ extension ProfileViewController: UITableViewDelegate {
                     NotificationCenter.default.post(name: .didUpdateGoalStepCount, object: nil)
                 }
             )
-            
-        case "화면 모드 설정":
-            showActionSheetForProfile(
-                buildView: {
-                    let v = DisplayModeView()
-                    return v
-                })
         case "문의하기":
             if MFMailComposeViewController.canSendMail() {
                 let vc = MFMailComposeViewController()
