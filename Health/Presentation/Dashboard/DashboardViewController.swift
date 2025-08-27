@@ -65,7 +65,7 @@ final class DashboardViewController: HealthNavigationController, Alertable, Scro
         // 처음 데이터를 불러오고, 캘린더에서 대시보드로 이동하였다면
         guard !hasLoadedData && viewModel.fromCalendar else { return }
 
-        viewModel.loadHKData()
+        viewModel.loadHKData(updateAnchorDate: true)
         hasLoadedData = true
     }
 
