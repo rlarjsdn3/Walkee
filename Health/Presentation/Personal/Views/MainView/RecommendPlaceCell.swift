@@ -79,7 +79,7 @@ class RecommendPlaceCell: CoreCollectionViewCell {
         // 네트워크 오류 시 무조건 기본 이미지 표시
         if !isNetworkAvailable {
             hideSkeletonView()
-            let config = UIImage.SymbolConfiguration(pointSize: 52) // 원하는 크기와 굵기
+            let config = UIImage.SymbolConfiguration(pointSize: 52)
             courseImage.image = UIImage(systemName: "mappin.slash.circle", withConfiguration: config)
             courseImage.tintColor = .systemGray3
             courseImage.contentMode =  .center
@@ -89,6 +89,7 @@ class RecommendPlaceCell: CoreCollectionViewCell {
         // 캐시 먼저 확인
         if let cachedImage = WalkingCourseService.shared.getCachedThumbnail(for: course.gpxpath) {
             courseImage.image = cachedImage
+            courseImage.contentMode = .scaleAspectFill
             hideSkeletonView()
             return
         }

@@ -454,8 +454,6 @@ class PersonalViewController: HealthNavigationController, Alertable, ScrollableT
                 applyDataSnapshot()
                 // 거리 계산을 다시 요청합니다. (권한 없으면 "위치 권한 없음"이 캐시에 저장됨)
                 await distanceViewModel.prepareAndCalculateDistances(for: self.courses)
-                // 계산이 끝난 후, 최종 결과("위치 권한 없음")를 표시하기 위해 UI를 다시 갱신합니다.
-                applyDataSnapshot()
             }
         }
     }
