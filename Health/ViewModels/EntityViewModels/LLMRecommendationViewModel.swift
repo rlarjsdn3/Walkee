@@ -309,6 +309,10 @@ class LLMRecommendationViewModel: ObservableObject {
         // 2초간 에러 화면 표시
         try? await Task.sleep(nanoseconds: 2_000_000_000)
 
+        if recommendedLevels.isEmpty {
+            recommendedLevels = ["1"]
+        }
+
         // 로딩 완료
         isLoading = false
         isErrorHandling = false
