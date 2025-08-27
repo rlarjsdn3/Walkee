@@ -122,7 +122,8 @@ final class EditStepGoalView: CoreView {
         valueStack.alignment = .center
         valueStack.spacing = 8
         
-        valueLabel.font = .preferredFont(forTextStyle: .largeTitle)
+        let font = UIFont.monospacedDigitSystemFont(ofSize: 34, weight: .regular)
+        valueLabel.font = UIFontMetrics(forTextStyle: .largeTitle).scaledFont(for: font)
         valueLabel.adjustsFontForContentSizeCategory = true
         
         hStack.axis = .horizontal
