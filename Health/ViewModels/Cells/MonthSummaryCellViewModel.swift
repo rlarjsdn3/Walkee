@@ -39,6 +39,20 @@ final class MonthSummaryCellViewModel: ObservableObject {
                 self?.loadMonthlyData()
             }
             .store(in: &cancellables)
+
+        NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)
+            .sink { [weak self] _ in
+                let isLinked = UserDefaultsWrapper.shared.healthkitLinked
+
+                if isLinked {
+                    // 연동 ON
+                    self?.loadMonthlyData()
+                } else {
+                    // 연동 OFF
+                    self?.state = .denied
+                }
+            }
+            .store(in: &cancellables)
     }
 
     /// 월간 데이터 로드
@@ -46,6 +60,12 @@ final class MonthSummaryCellViewModel: ObservableObject {
         state = .loading
 
         Task { @MainActor in
+
+            guard UserDefaultsWrapper.shared.healthkitLinked else {
+                state = .denied
+                return
+            }
+
             // 권한 체크 (걸음수 + 거리 + 칼로리 모두 필요)
             let hasStepPermission = await healthService.checkHasReadPermission(for: .stepCount)
             let hasDistancePermission = await healthService.checkHasReadPermission(for: .distanceWalkingRunning)

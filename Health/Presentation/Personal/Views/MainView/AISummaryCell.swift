@@ -14,7 +14,7 @@ class AISummaryCell: CoreCollectionViewCell {
     @IBOutlet weak var aiSummaryLabel: UILabel!
     @IBOutlet weak var summaryBackgroundView: UIView!
     @IBOutlet weak var backgroundHeight: NSLayoutConstraint!
-    
+
     private let loadingIndicatorView = AlanLoadingIndicatorView()
     private var viewModel: AIMonthlySummaryCellViewModel?
     private var cancellables = Set<AnyCancellable>()
@@ -25,7 +25,7 @@ class AISummaryCell: CoreCollectionViewCell {
             setupLoadingIndicator()
         }
     }
-    
+
     override func setupAttribute() {
         super.setupAttribute()
         BackgroundHeightUtils.setupShadow(for: self)
@@ -36,29 +36,27 @@ class AISummaryCell: CoreCollectionViewCell {
     private func setupLoadingIndicator() {
         summaryBackgroundView.addSubview(loadingIndicatorView)
         loadingIndicatorView.translatesAutoresizingMaskIntoConstraints = false
-        
+
         NSLayoutConstraint.activate([
             loadingIndicatorView.centerXAnchor.constraint(equalTo: summaryBackgroundView.centerXAnchor, constant: 0),
             loadingIndicatorView.centerYAnchor.constraint(equalTo: summaryBackgroundView.centerYAnchor, constant: 0),
             loadingIndicatorView.widthAnchor.constraint(greaterThanOrEqualToConstant: 200),
-//            loadingIndicatorView.widthAnchor.constraint(equalToConstant: 300),
-//            loadingIndicatorView.heightAnchor.constraint(equalToConstant: 70)
             loadingIndicatorView.leadingAnchor.constraint(greaterThanOrEqualTo: summaryBackgroundView.leadingAnchor, constant: 16),
             loadingIndicatorView.trailingAnchor.constraint(lessThanOrEqualTo: summaryBackgroundView.trailingAnchor, constant: -16)
         ])
     }
-    
+
     override func setupConstraints() {
         super.setupConstraints()
         BackgroundHeightUtils.updateBackgroundHeight(constraint: backgroundHeight, in: self)
-        
+
         registerForTraitChanges([UITraitHorizontalSizeClass.self]) { (self: Self, _) in
             BackgroundHeightUtils.updateBackgroundHeight(constraint: self.backgroundHeight, in: self)
         }
     }
-    
+
     // MARK: - Configuration
-    
+
     func configure(
         with viewModel: AIMonthlySummaryCellViewModel,
         promptBuilderService: any PromptBuilderService
@@ -66,7 +64,7 @@ class AISummaryCell: CoreCollectionViewCell {
         self.viewModel = viewModel
         cancellables.removeAll()
         render(for: .loading)
-        
+
         // 상태 변화 구독
         viewModel.statePublisher
             .receive(on: DispatchQueue.main)
@@ -74,17 +72,17 @@ class AISummaryCell: CoreCollectionViewCell {
                 self?.render(for: state)
             }
             .store(in: &cancellables)
-        
+
         // 월간 요약 로딩 시작
         Task {
             await viewModel.loadMonthlySummary()
         }
     }
-    
+
     // MARK: - State Handling
-    
+
     private func render(for state: LoadState<AIMonthlySummaryCellViewModel.Content>) {
-        
+
         switch state {
         case .idle:
             aiSummaryLabel.isHidden = true
@@ -120,13 +118,13 @@ class AISummaryCell: CoreCollectionViewCell {
             chatbotView.isHidden = true
         }
     }
-    
+
     override func prepareForReuse() {
         super.prepareForReuse()
-        
+
         cancellables.removeAll()
         viewModel = nil
-        
+
         // 초기 상태로 리셋
         aiSummaryLabel.isHidden = true
         loadingIndicatorView.setState(.loading)

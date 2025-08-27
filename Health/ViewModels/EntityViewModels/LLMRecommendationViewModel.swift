@@ -22,69 +22,18 @@ class LLMRecommendationViewModel: ObservableObject {
     @Published var recommendedLevels: [String] = []
     @Published var error: Error?
 
+    private var lastUserInfoHash: String? {
+        get { UserDefaultsWrapper.shared.lastUserInfoHash }
+        set { UserDefaultsWrapper.shared.lastUserInfoHash = newValue }
+    }
+
     init() {
         loadCachedRecommendations()
-        setupCoreDataObserver()
+        saveCurrentUserInfoHash()
     }
 
     deinit {
         NotificationCenter.default.removeObserver(self)
-    }
-
-    // MARK: - CoreData 변경 감지
-
-    // CoreData 변경사항을 감지하는 옵저버 설정
-    private func setupCoreDataObserver() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(managedObjectContextDidSave),
-            name: .NSManagedObjectContextDidSave,
-            object: nil
-        )
-    }
-
-    // CoreData 저장이 완료되었을 때 호출되는 메서드
-    @objc private func managedObjectContextDidSave(_ notification: Notification) {
-
-        // UserInfoEntity가 업데이트되었는지 확인
-        if let updatedObjects = notification.userInfo?[NSUpdatedObjectsKey] as? Set<NSManagedObject> {
-            let hasUserInfoUpdate = updatedObjects.contains { object in
-                return object is UserInfoEntity
-            }
-
-            if hasUserInfoUpdate {
-
-                DispatchQueue.main.async { [weak self] in
-                    self?.handleUserInfoUpdate()
-                }
-            }
-        }
-
-        // 새로 생성된 UserInfoEntity확인 (처음 앱 설치한 경우)
-        if let insertedObjects = notification.userInfo?[NSInsertedObjectsKey] as? Set<NSManagedObject> {
-            let hasUserInfoInsert = insertedObjects.contains { object in
-                return object is UserInfoEntity
-            }
-
-            if hasUserInfoInsert {
-
-                DispatchQueue.main.async { [weak self] in
-                    self?.handleUserInfoUpdate()
-                }
-            }
-        }
-    }
-
-    /// 사용자 정보가 업데이트되었을 때의 처리
-    private func handleUserInfoUpdate() {
-        // 기존 추천이 있는 경우에만 새로고침 (첫 로딩은 제외)
-        if hasValidRecommendations() {
-
-            clearRecommendationCache()
-            Task {
-                await fetchRecommendations()
-            }
-        }
     }
 
     /// 추천 캐시 삭제
@@ -94,6 +43,45 @@ class LLMRecommendationViewModel: ObservableObject {
 
         // 메모리에서도 삭제
         recommendedLevels = []
+    }
+
+    /// 사용자 정보 변경 여부를 확인하고 필요시에만 새로운 추천을 가져옵니다
+    func checkAndUpdateIfNeeded() async {
+        // 기존 추천이 없으면 항상 fetch
+        guard hasValidRecommendations() else {
+            await fetchRecommendations()
+            return
+        }
+
+        // 사용자 정보 변경 체크
+        if hasUserInfoChanged() {
+            clearRecommendationCache()
+            await fetchRecommendations()
+            saveCurrentUserInfoHash()
+        }
+    }
+
+    // MARK: - 간단한 변경 감지
+
+    private func hasUserInfoChanged() -> Bool {
+        let currentHash = getCurrentUserInfoHash()
+        return lastUserInfoHash != currentHash
+    }
+
+    private func getCurrentUserInfoHash() -> String {
+        do {
+            let user = try userService.fetchUserInfo()
+            let hash = "\(user.age)-\(user.gender ?? "")-\(user.height)-\(user.weight)-\(user.diseases?.count ?? 0)"
+            print("현재 해시 생성: \(hash)")
+            return hash
+        } catch {
+            print("해시 생성 에러: \(error)")
+            return "error"
+        }
+    }
+
+    private func saveCurrentUserInfoHash() {
+        lastUserInfoHash = getCurrentUserInfoHash()
     }
 
     // MARK: - Public Methods
@@ -119,6 +107,21 @@ class LLMRecommendationViewModel: ObservableObject {
         do {
             // 사용자 정보 가져오기
             let userInfo = try userService.fetchUserInfo()
+            print("=== 사용자 정보 ===")
+            print("나이: \(userInfo.age)")
+            print("성별: \(userInfo.gender ?? "미설정")")
+            print("몸무게: \(userInfo.weight)")
+            print("키: \(userInfo.height)")
+
+            // Disease 배열을 문자열로 변환
+            if let diseases = userInfo.diseases, !diseases.isEmpty {
+                let diseaseNames = diseases.map { $0.rawValue }.joined(separator: ", ")
+                print("질병: \(diseaseNames)")
+            } else {
+                print("질병: 없음")
+            }
+
+            print("==================")
 
             // 걷기 추천을 위한 컨텍스트 생성
             let context = createWalkingRecommendationContext(userInfo: userInfo)
@@ -129,9 +132,18 @@ class LLMRecommendationViewModel: ObservableObject {
                 context: context,
                 option: .userLevel
             )
+            // 생성된 프롬프트 출력
+            print("=== 보내는 프롬프트 ===")
+            print(prompt)
+            print("====================")
 
             let response = await sendQuestionWithRetry(prompt)
             print("응답: \(response ?? "nil")")
+
+            // 받은 응답 출력
+            print("=== 받은 응답 ===")
+            print("응답: \(response ?? "nil")")
+            print("===============")
 
             // 응답이 비어있는지 확인
             guard let response = response, !response.isEmpty else {

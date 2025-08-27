@@ -66,6 +66,9 @@ class PersonalViewController: HealthNavigationController, Alertable, ScrollableT
         super.viewWillAppear(animated)
         // 앱이 포그라운드로 돌아올 때마다 권한 상태 확인
         checkLocationPermissionChange()
+        Task {
+            await llmViewModel.checkAndUpdateIfNeeded()
+        }
     }
 
     override func setupAttribute() {
