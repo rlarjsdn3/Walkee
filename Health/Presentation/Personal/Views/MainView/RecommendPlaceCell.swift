@@ -58,7 +58,7 @@ class RecommendPlaceCell: CoreCollectionViewCell {
     }
 
     // API에서 받은 실제 데이터로 설정
-    func configure(with course: WalkingCourse) {
+    func configure(with course: WalkingCourse, isNetworkAvailable: Bool = true) {
         self.currentCourse = course
         // 기본 텍스트 설정
         courseNameLabel.text = course.crsKorNm.upToFirstCourse()
@@ -76,6 +76,15 @@ class RecommendPlaceCell: CoreCollectionViewCell {
         currentGPXURL = course.gpxpath
         thumbnailTask?.cancel()
 
+        // 네트워크 오류 시 무조건 기본 이미지 표시
+        if !isNetworkAvailable {
+            hideSkeletonView()
+            courseImage.image = UIImage(systemName: "mappin.slash.circle")
+            courseImage.tintColor = .systemGray3
+            courseImage.contentMode = .scaleAspectFit
+            return
+        }
+
         // 캐시 먼저 확인
         if let cachedImage = WalkingCourseService.shared.getCachedThumbnail(for: course.gpxpath) {
             courseImage.image = cachedImage
@@ -83,8 +92,8 @@ class RecommendPlaceCell: CoreCollectionViewCell {
             return
         }
 
-        currentGPXURL = course.gpxpath
-        thumbnailTask?.cancel()
+//        currentGPXURL = course.gpxpath
+//        thumbnailTask?.cancel()
 
         // 썸네일만 별도 처리 (거리는 뷰컨트롤러에서 처리)
         thumbnailTask = Task { @MainActor in

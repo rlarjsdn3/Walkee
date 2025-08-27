@@ -99,7 +99,7 @@ class AISummaryCell: CoreCollectionViewCell {
         case .success(let content):
             loadingIndicatorView.setState(.success)
             aiSummaryLabel.isHidden = false
-            aiSummaryLabel.text = content.message
+            aiSummaryLabel.text = content.message.removingMarkdown()
             chatbotView.isHidden = false
 
         case .failure(let error):

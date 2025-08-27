@@ -29,21 +29,18 @@ class CourseDistanceViewModel {
             // 권한이 없으면 "위치 권한 없음"을 캐시에 저장하고 즉시 종료
             for course in courses {
                 courseDistances[course.gpxpath] = "위치 권한 없음"
+                onDistanceUpdated?(course.gpxpath, "위치 권한 없음")
             }
-            onCacheNeedsRefresh?() // ViewController에 UI 갱신 신호
             return
         }
-
-        clearDistanceCache()
-        onCacheNeedsRefresh?() // "거리측정중..." 표시를 위해 UI 갱신 신호
 
         guard let myLocation = await getMyLocationWithRetry() else {
 
             let errorMessage = "위치 신호 오류"
             for course in courses {
                 courseDistances[course.gpxpath] = errorMessage
+                onDistanceUpdated?(course.gpxpath, errorMessage)
             }
-            onCacheNeedsRefresh?() // ViewController에 UI 갱신 신호
             return
         }
 

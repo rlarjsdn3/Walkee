@@ -123,7 +123,9 @@
                             <constraint firstAttribute="trailing" secondItem="hlI-9J-yw7" secondAttribute="trailing" constant="16" id="I4i-Mv-Ezm"/>
                             <constraint firstAttribute="height" constant="184.66999999999999" id="IxU-pD-Xev"/>
                             <constraint firstItem="hlI-9J-yw7" firstAttribute="leading" secondItem="aan-of-cHS" secondAttribute="leading" constant="16" id="JvO-lF-iDl"/>
+                            <constraint firstItem="hlI-9J-yw7" firstAttribute="centerX" secondItem="aan-of-cHS" secondAttribute="centerX" id="XdT-PR-p8J"/>
                             <constraint firstItem="hlI-9J-yw7" firstAttribute="top" secondItem="aan-of-cHS" secondAttribute="top" constant="16" id="aOs-9J-6Am"/>
+                            <constraint firstItem="hlI-9J-yw7" firstAttribute="centerY" secondItem="aan-of-cHS" secondAttribute="centerY" id="mft-zo-uiy"/>
                         </constraints>
                     </view>
                 </subviews>
@@ -133,7 +135,6 @@
                 <constraint firstAttribute="bottom" secondItem="aan-of-cHS" secondAttribute="bottom" id="7A0-xr-VMm"/>
                 <constraint firstItem="aan-of-cHS" firstAttribute="leading" secondItem="KEe-aD-T4W" secondAttribute="leading" id="9Hl-aV-mkg"/>
                 <constraint firstAttribute="trailing" secondItem="aan-of-cHS" secondAttribute="trailing" id="JE0-wz-eT1"/>
-                <constraint firstItem="aan-of-cHS" firstAttribute="centerX" secondItem="KEe-aD-T4W" secondAttribute="centerX" id="JqE-Uc-Adx"/>
                 <constraint firstItem="omY-84-VhQ" firstAttribute="leading" secondItem="KEe-aD-T4W" secondAttribute="leading" constant="5" id="QPY-xM-Cwx"/>
                 <constraint firstItem="aan-of-cHS" firstAttribute="top" secondItem="omY-84-VhQ" secondAttribute="bottom" constant="12" id="Qpk-jX-Wkp"/>
                 <constraint firstItem="omY-84-VhQ" firstAttribute="top" secondItem="KEe-aD-T4W" secondAttribute="top" id="c0n-Vb-1jC"/>
@@ -159,7 +160,7 @@
             <color red="0.95294117647058818" green="0.95294117647058818" blue="0.95294117647058818" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <systemColor name="secondaryLabelColor">
-            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

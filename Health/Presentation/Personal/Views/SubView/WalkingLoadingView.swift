@@ -93,10 +93,18 @@ class WalkingLoadingView: UIView {
             print("   → 네트워크 오류 상태로 변경")
             activityIndicator.stopAnimating()
             activityIndicator.isHidden = true
-            errorImageView.isHidden = false
-            errorImageView.image = UIImage(systemName: "wifi.exclamationmark")
-            errorImageView.tintColor = .systemOrange
-            messageLabel.text = "네트워크 오류입니다"
+            errorImageView.isHidden = true
+            let warningIcon = UIImage(systemName: "wifi.exclamationmark")?.withTintColor(.systemRed, renderingMode: .alwaysOriginal)
+
+            let attachment = NSTextAttachment()
+            attachment.image = warningIcon
+            attachment.bounds = CGRect(x: 0, y: -2, width: 16, height: 16)
+
+            let attributedString = NSMutableAttributedString()
+            attributedString.append(NSAttributedString(attachment: attachment))
+            attributedString.append(NSAttributedString(string: " 네트워크 오류 입니다.\n쉬운 코스를 기본으로 보여드릴게요."))
+
+            messageLabel.attributedText = attributedString
         }
     }
 }

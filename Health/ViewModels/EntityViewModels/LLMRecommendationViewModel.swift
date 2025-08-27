@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import CoreData
+import Network
 
 class LLMRecommendationViewModel: ObservableObject {
 
@@ -16,6 +17,11 @@ class LLMRecommendationViewModel: ObservableObject {
 
     private var alanService = AlanViewModel()
     private var cancellables = Set<AnyCancellable>()
+    private var isErrorHandling = false
+    private let networkMonitor = NWPathMonitor()
+    private let networkQueue = DispatchQueue(label: "LLMNetworkMonitor")
+    private var isNetworkConnected = false
+    private var shouldRetryWhenNetworkReturns = false
 
     @Published var isLoading = false
     @Published var loadingState: WalkingLoadingView.State = .loading
@@ -30,10 +36,39 @@ class LLMRecommendationViewModel: ObservableObject {
     init() {
         loadCachedRecommendations()
         saveCurrentUserInfoHash()
+        startNetworkMonitoring()
     }
 
     deinit {
+        networkMonitor.cancel()
         NotificationCenter.default.removeObserver(self)
+    }
+
+    private func startNetworkMonitoring() {
+        networkMonitor.pathUpdateHandler = { [weak self] path in
+            Task { @MainActor in
+                let wasConnected = self?.isNetworkConnected ?? false  // 이전 연결 상태 저장
+                let isNowConnected = (path.status == .satisfied)      // 현재 연결 상태 확인
+
+                self?.isNetworkConnected = isNowConnected
+
+                // 네트워크가 복구된 경우
+                if !wasConnected && isNowConnected {
+
+                    // 네트워크 에러로 인해 대기 중이었다면 자동으로 다시 시도
+                    if self?.shouldRetryWhenNetworkReturns == true {
+                        self?.shouldRetryWhenNetworkReturns = false  // 플래그 리셋
+                        await self?.fetchRecommendations()  // 추천 데이터 다시 가져오기
+                    }
+                }
+
+                //  네트워크가 끊어진 경우
+                if wasConnected && !isNowConnected {
+                    print("네트워크가 끊어졌습니다.")
+                }
+            }
+        }
+        networkMonitor.start(queue: networkQueue)
     }
 
     /// 추천 캐시 삭제
@@ -197,8 +232,6 @@ class LLMRecommendationViewModel: ObservableObject {
         if let savedLevels = UserDefaultsWrapper.shared.llmRecommendedCourseLevels {
             recommendedLevels = savedLevels
             print("캐시 로드됨: \(savedLevels)")
-        } else {
-            print("캐시 없음")
         }
     }
 
@@ -244,24 +277,40 @@ class LLMRecommendationViewModel: ObservableObject {
     @MainActor
     private func handleError(_ error: Error) async {
         self.error = error
+        isErrorHandling = true
 
-        // 에러 타입에 따른 로딩 상태 설정
-        if error is URLError {
+        print("=== 에러 정보 ===")
+        print("에러 타입: \(type(of: error))")
+        print("에러 설명: \(error.localizedDescription)")
+        print("현재 네트워크 상태: \(isNetworkConnected ? "연결됨" : "연결 안됨")")
+        print("===============")
+
+        // 네트워크 상태에 따라 에러 타입 결정
+        if !isNetworkConnected {
+
+            //네트워크가 끊어진 상태 - 모든 에러를 네트워크 에러로 처리
             loadingState = .networkError
+            shouldRetryWhenNetworkReturns = true  // 네트워크 복구 시 자동 재시도 플래그 설정
+
+        } else if error is URLError || error is NetworkError {
+
+            // 네트워크 관련 에러
+            loadingState = .networkError
+            shouldRetryWhenNetworkReturns = true  // 일시적 네트워크 문제일 수 있으므로 재시도
+
+
         } else {
+            //API 호출 실패, 파싱 에러 등 - 네트워크와 무관한 에러
             loadingState = .failed
+            shouldRetryWhenNetworkReturns = false  // 네트워크 복구와 무관하므로 재시도하지 않음
         }
 
         // 2초간 에러 화면 표시
         try? await Task.sleep(nanoseconds: 2_000_000_000)
 
-        // 기본값 설정
-        if recommendedLevels.isEmpty {
-            recommendedLevels = ["1"]
-        }
-
-        // 마지막에 로딩 완료 처리
+        // 로딩 완료
         isLoading = false
+        isErrorHandling = false
     }
 }
 
