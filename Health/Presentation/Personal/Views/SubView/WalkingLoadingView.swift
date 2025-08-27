@@ -85,7 +85,7 @@ class WalkingLoadingView: UIView {
 
             let attributedString = NSMutableAttributedString()
             attributedString.append(NSAttributedString(attachment: attachment))
-            attributedString.append(NSAttributedString(string: " 불러오지 못했습니다.\n쉬운 코스를 기본으로 보여드릴게요."))
+            attributedString.append(NSAttributedString(string: " 추천 코스를 불러오지 못했습니다.\n쉬운 코스를 기본으로 보여드릴게요."))
 
             messageLabel.attributedText = attributedString
 
@@ -102,7 +102,7 @@ class WalkingLoadingView: UIView {
 
             let attributedString = NSMutableAttributedString()
             attributedString.append(NSAttributedString(attachment: attachment))
-            attributedString.append(NSAttributedString(string: " 네트워크 오류 입니다.\n쉬운 코스를 기본으로 보여드릴게요."))
+            attributedString.append(NSAttributedString(string: " 네트워크 요청 시간이 초과되었습니다.\n쉬운 코스를 기본으로 보여드릴게요."))
 
             messageLabel.attributedText = attributedString
         }

@@ -553,6 +553,7 @@ class PersonalViewController: HealthNavigationController, Alertable, ScrollableT
         showAlert(
             "위치 권한 필요",
             message: "추천 코스 기능을 사용하려면 위치 권한이 필요합니다. 설정에서 위치 권한을 허용해 주세요.",
+            primaryTitle: "열기",
             onPrimaryAction: { _ in
                 // "확인" 버튼 눌렀을 때 → 설정 앱으로 이동
                 if let settingsURL = URL(string: UIApplication.openSettingsURLString) {

@@ -79,9 +79,10 @@ class RecommendPlaceCell: CoreCollectionViewCell {
         // 네트워크 오류 시 무조건 기본 이미지 표시
         if !isNetworkAvailable {
             hideSkeletonView()
-            courseImage.image = UIImage(systemName: "mappin.slash.circle")
+            let config = UIImage.SymbolConfiguration(pointSize: 52) // 원하는 크기와 굵기
+            courseImage.image = UIImage(systemName: "mappin.slash.circle", withConfiguration: config)
             courseImage.tintColor = .systemGray3
-            courseImage.contentMode = .scaleAspectFit
+            courseImage.contentMode =  .center
             return
         }
 
@@ -91,9 +92,6 @@ class RecommendPlaceCell: CoreCollectionViewCell {
             hideSkeletonView()
             return
         }
-
-//        currentGPXURL = course.gpxpath
-//        thumbnailTask?.cancel()
 
         // 썸네일만 별도 처리 (거리는 뷰컨트롤러에서 처리)
         thumbnailTask = Task { @MainActor in
@@ -109,10 +107,11 @@ class RecommendPlaceCell: CoreCollectionViewCell {
                 hideSkeletonView()
             } else {
                 courseImage.image = nil
-                courseImage.image = UIImage(systemName: "mappin.slash.circle")
+                let config = UIImage.SymbolConfiguration(pointSize: 52)
+                courseImage.image = UIImage(systemName: "mappin.slash.circle", withConfiguration: config)
                 courseImage.tintColor = .systemGray3
-                courseImage.contentMode = .scaleAspectFit
-                hideSkeletonView()
+                courseImage.contentMode = .center
+                return
             }
         }
     }

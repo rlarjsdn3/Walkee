@@ -69,7 +69,7 @@ final class BackgroundHeightUtils {
     static func setupShadow(for view: UIView) {
         view.layer.masksToBounds = false
         view.layer.shadowColor = UIColor.black.cgColor
-        view.layer.shadowOpacity = 0.15
+        view.layer.shadowOpacity = 0.05
         view.layer.shadowOffset = CGSize(width: 2, height: 2)
         view.layer.shadowRadius = 5
     }
