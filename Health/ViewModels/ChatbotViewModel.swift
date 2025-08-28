@@ -18,11 +18,12 @@ final class ChatbotViewModel {
 	
 	var onActionText: ((String) -> Void)?
 	var onStreamChunk: ((String) -> Void)?
-	var onFinalRender: ((Int, NSAttributedString) -> Void)? // 변경: 인덱스 추가
+	var onFinalRender: ((NSAttributedString) -> Void)? // 변경: 인덱스 추가
 	var onStreamCompleted: ((String) -> Void)?
 	var onError: ((String) -> Void)?
 	
 	private var streamTask: Task<Void, Never>?
+	private var didResetInThisCycle = false
 	private var clientID: String { AppConfiguration.clientID }
 	
 	private var streamingBuffer: String = "" // 변경: 스트리밍 버퍼 추가
@@ -33,49 +34,34 @@ final class ChatbotViewModel {
 	
 	deinit { streamTask?.cancel() }
 	
-	// 단순 스트리밍
-	func startStreamingQuestion(_ content: String, autoReset: Bool = true) {
-		streamTask?.cancel()
-		streamTask = Task { [weak self] in
-			guard let self else { return }
-			await self._startStreaming(content: content, canRetry: autoReset)
-		}
-	}
 	
 	/// 자동 리셋처리 되면서 비식별화와 걷기 프롬프트 설계로 Streaming 요청에 응답
 	/// - Parameter rawMessage: 원문 사용자 요청값 메시지
 	func startPromptChatWithAutoReset(_ rawMessage: String) {
 		streamTask?.cancel()
+		streamingBuffer = ""
+		didResetInThisCycle = false
+		
 		streamTask = Task { [weak self] in
 			guard let self else { return }
 			
 			let masked = PrivacyService.maskSensitiveInfo(in: rawMessage)
-	
-			Log.privacy.info("[Chatbot] Original: \(rawMessage, privacy: .public)")
-			Log.privacy.info("[Chatbot] Masked  : \(masked, privacy: .public)")
 			
 #if DEBUG
-			// DEBUG 모드: 목 데이터로 테스트 스트리밍
-			startMockStreaming(masked)
-#else
-			// RELEASE 모드: 실제 프롬프트 생성 + SSE 요청
-			streamTask = Task { [weak self] in
-				guard let self else { return }
-				
-				do {
-					let prompt = try await promptBuilderService.makePrompt(
-						message: masked,
-						context: nil,
-						option: .chat
-					)
-					await self._startStreaming(content: prompt, canRetry: true)
-					//print("🧾 [Prompt] Alan에게 전달할 최종 프롬프트:")
-					//print(prompt)
-				} catch {
-					onError?("프롬프트 생성 실패: \(error.localizedDescription)")
-				}
+			let isUnitTest = NSClassFromString("XCTestCase") != nil
+			if !isUnitTest {
+				startMockStreaming(masked)
+				return
 			}
 #endif
+			do {
+				let prompt = try await promptBuilderService.makePrompt(
+					message: masked, context: nil, option: .chat
+				)
+				await self._startStreaming(content: prompt, canRetry: true)
+			} catch {
+				onError?("프롬프트 생성 실패: \(error.localizedDescription)")
+			}
 		}
 	}
 	
@@ -156,28 +142,53 @@ final class ChatbotViewModel {
 				case .continue:
 					if let c = event.data.content, !c.isEmpty { onStreamChunk?(c) }
 				case .complete:
-					let completeText = event.data.content ?? ""
-					self.streamingBuffer.append(completeText)
-//					Log.net.info("[SSE COMPLETE] content=\(completeText, privacy: .public)")
-					// 최종 렌더링
-					let _ = ChatMarkdownRenderer.renderFinalMarkdown(self.streamingBuffer)
-					onStreamCompleted?(self.streamingBuffer)
-					self.streamingBuffer = ""
+					let tail = event.data.content ?? ""
+					streamingBuffer.append(tail)
+					
+					// ✅ 마크다운 렌더 → 한 번만 표시
+					let attributed = ChatMarkdownRenderer.renderFinalMarkdown(streamingBuffer)
+					onFinalRender?(attributed)
+					
+					// ✅ plain 최종도 한 번
+					onStreamCompleted?(streamingBuffer)
+					
+					streamingBuffer = ""
 					callComplete = false
 					break streamLoop
+//					let completeText = event.data.content ?? ""
+//					self.streamingBuffer.append(completeText)
+//
+//					// 최종 렌더링
+//					let _ = ChatMarkdownRenderer.renderFinalMarkdown(self.streamingBuffer)
+//					onStreamCompleted?(self.streamingBuffer)
+//					self.streamingBuffer = ""
+//					callComplete = false
+//					break streamLoop
 				}
 			}
 		} catch {
 			// 기존 세션 초기화 로직 유지
 			if canRetry, isRecoverable(error) {
-				callComplete = false
-				onActionText?("세션 초기화 후 재시도…")
-				// 500 복구 스로틀 없이 1회 수행
-				await resetAgentState(throttle: nil)
-				try? await Task.sleep(nanoseconds: 300_000_000)
-				await _startStreaming(content: content, canRetry: false)
-				return
-			}
+						callComplete = false
+						onActionText?("세션 초기화 후 재시도…")
+
+						if !didResetInThisCycle {          // ✅ 같은 사이클 1회만
+							didResetInThisCycle = true
+							await resetAgentState(throttle: .seconds(1))
+						}
+						try? await Task.sleep(nanoseconds: 300_000_000)
+						await _startStreaming(content: content, canRetry: false)
+						return
+					}
+//			if canRetry, isRecoverable(error) {
+//				callComplete = false
+//				onActionText?("세션 초기화 후 재시도…")
+//				// 500 복구 스로틀 없이 1회 수행
+//				await resetAgentState(throttle: nil)
+//				try? await Task.sleep(nanoseconds: 300_000_000)
+//				await _startStreaming(content: content, canRetry: false)
+//				return
+//			}
 			
 			// 401코드 사용자 메시지 매핑
 			if let sseError = error as? AlanSSEClientError {
@@ -255,3 +266,25 @@ final class ChatbotViewModel {
 		}
 	}
 }
+//#if DEBUG
+//			// DEBUG 모드: 목 데이터로 테스트 스트리밍
+//			startMockStreaming(masked)
+//#else
+//			// RELEASE 모드: 실제 프롬프트 생성 + SSE 요청
+//			streamTask = Task { [weak self] in
+//				guard let self else { return }
+//
+//				do {
+//					let prompt = try await promptBuilderService.makePrompt(
+//						message: masked,
+//						context: nil,
+//						option: .chat
+//					)
+//					await self._startStreaming(content: prompt, canRetry: true)
+//					//print("🧾 [Prompt] Alan에게 전달할 최종 프롬프트:")
+//					//print(prompt)
+//				} catch {
+//					onError?("프롬프트 생성 실패: \(error.localizedDescription)")
+//				}
+//			}
+//#endif
