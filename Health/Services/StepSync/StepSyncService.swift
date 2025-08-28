@@ -74,11 +74,6 @@ final class DefaultStepSyncService: StepSyncService {
 
 private extension DefaultStepSyncService {
 
-    func countDailyStep() -> Int {
-        let request = DailyStepEntity.fetchRequest()
-        return (try? CoreDataStack.shared.viewContext.count(for: request)) ?? 0
-    }
-
     /// 가장 이른 목표 걸음 수 설정 날짜를 조회합니다.
     ///
     /// Core Data에서 `GoalStepCountEntity`의 가장 이른 `effectiveDate`를 찾아 반환합니다.

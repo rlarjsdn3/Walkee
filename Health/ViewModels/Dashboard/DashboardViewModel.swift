@@ -17,6 +17,7 @@ final class DashboardViewModel {
 
     private(set) var anchorDate: Date
     let fromCalendar: Bool
+    private var hkDataLoadingInProgress: Bool = false
 
     private(set) var topIDs: [DashboardTopBarViewModel.ItemID] = []
     private(set) var topCells: [DashboardTopBarViewModel.ItemID: DashboardTopBarViewModel] = [:]
@@ -186,6 +187,12 @@ final class DashboardViewModel {
 extension DashboardViewModel {
 
     func loadHKData(includeAI: Bool = true, updateAnchorDate: Bool = false) {
+        guard !hkDataLoadingInProgress else { return }
+        hkDataLoadingInProgress = true
+        defer {
+            hkDataLoadingInProgress = false
+        }
+
         loadAnchorDateForTopCell(updateAnchorDate: updateAnchorDate)
         loadHKDataForActivityRingCells()
         loadHKDataForStackCells()

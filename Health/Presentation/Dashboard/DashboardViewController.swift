@@ -21,7 +21,7 @@ final class DashboardViewController: HealthNavigationController, Alertable, Scro
     //
     private var hasBuiltLayout = false
     private var hasLoadedData = false
-    
+
     lazy var viewModel: DashboardViewModel = {
         .init()
     }()
