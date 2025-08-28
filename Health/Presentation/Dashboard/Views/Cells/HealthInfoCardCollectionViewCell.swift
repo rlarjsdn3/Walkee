@@ -123,7 +123,7 @@ extension HealthInfoCardCollectionViewCell {
             let hkValue = {
                 switch viewModel.itemID.kind {
                 case .walkingSpeed, .walkingStepLength:
-                    return content.value
+                    return (content.value * 10).rounded() / 10.0
                 case .walkingAsymmetryPercentage, .walkingDoubleSupportPercentage:
                     return content.value * 100.0
                 }

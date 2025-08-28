@@ -21,7 +21,7 @@ final class DashboardViewController: HealthNavigationController, Alertable, Scro
     //
     private var hasBuiltLayout = false
     private var hasLoadedData = false
-    
+
     lazy var viewModel: DashboardViewModel = {
         .init()
     }()
@@ -36,6 +36,7 @@ final class DashboardViewController: HealthNavigationController, Alertable, Scro
 
         buildLayout()
 //        loadData() // 생명주기 메서드에서 데이터를 로드하는 대신, 프로필 화면에서 노티피케이션 신호를 받으면 데이터를 로드합니다.
+        loadDataIfNeeded()
         setupDataSource()
         applySnapshot()
 
@@ -60,10 +61,11 @@ final class DashboardViewController: HealthNavigationController, Alertable, Scro
         hasBuiltLayout = true
     }
 
-    private func loadData() {
-        guard !hasLoadedData else { return }
+    private func loadDataIfNeeded() {
+        // 처음 데이터를 불러오고, 캘린더에서 대시보드로 이동하였다면
+        guard !hasLoadedData && viewModel.fromCalendar else { return }
 
-        viewModel.loadHKData()
+        viewModel.loadHKData(updateAnchorDate: true)
         hasLoadedData = true
     }
 
@@ -107,6 +109,13 @@ final class DashboardViewController: HealthNavigationController, Alertable, Scro
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(refreshHKData),
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(refreshHKData),
             name: .didUpdateGoalStepCount,
             object: nil
         )
@@ -133,6 +142,11 @@ final class DashboardViewController: HealthNavigationController, Alertable, Scro
     }
 
     @objc private func refreshHKData() {
+        // 캘린더에서 대시보드로 이동하였다면 날짜 갱신을 불허합니다.
+        if !viewModel.fromCalendar {
+            viewModel.updateAnchorDate(.now)
+        }
+
         viewModel.loadHKData(includeAI: true, updateAnchorDate: true)
         Task.detached { await self.viewModel.updateWidgetSnapshot() }
         Task.delay(for: 0.6) { @MainActor in refreshControl.endRefreshing() }

@@ -165,7 +165,7 @@ private extension CalendarViewController {
 
     func navigationToDashboard(with date: Date) {
         let dashboardVC = DashboardViewController.instantiateInitialViewController(name: "Dashboard")
-        dashboardVC.viewModel = DashboardViewModel(anchorDate: date)
+        dashboardVC.viewModel = DashboardViewModel(anchorDate: date, fromCalendar: true)
 
         // push 시 탭바가 잠깐 보였다 내려가는 문제로 미리 tabBar를 숨깁니다.
         // pop 해서 DashboardVC가 사라지면 다시 `hidesBottomBarWhenPushed = false`인 화면이 되므로

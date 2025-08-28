@@ -23,6 +23,7 @@ final class AlanViewModel {
 			errorMessage = nil
 			return response.content
 		} catch {
+            print("앨런 AI 요청 실패:", error.localizedDescription)
 			errorMessage = error.localizedDescription
 			return nil
 		}
@@ -35,6 +36,7 @@ final class AlanViewModel {
 			_ = try await networkService.request(endpoint: endpoint, as: AlanResetStateResponse.self)
 			errorMessage = nil
 		} catch {
+            print("앨런 AI 상태 초기화 실패:", error.localizedDescription)
 			errorMessage = error.localizedDescription
 		}
 	}

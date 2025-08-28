@@ -15,7 +15,9 @@ final class DashboardViewModel {
         let horizontalClassIsRegular: Bool
     }
 
-    let anchorDate: Date
+    private(set) var anchorDate: Date
+    let fromCalendar: Bool
+    private var hkDataLoadingInProgress: Bool = false
 
     private(set) var topIDs: [DashboardTopBarViewModel.ItemID] = []
     private(set) var topCells: [DashboardTopBarViewModel.ItemID: DashboardTopBarViewModel] = [:]
@@ -50,8 +52,15 @@ final class DashboardViewModel {
     @Injected private var promptBuilderService: (any PromptBuilderService)
 
     ///
-    init(anchorDate: Date = .now) {
+    init(anchorDate: Date = .now, fromCalendar: Bool = false) {
         self.anchorDate = anchorDate
+        self.fromCalendar = fromCalendar
+    }
+
+    // MARK - Update Anchor Date
+
+    func updateAnchorDate(_ date: Date) {
+        anchorDate = date
     }
 
 
@@ -178,6 +187,12 @@ final class DashboardViewModel {
 extension DashboardViewModel {
 
     func loadHKData(includeAI: Bool = true, updateAnchorDate: Bool = false) {
+        guard !hkDataLoadingInProgress else { return }
+        hkDataLoadingInProgress = true
+        defer {
+            hkDataLoadingInProgress = false
+        }
+
         loadAnchorDateForTopCell(updateAnchorDate: updateAnchorDate)
         loadHKDataForActivityRingCells()
         loadHKDataForStackCells()
@@ -192,7 +207,9 @@ extension DashboardViewModel {
 
     func loadAnchorDateForTopCell(updateAnchorDate: Bool) {
         for (_, vm) in topCells {
-            vm.updateAnchorDate(updateAnchorDate ? .now : anchorDate)
+            if updateAnchorDate {
+                vm.updateAnchorDate(fromCalendar ? anchorDate : .now)
+            }
         }
     }
 
@@ -347,7 +364,12 @@ extension DashboardViewModel {
                             else { continue }
 
                             // 특정 날짜에 해당하는 데이터가 없다면
-                            if contents.first(where: { $0.date.isEqual(with: offsetDate) }) == nil {
+                            if contents.first(where: {
+                                switch id.kind {
+                                case .daysBack:   return $0.date.isEqual(with: offsetDate)
+                                case .monthsBack: return $0.date.isEqual([.year, .month], with: offsetDate)
+                                }
+                            }) == nil {
                                 contents.append(DashboardChartsContent(date: offsetDate, value: 0.0))
                             }
                         }
@@ -432,7 +454,6 @@ extension DashboardViewModel {
         // ⚠️ 사용자 및 목표 걸음 수가 제대로 등록되어 있으면 않으면 크래시
         let user = try! coreDataUserService.fetchUserInfo()
         let goalStep = dailyStepService.fetchDailyStep(anchorDate)
-        
         return (Int(user.age), Int(goalStep?.goalStepCount ?? 1_000))
 
 //        return (27, 5000)
