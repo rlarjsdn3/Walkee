@@ -2,7 +2,7 @@
 //  ChatbotViewModelTests.swift
 //  HealthTests
 //
-//  Created by Nat Kim on 8/27/25.
+//  Created by Seohyun Kim on 8/27/25.
 //
 
 import XCTest

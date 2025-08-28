@@ -1,5 +1,5 @@
 //
-//  ChatbotContent.swift
+//  ChatbotMessageContent.swift
 //  Health
 //
 //  Created by Seohyun Kim on 8/5/25.

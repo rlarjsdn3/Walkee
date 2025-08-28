@@ -2,7 +2,7 @@
 //  ChatbotWaitingState.swift
 //  Health
 //
-//  Created by Nat Kim on 8/28/25.
+//  Created by Seohyun Kim on 8/28/25.
 //
 
 import Foundation

@@ -76,7 +76,6 @@ final class ChatbotViewModel {
 		Log.chat.info("view exit detected > cancel SSE & call reset-state")
 		Task { [weak self] in
 			guard let self else { return }
-//			await resetAgentState() // 내부에서 Alan reset-state 호출
 			await self.resetAgentState(throttle: .milliseconds(800))
 		}
 	}
@@ -108,30 +107,6 @@ final class ChatbotViewModel {
 		}
 	}
 
-	
-	/// 서버 500 등 복구 가능 오류 시 1회 reset 후 재시도
-	func startStreamingQuestionWithAutoReset(_ content: String) {
-		streamTask?.cancel()
-		
-		let masked = PrivacyService.maskSensitiveInfo(in: content)
-		
-		print("=== 마스킹 디버그 ===")
-		print("[Chatbot] Original: \(content)")
-		print("[Chatbot] Masked  : \(masked)")
-		print("==================")
-		
-		Log.privacy.info("Original: \(content, privacy: .public)")
-		Log.privacy.info("Masked  : \(masked, privacy: .public)")
-#if DEBUG
-		startMockStreaming(content)
-#else
-		streamTask = Task { [weak self] in
-			guard let self else { return }
-			await self._startStreaming(content: content, canRetry: true)
-		}
-#endif
-	}
-	
 	private func _startStreaming(content: String, canRetry: Bool) async {
 		var callComplete = true
 		defer { if callComplete { onStreamCompleted?("") } }
@@ -191,7 +166,6 @@ final class ChatbotViewModel {
 			}
 		}
 	}
-	
 	
 	private func isRecoverable(_ error: Error) -> Bool {
 		if let e = error as? AlanSSEClientError {
