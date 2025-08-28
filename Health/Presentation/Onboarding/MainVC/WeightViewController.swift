@@ -249,14 +249,14 @@ class WeightViewController: CoreGradientViewController {
             switch text.count {
             case 1: disableContinueButton(); hideError()
             case 2,3:
-                if (35...200).contains(weight) { enableContinueButton(); hideError() }
+                if (30...200).contains(weight) { enableContinueButton(); hideError() }
                 else { disableContinueButton(); showError() }
             default: disableContinueButton(); showError()
             }
         } else { disableContinueButton(); showError() }
     }
 
-    private func showError(text: String = "35 ~ 200 사이의 값을 입력해주세요.") {
+    private func showError(text: String = "30 ~ 200 사이의 값을 입력해주세요.") {
         errorLabel.isHidden = false
         errorLabel.text = text
     }
