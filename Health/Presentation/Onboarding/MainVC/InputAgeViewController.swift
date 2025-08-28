@@ -184,7 +184,7 @@ class InputAgeViewController: CoreGradientViewController {
 
         do {
             try context.save()
-            print("💾 저장된 나이: \(userInfo?.age ?? 0)")
+            print("저장된 나이: \(userInfo?.age ?? 0)")
         } catch {
             print("Failed to save user info: \(error)")
         }
