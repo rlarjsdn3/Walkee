@@ -106,6 +106,7 @@ final class ChatbotViewController: CoreGradientViewController {
 	
 	override func setupConstraints() {
 		super.setupConstraints()
+		tableView.contentInsetAdjustmentBehavior = .never
 		chattingContainerStackView.isLayoutMarginsRelativeArrangement = true
 		if #available(iOS 11.0, *) {
 			chattingContainerStackView.directionalLayoutMargins =
@@ -143,7 +144,10 @@ final class ChatbotViewController: CoreGradientViewController {
 	private func observeNetworkStatusChanges() {
 		networkStatusObservationTask = Task {
 			for await isConnected in await NetworkMonitor.shared.networkStatusStream() {
-				await MainActor.run {
+				await MainActor.run { [weak self] in
+					guard let self = self else { return }
+					let kb = self.scroll?.currentKeyboardHeight ?? 0
+					
 					if isConnected {
 						if wasPreviouslyDisconnected {
 							showToastAboveKeyboard(
@@ -151,7 +155,7 @@ final class ChatbotViewController: CoreGradientViewController {
 								title: "네트워크 연결이 복구되었습니다.",
 								message: "계속해서 대화를 이어가세요 😊",
 								duration: 2.5,
-								keyboardHeight: 0   // scroll이 인셋 조절
+								keyboardHeight: kb   // scroll이 인셋 조절
 							)
 							wasPreviouslyDisconnected = false
 						}
@@ -161,7 +165,7 @@ final class ChatbotViewController: CoreGradientViewController {
 							title: "네트워크 연결 상태를 확인해주세요.",
 							message: "와이파이나 셀룰러 데이터 연결상태를 확인해주세요.",
 							duration: 3.0,
-							keyboardHeight: 0
+							keyboardHeight: kb
 						)
 						wasPreviouslyDisconnected = true
 					}

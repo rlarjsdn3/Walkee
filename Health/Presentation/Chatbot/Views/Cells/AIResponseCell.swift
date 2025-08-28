@@ -124,31 +124,47 @@ class AIResponseCell: CoreTableViewCell {
 	
 	/// 필요시 명시적으로 스트리밍 중 초기 seed만 하고 싶다면 isFinal=false로도 호출 가능(컨트롤러 수정 불필요)
 	func configure(with text: String, isFinal: Bool) {
-		// 이미 같은 버퍼면 레이아웃만 틱
-		if plainBuffer == text {
-			relayoutAfterUpdate()
-			return
-		}
-		
-		// 스트리밍 중 초기 셀 바인딩(예: cellForRow에서 공백 -> 현재 누적 텍스트)
 		if !isFinal {
-			// 초기 진입에서만 seed: 이미 렌더된 내용이 있으면 건드리지 않음
+			// (스트리밍 seed 로직은 유지)
 			if (responseTextView.attributedText?.length ?? 0) == 0 {
 				plainBuffer = text
 				let seeded = ChatMarkdownRenderer.renderChunk(text, trait: traitCollection)
 				responseTextView.attributedText = seeded
 				relayoutAfterUpdate()
-			} else {
-				// 이미 appendText로 실시간 갱신 중이면 무시
 			}
 			return
 		}
-		
-		// 최종 렌더링(complete 시점, 또는 표준 configure 경로)
-		plainBuffer = text
-		let rendered = ChatMarkdownRenderer.renderFinalMarkdown(text, trait: traitCollection)
-		responseTextView.attributedText = rendered
-		relayoutAfterUpdate()
+
+			// isFinal일 땐 항상 마크다운으로 재렌더 (조기리턴 금지)
+			plainBuffer = text
+			let rendered = ChatMarkdownRenderer.renderFinalMarkdown(text, trait: traitCollection)
+			responseTextView.attributedText = rendered
+			relayoutAfterUpdate()
+		// 이미 같은 버퍼면 레이아웃만 틱
+//		if plainBuffer == text {
+//			relayoutAfterUpdate()
+//			return
+//		}
+//		
+//		// 스트리밍 중 초기 셀 바인딩(예: cellForRow에서 공백 -> 현재 누적 텍스트)
+//		if !isFinal {
+//			// 초기 진입에서만 seed: 이미 렌더된 내용이 있으면 건드리지 않음
+//			if (responseTextView.attributedText?.length ?? 0) == 0 {
+//				plainBuffer = text
+//				let seeded = ChatMarkdownRenderer.renderChunk(text, trait: traitCollection)
+//				responseTextView.attributedText = seeded
+//				relayoutAfterUpdate()
+//			} else {
+//				// 이미 appendText로 실시간 갱신 중이면 무시
+//			}
+//			return
+//		}
+//		
+//		// 최종 렌더링(complete 시점, 또는 표준 configure 경로)
+//		plainBuffer = text
+//		let rendered = ChatMarkdownRenderer.renderFinalMarkdown(text, trait: traitCollection)
+//		responseTextView.attributedText = rendered
+//		relayoutAfterUpdate()
 	}
 
 	// 스트리밍 "조각"이 올 때 호출 — 타자기 모드면 글자 단위로, 아니면 즉시 추가

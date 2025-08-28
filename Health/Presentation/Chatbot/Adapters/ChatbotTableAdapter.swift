@@ -15,6 +15,9 @@ final class ChatbotTableAdapter: NSObject {
 	private(set) var streamingAIIndex: Int?
 
 	private weak var tableView: UITableView?
+	
+	private var lastRelayoutTS: CFAbsoluteTime = 0
+	private let relayoutMinInterval: CFTimeInterval = 0.05
 
 	init(tableView: UITableView) {
 		self.tableView = tableView
@@ -168,11 +171,23 @@ extension ChatbotTableAdapter: UITableViewDataSource, UITableViewDelegate {
 
 		case .ai:
 			let cell = tableView.dequeueReusableCell(
-				withIdentifier: AIResponseCell.id,
-				for: indexPath
+				withIdentifier: AIResponseCell.id, for: indexPath
 			) as! AIResponseCell
 			let isStreaming = (streamingAIIndex == indexPath.row)
 			cell.configure(with: msg.text, isFinal: !isStreaming)
+			
+			// Old VC와 동일한 높이 갱신 루프 연결
+			cell.onContentGrew = { [weak self] in
+				guard let self = self else { return }
+				let now = CFAbsoluteTimeGetCurrent()
+				guard now - self.lastRelayoutTS >= self.relayoutMinInterval else { return }
+				self.lastRelayoutTS = now
+				
+				UIView.performWithoutAnimation {
+					tableView.beginUpdates()
+					tableView.endUpdates()
+				}
+			}
 			return cell
 
 		case .loading:
