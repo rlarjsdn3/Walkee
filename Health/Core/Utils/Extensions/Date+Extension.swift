@@ -212,7 +212,7 @@ extension Date {
         let startDate = calendar.dateComponents([.year, .month], from: self)
         let endDate = calendar.dateComponents([.year, .month], from: date)
         let monthDiff = calendar.dateComponents([.month], from: startDate, to: endDate).month!
-        return abs(monthDiff) + 1
+        return abs(monthDiff)
     }
 
     /// 지정된 구성 요소에 일치하는 다음 날짜를 반환합니다.
