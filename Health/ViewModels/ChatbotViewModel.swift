@@ -50,8 +50,8 @@ final class ChatbotViewModel {
 			guard let self else { return }
 			
 			let masked = PrivacyService.maskSensitiveInfo(in: rawMessage)
-			//print("🗣️ 사용자 원문 요청 질문값", rawMessage)
-			//Log.privacy.info("[Chatbot] Original: \(rawMessage, privacy: .public)")
+	
+			Log.privacy.info("[Chatbot] Original: \(rawMessage, privacy: .public)")
 			Log.privacy.info("[Chatbot] Masked  : \(masked, privacy: .public)")
 			
 #if DEBUG
