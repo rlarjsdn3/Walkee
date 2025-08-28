@@ -141,10 +141,10 @@ private extension CalendarDateCell {
     }
 
     func updateBorderLayer() {
-        let shouldShowBorder = traitCollection.userInterfaceStyle == .light && isSelectable && !isCompleted
+        let shouldShowBorder = isSelectable && !isCompleted
 
         if shouldShowBorder {
-            let borderWidth = bounds.width * 0.08
+            let borderWidth = circleView.bounds.width * 0.08
             let radius = (min(circleView.bounds.width, circleView.bounds.height) - borderWidth) / 2
             let path = UIBezierPath(
                 arcCenter: CGPoint(x: circleView.bounds.midX, y: circleView.bounds.midY),
@@ -155,7 +155,7 @@ private extension CalendarDateCell {
             )
 
             borderLayer.path = path.cgPath
-            borderLayer.strokeColor = UIColor(named: "boxBgLightModeStrokeColor")?.cgColor
+            borderLayer.strokeColor = UIColor(named: "calendarDateStrokeColor")?.cgColor
             borderLayer.fillColor = UIColor.clear.cgColor
             borderLayer.lineWidth = borderWidth
             borderLayer.isHidden = false
