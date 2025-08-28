@@ -189,6 +189,64 @@ final class ChatbotViewController: CoreGradientViewController {
 		}
 	}
 	
+	// MARK: - Actions
+	@IBAction private func sendButtonTapped(_ sender: UIButton) {
+		sendMessageStreaming()
+	}
+	
+	// MARK: - Alan AI API - 응답값 관련 메서드
+	/// **일반 질문 요청값** - `/api/v1/question/streaming` APIEndPoint로 사용자 메시지를 추가하고 서버로 전송
+	/// - 전송 후에는 무조건 최신 메시지로 스크롤
+	// MARK: - 실제 챗봇에서 사용하고 있는 SSE 응답 방식
+	@MainActor
+	private func sendMessageStreaming() {
+		// 0) 입력값 정리
+		guard let text = chattingTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines),
+			  !text.isEmpty else { return }
+		
+		// 1) 사용자 버블 추가
+		messages.append(ChatMessage(text: text, type: .user))
+		chattingTextField.text = ""
+		
+		let userIP = IndexPath(row: messages.count - 1, section: 0)
+		
+		// 테이블 반영 + 사용자 버블까지 먼저 스크롤
+		tableView.performBatchUpdates({
+			tableView.insertRows(at: [userIP], with: .none)
+		}, completion: { [weak self] _ in
+			guard let self else { return }
+			
+			// Concurrency로 한 프레임 뒤 안전 스크롤
+			Task { @MainActor [weak self] in
+				guard let self else { return }
+				await self.scrollToRowAfterLayout(userIP, position: .bottom, animated: true)
+			
+				// 2) 로딩 상태 진입 (버튼 비활성화 + Waiting 셀 노출)
+				self.sendButton.isEnabled = false
+				self.sendButton.alpha = 0.5
+				self.showWaitingCell()
+				
+				// showWaitingCell() 안에서 self.waitingIndexPath 가 설정됨
+				if let wip = self.waitingIndexPath {
+					//await self.scrollToRowAfterLayout(wip, position: .bottom, animated: true)
+					await self.scrollToRowTopAfterLayout(wip, animated: true)
+				}
+				
+				// 2-5) 스트리밍 동안은 아래 꼬리만 자연스럽게 따라가도록 설정
+				self.autoScrollMode = .following
+				// 기존 상단 유지 로직의 간섭 방지
+				self.focusLatestAIHead = false
+				
+				// 3) 스트리밍 상태 플래그 초기화
+				self.inFootnote = false
+				self.pendingOpenBracket = false
+				// 4) SSE 시작
+				self.startE2E()
+				self.viewModel.startPromptChatWithAutoReset(text)
+			}
+		})
+	}
+	
 	private func observeNetworkStatusChanges() {
 		networkStatusObservationTask = Task {
 			for await isConnected in await NetworkMonitor.shared.networkStatusStream() {
@@ -596,9 +654,9 @@ final class ChatbotViewController: CoreGradientViewController {
 	}
 
 	// 사용자가 손댔으면 자동 따라가기 해제
-	func scrollViewWillBeginDraggingResignAuto(_ scrollView: UIScrollView) {
-		autoScrollMode = .manual
-	}
+//	func scrollViewWillBeginDraggingResignAuto(_ scrollView: UIScrollView) {
+//		autoScrollMode = .manual
+//	}
 	private func isNearBottomAuto(threshold: CGFloat = 40) -> Bool {
 		let insetTop = tableView.adjustedContentInset.top
 		let insetBottom = tableView.adjustedContentInset.bottom
@@ -609,14 +667,13 @@ final class ChatbotViewController: CoreGradientViewController {
 		return (maxY - tableView.contentOffset.y) < threshold
 	}
 
-	
-	
-	@MainActor
-	private func scrollToBottomAfterLayout(animated: Bool) async {
-		tableView.layoutIfNeeded()
-		await Task.yield() // 다음 런루프에서 셀 높이/콘텐츠 사이즈 확정
-		scrollToBottomAbsolute(animated: animated)
-	}
+//	@MainActor
+//	private func scrollToBottomAfterLayout(animated: Bool) async {
+//		tableView.layoutIfNeeded()
+//		// 다음 런루프에서 셀 높이/콘텐츠 사이즈 확정
+//		await Task.yield()
+//		scrollToBottomAbsolute(animated: animated)
+//	}
 	
 	@MainActor
 	private func scrollToRowTopAfterLayout(_ indexPath: IndexPath,
@@ -638,64 +695,8 @@ final class ChatbotViewController: CoreGradientViewController {
 
 		tableView.setContentOffset(CGPoint(x: 0, y: targetY), animated: animated)
 	}
-	// ======
-	// MARK: - Actions
-	@IBAction private func sendButtonTapped(_ sender: UIButton) {
-		sendMessageStreaming()
-	}
+
 	
-	// MARK: - Alan AI API - 응답값 관련 메서드
-	/// **일반 질문 요청값** - `/api/v1/question/streaming` APIEndPoint로 사용자 메시지를 추가하고 서버로 전송
-	/// - 전송 후에는 무조건 최신 메시지로 스크롤
-	// MARK: - 실제 챗봇에서 사용하고 있는 SSE 응답 방식
-	@MainActor
-	private func sendMessageStreaming() {
-		// 0) 입력값 정리
-		guard let text = chattingTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines),
-			  !text.isEmpty else { return }
-		
-		// 1) 사용자 버블 추가
-		messages.append(ChatMessage(text: text, type: .user))
-		chattingTextField.text = ""
-		
-		let userIP = IndexPath(row: messages.count - 1, section: 0)
-		
-		// 테이블 반영 + 사용자 버블까지 먼저 스크롤
-		tableView.performBatchUpdates({
-			tableView.insertRows(at: [userIP], with: .none)
-		}, completion: { [weak self] _ in
-			guard let self else { return }
-			
-			// Concurrency로 한 프레임 뒤 안전 스크롤
-			Task { @MainActor [weak self] in
-				guard let self else { return }
-				await self.scrollToRowAfterLayout(userIP, position: .bottom, animated: true)
-			
-				// 2) 로딩 상태 진입 (버튼 비활성화 + Waiting 셀 노출)
-				self.sendButton.isEnabled = false
-				self.sendButton.alpha = 0.5
-				self.showWaitingCell()
-				
-				// showWaitingCell() 안에서 self.waitingIndexPath 가 설정됨
-				if let wip = self.waitingIndexPath {
-					//await self.scrollToRowAfterLayout(wip, position: .bottom, animated: true)
-					await self.scrollToRowTopAfterLayout(wip, animated: true)
-				}
-				
-				// 2-5) 스트리밍 동안은 아래 꼬리만 자연스럽게 따라가도록 설정
-				self.autoScrollMode = .following
-				// 기존 상단 유지 로직의 간섭 방지
-				self.focusLatestAIHead = false
-				
-				// 3) 스트리밍 상태 플래그 초기화
-				self.inFootnote = false
-				self.pendingOpenBracket = false
-				// 4) SSE 시작
-				self.startE2E()
-				self.viewModel.startPromptChatWithAutoReset(text)
-			}
-		})
-	}
 	/// 레이아웃이 실제 반영된 다음 안전하게 스크롤.
 	/// - runloop 한 턴 양보(Task.yield) 후 인덱스 유효성 검증 → 스크롤
 	@MainActor
@@ -875,34 +876,15 @@ final class ChatbotViewController: CoreGradientViewController {
 		tableView.insertRows(at: [index], with: .fade)
 		
 		Task { @MainActor in
-			//  (중요) 절대 스크롤 전에 먼저 모든 진행 중 애니메이션 중단
-			//self.cancelOngoingScrollAnimations()
-			   if let aiIndex = streamingAIIndex {
-				   let aiIP = indexPathForMessage(at: aiIndex)
-				   // 레이아웃 확정 후 AI 응답의 첫 줄로
-				   await scrollToRowTopAfterLayout(aiIP, animated: true)
-			   } else {
-				   // 아직 AI 셀이 없으면 WIP 셀의 첫 줄로
-				   await scrollToRowTopAfterLayout(index, animated: true)
-			   }
-		   }
-
-		/*
-		if let aiIndex = streamingAIIndex {
-			let aiIP = indexPathForMessage(at: aiIndex)
-			
-			// 새 플로우에선 첫 줄 상단 정렬을 강제(부드럽게 보여주기)
-			scrollToRowTopAbsolute(aiIP, animated: true)
-//			if focusLatestAIHead {
-//				tableView.scrollToRow(at: aiIP, at: .top, animated: true)
-//			} else if shouldAutoScroll() {
-//				tableView.scrollToRow(at: aiIP, at: .bottom, animated: true)
-//			}
-		} else {
-			// streamingAIIndex가 아직 없으면 WIP 셀로라도 초점 이동
-			scrollToRowTopAbsolute(index, animated: true)
+			if let aiIndex = streamingAIIndex {
+				let aiIP = indexPathForMessage(at: aiIndex)
+				// 레이아웃 확정 후 AI 응답의 첫 줄로
+				await scrollToRowTopAfterLayout(aiIP, animated: true)
+			} else {
+				// 아직 AI 셀이 없으면 WIP 셀의 첫 줄로
+				await scrollToRowTopAfterLayout(index, animated: true)
+			}
 		}
-		*/
 		waitingHintTask?.cancel()
 		waitingHintTask = Task { @MainActor in
 			try? await Task.sleep(nanoseconds: 8_000_000_000)
@@ -934,7 +916,6 @@ final class ChatbotViewController: CoreGradientViewController {
 			tableView.endUpdates()
 		}
 		
-		// 스트리밍 중 컨텐츠가 커질 때도 '첫 줄' 포커스 유지
 		maintainAIFocusIfNeeded()
 	}
 }
