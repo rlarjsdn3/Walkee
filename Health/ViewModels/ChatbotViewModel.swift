@@ -194,13 +194,29 @@ final class ChatbotViewModel {
 	private func startMockStreaming(_ content: String) {
 		streamTask = Task { [weak self] in
 			guard let self else { return }
-			
+
+			// 1) 먼저 mock_ask_streaming_response.json 시도
+			if let url = Bundle.main.url(forResource: "mock_ask_streaming_response", withExtension: "json"),
+			   let data = try? Data(contentsOf: url) {
+
+				// 단일 객체 or 배열 모두 허용
+				if let single = try? JSONDecoder().decode(AlanStreamingResponse.self, from: data) {
+					handleMockEvent(single)
+					return
+				} else if let array = try? JSONDecoder().decode([AlanStreamingResponse].self, from: data) {
+					for e in array { handleMockEvent(e) }
+					return
+				}
+				// 포맷이 맞지 않으면 구형 파일로 폴백
+			}
+
+			// 2) 폴백: 기존 mock_ask_response.json (action + content)
 			struct Mock: Decodable {
 				struct Action: Decodable { let name: String; let speak: String }
 				let action: Action
 				let content: String
 			}
-			
+
 			do {
 				guard let url = Bundle.main.url(forResource: "mock_ask_response", withExtension: "json") else {
 					self.onActionText?("모킹 파일을 찾을 수 없어요.")
@@ -208,11 +224,11 @@ final class ChatbotViewModel {
 				}
 				let data = try Data(contentsOf: url)
 				let mock = try JSONDecoder().decode(Mock.self, from: data)
-				
+
 				if !mock.action.speak.isEmpty {
 					self.onActionText?(mock.action.speak)
 				}
-				
+
 				var buffer = ""
 				for ch in mock.content {
 					try await Task.sleep(nanoseconds: 30_000_000)
@@ -220,14 +236,32 @@ final class ChatbotViewModel {
 					buffer.append(s)
 					self.onStreamChunk?(s)
 				}
-				
-				// 최종 렌더 & 완료 콜백에 "누적 텍스트" 전달
+
 				let attributed = ChatMarkdownRenderer.renderFinalMarkdown(buffer)
 				self.onFinalRender?(attributed)
 				self.onStreamCompleted?(buffer)
-				
+
 			} catch {
 				self.onError?(error.localizedDescription)
+			}
+		}
+
+		// MARK: - Local helpers
+		func handleMockEvent(_ e: AlanStreamingResponse) {
+			switch e.type {
+			case .action:
+				if let s = e.data.speak ?? e.data.content, !s.isEmpty {
+					self.onActionText?(s)
+				}
+			case .continue:
+				if let c = e.data.content, !c.isEmpty {
+					self.onStreamChunk?(c)
+				}
+			case .complete:
+				let final = e.data.content ?? ""
+				let attributed = ChatMarkdownRenderer.renderFinalMarkdown(final)
+				self.onFinalRender?(attributed)
+				self.onStreamCompleted?(final)
 			}
 		}
 	}
