@@ -582,8 +582,8 @@ final class ChatbotViewController: CoreGradientViewController {
 		}, completion: { [weak self] _ in
 			guard let self else { return }
 			
-			// ✅ Concurrency로 한 프레임 뒤 안전 스크롤
-			Task { [weak self] in
+			// Concurrency로 한 프레임 뒤 안전 스크롤
+			Task { @MainActor [weak self] in
 				guard let self else { return }
 				await self.scrollToRowAfterLayout(userIP, position: .bottom, animated: true)
 			
@@ -594,7 +594,8 @@ final class ChatbotViewController: CoreGradientViewController {
 				
 				// showWaitingCell() 안에서 self.waitingIndexPath 가 설정됨
 				if let wip = self.waitingIndexPath {
-					await self.scrollToRowAfterLayout(wip, position: .bottom, animated: true)
+					//await self.scrollToRowAfterLayout(wip, position: .bottom, animated: true)
+					await self.scrollToRowTopAfterLayout(wip, animated: true)
 				}
 				
 				// 2-5) 스트리밍 동안은 아래 꼬리만 자연스럽게 따라가도록 설정
