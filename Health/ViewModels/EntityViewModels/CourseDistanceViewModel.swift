@@ -103,7 +103,6 @@ class CourseDistanceViewModel {
         courseDistances.removeAll()
     }
 
-
     private func formatDistance(_ distance: CLLocationDistance) -> String {
         if distance >= 1000.0 {
             let distanceInKm = distance / 1000.0
