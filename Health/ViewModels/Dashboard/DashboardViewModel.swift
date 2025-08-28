@@ -357,7 +357,12 @@ extension DashboardViewModel {
                             else { continue }
 
                             // 특정 날짜에 해당하는 데이터가 없다면
-                            if contents.first(where: { $0.date.isEqual(with: offsetDate) }) == nil {
+                            if contents.first(where: {
+                                switch id.kind {
+                                case .daysBack:   return $0.date.isEqual(with: offsetDate)
+                                case .monthsBack: return $0.date.isEqual([.year, .month], with: offsetDate)
+                                }
+                            }) == nil {
                                 contents.append(DashboardChartsContent(date: offsetDate, value: 0.0))
                             }
                         }
