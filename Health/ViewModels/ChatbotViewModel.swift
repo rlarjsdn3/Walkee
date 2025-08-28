@@ -46,15 +46,10 @@ final class ChatbotViewModel {
 			guard let self else { return }
 			
 			let masked = PrivacyService.maskSensitiveInfo(in: rawMessage)
-			
 			print("=== 마스킹 디버그 ===")
 			print("[Chatbot] Original: \(rawMessage)")
 			print("[Chatbot] Masked  : \(masked)")
 			print("==================")
-			
-			Log.privacy.info("Original: \(rawMessage, privacy: .public)")
-			Log.privacy.info("Masked  : \(masked, privacy: .public)")
-			
 #if DEBUG
 			let isUnitTest = NSClassFromString("XCTestCase") != nil
 			if !isUnitTest {
@@ -153,25 +148,16 @@ final class ChatbotViewModel {
 					let tail = event.data.content ?? ""
 					streamingBuffer.append(tail)
 					
-					// ✅ 마크다운 렌더 → 한 번만 표시
+					// 마크다운 렌더 → 한 번만 표시
 					let attributed = ChatMarkdownRenderer.renderFinalMarkdown(streamingBuffer)
 					onFinalRender?(attributed)
 					
-					// ✅ plain 최종도 한 번
+					// plain 최종도 한 번
 					onStreamCompleted?(streamingBuffer)
 					
 					streamingBuffer = ""
 					callComplete = false
 					break streamLoop
-//					let completeText = event.data.content ?? ""
-//					self.streamingBuffer.append(completeText)
-//
-//					// 최종 렌더링
-//					let _ = ChatMarkdownRenderer.renderFinalMarkdown(self.streamingBuffer)
-//					onStreamCompleted?(self.streamingBuffer)
-//					self.streamingBuffer = ""
-//					callComplete = false
-//					break streamLoop
 				}
 			}
 		} catch {
@@ -265,25 +251,3 @@ final class ChatbotViewModel {
 		}
 	}
 }
-//#if DEBUG
-//			// DEBUG 모드: 목 데이터로 테스트 스트리밍
-//			startMockStreaming(masked)
-//#else
-//			// RELEASE 모드: 실제 프롬프트 생성 + SSE 요청
-//			streamTask = Task { [weak self] in
-//				guard let self else { return }
-//
-//				do {
-//					let prompt = try await promptBuilderService.makePrompt(
-//						message: masked,
-//						context: nil,
-//						option: .chat
-//					)
-//					await self._startStreaming(content: prompt, canRetry: true)
-//					//print("🧾 [Prompt] Alan에게 전달할 최종 프롬프트:")
-//					//print(prompt)
-//				} catch {
-//					onError?("프롬프트 생성 실패: \(error.localizedDescription)")
-//				}
-//			}
-//#endif
