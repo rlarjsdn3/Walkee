@@ -15,7 +15,7 @@ final class DashboardViewModel {
         let horizontalClassIsRegular: Bool
     }
 
-    let anchorDate: Date
+    private(set) var anchorDate: Date
     let fromCalendar: Bool
 
     private(set) var topIDs: [DashboardTopBarViewModel.ItemID] = []
@@ -54,6 +54,12 @@ final class DashboardViewModel {
     init(anchorDate: Date = .now, fromCalendar: Bool = false) {
         self.anchorDate = anchorDate
         self.fromCalendar = fromCalendar
+    }
+
+    // MARK - Update Anchor Date
+
+    func updateAnchorDate(_ date: Date) {
+        anchorDate = date
     }
 
 

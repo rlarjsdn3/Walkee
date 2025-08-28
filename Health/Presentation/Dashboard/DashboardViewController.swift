@@ -109,6 +109,13 @@ final class DashboardViewController: HealthNavigationController, Alertable, Scro
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(refreshHKData),
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(refreshHKData),
             name: .didUpdateGoalStepCount,
             object: nil
         )
@@ -135,6 +142,11 @@ final class DashboardViewController: HealthNavigationController, Alertable, Scro
     }
 
     @objc private func refreshHKData() {
+        // 캘린더에서 대시보드로 이동하였다면 날짜 갱신을 불허합니다.
+        if !viewModel.fromCalendar {
+            viewModel.updateAnchorDate(.now)
+        }
+
         viewModel.loadHKData(includeAI: true, updateAnchorDate: true)
         Task.detached { await self.viewModel.updateWidgetSnapshot() }
         Task.delay(for: 0.6) { @MainActor in refreshControl.endRefreshing() }
