@@ -18,7 +18,11 @@ final class ChatbotTableAdapter: NSObject {
 	
 	private var lastRelayoutTS: CFAbsoluteTime = 0
 	private let relayoutMinInterval: CFTimeInterval = 0.05
-
+	
+	// 스트리밍 타자 옵션
+	var streamingTypewriterEnabled: Bool = true
+	var streamingCharDelayNanos: UInt64 = 80_000_000
+	
 	init(tableView: UITableView) {
 		self.tableView = tableView
 		super.init()
@@ -99,6 +103,17 @@ final class ChatbotTableAdapter: NSObject {
 			}
 		}
 	}
+	
+	//최신 User/AI 인덱스 조회(오프스크린이어도 안전)
+	func indexPathForLatestUser() -> IndexPath? {
+		guard let i = messages.lastIndex(where: { $0.type == .user }) else { return nil }
+		return IndexPath(row: i, section: 0)
+	}
+	
+	func indexPathForLatestAI() -> IndexPath? {
+		guard let i = messages.lastIndex(where: { $0.type == .ai }) else { return nil }
+		return IndexPath(row: i, section: 0)
+	}
 
 	func finalizeAIResponse(_ finalText: String) {
 		guard let idx = streamingAIIndex else { return }
@@ -106,7 +121,8 @@ final class ChatbotTableAdapter: NSObject {
 		let ip = IndexPath(row: idx, section: 0)
 
 		if let cell = tableView?.cellForRow(at: ip) as? AIResponseCell {
-			cell.configure(with: finalText, isFinal: true)
+			//cell.configure(with: finalText, isFinal: true)
+			cell.forceFinalize(text: finalText)
 		} else {
 			UIView.performWithoutAnimation {
 				tableView?.reloadRows(at: [ip], with: .none)
@@ -175,6 +191,11 @@ extension ChatbotTableAdapter: UITableViewDataSource, UITableViewDelegate {
 			) as! AIResponseCell
 			let isStreaming = (streamingAIIndex == indexPath.row)
 			cell.configure(with: msg.text, isFinal: !isStreaming)
+			// 스트리밍 중이면 타자 모드 적용(느리게)
+			if isStreaming {
+				cell.setTypewriterEnabled(streamingTypewriterEnabled)
+				cell.charDelayNanos = streamingCharDelayNanos
+			}
 			
 			// Old VC와 동일한 높이 갱신 루프 연결
 			cell.onContentGrew = { [weak self] in

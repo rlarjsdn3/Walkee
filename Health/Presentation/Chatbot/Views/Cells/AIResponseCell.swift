@@ -18,7 +18,7 @@ class AIResponseCell: CoreTableViewCell {
 	private var typeTask: Task<Void, Never>?
 	private var charQueue: [String] = []
 	private(set) var typewriterEnabled = false
-	var charDelayNanos: UInt64 = 40_000_000   // 글자당 지연 40ms 0.04
+	var charDelayNanos: UInt64 = 100_000_000   // 글자당 지연 40ms 0.04
 	// MARK: Height update (tableView가 begin/endupdate 할 때)
 	@MainActor var onContentGrew: (() -> Void)?          // 높이 증가 알림용
 	// MARK: KVO
@@ -49,7 +49,7 @@ class AIResponseCell: CoreTableViewCell {
 		// 우선순위 설정 - 높이는 늘어나고, 너비는 제한
 		responseTextView.setContentCompressionResistancePriority(.required, for: .vertical)
 		responseTextView.setContentHuggingPriority(.defaultLow, for: .vertical)
-		responseTextView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+		responseTextView.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
 		responseTextView.setContentHuggingPriority(.defaultLow, for: .horizontal)
 		
 		responseTextView.dataDetectorTypes = []
@@ -238,6 +238,23 @@ class AIResponseCell: CoreTableViewCell {
 				appendAttributedImmediately(ns)
 			}
 		}
+	}
+	
+	@MainActor
+	func forceFinalize(text: String) {
+		// 1) 타자 작업 종료/정리
+		typeTask?.cancel()
+		typeTask = nil
+		chunkQueue.removeAll()
+		typewriterEnabled = false
+
+		// 2) 최종 마크다운 렌더
+		plainBuffer = text
+		let rendered = ChatMarkdownRenderer.renderFinalMarkdown(text, trait: traitCollection)
+		responseTextView.attributedText = rendered
+
+		// 3) 높이 재계산 트리거
+		relayoutAfterUpdate()
 	}
 	
 	private func relayoutAfterUpdate() {

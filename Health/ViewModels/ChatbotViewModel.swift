@@ -190,12 +190,10 @@ final class ChatbotViewModel {
 		}
 	}
 	
-	
 	// MARK: - DEBUG Mock Streaming
 	private func startMockStreaming(_ content: String) {
 		streamTask = Task { [weak self] in
 			guard let self else { return }
-			defer { self.onStreamCompleted?("") }
 			
 			struct Mock: Decodable {
 				struct Action: Decodable { let name: String; let speak: String }
@@ -215,10 +213,19 @@ final class ChatbotViewModel {
 					self.onActionText?(mock.action.speak)
 				}
 				
+				var buffer = ""
 				for ch in mock.content {
-					try await Task.sleep(nanoseconds: 30_000_000) // 30ms
-					self.onStreamChunk?(String(ch))
+					try await Task.sleep(nanoseconds: 30_000_000)
+					let s = String(ch)
+					buffer.append(s)
+					self.onStreamChunk?(s)
 				}
+				
+				// 최종 렌더 & 완료 콜백에 "누적 텍스트" 전달
+				let attributed = ChatMarkdownRenderer.renderFinalMarkdown(buffer)
+				self.onFinalRender?(attributed)
+				self.onStreamCompleted?(buffer)
+				
 			} catch {
 				self.onError?(error.localizedDescription)
 			}
