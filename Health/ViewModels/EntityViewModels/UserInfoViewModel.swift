@@ -46,35 +46,35 @@ final class UserInfoViewModel: ObservableObject {
     }
 
     //사용자 추가 또는 업데이트
-    func saveUser(id: UUID? = nil,
-                  age: Int16,
-                  gender: String,
-                  height: Double,
-                  weight: Double,
-                  diseases: [Disease]?,
-                  createdAt: Date = Date()) {
-        let user: UserInfoEntity
-        if let id = id, let existing = fetchUser(by: id) {
-            user = existing
-        } else {
-            user = UserInfoEntity(context: context)
-            user.id = UUID()
-            user.createdAt = createdAt
-        }
-
-        user.age = age
-        user.gender = gender
-        user.height = height
-        user.weight = weight
-        user.diseases = diseases
-
-        do {
-            try context.save()
-            fetchUsers()
-        } catch {
-            errorMessage = "사용자 저장 실패: \(error.localizedDescription)"
-        }
-    }
+//    func saveUser(id: UUID? = nil,
+//                  age: Int16,
+//                  gender: String,
+//                  height: Double,
+//                  weight: Double,
+//                  diseases: [Disease]?,
+//                  createdAt: Date = Date()) {
+//        let user: UserInfoEntity
+//        if let id = id, let existing = fetchUser(by: id) {
+//            user = existing
+//        } else {
+//            user = UserInfoEntity(context: context)
+//            user.id = UUID()
+//            user.createdAt = createdAt
+//        }
+//
+//        user.age = age
+//        user.gender = gender
+//        user.height = height
+//        user.weight = weight
+//        user.diseases = diseases
+//
+//        do {
+//            try context.save()
+//            fetchUsers()
+//        } catch {
+//            errorMessage = "사용자 저장 실패: \(error.localizedDescription)"
+//        }
+//    }
 
     // 삭제
     func deleteUser(_ user: UserInfoEntity) {
