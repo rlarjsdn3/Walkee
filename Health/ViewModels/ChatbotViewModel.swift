@@ -161,6 +161,7 @@ final class ChatbotViewModel {
 				}
 			}
 		} catch {
+			callComplete = false
 			// 기존 세션 초기화 로직 유지
 			if canRetry, isRecoverable(error) {
 						callComplete = false
@@ -179,7 +180,7 @@ final class ChatbotViewModel {
 				switch sseError {
 				case .badHTTPStatus(401):
 					// 401: 인증/권한 실패 → 사용자 친화 메시지
-					onError?("AI에서 응답 받는 것을 실패했습니다.")
+					onError?("AI에서 응답 받는 것을 실패했습니다.\n나중에 다시 시도해 주세요.")
 				default:
 					// 그 외 SSE 오류는 기존 설명 사용
 					onError?(sseError.errorDescription ?? "SSE 오류가 발생했습니다.")

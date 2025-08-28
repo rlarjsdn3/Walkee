@@ -330,12 +330,27 @@ final class ChatbotViewController: CoreGradientViewController {
 			Task { @MainActor in
 				//self.updateWaitingCellText(errorText)
 				self.updateWaitingCellState(.error(errorText))
-				try await Task.sleep(for: .seconds(2))
+				//try await Task.sleep(for: .seconds(2))
+				self.finishErrorUI()
 				self.endE2E()
-				self.cleanupStreamingState()
+				//self.cleanupStreamingState()
 			}
 		}
 	}
+	
+	@MainActor
+	private func finishErrorUI() {
+		// 전송 버튼 등 입력 UI만 복구
+		sendButton.isEnabled = true
+		sendButton.alpha = 1.0
+		// 기존 SSE 정리
+		sseClient?.disconnect()
+		sseClient = nil
+	
+		streamingAIIndex = nil
+		focusLatestAIHead = false
+	}
+	
 	// MARK: - 응답값 파싱 확인을 위한 함수 `startE2E` 와 `endE2E`
 	/// 질문 전송 직전 호출
 	private func startE2E() {
@@ -379,7 +394,7 @@ final class ChatbotViewController: CoreGradientViewController {
 		chattingTextField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 44))
 		chattingTextField.leftViewMode = .always
 		chattingTextField.attributedPlaceholder = NSAttributedString(
-			string: "걸어봇에게 물어보세요.",
+			string: "워키봇에게 물어보세요.",
 			attributes: [.foregroundColor: UIColor.buttonBackground.withAlphaComponent(0.5)]
 		)
 	}
