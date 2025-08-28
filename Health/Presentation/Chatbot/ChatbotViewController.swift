@@ -527,6 +527,64 @@ final class ChatbotViewController: CoreGradientViewController {
 		tableView.scrollToRow(at: lastIndexPath, at: .bottom, animated: true)
 	}
 	
+	// 1) “행 상단으로” 절대 스크롤(첫 줄 보장)
+	private func scrollToRowTopAbsolute(_ indexPath: IndexPath,
+										extraTopPadding: CGFloat = 8,
+										animated: Bool) {
+		tableView.layoutIfNeeded()
+		let insetTop = tableView.adjustedContentInset.top
+		let insetBottom = tableView.adjustedContentInset.bottom
+		let rect = tableView.rectForRow(at: indexPath)
+		
+		let minY = -insetTop
+		let maxY = max(minY, tableView.contentSize.height - tableView.bounds.height + insetBottom)
+		
+		var targetY = rect.minY - insetTop - extraTopPadding
+		targetY = min(max(targetY, minY), maxY)
+		
+		tableView.setContentOffset(CGPoint(x: 0, y: targetY), animated: animated)
+	}
+	
+	// 2) “하단 유지” 절대 스크롤(꼬리 따라가기 전용)
+	private func scrollToBottomAbsolute(animated: Bool) {
+		tableView.layoutIfNeeded()
+		let insetTop = tableView.adjustedContentInset.top
+		let insetBottom = tableView.adjustedContentInset.bottom
+		let contentH = tableView.contentSize.height
+		let visibleH = tableView.bounds.height
+		let minY = -insetTop
+		let maxY = max(minY, contentH - visibleH + insetBottom)
+		tableView.setContentOffset(CGPoint(x: 0, y: maxY), animated: animated)
+	}
+	
+	private enum AutoScrollMode { case following, manual }
+	private var autoScrollMode: AutoScrollMode = .following
+
+	
+
+	// 사용자가 손댔으면 자동 따라가기 해제
+	func scrollViewWillBeginDraggingResignAuto(_ scrollView: UIScrollView) {
+		autoScrollMode = .manual
+	}
+	private func isNearBottomAuto(threshold: CGFloat = 40) -> Bool {
+		let insetTop = tableView.adjustedContentInset.top
+		let insetBottom = tableView.adjustedContentInset.bottom
+		let contentH = tableView.contentSize.height
+		let visibleH = tableView.bounds.height
+		let minY = -insetTop
+		let maxY = max(minY, contentH - visibleH + insetBottom)
+		return (maxY - tableView.contentOffset.y) < threshold
+	}
+
+	
+	
+	@MainActor
+	private func scrollToBottomAfterLayout(animated: Bool) async {
+		tableView.layoutIfNeeded()
+		await Task.yield() // 다음 런루프에서 셀 높이/콘텐츠 사이즈 확정
+		scrollToBottomAbsolute(animated: animated)
+	}
+	
 	// MARK: - Actions
 	@IBAction private func sendButtonTapped(_ sender: UIButton) {
 		sendMessageStreaming()
@@ -554,7 +612,7 @@ final class ChatbotViewController: CoreGradientViewController {
 		}, completion: { [weak self] _ in
 			guard let self else { return }
 			
-			// ✅ Concurrency로 한 프레임 뒤 안전 스크롤
+			// Concurrency로 한 프레임 뒤 안전 스크롤
 			Task { [weak self] in
 				guard let self else { return }
 				await self.scrollToRowAfterLayout(userIP, position: .bottom, animated: true)
@@ -566,8 +624,15 @@ final class ChatbotViewController: CoreGradientViewController {
 				
 				// showWaitingCell() 안에서 self.waitingIndexPath 가 설정됨
 				if let wip = self.waitingIndexPath {
-					await self.scrollToRowAfterLayout(wip, position: .bottom, animated: true)
+					//await self.scrollToRowAfterLayout(wip, position: .bottom, animated: true)
+					self.scrollToRowTopAbsolute(wip, animated: true)
 				}
+				
+				// 2-5) 스트리밍 동안은 아래 꼬리만 자연스럽게 따라가도록 설정
+				self.autoScrollMode = .following
+				// 기존 상단 유지 로직의 간섭 방지
+				self.focusLatestAIHead = false
+				
 				// 3) 스트리밍 상태 플래그 초기화
 				self.inFootnote = false
 				self.pendingOpenBracket = false
@@ -719,11 +784,17 @@ final class ChatbotViewController: CoreGradientViewController {
 		
 		if let aiIndex = streamingAIIndex {
 			let aiIP = indexPathForMessage(at: aiIndex)
-			if focusLatestAIHead {
-				tableView.scrollToRow(at: aiIP, at: .top, animated: true)
-			} else if shouldAutoScroll() {
-				tableView.scrollToRow(at: aiIP, at: .bottom, animated: true)
-			}
+			
+			// 새 플로우에선 첫 줄 상단 정렬을 강제(부드럽게 보여주기)
+			scrollToRowTopAbsolute(aiIP, animated: true)
+//			if focusLatestAIHead {
+//				tableView.scrollToRow(at: aiIP, at: .top, animated: true)
+//			} else if shouldAutoScroll() {
+//				tableView.scrollToRow(at: aiIP, at: .bottom, animated: true)
+//			}
+		} else {
+			// streamingAIIndex가 아직 없으면 WIP 셀로라도 초점 이동
+			scrollToRowTopAbsolute(index, animated: true)
 		}
 		
 		waitingHintTask?.cancel()
@@ -865,7 +936,16 @@ extension ChatbotViewController: UITableViewDataSource, UITableViewDelegate {
 	}
 	
 	func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-		focusLatestAIHead = false
+		//focusLatestAIHead = false
+		autoScrollMode = .manual
+	}
+	
+	// 아래쪽 근처로 돌아오면 다시 활성화
+	func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+		if isNearBottomAuto() { autoScrollMode = .following }
+	}
+	func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate: Bool) {
+		if !willDecelerate, isNearBottomAuto() { autoScrollMode = .following }
 	}
 }
 
