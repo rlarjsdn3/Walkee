@@ -21,6 +21,7 @@ class InputAgeViewController: CoreGradientViewController {
     
     @IBOutlet weak var descriptionLabelTopConst: NSLayoutConstraint!
     @IBOutlet weak var ageInputFieldCenterY: NSLayoutConstraint!
+    private var ageInputFieldiPadWidthConstraint: NSLayoutConstraint?
     
     private var originalCenterY: CGFloat = 0
     private var originalDescriptionTop: CGFloat = 0
@@ -63,6 +64,7 @@ class InputAgeViewController: CoreGradientViewController {
         super.viewWillLayoutSubviews()
         updateContinueButtonConstraints()
         updateDescriptionTopConstraint()
+        updateAgeInputFieldConstraints()
     }
 
     private func setupContinueButton() {
@@ -228,6 +230,23 @@ class InputAgeViewController: CoreGradientViewController {
 
     @objc private func textFieldDidChange(_ textField: UITextField) {
         validateInput()
+    }
+    
+    private func updateAgeInputFieldConstraints() {
+        let isIpad = traitCollection.horizontalSizeClass == .regular &&
+                     traitCollection.verticalSizeClass == .regular
+        
+        if isIpad {
+            // iPad → 고정 width
+            if ageInputFieldiPadWidthConstraint == nil {
+                ageInputFieldiPadWidthConstraint = ageInputField.widthAnchor.constraint(equalToConstant: 130)
+                ageInputFieldiPadWidthConstraint?.isActive = true
+            }
+        } else {
+            // iPhone → dynamic width 사용
+            ageInputFieldiPadWidthConstraint?.isActive = false
+            ageInputFieldiPadWidthConstraint = nil
+        }
     }
     
     private func validateInput() {
