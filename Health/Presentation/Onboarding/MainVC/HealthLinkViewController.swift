@@ -225,13 +225,7 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
                   
                     showAlert(
                         "권한 설정 필요",
-                        message: """
-                                 앱이 접근할 수 있는 건강 데이터가 없습니다.
-                                 
-                                 아래 경로에서 앱의 건강 데이터 접근 권한을 해제하거나 다시 활성화할 수 있습니다.
-                                 
-                                 프로필 ⏵ 개인정보 보호 ⏵ 앱 ⏵ Walkee
-                                 """,
+                        message: "앱이 접근할 수 있는 건강 데이터가 없습니다.\n\n아래 경로에서 앱의 데이터 접근 권한을 해제하거나 다시 활성화할 수 있습니다.\n\n프로필 ⏵ 개인정보 보호 ⏵ 앱 ⏵ Walkee",
                         primaryTitle: "열기",
                         onPrimaryAction: { _ in
                             self.openHealthApp()

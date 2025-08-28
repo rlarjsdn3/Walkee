@@ -7,345 +7,405 @@
 
 import Foundation
 
-/// 사용자의 상세 주소 문자열에서 시/도 단위로 축약된 행정구역을 분류합니다.
-///
-/// - 입력: 자유롭게 작성된 주소 문자열 (예: "서울특별시 강남구 역삼동 ...").
-/// - 처리: 내부적으로 `DistrictIndex`를 사용하여 문자열 내에서 가장 가까운 상위 시/도를 탐색.
-/// - 출력: 시/도 이름만 반환하여 개인정보 노출을 방지.
-///
-/// 이 코드는 `PrivacyService` 내부에서 상세 주소 마스킹 시 활용됩니다.
+// MARK: - 공개 옵션
+
+enum AddressMaskDepth {
+	// 시/도만
+	case province
+	// 시/도 + 시/군/구
+	case city
+	// 기본: 시/도 + 시/군/구 + 읍/면/동/리/동n가까지만 (상세 차단)
+	case district
+}
+
+struct AddressMaskOptions {
+	var depth: AddressMaskDepth = .district
+	init(depth: AddressMaskDepth = .district) { self.depth = depth }
+}
+
+// 마스킹 스타일 (최종 텍스트 생성 규칙)
 enum AddressMaskStyle {
-	/// 항상 시/도만 남김 (예: "서울시", "경기도")
+	// 시/도만 반환
 	case provinceOnly
-	/// 시/도 + 구/군(예: "서울특별시 강남구")
+	// 시/도 + 시/군/구 (필요시)
 	case provinceWithDistrict
+	// 기본: 시/도 표준화 + addressRange 내 토큰(구/군/동 등) 유지
+	case provinceWithCappedTail
 }
 
 struct AddressRegionClassifier {
 	
-	// MARK: - 시/도 별칭 매핑 (사용자 표현 → JSON 표준명)
+	// MARK: - 시/도 별칭 (표준화)
 	private static let provinceAliases: [String: String] = [
-		"서울": "서울특별시",
-		"서울시": "서울특별시",
-		"부산": "부산광역시",
-		"부산시": "부산광역시",
-		"대구": "대구광역시",
-		"대구시": "대구광역시",
-		"인천": "인천광역시",
-		"인천시": "인천광역시",
-		"광주": "광주광역시",
-		"광주시": "광주광역시",
-		"대전": "대전광역시",
-		"대전시": "대전광역시",
-		"울산": "울산광역시",
-		"울산시": "울산광역시",
-		"세종": "세종특별자치시",
-		"세종시": "세종특별자치시",
-		"경기": "경기도",
-		"강원": "강원특별자치도",
-		"강원도": "강원특별자치도",
-		"충북": "충청북도",
-		"충남": "충청남도",
-		"전북": "전북특별자치도",
-		"전남": "전라남도",
-		"경북": "경상북도",
-		"경남": "경상남도",
-		"제주": "제주특별자치도",
-		"제주도": "제주특별자치도"
+		"서울":"서울특별시","서울시":"서울특별시",
+		"부산":"부산광역시","부산시":"부산광역시",
+		"대구":"대구광역시","대구시":"대구광역시",
+		"인천":"인천광역시","인천시":"인천광역시",
+		"광주":"광주광역시","광주시":"광주광역시",
+		"대전":"대전광역시","대전시":"대전광역시",
+		"울산":"울산광역시","울산시":"울산광역시",
+		"세종":"세종특별자치시","세종시":"세종특별자치시",
+		"경기":"경기도",
+		"강원":"강원특별자치도","강원도":"강원특별자치도",
+		"충북":"충청북도","충남":"충청남도",
+		"전북":"전북특별자치도","전남":"전라남도",
+		"경북":"경상북도","경남":"경상남도",
+		"제주":"제주특별자치도","제주도":"제주특별자치도"
 	]
 	
-	// MARK: - 주소 감지 결과 구조체
+	// POI 접미사(시/도 탐지에서 “바로 뒤에 붙으면” 제외)
+	private static let poiSuffixes = ["역","공원","병원","학교","시장","터미널","정류장","도서관","체육관"]
+	
+	// MARK: - 결과 모델
 	struct AddressDetectionResult {
-		let originalText: String        // 원본에서 사용된 시/도 표현
-		let standardProvince: String    // 표준 시/도명
-		let city: String?              // 구/군명 (있는 경우)
-		let range: Range<String.Index> // 주소 전체 범위
+		let originalText: String
+		let standardProvince: String
+		let city: String?
+		// 시/도부터 (정책에 따라) 동/리/n가까지 포함한 범위
+		let range: Range<String.Index>
 	}
 	
-	/// 입력 텍스트에서 상위 "시/도" 명칭을 추출
-	static func detectProvince(in text: String) -> String? {
-		let db = DistrictDB.shared
+	// MARK: - 진입점
+	static func findAddressReplacements(
+		in text: String,
+		options: AddressMaskOptions = .init(),
+		style: AddressMaskStyle = .provinceWithCappedTail
+	) -> [(NSRange, String)] {
 		
-		// 1. 별칭부터 먼저 체크 (길이순)
-		for (alias, standardName) in provinceAliases.sorted(by: { $0.key.count > $1.key.count }) {
-			if text.contains(alias) {
-				return standardName
-			}
-		}
-		
-		// 2. JSON 데이터의 nameToProvince에서 찾기
-		for key in db.nameToProvince.keys.sorted(by: { $0.count > $1.count }) {
-			if text.contains(key) {
-				return db.nameToProvince[key]
-			}
-		}
-		
-		// 3. 표준 시/도명에서 직접 찾기
-		for province in db.provinceNames.sorted(by: { $0.count > $1.count }) {
-			if text.contains(province) {
-				return province
-			}
-		}
-		
-		return nil
-	}
-	
-	/// 주소 마스킹 결과 문자열 (현재 정책: 시/도만 남김)
-	static func maskedAddress(
-		from text: String,
-		style: AddressMaskStyle = .provinceOnly
-	) -> String? {
-		guard let result = detectDetailedAddress(in: text) else { return nil }
-		
-		switch style {
-		case .provinceOnly:
-			return result.originalText
-			
-		case .provinceWithDistrict:
-			if let city = result.city {
-				return "\(result.originalText) \(city)"
-			} else {
-				return result.originalText
-			}
-		}
-	}
-	
-	// MARK: - PrivacyService용 주소 마스킹 메서드 (메인 진입점)
-	
-	/// PrivacyService에서 사용하는 주소 마스킹 처리
-	/// 이 메서드가 주소 마스킹의 메인 진입점입니다.
-	static func findAddressReplacements(in text: String) -> [(NSRange, String)] {
-		guard let result = detectDetailedAddress(in: text) else {
+		guard let result = detectDetailedAddress(in: text, options: options) else {
 			print("[AddressClassifier] 주소를 찾을 수 없음")
 			return []
 		}
 		
+		let replacement: String = makeMaskedAddress(from: result, in: text, style: style)
 		let nsRange = NSRange(result.range, in: text)
-		let maskedAddress = generateMaskedAddress(from: result, in: text)
 		
-		print("[AddressClassifier] 최종 마스킹 결과: '\(maskedAddress)'")
-		return [(nsRange, maskedAddress)]
+		print("[AddressClassifier] 최종 마스킹 결과: '\(replacement)'")
+		return [(nsRange, replacement)]
 	}
 	
-	// MARK: - 상세 주소 감지 (내부 핵심 로직)
-	/// 텍스트에서 주소를 상세 분석하여 DetectionResult 반환
-	private static func detectDetailedAddress(in text: String) -> AddressDetectionResult? {
+	// MARK: - 상세 주소 탐지
+	private static func detectDetailedAddress(
+		in text: String,
+		options: AddressMaskOptions
+	) -> AddressDetectionResult? {
+		
 		let db = DistrictDB.shared
 		
-		// 1단계: 시/도 찾기 (별칭 우선)
-		var foundProvince: String?
-		var foundProvinceRange: Range<String.Index>?
-		var originalProvinceText: String?
+		// 1) 시/도 탐지
+		var provinceStd: String?
+		var provinceRange: Range<String.Index>?
+		var provinceOriginal: String?
 		
-		// 별칭부터 먼저 체크 (길이 순으로 정렬하여 긴 것부터)
-		let sortedAliases = provinceAliases.keys.sorted { $0.count > $1.count }
-		for alias in sortedAliases {
-			if let range = text.range(of: alias) {
-				foundProvince = provinceAliases[alias]
-				foundProvinceRange = range
-				originalProvinceText = alias
+		for alias in provinceAliases.keys.sorted(by: { $0.count > $1.count }) {
+			if let r = text.range(of: alias), !isImmediatelyFollowedByPOI(text, after: r) {
+				provinceStd = provinceAliases[alias]
+				provinceRange = r
+				provinceOriginal = alias
 				break
 			}
 		}
-		
-		// 별칭에서 못찾으면 JSON 데이터에서 찾기
-		if foundProvince == nil {
-			let sortedKeys = db.nameToProvince.keys.sorted { $0.count > $1.count }
-			for key in sortedKeys {
-				if let range = text.range(of: key) {
-					foundProvince = db.nameToProvince[key]
-					foundProvinceRange = range
-					originalProvinceText = key
+		if provinceStd == nil {
+			for key in db.nameToProvince.keys.sorted(by: { $0.count > $1.count }) {
+				if let r = text.range(of: key), !isImmediatelyFollowedByPOI(text, after: r) {
+					provinceStd = db.nameToProvince[key]
+					provinceRange = r
+					provinceOriginal = key
+					break
+				}
+			}
+		}
+		if provinceStd == nil {
+			for prov in db.provinceNames.sorted(by: { $0.count > $1.count }) {
+				if let r = text.range(of: prov), !isImmediatelyFollowedByPOI(text, after: r) {
+					provinceStd = prov
+					provinceRange = r
+					provinceOriginal = prov
 					break
 				}
 			}
 		}
 		
-		// 마지막으로 표준명에서 찾기
-		if foundProvince == nil {
-			let sortedProvinces = db.provinceNames.sorted { $0.count > $1.count }
-			for province in sortedProvinces {
-				if let range = text.range(of: province) {
-					foundProvince = province
-					foundProvinceRange = range
-					originalProvinceText = province
-					print("[AddressClassifier] 표준명 매칭: '\(province)'")
-					break
-				}
-			}
-		}
+		guard let std = provinceStd, let pRange = provinceRange, let pOrig = provinceOriginal else { return nil }
 		
-		guard let province = foundProvince,
-			  let provinceRange = foundProvinceRange,
-			  let originalText = originalProvinceText else {
-			return nil
-		}
-		
-		// 2단계: 해당 시/도의 구/군 찾기
+		// 2) 구/군 탐색
 		var foundCity: String?
-		if let provinceData = findProvinceData(province: province, in: db) {
-			let sortedCities = provinceData.sorted { $0.count > $1.count }
-			
-			for city in sortedCities {
-				if text.contains(city) {
-					foundCity = city
-					//print("[AddressClassifier] 구/군 매칭: '\(city)'")
-					break
-				}
+		if let cities = findProvinceData(province: std, in: db) {
+			for c in cities.sorted(by: { $0.count > $1.count }) {
+				if text.contains(c) { foundCity = c; break }
 			}
 		}
 		
-		// 3단계: 주소 범위 결정
-		let addressRange = determineAddressRange(
-			text: text,
-			provinceRange: provinceRange
-		)
+		// 3) 범위 결정
+		let range = determineAddressRange(text: text, provinceRange: pRange, options: options)
+		print("[AddressClassifier] 주소 범위: '\(String(text[range]))'")
 		
-		let addressText = String(text[addressRange])
-		print("[AddressClassifier] 주소 범위: '\(addressText)'")
-		
-		return AddressDetectionResult(
-			originalText: originalText,
-			standardProvince: province,
+		return .init(
+			originalText: pOrig,   // ✅ originalProvinceText → originalText
+			standardProvince: std,
 			city: foundCity,
-			range: addressRange
+			range: range
 		)
 	}
 	
-	/// 주소의 정확한 범위를 결정 (PromptFilteringKeywords 활용)
+	// 시/도 뒤에 POI 붙은 경우 제외
+	private static func isImmediatelyFollowedByPOI(_ text: String, after r: Range<String.Index>) -> Bool {
+		guard r.upperBound < text.endIndex else { return false }
+		let nextChar = text[r.upperBound]
+		if nextChar.isWhitespace { return false }
+		var j = r.upperBound
+		while j < text.endIndex, !text[j].isWhitespace { j = text.index(after: j) }
+		let token = String(text[r.upperBound..<j])
+		return poiSuffixes.contains(where: { token.hasSuffix($0) })
+	}
+	
+	// MARK: - 범위 산정
 	private static func determineAddressRange(
 		text: String,
-		provinceRange: Range<String.Index>
+		provinceRange: Range<String.Index>,
+		options: AddressMaskOptions
 	) -> Range<String.Index> {
-		
-		// 주소가 아닌 후행 수식어(보존)
-		let postModifiers: Set<String> = ["근처","쪽","주변","인근","부근","가까운","에서","으로","로"]
-		// 상세주소 토큰(여기까지만 주소로 인정)
-		let detailSuffixes: [String] = ["동","로","길","번지","호","아파트","빌딩","타워","단지","테라스","오피스텔","상가","센터","층"]
-		// POI 접미사(주소 아님, 보존)
-		let poiSuffixes: [String] = ["역","공원","병원","학교","시장","터미널","정류장","도서관","체육관"]
-		
-		// 시/도 뒤에서부터 보수적으로 확장
-		var end = provinceRange.upperBound
-		
-		// 시/군/구/상세 토큰 판별을 위해 사전 로드
-		let db = DistrictDB.shared
-		let districts = db.nameToProvince
-			.filter { $0.value == detectProvince(in: text) }
-			.map { $0.key } // 해당 시/도의 시군구/하위 지명 후보
+
+		// ── 토큰 규칙 ───────────────────────────
+		let stopTokens: Set<String>  = ["사는","거주","살고","살아요","사는데","인데","입니다","이에요"]
+		let postMods: Set<String>    = ["근처","쪽","주변","인근","부근","가까운","에서","으로","로","가서","에"]
+		let poiSuffixes              = ["역","공원","병원","학교","시장","터미널","정류장","도서관","체육관"]
+
+		let adminSuffixes  = ["시","군","구","읍","면","동","리"]
+		let detailSuffixes = ["로","길","번지","호","단지","빌딩","타워","테라스","오피스텔","상가","센터","층"]
+
+		let detailRegexes: [NSRegularExpression] = [
+			try! .init(pattern: #"[가-힣]+동\d+가"#),        // 성수동1가
+			try! .init(pattern: #"\d+(-\d+)?번지"#),        // 12-3번지
+			try! .init(pattern: #"\d+(동|호|층)"#),         // 104동, 2601호, 26층
+			try! .init(pattern: #"[A-Za-z가-힣0-9]+(로|길)"#) // 만현로, OO길
+		]
+
+		func isDetailWord(_ w: String) -> Bool {
+			if detailSuffixes.contains(where: { w.hasSuffix($0) }) { return true }
+			let ns = w as NSString
+			return detailRegexes.contains { $0.firstMatch(in: w, range: NSRange(location: 0, length: ns.length)) != nil }
+		}
+		func isPunctOnly(_ w: String) -> Bool {
+			w.unicodeScalars.allSatisfy { CharacterSet.punctuationCharacters.contains($0) }
+		}
+
+		let provinceStd = detectProvince(in: text)
+		let districtCandidates: [String] = DistrictDB.shared.nameToProvince
+			.filter { $0.value == provinceStd }
+			.map { $0.key }
 			.sorted { $0.count > $1.count }
-		
-		// 공백 단위로 한 어절씩 전진하면서 경계를 확장
-		var i = end
-		let after = text[end...]
-		var scanner = after.startIndex
-		
-		func takeWord() -> Range<String.Index>? {
-			// leading spaces 건너뜀
-			while scanner < after.endIndex, after[scanner].isWhitespace { scanner = after.index(after: scanner) }
-			guard scanner < after.endIndex else { return nil }
-			var j = scanner
-			// 다음 공백 전까지
-			while j < after.endIndex, !after[j].isWhitespace { j = after.index(after: j) }
-			let range = scanner..<j
-			scanner = j
-			return range
+
+		func isDistrictName(_ w: String) -> Bool {
+			districtCandidates.contains(where: { $0 == w }) ||
+			adminSuffixes.contains(where: { w.hasSuffix($0) })
 		}
-		
-		var lastAcceptedEnd: String.Index = end
-		
-		// 1) 시/군/구가 바로 따라오면 포함
-		if let wordRange = takeWord() {
-			let word = String(after[wordRange])
-			let hasPOI = poiSuffixes.contains { word.hasSuffix($0) }
-			let isPost = postModifiers.contains(word)
-			let isDistrict = districts.contains(where: { word == $0 })
-			let isDetail = detailSuffixes.contains(where: { word.hasSuffix($0) })
-			
-			if hasPOI || isPost {
-				// POI/수식어 만나면 주소 확장 중단 (시/도만)
-				return provinceRange.lowerBound..<lastAcceptedEnd
-			} else if isDistrict || isDetail {
-				lastAcceptedEnd = wordRange.upperBound
-			} else {
-				// 주소가 아닌 일반 명사 → 확장 중단
-				return provinceRange.lowerBound..<lastAcceptedEnd
+		func shouldStopAfterDistrictToken(_ token: String, options: AddressMaskOptions) -> Bool {
+			guard options.depth == .district else { return false }
+			if token.hasSuffix("읍") || token.hasSuffix("면") || token.hasSuffix("동") || token.hasSuffix("리") { return true }
+			if token.range(of: #"[가-힣]+동\d+가$"#, options: .regularExpression) != nil { return true }
+			return false
+		}
+		func looksLikeBuildingName(_ w: String) -> Bool {
+			let buildingHints = ["아파트","오피스텔","빌라","주상복합","스퀘어","시티","타워","팰리스","캐슬","파크",
+								 "프라자","센트럴","리버뷰","레이크","테라스","스테이트","포레","트윈",
+								 "더샵","푸르지오","자이","래미안","힐스테이트","아이파크","트리마제","카운티"]
+			if buildingHints.contains(where: { w.contains($0) }) { return true }
+			if w.range(of: #"[A-Za-z]"#, options: .regularExpression) != nil { return true }
+			if w.range(of: #"[0-9][A-Za-z]|[A-Za-z][0-9]"#, options: .regularExpression) != nil { return true }
+			return false
+		}
+
+		typealias Token = (value: String, range: Range<String.Index>)
+		func tokenize(_ s: Substring) -> [Token] {
+			var out: [Token] = []; var i = s.startIndex
+			while i < s.endIndex {
+				while i < s.endIndex, s[i].isWhitespace { i = s.index(after: i) }
+				guard i < s.endIndex else { break }
+				var j = i
+				while j < s.endIndex, !s[j].isWhitespace { j = s.index(after: j) }
+				let r = i..<j; out.append((String(s[r]), r)); i = j
 			}
-		} else {
-			return provinceRange // 시/도만 존재
+			return out
 		}
-		
-		// 2) 이후로는 상세주소 토큰이 이어지는 동안만 확장
-		while let wordRange = takeWord() {
-			let word = String(after[wordRange])
-			let hasPOI = poiSuffixes.contains { word.hasSuffix($0) }
-			let isPost = postModifiers.contains(word)
-			let isDetail = detailSuffixes.contains { word.hasSuffix($0) }
-			
-			if hasPOI || isPost { break }      // 보존해야 하는 어휘 → 확장 종료
-			if isDetail {
-				lastAcceptedEnd = wordRange.upperBound // 상세주소 토큰이면 확장
-			} else {
-				break // 그 외 일반 어휘면 종료
+
+		// ── 1) ‘경기+도’, ‘서울+시’ 한 글자 접미 스킵 ────────────────
+		var afterStart = provinceRange.upperBound
+		if afterStart < text.endIndex {
+			let ch = text[afterStart]
+			if ch == "도" || ch == "시" { afterStart = text.index(after: afterStart) }
+		}
+
+		let after  = text[afterStart...]
+		let tokens = tokenize(after)
+
+		// ── 2) 스캔: 행정동까지 포함, 그 뒤 꼬리 확장 ────────────────
+		var lastEnd = afterStart
+		var consumed = false
+		var stopIndex: Int? = nil
+
+		// 2-1) 행정동 STOP 지점 찾기
+		for (idx, (w, r)) in tokens.enumerated() {
+			if isPunctOnly(w) { continue }
+			if stopTokens.contains(w) || postMods.contains(w) || poiSuffixes.contains(where: { w.hasSuffix($0) }) {
+				stopIndex = idx; break
 			}
+			if isDistrictName(w) || isDetailWord(w) {
+				lastEnd = r.upperBound; consumed = true
+				if shouldStopAfterDistrictToken(w, options: options) { stopIndex = idx + 1; break }
+				continue
+			}
+			if w.allSatisfy({ $0.isNumber }) {
+				if options.depth == .district { stopIndex = idx; break }
+				break
+			}
+			if options.depth == .district, looksLikeBuildingName(w) {
+				stopIndex = idx; break
+			}
+			break
 		}
-		
-		end = lastAcceptedEnd
-		return provinceRange.lowerBound..<end
+
+		// 2-2) 꼬리(redaction tail) 확장
+		if options.depth == .district {
+			var redactionEnd = lastEnd
+			let tailRange = (stopIndex ?? tokens.count)..<tokens.count
+			for k in tailRange {
+				let (w, r) = tokens[k]
+				if isPunctOnly(w) { redactionEnd = r.upperBound; continue }
+				if postMods.contains(w) || stopTokens.contains(w) || poiSuffixes.contains(where: { w.hasSuffix($0) }) {
+					break
+				}
+				if looksLikeBuildingName(w) || isDetailWord(w) || w.allSatisfy({ $0.isNumber }) {
+					redactionEnd = r.upperBound
+					continue
+				}
+				break
+			}
+			lastEnd = redactionEnd
+		}
+
+		return consumed ? (provinceRange.lowerBound..<lastEnd) : provinceRange
+	}
+
+	// MARK: - 건물명 휴리스틱
+	private static func looksLikeBuildingName(_ w: String) -> Bool {
+		// 브랜드를 다 열거하지 않고, 범용 접미/내포 + 영문/영숫 혼합으로 판별
+		let buildingKeywords = [
+			"아파트","오피스텔","빌라","주상복합","스퀘어","시티","타워","팰리스","캐슬","파크",
+			"프라자","센트럴","리버뷰","레이크","테라스","힐스","포레","트윈","스테이트",
+			// 흔한 브랜드 몇 개만 보너스 신호
+			"더샵","푸르지오","자이","래미안","힐스테이트","아이파크","트리마제", "풍림", "금호"
+		]
+		if buildingKeywords.contains(where: { w.contains($0) }) { return true }
+		if w.range(of: #"[A-Za-z]"#, options: .regularExpression) != nil { return true }           // 영문 포함
+		if w.range(of: #"[0-9][A-Za-z]|[A-Za-z][0-9]"#, options: .regularExpression) != nil { return true } // 영숫 혼합
+		return false
 	}
 	
-	/// 마스킹된 주소 문자열 생성 (질문 의도에 따른 차등 마스킹)
-	private static func generateMaskedAddress(
+	
+	// MARK: - 최종 치환문 생성
+	private static func makeMaskedAddress(
 		from result: AddressDetectionResult,
-		in text: String
+		in text: String,
+		style: AddressMaskStyle
 	) -> String {
-		// 질문 의도 분석
-		let intentions = PromptFilteringKeywords.analyzePromptIntention(in: text)
-		//print("[AddressClassifier] 질문 의도: \(intentions)")
-		
-		// 의료 관련 질문이면 시/도만
-		if intentions.contains(.promptHealthcare) {
-			return result.originalText
+		let addr = String(text[result.range])
+
+		// 토큰 판별 유틸 (기존과 동일/간소)
+		let adminSuffixes  = ["시","군","구","읍","면","동","리"]
+		let detailSuffixes = ["로","길","번지","호","단지","빌딩","타워","테라스","오피스텔","상가","센터","층"]
+		let buildingHints  = ["아파트","오피스텔","빌라","주상복합","스퀘어","시티","타워","팰리스","캐슬","파크",
+							  "프라자","센트럴","리버뷰","레이크","테라스","힐스","포레","트윈","스테이트",
+							  "더샵","푸르지오","자이","래미안","힐스테이트","아이파크","트리마제"]
+
+		func isDetailWord(_ w: String) -> Bool {
+			if detailSuffixes.contains(where: { w.hasSuffix($0) }) { return true }
+			if w.range(of: #"^\d+(-\d+)?번지$"#, options: .regularExpression) != nil { return true }
+			if w.range(of: #"^\d+(동|호|층)$"#, options: .regularExpression) != nil { return true }
+			if w.range(of: #"[가-힣]+동\d+가$"#, options: .regularExpression) != nil { return true }
+			return false
+		}
+		func looksLikeBuildingName(_ w: String) -> Bool {
+			if buildingHints.contains(where: { w.contains($0) }) { return true }
+			if w.range(of: #"[A-Za-z]"#, options: .regularExpression) != nil { return true }
+			return false
+		}
+		func tokenize(_ s: String) -> [String] {
+			s.split(whereSeparator: { $0.isWhitespace }).map(String.init)
+		}
+
+		// 1) 선두 시/도 정규화 (중복 방지)
+		let normalizedHead: String
+		let restAfterProvince: [String]
+		if addr.hasPrefix(result.standardProvince) {
+			// 이미 표준형 → 그대로 head로 쓰되, 토큰 재평가 통해 '동'에서 STOP
+			normalizedHead = result.standardProvince
+			restAfterProvince = tokenize(String(addr.dropFirst(result.standardProvince.count)))
+		} else if addr.hasPrefix(result.originalText) {
+			// 별칭형 → standardProvince로 교체
+			normalizedHead = result.standardProvince
+			restAfterProvince = tokenize(String(addr.dropFirst(result.originalText.count)))
 		} else {
-			// 일반 질문은 시/도 + 구/군 (있는 경우에만)
-			if let city = result.city {
-				return "\(result.originalText) \(city)"
-			} else {
-				return result.originalText
+			// 보호: 못 알아보면 시/도만
+			return result.standardProvince
+		}
+
+		// 2) 행정동까지만 포함 (그 뒤 상세/숫자/건물 나오면 STOP)
+		var kept: [String] = []
+		var seenAdministrativeDistrict = false
+		for w in restAfterProvince {
+			let isAdministrative = adminSuffixes.contains(where: { w.hasSuffix($0) }) ||
+								   w.range(of: #"[가-힣]+동\d+가$"#, options: .regularExpression) != nil
+
+			if isAdministrative {
+				kept.append(w)
+				// ‘…동/…리/…동n가’를 만나면 STOP 플래그 on
+				if w.hasSuffix("동") || w.hasSuffix("리") ||
+				   w.range(of: #"[가-힣]+동\d+가$"#, options: .regularExpression) != nil {
+					seenAdministrativeDistrict = true
+				}
+				continue
 			}
+
+			if seenAdministrativeDistrict {
+				if looksLikeBuildingName(w) || isDetailWord(w) || w.allSatisfy({ $0.isNumber }) {
+					break  // ✅ 상세 꼬리 제거 (1288, 팰리스, 120동 등)
+				}
+			}
+
+			// 시/군/구 레벨의 일반 토큰은 포함 (예: ‘부천시’, ‘원미구’)
+			kept.append(w)
+		}
+
+		let masked = ([normalizedHead] + kept).joined(separator: " ")
+
+		switch style {
+		case .provinceOnly:
+			return result.standardProvince
+		case .provinceWithDistrict:
+			if let city = result.city { return "\(result.standardProvince) \(city)" }
+			return result.standardProvince
+		case .provinceWithCappedTail:
+			return masked
 		}
 	}
-	
-	// MARK: - 헬퍼 메서드들
-	
-	/// 시/도에 해당하는 구/군 데이터 찾기 (JSON 데이터 활용)
+	// MARK: - 보조 유틸
 	private static func findProvinceData(province: String, in db: DistrictIndex) -> [String]? {
-		// JSON 데이터에서 해당 시/도의 구/군 목록 반환
-		let cityKeywords = db.nameToProvince.compactMap { (city, prov) -> String? in
-			return prov == province && city != province ? city : nil
+		let cities = db.nameToProvince.compactMap { (city, prov) in prov == province && city != province ? city : nil }
+		return cities.isEmpty ? nil : cities
+	}
+	
+	static func detectProvince(in text: String) -> String? {
+		let db = DistrictDB.shared
+		for alias in provinceAliases.keys.sorted(by: { $0.count > $1.count }) {
+			if let r = text.range(of: alias), !isImmediatelyFollowedByPOI(text, after: r) { return provinceAliases[alias] }
 		}
-		return cityKeywords.isEmpty ? nil : cityKeywords
-	}
-	
-	/// 별칭을 표준명으로 변환
-	static func getStandardProvinceName(for alias: String) -> String? {
-		return provinceAliases[alias]
-	}
-	
-	/// 모든 별칭 목록 반환
-	static func getAllProvinceAliases() -> [String: String] {
-		return provinceAliases
-	}
-	
-	// MARK: - 공개 유틸리티 메서드들
-	
-	/// 텍스트에 주소가 포함되어 있는지 확인
-	static func containsAddress(in text: String) -> Bool {
-		return detectProvince(in: text) != nil
-	}
-	
-	/// 주소 감지 결과를 반환 (테스트/디버깅용)
-	static func analyzeAddress(in text: String) -> AddressDetectionResult? {
-		return detectDetailedAddress(in: text)
+		for key in db.nameToProvince.keys.sorted(by: { $0.count > $1.count }) {
+			if let r = text.range(of: key), !isImmediatelyFollowedByPOI(text, after: r) { return db.nameToProvince[key] }
+		}
+		for prov in db.provinceNames.sorted(by: { $0.count > $1.count }) {
+			if let r = text.range(of: prov), !isImmediatelyFollowedByPOI(text, after: r) { return prov }
+		}
+		return nil
 	}
 }

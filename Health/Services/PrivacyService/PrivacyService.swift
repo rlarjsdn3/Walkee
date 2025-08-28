@@ -31,7 +31,7 @@ struct PrivacyService {
 		replacements += findNameReplacements(in: text)
 		
 		// 충돌 방지를 위해 뒤에서부터 교체
-		replacements.sort { $0.range.location > $1.range.location }
+		replacements.sort { $0.0.location > $1.0.location }
 		
 		var result = text
 		for r in replacements {
