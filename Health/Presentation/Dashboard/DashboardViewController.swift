@@ -142,7 +142,7 @@ final class DashboardViewController: HealthNavigationController, Alertable, Scro
     }
 
     @objc private func refreshHKData() {
-        // 캘린더에서 대시보드로 이동하였다면 날짜 갱신을 불허합니다.
+        // 대시보드 화면에서만 리프레시 시, 기준 시각을 갱신합니다.
         if !viewModel.fromCalendar {
             viewModel.updateAnchorDate(.now)
         }

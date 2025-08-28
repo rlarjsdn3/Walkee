@@ -511,7 +511,7 @@ extension DashboardViewModel {
             option: .dailySummary
         ) else { return nil }
         let response = await alanService.sendQuestion(prompt)
-        return response
+        return response?.removingMarkdown()
     }
 	
 	func checkHKHasAnyReadPermission(typeIdentifier quantityTypeIdentifier: HKQuantityTypeIdentifier? = nil) async -> Bool {
