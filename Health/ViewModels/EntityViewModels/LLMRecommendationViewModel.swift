@@ -259,7 +259,7 @@ class LLMRecommendationViewModel: ObservableObject {
     }
 
     /// LLM 응답 파싱
-    private func parseLLMResponse(_ response: String) -> [String] {
+   func parseLLMResponse(_ response: String) -> [String] {
         let pattern = "[1-3]"
         let regex = try? NSRegularExpression(pattern: pattern)
         let matches = regex?.matches(in: response, range: NSRange(response.startIndex..., in: response))
