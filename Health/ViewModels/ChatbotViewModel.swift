@@ -46,7 +46,10 @@ final class ChatbotViewModel {
 			guard let self else { return }
 			
 			let masked = PrivacyService.maskSensitiveInfo(in: rawMessage)
-			
+			print("=== 마스킹 디버그 ===")
+			print("[Chatbot] Original: \(rawMessage)")
+			print("[Chatbot] Masked  : \(masked)")
+			print("==================")
 #if DEBUG
 			let isUnitTest = NSClassFromString("XCTestCase") != nil
 			if !isUnitTest {
@@ -145,25 +148,16 @@ final class ChatbotViewModel {
 					let tail = event.data.content ?? ""
 					streamingBuffer.append(tail)
 					
-					// ✅ 마크다운 렌더 → 한 번만 표시
+					// 마크다운 렌더 → 한 번만 표시
 					let attributed = ChatMarkdownRenderer.renderFinalMarkdown(streamingBuffer)
 					onFinalRender?(attributed)
 					
-					// ✅ plain 최종도 한 번
+					// plain 최종도 한 번
 					onStreamCompleted?(streamingBuffer)
 					
 					streamingBuffer = ""
 					callComplete = false
 					break streamLoop
-//					let completeText = event.data.content ?? ""
-//					self.streamingBuffer.append(completeText)
-//
-//					// 최종 렌더링
-//					let _ = ChatMarkdownRenderer.renderFinalMarkdown(self.streamingBuffer)
-//					onStreamCompleted?(self.streamingBuffer)
-//					self.streamingBuffer = ""
-//					callComplete = false
-//					break streamLoop
 				}
 			}
 		} catch {
@@ -172,7 +166,7 @@ final class ChatbotViewModel {
 						callComplete = false
 						onActionText?("세션 초기화 후 재시도…")
 
-						if !didResetInThisCycle {          // ✅ 같은 사이클 1회만
+						if !didResetInThisCycle {   
 							didResetInThisCycle = true
 							await resetAgentState(throttle: .seconds(1))
 						}
@@ -180,16 +174,6 @@ final class ChatbotViewModel {
 						await _startStreaming(content: content, canRetry: false)
 						return
 					}
-//			if canRetry, isRecoverable(error) {
-//				callComplete = false
-//				onActionText?("세션 초기화 후 재시도…")
-//				// 500 복구 스로틀 없이 1회 수행
-//				await resetAgentState(throttle: nil)
-//				try? await Task.sleep(nanoseconds: 300_000_000)
-//				await _startStreaming(content: content, canRetry: false)
-//				return
-//			}
-			
 			// 401코드 사용자 메시지 매핑
 			if let sseError = error as? AlanSSEClientError {
 				switch sseError {
@@ -266,25 +250,3 @@ final class ChatbotViewModel {
 		}
 	}
 }
-//#if DEBUG
-//			// DEBUG 모드: 목 데이터로 테스트 스트리밍
-//			startMockStreaming(masked)
-//#else
-//			// RELEASE 모드: 실제 프롬프트 생성 + SSE 요청
-//			streamTask = Task { [weak self] in
-//				guard let self else { return }
-//
-//				do {
-//					let prompt = try await promptBuilderService.makePrompt(
-//						message: masked,
-//						context: nil,
-//						option: .chat
-//					)
-//					await self._startStreaming(content: prompt, canRetry: true)
-//					//print("🧾 [Prompt] Alan에게 전달할 최종 프롬프트:")
-//					//print(prompt)
-//				} catch {
-//					onError?("프롬프트 생성 실패: \(error.localizedDescription)")
-//				}
-//			}
-//#endif

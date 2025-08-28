@@ -35,7 +35,7 @@
                                             <stackView opaque="NO" contentMode="scaleToFill" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="JcR-5o-DiP">
                                                 <rect key="frame" x="0.0" y="0.0" width="393" height="54"/>
                                                 <subviews>
-                                                    <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="    걸어봇에게 물어보세요." textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="o50-vy-lbP">
+                                                    <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="    워키봇에게 물어보세요." textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="o50-vy-lbP">
                                                         <rect key="frame" x="0.0" y="0.0" width="337" height="54"/>
                                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                         <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
@@ -113,7 +113,7 @@
     <resources>
         <image name="paperplane.fill" catalog="system" width="128" height="119"/>
         <namedColor name="boxBgColor">
-            <color red="0.95294117647058818" green="0.95294117647058818" blue="0.95294117647058818" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.96862745098039216" green="0.96862745098039216" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="buttonTextColor">
             <color red="0.41568627450980394" green="0.41568627450980394" blue="0.41568627450980394" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
