@@ -147,6 +147,7 @@ final class ChatbotViewModel {
 				case .complete:
 					let tail = event.data.content ?? ""
 					streamingBuffer.append(tail)
+					
 					// 마크다운 렌더 → 한 번만 표시
 					let attributed = ChatMarkdownRenderer.renderFinalMarkdown(streamingBuffer)
 					onFinalRender?(attributed)
