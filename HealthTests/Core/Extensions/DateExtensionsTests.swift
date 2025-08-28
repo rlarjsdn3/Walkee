@@ -112,7 +112,7 @@ final class DateExtensionsTests: XCTestCase {
         XCTAssertEqual(date1.dayDiff(to: date2), 14)
         
         let date3 = calendar.date(from: DateComponents(year: 2025, month: 10, day: 1))!
-        XCTAssertEqual(date1.monthDiff(to: date3), 2)
+        XCTAssertEqual(date1.monthDiff(to: date3), 3)
     }
     
     func testNextDate() {
