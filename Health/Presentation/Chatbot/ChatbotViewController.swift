@@ -555,90 +555,6 @@ final class ChatbotViewController: CoreGradientViewController {
 		tableView.scrollToRow(at: lastIndexPath, at: .bottom, animated: true)
 	}
 	
-	// 1) “행 상단으로” 절대 스크롤(첫 줄 보장)
-	private func scrollToRowTopAbsolute(_ indexPath: IndexPath,
-										extraTopPadding: CGFloat = 8,
-										animated: Bool) {
-		tableView.layoutIfNeeded()
-		let insetTop = tableView.adjustedContentInset.top
-		let insetBottom = tableView.adjustedContentInset.bottom
-		let rect = tableView.rectForRow(at: indexPath)
-		
-		let minY = -insetTop
-		let maxY = max(minY, tableView.contentSize.height - tableView.bounds.height + insetBottom)
-		
-		var targetY = rect.minY - insetTop - extraTopPadding
-		targetY = min(max(targetY, minY), maxY)
-		
-		tableView.setContentOffset(CGPoint(x: 0, y: targetY), animated: animated)
-	}
-	
-	// 2) “하단 유지” 절대 스크롤(꼬리 따라가기 전용)
-	private func scrollToBottomAbsolute(animated: Bool) {
-		tableView.layoutIfNeeded()
-		let insetTop = tableView.adjustedContentInset.top
-		let insetBottom = tableView.adjustedContentInset.bottom
-		let contentH = tableView.contentSize.height
-		let visibleH = tableView.bounds.height
-		let minY = -insetTop
-		let maxY = max(minY, contentH - visibleH + insetBottom)
-		tableView.setContentOffset(CGPoint(x: 0, y: maxY), animated: animated)
-	}
-	
-	private enum AutoScrollMode { case following, manual }
-	private var autoScrollMode: AutoScrollMode = .following
-
-	private func cancelOngoingScrollAnimations() {
-		// tableView 애니메이션/감속 즉시 중단
-		tableView.layer.removeAllAnimations()
-		// UIKit이 내부적으로 유지 중인 애니메이션 중단 트릭
-		tableView.setContentOffset(tableView.contentOffset, animated: false)
-	}
-
-	// 사용자가 손댔으면 자동 따라가기 해제
-	func scrollViewWillBeginDraggingResignAuto(_ scrollView: UIScrollView) {
-		autoScrollMode = .manual
-	}
-	private func isNearBottomAuto(threshold: CGFloat = 40) -> Bool {
-		let insetTop = tableView.adjustedContentInset.top
-		let insetBottom = tableView.adjustedContentInset.bottom
-		let contentH = tableView.contentSize.height
-		let visibleH = tableView.bounds.height
-		let minY = -insetTop
-		let maxY = max(minY, contentH - visibleH + insetBottom)
-		return (maxY - tableView.contentOffset.y) < threshold
-	}
-
-	
-	
-	@MainActor
-	private func scrollToBottomAfterLayout(animated: Bool) async {
-		tableView.layoutIfNeeded()
-		await Task.yield() // 다음 런루프에서 셀 높이/콘텐츠 사이즈 확정
-		scrollToBottomAbsolute(animated: animated)
-	}
-	
-	@MainActor
-	private func scrollToRowTopAfterLayout(_ indexPath: IndexPath,
-										   extraTopPadding: CGFloat = 8,
-										   animated: Bool) async {
-		tableView.layoutIfNeeded()
-		await Task.yield() // 다음 런루프에서 행/콘텐츠 사이즈 확정
-		guard indexPath.section < tableView.numberOfSections,
-			  indexPath.row < tableView.numberOfRows(inSection: indexPath.section) else { return }
-
-		let insetTop = tableView.adjustedContentInset.top
-		let insetBottom = tableView.adjustedContentInset.bottom
-		let rect = tableView.rectForRow(at: indexPath)
-
-		let minY = -insetTop
-		let maxY = max(minY, tableView.contentSize.height - tableView.bounds.height + insetBottom)
-		var targetY = rect.minY - insetTop - extraTopPadding
-		targetY = min(max(targetY, minY), maxY)
-
-		tableView.setContentOffset(CGPoint(x: 0, y: targetY), animated: animated)
-	}
-	// ======
 	// MARK: - Actions
 	@IBAction private func sendButtonTapped(_ sender: UIButton) {
 		sendMessageStreaming()
@@ -666,8 +582,8 @@ final class ChatbotViewController: CoreGradientViewController {
 		}, completion: { [weak self] _ in
 			guard let self else { return }
 			
-			// Concurrency로 한 프레임 뒤 안전 스크롤
-			Task { @MainActor [weak self] in
+			// ✅ Concurrency로 한 프레임 뒤 안전 스크롤
+			Task { [weak self] in
 				guard let self else { return }
 				await self.scrollToRowAfterLayout(userIP, position: .bottom, animated: true)
 			
@@ -678,8 +594,7 @@ final class ChatbotViewController: CoreGradientViewController {
 				
 				// showWaitingCell() 안에서 self.waitingIndexPath 가 설정됨
 				if let wip = self.waitingIndexPath {
-					//await self.scrollToRowAfterLayout(wip, position: .bottom, animated: true)
-					await self.scrollToRowTopAfterLayout(wip, animated: true)
+					await self.scrollToRowAfterLayout(wip, position: .bottom, animated: true)
 				}
 				
 				// 2-5) 스트리밍 동안은 아래 꼬리만 자연스럽게 따라가도록 설정
