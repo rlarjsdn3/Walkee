@@ -334,7 +334,7 @@ extension Alertable where Self: UIViewController {
         buildView: () -> UIView,
         height: CGFloat = 400,
         width: CGFloat = 500,
-        iPadLandscapeHeight: CGFloat = 700,
+        iPadLandscapeHeight: CGFloat = 500,
         iPadLandscapeWidth: CGFloat = 700,
         iPadPortraitHeight: CGFloat = 500,
         iPadPortraitWidth: CGFloat = 700,
