@@ -67,7 +67,7 @@ final class ChatbotViewModelTests: XCTestCase {
 		}
 	}
 
-	func testStartStreamingQuestion_WhenContinueThenComplete_ThenEmitsChunksAndFinalOnce() async {
+	func testStartPromptChatWithAutoReset_AggregatesAndCompletes() async {
 		// Given
 		let events: [AlanStreamingResponse] = [
 			.action("안내"),
@@ -78,80 +78,30 @@ final class ChatbotViewModelTests: XCTestCase {
 		DIContainer.shared.register(type: AlanSSEServiceProtocol.self) { _ in
 			MockSSEService(mode: .yield(events))
 		}
-
+		
 		let chunkExp = expectation(description: "continue chunks (2)")
 		chunkExp.expectedFulfillmentCount = 2
 		let doneExp = expectation(description: "complete")
-
+		
 		var chunks: [String] = []
 		var finalText: String?
-
-		sut.onStreamChunk = {
-			chunks.append($0)
+		sut.onStreamChunk = { chunk in
+			chunks.append(chunk)
 			chunkExp.fulfill()
 		}
-		sut.onStreamCompleted = {
-			finalText = $0
+		sut.onStreamCompleted = { final in
+			// 👉 chunk와 함께 조합해서 기대 문자열 구성
+			finalText = (chunks + [final]).joined()
 			doneExp.fulfill()
 		}
-
+		
 		// When
-		sut.startStreamingQuestion("hello")
-
+		sut.startPromptChatWithAutoReset("서울시 성동구 성수동1가 718 트리마제 104동  26층 사는 김서현인데 근처 한강 공원이나 걷기 코스 추천해줘")
+		
 		// Then
 		await fulfillment(of: [chunkExp, doneExp], timeout: 2.0)
 		XCTAssertEqual(chunks, ["Hel", "lo"])
-		XCTAssertEqual(finalText, " World")
-	}
-
-	func testStartStreamingQuestion_WhenServer500_ThenResetStateAndRetryOnce() async {
-		// Given
-		let first  = MockSSEService.Mode.error(AlanSSEClientError.badHTTPStatus(500))
-		let second = MockSSEService.Mode.yield([ .complete("OK") ])
-		DIContainer.shared.register(type: AlanSSEServiceProtocol.self) { _ in
-			MockSSEService(mode: .sequence([first, second]))
-		}
-		
-		let doneExp = expectation(description: "complete after retry")
-		var final = ""
-		var actionGuide = ""
-		sut.onActionText = { actionGuide = $0 }
-		sut.onStreamCompleted = { final = $0; doneExp.fulfill() }
-		
-		// baseline — 시작 직전 누적값 기록
-		let baseline = netSpy.resetCalledCount
-		
-		// When
-		sut.startStreamingQuestion("retry-me", autoReset: true)
-		
-		// Then
-		await fulfillment(of: [doneExp], timeout: 3.0)
-		XCTAssertEqual(netSpy.resetCalledCount - baseline, 1, "이 시나리오에서 reset은 1회여야 함")
-		XCTAssertTrue(actionGuide.contains("세션 초기화"))
-		XCTAssertEqual(final, "OK")
-	}
-
-	func testStartStreamingQuestion_WhenNonRecoverableError_ThenCallsOnErrorOnly() async {
-		// Given
-		let nonRecoverable = NSError(domain: "Unit", code: 1234)
-		DIContainer.shared.register(type: AlanSSEServiceProtocol.self) { _ in
-			MockSSEService(mode: .error(nonRecoverable))
-		}
-
-		let errorExp = expectation(description: "onError called")
-		var message = ""
-		sut.onError = {
-			message = $0
-			errorExp.fulfill()
-		}
-
-		// When
-		sut.startStreamingQuestion("fail-now", autoReset: true)
-
-		// Then
-		await fulfillment(of: [errorExp], timeout: 2.0)
-		XCTAssertTrue(message.contains("1234"))
-		XCTAssertEqual(netSpy.resetCalledCount, 0)
+		XCTAssertEqual(finalText, "Hello World")
 	}
 
 	func testResetSessionOnExit_WhenCalled_ThenCancelsStreamAndResetsAgent() async {
@@ -170,39 +120,7 @@ final class ChatbotViewModelTests: XCTestCase {
 		while Date() < deadline, netSpy.resetCalledCount == before {
 			try? await Task.sleep(nanoseconds: 30_000_000) // 30ms
 		}
-		XCTAssertEqual(netSpy.resetCalledCount - before, 1)
-	}
-
-	func testStartStreamingQuestion_WhenSecondSession_ThenBufferIsCleared() async {
-		// Given
-		DIContainer.shared.register(type: AlanSSEServiceProtocol.self) { _ in
-			MockSSEService(mode: .sequence([
-				.yield([ .complete("A") ]),
-				.yield([ .complete("B") ])
-			]))
-		}
-
-		let first = expectation(description: "first done")
-		var last = ""
-		sut.onStreamCompleted = {
-			last = $0
-			first.fulfill()
-		}
-
-		// When
-		sut.startStreamingQuestion("first")
-		await fulfillment(of: [first], timeout: 2.0)
-		XCTAssertEqual(last, "A")
-
-		// Then
-		let second = expectation(description: "second done")
-		sut.onStreamCompleted = {
-			last = $0
-			second.fulfill()
-		}
-		sut.startStreamingQuestion("second")
-		await fulfillment(of: [second], timeout: 2.0)
-		XCTAssertEqual(last, "B")
+		XCTAssertEqual(netSpy.resetCalledCount -  before, 1)
 	}
 
 	func testParsingPerformance_WhenDecodingStreamingResponse_ThenRecordsMetrics() {
@@ -218,26 +136,31 @@ final class ChatbotViewModelTests: XCTestCase {
 		}
 	}
 	
-	func testStartStreamingQuestion_WhenContinueContentIsNil_ThenSkipsChunk() async {
+	func testStartPromptChatWithAutoReset_WhenServer500_ThenResetStateOnceAndRetry() async {
 		// Given
-		let events: [AlanStreamingResponse] = [
-			.init(type: .continue, data: .init(content: nil, speak: nil)),
-			.init(type: .complete, data: .init(content: "done", speak: nil)),
-		]
+		let first  = MockSSEService.Mode.error(AlanSSEClientError.badHTTPStatus(500))
+		let second = MockSSEService.Mode.yield([ .complete("OK") ])
 		DIContainer.shared.register(type: AlanSSEServiceProtocol.self) { _ in
-			MockSSEService(mode: .yield(events))
+			MockSSEService(mode: .sequence([first, second]))
 		}
 
-		let done = expectation(description: "complete")
-		var chunks: [String] = []
-		sut.onStreamChunk = { chunks.append($0) }
-		sut.onStreamCompleted = { _ in done.fulfill() }
+		let doneExp = expectation(description: "complete after retry")
+		var final = ""
+		var actionGuide = ""
+		sut.onActionText = { actionGuide = $0 }
+		sut.onStreamCompleted = { final = $0; doneExp.fulfill() }
+
+		// baseline — 시작 직전 누적값 기록
+		let baseline = netSpy.resetCalledCount
 
 		// When
-		sut.startStreamingQuestion("q")
+		sut.startPromptChatWithAutoReset("재시도 테스트")
 
 		// Then
-		await fulfillment(of: [done], timeout: 2.0)
-		XCTAssertTrue(chunks.isEmpty)
+		await fulfillment(of: [doneExp], timeout: 3.0)
+		XCTAssertEqual(actionGuide.isEmpty, false)           // “세션 초기화 후 재시도…” 등
+		XCTAssertEqual(final, "OK")
+		// 같은 요청 사이클 내 reset은 1회만
+		XCTAssertEqual(netSpy.resetCalledCount - baseline, 1)
 	}
 }

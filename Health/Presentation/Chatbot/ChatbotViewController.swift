@@ -230,7 +230,8 @@ final class ChatbotViewController: CoreGradientViewController {
 		viewModel.onActionText = { [weak self] text in
 			guard let self else { return }
 			Task { @MainActor in
-				self.updateWaitingCellText(text)
+				//self.updateWaitingCellText(text)
+				self.updateWaitingCellState(.waiting(text))
 			}
 		}
 		
@@ -263,8 +264,14 @@ final class ChatbotViewController: CoreGradientViewController {
 				if let cell = self.tableView.cellForRow(at: aiIP) as? AIResponseCell {
 					cell.configure(with: "", isFinal: false)
 				}
+				
+				// 교체 직후, 레이아웃 확정 후 AI 응답의 "첫 줄"로 초점
+				Task { @MainActor in
+					await self.scrollToRowTopAfterLayout(aiIP, animated: true)
+				}
 			}
 			
+			// 청크 반영
 			guard let idx = self.streamingAIIndex else { return }
 			let cleaned = FootnoteSanitizer.sanitize(
 				chunk,
@@ -281,6 +288,11 @@ final class ChatbotViewController: CoreGradientViewController {
 				UIView.performWithoutAnimation {
 					self.tableView.reloadRows(at: [ip], with: .none)
 				}
+			}
+			
+			// 스트리밍 중 ‘꼬리 따라가기’ (사용자가 하단 근처에 있을 때만)
+			if self.autoScrollMode == .following, self.isNearBottomAuto() {
+				self.scrollToBottomAbsolute(animated: false)
 			}
 		}
 		
@@ -316,13 +328,29 @@ final class ChatbotViewController: CoreGradientViewController {
 			guard let self else { return }
 			// 에러 처리: 로딩 셀에 에러 메시지 표시 후 상태 정리
 			Task { @MainActor in
-				self.updateWaitingCellText(errorText)
-				try await Task.sleep(for: .seconds(2))
+				//self.updateWaitingCellText(errorText)
+				self.updateWaitingCellState(.error(errorText))
+				//try await Task.sleep(for: .seconds(2))
+				self.finishErrorUI()
 				self.endE2E()
-				self.cleanupStreamingState()
+				//self.cleanupStreamingState()
 			}
 		}
 	}
+	
+	@MainActor
+	private func finishErrorUI() {
+		// 전송 버튼 등 입력 UI만 복구
+		sendButton.isEnabled = true
+		sendButton.alpha = 1.0
+		// 기존 SSE 정리
+		sseClient?.disconnect()
+		sseClient = nil
+	
+		streamingAIIndex = nil
+		focusLatestAIHead = false
+	}
+	
 	// MARK: - 응답값 파싱 확인을 위한 함수 `startE2E` 와 `endE2E`
 	/// 질문 전송 직전 호출
 	private func startE2E() {
@@ -366,7 +394,7 @@ final class ChatbotViewController: CoreGradientViewController {
 		chattingTextField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 44))
 		chattingTextField.leftViewMode = .always
 		chattingTextField.attributedPlaceholder = NSAttributedString(
-			string: "걸어봇에게 물어보세요.",
+			string: "워키봇에게 물어보세요.",
 			attributes: [.foregroundColor: UIColor.buttonBackground.withAlphaComponent(0.5)]
 		)
 	}
@@ -527,6 +555,90 @@ final class ChatbotViewController: CoreGradientViewController {
 		tableView.scrollToRow(at: lastIndexPath, at: .bottom, animated: true)
 	}
 	
+	// 1) “행 상단으로” 절대 스크롤(첫 줄 보장)
+	private func scrollToRowTopAbsolute(_ indexPath: IndexPath,
+										extraTopPadding: CGFloat = 8,
+										animated: Bool) {
+		tableView.layoutIfNeeded()
+		let insetTop = tableView.adjustedContentInset.top
+		let insetBottom = tableView.adjustedContentInset.bottom
+		let rect = tableView.rectForRow(at: indexPath)
+		
+		let minY = -insetTop
+		let maxY = max(minY, tableView.contentSize.height - tableView.bounds.height + insetBottom)
+		
+		var targetY = rect.minY - insetTop - extraTopPadding
+		targetY = min(max(targetY, minY), maxY)
+		
+		tableView.setContentOffset(CGPoint(x: 0, y: targetY), animated: animated)
+	}
+	
+	// 2) “하단 유지” 절대 스크롤(꼬리 따라가기 전용)
+	private func scrollToBottomAbsolute(animated: Bool) {
+		tableView.layoutIfNeeded()
+		let insetTop = tableView.adjustedContentInset.top
+		let insetBottom = tableView.adjustedContentInset.bottom
+		let contentH = tableView.contentSize.height
+		let visibleH = tableView.bounds.height
+		let minY = -insetTop
+		let maxY = max(minY, contentH - visibleH + insetBottom)
+		tableView.setContentOffset(CGPoint(x: 0, y: maxY), animated: animated)
+	}
+	
+	private enum AutoScrollMode { case following, manual }
+	private var autoScrollMode: AutoScrollMode = .following
+
+	private func cancelOngoingScrollAnimations() {
+		// tableView 애니메이션/감속 즉시 중단
+		tableView.layer.removeAllAnimations()
+		// UIKit이 내부적으로 유지 중인 애니메이션 중단 트릭
+		tableView.setContentOffset(tableView.contentOffset, animated: false)
+	}
+
+	// 사용자가 손댔으면 자동 따라가기 해제
+	func scrollViewWillBeginDraggingResignAuto(_ scrollView: UIScrollView) {
+		autoScrollMode = .manual
+	}
+	private func isNearBottomAuto(threshold: CGFloat = 40) -> Bool {
+		let insetTop = tableView.adjustedContentInset.top
+		let insetBottom = tableView.adjustedContentInset.bottom
+		let contentH = tableView.contentSize.height
+		let visibleH = tableView.bounds.height
+		let minY = -insetTop
+		let maxY = max(minY, contentH - visibleH + insetBottom)
+		return (maxY - tableView.contentOffset.y) < threshold
+	}
+
+	
+	
+	@MainActor
+	private func scrollToBottomAfterLayout(animated: Bool) async {
+		tableView.layoutIfNeeded()
+		await Task.yield() // 다음 런루프에서 셀 높이/콘텐츠 사이즈 확정
+		scrollToBottomAbsolute(animated: animated)
+	}
+	
+	@MainActor
+	private func scrollToRowTopAfterLayout(_ indexPath: IndexPath,
+										   extraTopPadding: CGFloat = 8,
+										   animated: Bool) async {
+		tableView.layoutIfNeeded()
+		await Task.yield() // 다음 런루프에서 행/콘텐츠 사이즈 확정
+		guard indexPath.section < tableView.numberOfSections,
+			  indexPath.row < tableView.numberOfRows(inSection: indexPath.section) else { return }
+
+		let insetTop = tableView.adjustedContentInset.top
+		let insetBottom = tableView.adjustedContentInset.bottom
+		let rect = tableView.rectForRow(at: indexPath)
+
+		let minY = -insetTop
+		let maxY = max(minY, tableView.contentSize.height - tableView.bounds.height + insetBottom)
+		var targetY = rect.minY - insetTop - extraTopPadding
+		targetY = min(max(targetY, minY), maxY)
+
+		tableView.setContentOffset(CGPoint(x: 0, y: targetY), animated: animated)
+	}
+	// ======
 	// MARK: - Actions
 	@IBAction private func sendButtonTapped(_ sender: UIButton) {
 		sendMessageStreaming()
@@ -554,11 +666,11 @@ final class ChatbotViewController: CoreGradientViewController {
 		}, completion: { [weak self] _ in
 			guard let self else { return }
 			
-			// ✅ Concurrency로 한 프레임 뒤 안전 스크롤
-			Task { [weak self] in
+			// Concurrency로 한 프레임 뒤 안전 스크롤
+			Task { @MainActor [weak self] in
 				guard let self else { return }
 				await self.scrollToRowAfterLayout(userIP, position: .bottom, animated: true)
-				
+			
 				// 2) 로딩 상태 진입 (버튼 비활성화 + Waiting 셀 노출)
 				self.sendButton.isEnabled = false
 				self.sendButton.alpha = 0.5
@@ -566,8 +678,15 @@ final class ChatbotViewController: CoreGradientViewController {
 				
 				// showWaitingCell() 안에서 self.waitingIndexPath 가 설정됨
 				if let wip = self.waitingIndexPath {
-					await self.scrollToRowAfterLayout(wip, position: .bottom, animated: true)
+					//await self.scrollToRowAfterLayout(wip, position: .bottom, animated: true)
+					await self.scrollToRowTopAfterLayout(wip, animated: true)
 				}
+				
+				// 2-5) 스트리밍 동안은 아래 꼬리만 자연스럽게 따라가도록 설정
+				self.autoScrollMode = .following
+				// 기존 상단 유지 로직의 간섭 방지
+				self.focusLatestAIHead = false
+				
 				// 3) 스트리밍 상태 플래그 초기화
 				self.inFootnote = false
 				self.pendingOpenBracket = false
@@ -610,6 +729,44 @@ final class ChatbotViewController: CoreGradientViewController {
 			return
 		}
 		// 화면 밖이면 조용히 리로드
+		if let idx = waitingIndexPath {
+			UIView.performWithoutAnimation {
+				tableView.reloadRows(at: [idx], with: .none)
+			}
+		}
+	}
+	
+	@MainActor
+	private func updateWaitingCellState(_ state: WaitingCellState) {
+		switch state {
+		case .waiting(let text):
+			currentWaitingText = text
+			if let idx = waitingIndexPath,
+			   let cell = tableView.cellForRow(at: idx) as? LoadingResponseCell {
+				cell.configure(text: text, animating: true)
+				relayoutRowIfNeeded(idx)
+				return
+			}
+		case .error(let text):
+			currentWaitingText = text
+			if let idx = waitingIndexPath,
+			   let cell = tableView.cellForRow(at: idx) as? LoadingResponseCell {
+				cell.configure(text: text, animating: false)
+				relayoutRowIfNeeded(idx)
+				return
+			}
+		}
+		
+		// fallback: visibleCells 에서 찾거나 reload
+		for case let loading as LoadingResponseCell in tableView.visibleCells {
+			switch state {
+			case .waiting(let text): loading.configure(text: text, animating: true)
+			case .error(let text):   loading.configure(text: text, animating: false)
+			}
+			if let ip = tableView.indexPath(for: loading) { relayoutRowIfNeeded(ip) }
+			return
+		}
+		
 		if let idx = waitingIndexPath {
 			UIView.performWithoutAnimation {
 				tableView.reloadRows(at: [idx], with: .none)
@@ -717,15 +874,35 @@ final class ChatbotViewController: CoreGradientViewController {
 		waitingIndexPath = index
 		tableView.insertRows(at: [index], with: .fade)
 		
+		Task { @MainActor in
+			//  (중요) 절대 스크롤 전에 먼저 모든 진행 중 애니메이션 중단
+			//self.cancelOngoingScrollAnimations()
+			   if let aiIndex = streamingAIIndex {
+				   let aiIP = indexPathForMessage(at: aiIndex)
+				   // 레이아웃 확정 후 AI 응답의 첫 줄로
+				   await scrollToRowTopAfterLayout(aiIP, animated: true)
+			   } else {
+				   // 아직 AI 셀이 없으면 WIP 셀의 첫 줄로
+				   await scrollToRowTopAfterLayout(index, animated: true)
+			   }
+		   }
+
+		/*
 		if let aiIndex = streamingAIIndex {
 			let aiIP = indexPathForMessage(at: aiIndex)
-			if focusLatestAIHead {
-				tableView.scrollToRow(at: aiIP, at: .top, animated: true)
-			} else if shouldAutoScroll() {
-				tableView.scrollToRow(at: aiIP, at: .bottom, animated: true)
-			}
+			
+			// 새 플로우에선 첫 줄 상단 정렬을 강제(부드럽게 보여주기)
+			scrollToRowTopAbsolute(aiIP, animated: true)
+//			if focusLatestAIHead {
+//				tableView.scrollToRow(at: aiIP, at: .top, animated: true)
+//			} else if shouldAutoScroll() {
+//				tableView.scrollToRow(at: aiIP, at: .bottom, animated: true)
+//			}
+		} else {
+			// streamingAIIndex가 아직 없으면 WIP 셀로라도 초점 이동
+			scrollToRowTopAbsolute(index, animated: true)
 		}
-		
+		*/
 		waitingHintTask?.cancel()
 		waitingHintTask = Task { @MainActor in
 			try? await Task.sleep(nanoseconds: 8_000_000_000)
@@ -865,7 +1042,16 @@ extension ChatbotViewController: UITableViewDataSource, UITableViewDelegate {
 	}
 	
 	func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-		focusLatestAIHead = false
+		//focusLatestAIHead = false
+		autoScrollMode = .manual
+	}
+	
+	// 아래쪽 근처로 돌아오면 다시 활성화
+	func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+		if isNearBottomAuto() { autoScrollMode = .following }
+	}
+	func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate: Bool) {
+		if !willDecelerate, isNearBottomAuto() { autoScrollMode = .following }
 	}
 }
 
