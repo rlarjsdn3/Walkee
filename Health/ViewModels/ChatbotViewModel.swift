@@ -147,7 +147,6 @@ final class ChatbotViewModel {
 				case .complete:
 					let tail = event.data.content ?? ""
 					streamingBuffer.append(tail)
-					
 					// 마크다운 렌더 → 한 번만 표시
 					let attributed = ChatMarkdownRenderer.renderFinalMarkdown(streamingBuffer)
 					onFinalRender?(attributed)
@@ -181,21 +180,6 @@ final class ChatbotViewModel {
 				case .badHTTPStatus(401):
 					// 401: 인증/권한 실패 → 사용자 친화 메시지
 					onError?("AI에서 응답 받는 것을 실패했습니다.\n나중에 다시 시도해 주세요.")
-				default:
-					// 그 외 SSE 오류는 기존 설명 사용
-					onError?(sseError.errorDescription ?? "SSE 오류가 발생했습니다.")
-				}
-			} else {
-				// 네트워크 일반 오류 등
-				onError?("AI에서 응답 받는 것을 실패했습니다.")
-			}
-			
-			// 401코드 사용자 메시지 매핑
-			if let sseError = error as? AlanSSEClientError {
-				switch sseError {
-				case .badHTTPStatus(401):
-					// 401: 인증/권한 실패 → 사용자 친화 메시지
-					onError?("AI에서 응답 받는 것을 실패했습니다.")
 				default:
 					// 그 외 SSE 오류는 기존 설명 사용
 					onError?(sseError.errorDescription ?? "SSE 오류가 발생했습니다.")
