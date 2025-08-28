@@ -226,8 +226,8 @@ class GenderSelectViewController: CoreGradientViewController {
         femaleGender.textColor = (selectedGender == .female) ? selectedTextColor : defaultTextColor
         maleGender.textColor = (selectedGender == .male) ? selectedTextColor : defaultTextColor
         
-        femaleButton.tintColor = (selectedGender == .female) ? .accent : .boxBg
-        maleButton.tintColor = (selectedGender == .male) ? .accent : .boxBg
+        femaleButton.tintColor = (selectedGender == .female) ? .accent : .systemGray5
+        maleButton.tintColor = (selectedGender == .male) ? .accent : .systemGray5
         
 //        if let currentFont = femaleGender.font {
 //            femaleGender.font = (selectedGender == .female) ? currentFont.withBoldTrait() : currentFont.withNormalTrait()
