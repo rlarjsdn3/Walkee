@@ -354,7 +354,7 @@ extension DashboardViewModel {
                         let diff = { // 일자 또는 월을 기준으로 차이 구하기
                             switch id.kind {
                             case .daysBack:   return startDate.dayDiff(to: endDate)
-                            case .monthsBack: return startDate.monthDiff(to: endDate)
+                            case .monthsBack: return startDate.monthDiff(to: endDate) + 1 // - Question: 왜 1을 더해야 할까?
                             }
                         }()
 
