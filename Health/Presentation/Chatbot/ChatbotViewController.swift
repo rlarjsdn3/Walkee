@@ -230,7 +230,8 @@ final class ChatbotViewController: CoreGradientViewController {
 		viewModel.onActionText = { [weak self] text in
 			guard let self else { return }
 			Task { @MainActor in
-				self.updateWaitingCellText(text)
+				//self.updateWaitingCellText(text)
+				self.updateWaitingCellState(.waiting(text))
 			}
 		}
 		
@@ -263,8 +264,14 @@ final class ChatbotViewController: CoreGradientViewController {
 				if let cell = self.tableView.cellForRow(at: aiIP) as? AIResponseCell {
 					cell.configure(with: "", isFinal: false)
 				}
+				
+				// 교체 직후, 레이아웃 확정 후 AI 응답의 "첫 줄"로 초점
+				Task { @MainActor in
+					await self.scrollToRowTopAfterLayout(aiIP, animated: true)
+				}
 			}
 			
+			// 청크 반영
 			guard let idx = self.streamingAIIndex else { return }
 			let cleaned = FootnoteSanitizer.sanitize(
 				chunk,
@@ -281,6 +288,11 @@ final class ChatbotViewController: CoreGradientViewController {
 				UIView.performWithoutAnimation {
 					self.tableView.reloadRows(at: [ip], with: .none)
 				}
+			}
+			
+			// 스트리밍 중 ‘꼬리 따라가기’ (사용자가 하단 근처에 있을 때만)
+			if self.autoScrollMode == .following, self.isNearBottomAuto() {
+				self.scrollToBottomAbsolute(animated: false)
 			}
 		}
 		
@@ -316,7 +328,8 @@ final class ChatbotViewController: CoreGradientViewController {
 			guard let self else { return }
 			// 에러 처리: 로딩 셀에 에러 메시지 표시 후 상태 정리
 			Task { @MainActor in
-				self.updateWaitingCellText(errorText)
+				//self.updateWaitingCellText(errorText)
+				self.updateWaitingCellState(.error(errorText))
 				try await Task.sleep(for: .seconds(2))
 				self.endE2E()
 				self.cleanupStreamingState()
@@ -560,7 +573,12 @@ final class ChatbotViewController: CoreGradientViewController {
 	private enum AutoScrollMode { case following, manual }
 	private var autoScrollMode: AutoScrollMode = .following
 
-	
+	private func cancelOngoingScrollAnimations() {
+		// tableView 애니메이션/감속 즉시 중단
+		tableView.layer.removeAllAnimations()
+		// UIKit이 내부적으로 유지 중인 애니메이션 중단 트릭
+		tableView.setContentOffset(tableView.contentOffset, animated: false)
+	}
 
 	// 사용자가 손댔으면 자동 따라가기 해제
 	func scrollViewWillBeginDraggingResignAuto(_ scrollView: UIScrollView) {
@@ -585,6 +603,27 @@ final class ChatbotViewController: CoreGradientViewController {
 		scrollToBottomAbsolute(animated: animated)
 	}
 	
+	@MainActor
+	private func scrollToRowTopAfterLayout(_ indexPath: IndexPath,
+										   extraTopPadding: CGFloat = 8,
+										   animated: Bool) async {
+		tableView.layoutIfNeeded()
+		await Task.yield() // 다음 런루프에서 행/콘텐츠 사이즈 확정
+		guard indexPath.section < tableView.numberOfSections,
+			  indexPath.row < tableView.numberOfRows(inSection: indexPath.section) else { return }
+
+		let insetTop = tableView.adjustedContentInset.top
+		let insetBottom = tableView.adjustedContentInset.bottom
+		let rect = tableView.rectForRow(at: indexPath)
+
+		let minY = -insetTop
+		let maxY = max(minY, tableView.contentSize.height - tableView.bounds.height + insetBottom)
+		var targetY = rect.minY - insetTop - extraTopPadding
+		targetY = min(max(targetY, minY), maxY)
+
+		tableView.setContentOffset(CGPoint(x: 0, y: targetY), animated: animated)
+	}
+	// ======
 	// MARK: - Actions
 	@IBAction private func sendButtonTapped(_ sender: UIButton) {
 		sendMessageStreaming()
@@ -613,10 +652,10 @@ final class ChatbotViewController: CoreGradientViewController {
 			guard let self else { return }
 			
 			// Concurrency로 한 프레임 뒤 안전 스크롤
-			Task { [weak self] in
+			Task { @MainActor [weak self] in
 				guard let self else { return }
 				await self.scrollToRowAfterLayout(userIP, position: .bottom, animated: true)
-				
+			
 				// 2) 로딩 상태 진입 (버튼 비활성화 + Waiting 셀 노출)
 				self.sendButton.isEnabled = false
 				self.sendButton.alpha = 0.5
@@ -625,7 +664,7 @@ final class ChatbotViewController: CoreGradientViewController {
 				// showWaitingCell() 안에서 self.waitingIndexPath 가 설정됨
 				if let wip = self.waitingIndexPath {
 					//await self.scrollToRowAfterLayout(wip, position: .bottom, animated: true)
-					self.scrollToRowTopAbsolute(wip, animated: true)
+					await self.scrollToRowTopAfterLayout(wip, animated: true)
 				}
 				
 				// 2-5) 스트리밍 동안은 아래 꼬리만 자연스럽게 따라가도록 설정
@@ -675,6 +714,44 @@ final class ChatbotViewController: CoreGradientViewController {
 			return
 		}
 		// 화면 밖이면 조용히 리로드
+		if let idx = waitingIndexPath {
+			UIView.performWithoutAnimation {
+				tableView.reloadRows(at: [idx], with: .none)
+			}
+		}
+	}
+	
+	@MainActor
+	private func updateWaitingCellState(_ state: WaitingCellState) {
+		switch state {
+		case .waiting(let text):
+			currentWaitingText = text
+			if let idx = waitingIndexPath,
+			   let cell = tableView.cellForRow(at: idx) as? LoadingResponseCell {
+				cell.configure(text: text, animating: true)
+				relayoutRowIfNeeded(idx)
+				return
+			}
+		case .error(let text):
+			currentWaitingText = text
+			if let idx = waitingIndexPath,
+			   let cell = tableView.cellForRow(at: idx) as? LoadingResponseCell {
+				cell.configure(text: text, animating: false)
+				relayoutRowIfNeeded(idx)
+				return
+			}
+		}
+		
+		// fallback: visibleCells 에서 찾거나 reload
+		for case let loading as LoadingResponseCell in tableView.visibleCells {
+			switch state {
+			case .waiting(let text): loading.configure(text: text, animating: true)
+			case .error(let text):   loading.configure(text: text, animating: false)
+			}
+			if let ip = tableView.indexPath(for: loading) { relayoutRowIfNeeded(ip) }
+			return
+		}
+		
 		if let idx = waitingIndexPath {
 			UIView.performWithoutAnimation {
 				tableView.reloadRows(at: [idx], with: .none)
@@ -782,6 +859,20 @@ final class ChatbotViewController: CoreGradientViewController {
 		waitingIndexPath = index
 		tableView.insertRows(at: [index], with: .fade)
 		
+		Task { @MainActor in
+			//  (중요) 절대 스크롤 전에 먼저 모든 진행 중 애니메이션 중단
+			//self.cancelOngoingScrollAnimations()
+			   if let aiIndex = streamingAIIndex {
+				   let aiIP = indexPathForMessage(at: aiIndex)
+				   // 레이아웃 확정 후 AI 응답의 첫 줄로
+				   await scrollToRowTopAfterLayout(aiIP, animated: true)
+			   } else {
+				   // 아직 AI 셀이 없으면 WIP 셀의 첫 줄로
+				   await scrollToRowTopAfterLayout(index, animated: true)
+			   }
+		   }
+
+		/*
 		if let aiIndex = streamingAIIndex {
 			let aiIP = indexPathForMessage(at: aiIndex)
 			
@@ -796,7 +887,7 @@ final class ChatbotViewController: CoreGradientViewController {
 			// streamingAIIndex가 아직 없으면 WIP 셀로라도 초점 이동
 			scrollToRowTopAbsolute(index, animated: true)
 		}
-		
+		*/
 		waitingHintTask?.cancel()
 		waitingHintTask = Task { @MainActor in
 			try? await Task.sleep(nanoseconds: 8_000_000_000)
