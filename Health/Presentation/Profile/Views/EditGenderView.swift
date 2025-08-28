@@ -106,8 +106,8 @@ final class EditGenderView: CoreView {
         let selectedTextColor = UIColor.systemBackground
         let defaultTextColor = UIColor.label
         
-        femaleButton.backgroundColor = (selectedGender == .female) ? .accent : .boxBg
-        maleButton.backgroundColor = (selectedGender == .male) ? .accent : .boxBg
+        femaleButton.backgroundColor = (selectedGender == .female) ? .accent : .systemGray5
+        maleButton.backgroundColor = (selectedGender == .male) ? .accent : .systemGray5
         
         femaleButton.setTitleColor((selectedGender == .female) ? selectedTextColor : defaultTextColor, for: .normal)
         maleButton.setTitleColor((selectedGender == .male) ? selectedTextColor : defaultTextColor, for: .normal)
