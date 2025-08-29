@@ -100,6 +100,12 @@ final class ChatStreamingBinder {
 	}
 	
 	func startSend(_ text: String) {
+		if adapter.waitingState != nil || adapter.streamingAIIndex != nil {
+			return
+		}
+		
+		guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+		
 		inputBar.setEnabled(false)
 		inputBar.clear()
 		

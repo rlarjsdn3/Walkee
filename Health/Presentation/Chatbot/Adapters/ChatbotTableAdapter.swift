@@ -59,6 +59,22 @@ final class ChatbotTableAdapter: NSObject {
 		let fallback = "응답을 생성 중입니다. 조금만 더 기다려주세요.."
 		let text = (initialText?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false)
 		? initialText! : fallback
+		
+		if let state = waitingState {
+			waitingState = .waiting(text)
+			let ip = IndexPath(row: messages.count, section: 0)
+			if let tv = tableView {
+				if let cell = tv.cellForRow(at: ip) as? LoadingResponseCell {
+					cell.configure(text: text, animating: true)
+				} else {
+					UIView.performWithoutAnimation {
+						tv.reloadRows(at: [ip], with: .none)
+					}
+				}
+			}
+			return
+		}
+		
 		waitingState = .waiting(text)
 		insertRows([IndexPath(row: messages.count, section: 0)])
 	}
