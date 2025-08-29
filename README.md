@@ -99,18 +99,18 @@ Alan AI가 개인 맞춤형 활동 및 걷기 코스를 추천해주는 건강 �
 
 ## 👨‍💻 개발진
 
-<table>
+<table width="100%">
   <tr>
-    <td align="center"><strong>팀장</strong></td>
-    <td align="center"><strong>부팀장</strong></td>
-    <td align="center"><strong>팀원</strong></td>
-    <td align="center"><strong>팀원</strong></td>
-    <td align="center"><strong>팀원</strong></td>
-    <td align="center"><strong>팀원</strong></td>
+    <td align="center" width="16.6%"><strong>팀장</strong></td>
+    <td align="center" width="16.6%"><strong>부팀장</strong></td>
+    <td align="center" width="16.6%"><strong>팀원</strong></td>
+    <td align="center" width="16.6%"><strong>팀원</strong></td>
+    <td align="center" width="16.6%"><strong>팀원</strong></td>
+    <td align="center" width="16.6%"><strong>팀원</strong></td>
   </tr>
   <tr>
     <!-- 김건우 -->
-    <td align="center">
+    <td align="center" width="16.6%">
       <a href="https://github.com/rlarjsdn3">
         <img width="150" alt="image" src="https://github.com/user-attachments/assets/80e43131-646e-4f72-aa3a-91c5a8da16c6" />
       </a><br>
@@ -120,7 +120,7 @@ Alan AI가 개인 맞춤형 활동 및 걷기 코스를 추천해주는 건강 �
       </a>
     </td>
     <!-- 김서현 -->
-    <td align="center">
+    <td align="center" width="16.6%">
       <a href="https://github.com/cestbonciel">
         <img width="150" alt="image" src="https://github.com/user-attachments/assets/835064d2-a742-4c41-8a82-7590ecf67fcb" />
       </a><br>
@@ -130,7 +130,7 @@ Alan AI가 개인 맞춤형 활동 및 걷기 코스를 추천해주는 건강 �
       </a>
     </td>
     <!-- 권도현 -->
-    <td align="center">
+    <td align="center" width="16.6%">
       <a href="https://github.com/dohyun">
         <img width="150" alt="image" src="https://github.com/user-attachments/assets/fc90757b-e604-4d04-a40f-4db0ece88c4a" />
       </a><br>
@@ -140,7 +140,7 @@ Alan AI가 개인 맞춤형 활동 및 걷기 코스를 추천해주는 건강 �
       </a>
     </td>
     <!-- 김종성 -->
-    <td align="center">
+    <td align="center" width="16.6%">
       <a href="https://github.com/jseongee">
         <img width="150" alt="image" src="https://github.com/user-attachments/assets/0b1c41c9-108b-4558-8bed-d0d1ab1eea54" />
       </a><br>
@@ -150,7 +150,7 @@ Alan AI가 개인 맞춤형 활동 및 걷기 코스를 추천해주는 건강 �
       </a>
     </td>
     <!-- 노기승 -->
-    <td align="center">
+    <td align="center" width="16.6%">
       <a href="https://github.com/nogiseung">
         <img width="150" alt="image" src="https://github.com/user-attachments/assets/cd0d0c09-e4fe-41b7-a2c5-6e4815a2eb24" />
       </a><br>
@@ -160,7 +160,7 @@ Alan AI가 개인 맞춤형 활동 및 걷기 코스를 추천해주는 건강 �
       </a>
     </td>
     <!-- 하재준 -->
-    <td align="center">
+    <td align="center" width="16.6%">
       <a href="https://github.com/jaejun">
         <img width="150" alt="image" src="https://github.com/user-attachments/assets/54138042-d621-4e5a-a4b6-12a814cb0f82" />
       </a><br>
