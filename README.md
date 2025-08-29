@@ -80,25 +80,60 @@ Alan AI가 개인 맞춤형 활동 및 걷기 코스를 추천해주는 건강 �
 
 <table width="100%">
   <tr>
-    <td align="center" width="20%">이미지를 넣어주세요.</td>
-    <td align="center" width="20%">이미지를 넣어주세요.</td>
-    <td align="center" width="20%">이미지를 넣어주세요.</td>
-    <td align="center" width="20%">이미지를 넣어주세요.</td>
-    <td align="center" width="20%">이미지를 넣어주세요.</td>
+    <td align="center" width="16.6%">👋 <strong>온보딩</strong></td>
+    <td align="center" width="16.6%">📊 <strong>대시보드 탭</strong></td>
+    <td align="center" width="16.6%">📅 <strong>캘린더 탭</strong></td>
+    <td align="center" width="16.6%">💡 <strong>맞춤 케어 탭</strong></td>
+    <td align="center" width="16.6%">🤖 <strong>Alan AI 챗봇</strong></td>
+    <td align="center" width="16.6%">👤 <strong>프로필 탭</strong></td>
   </tr>
   <tr>
-    <td align="center" width="20%">📊 <strong>대시보드 탭</strong></td>
-    <td align="center" width="20%">📅 <strong>캘린더 탭</strong></td>
-    <td align="center" width="20%">💡 <strong>맞춤 케어 탭</strong></td>
-    <td align="center" width="20%">🤖 <strong>Alan AI 챗봇</strong></td>
-    <td align="center" width="20%">👤 <strong>프로필 탭</strong></td>
+    <td align="center" width="16.6%">
+      <img width="1179" height="2556" alt="온보딩_설명_3" src="https://github.com/user-attachments/assets/dedd685b-6c9e-40ad-b90f-0922ddd801a6" />
+    </td>
+    <td align="center" width="16.6%">
+      <img width="1179" height="2556" alt="image" src="https://github.com/user-attachments/assets/0f318d75-17ad-4afe-a591-f4118ddaa35d" />
+    </td>
+    <td align="center" width="16.6%">
+      <img width="1179" height="2556" alt="캘린더_메인(현재날짜)" src="https://github.com/user-attachments/assets/245ad033-323f-468a-8e1a-c402b4b2827d" />
+    </td>
+    <td align="center" width="16.6%">
+      <img width="1179" height="2556" alt="맞춤케어_코스로딩완료" src="https://github.com/user-attachments/assets/9758cc66-ec21-44d7-81fc-87b10904ecd2" />  
+    </td>
+    <td align="center" width="16.6%">
+      <img width="1179" height="2556" alt="챗봇_요약요청_응답완료" src="https://github.com/user-attachments/assets/4543a9f5-96be-4bef-8f90-6e0a59015f06" />
+    </td>
+    <td align="center" width="16.6%">
+      <img width="1179" height="2556" alt="프로필_스위치_On" src="https://github.com/user-attachments/assets/6cc4814f-a5cc-4126-aace-99b69919466a" />  
+    </td>
   </tr>
   <tr>
-    <td align="center" width="20%">걸음 수, 칼로리, 평균 데이터</td>
-    <td align="center" width="20%">월별/일별 걸음 수 표시</td>
-    <td align="center" width="20%">주간/월간 데이터 분석, 코스 추천</td>
-    <td align="center" width="20%">코스 제안, 대화형 분석</td>
-    <td align="center" width="20%">신체 정보와 목표 걸음 수 변경,<br>개발자에게 메일 전송</td>
+    <td align="center" width="16.6%">
+      <span>• 건강앱 접근 권한 설정</span><br />
+      <span>• 신체정보 입력</span><br />
+      <span>• 목표 걸음 수 설정</span><br />
+    </td>
+    <td align="center" width="16.6%">
+      <span>• 걸음 수, 거리, 칼로리</span><br />
+      <span>• AI 요약 리포트</span><br />
+      <span>• 보행 밸런스 분석</span><br />
+    </td>
+    <td align="center" width="16.6%">
+      <span>• 일별 걸음 수 표시</span><br />
+      <span>• 일별 대시보드</span><br />
+    </td>
+    <td align="center" width="16.6%">
+      <span>• 주간/월간 기록 및 AI 요약</span><br />
+      <span>• 추천 걷기 코스</span><br />
+    </td>
+    <td align="center" width="16.6%">
+      <span>• 걷기 코스 제안</span><br />
+      <span>• 대화형 분석</span><br />
+      </td>
+    <td align="center" width="16.6%">
+      <span>• 신체 정보와 목표 걸음 수 변경</span><br>
+      <span>• 개발자 메일 전송</span><br>
+      </td>
   </tr>
 </table>
 
