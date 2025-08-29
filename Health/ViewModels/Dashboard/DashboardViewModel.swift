@@ -9,7 +9,6 @@ import HealthKit
 
 final class DashboardViewModel {
 
-    ///
     struct DashboardEnvironment {
         let vericalClassIsRegular: Bool
         let horizontalClassIsRegular: Bool
@@ -37,7 +36,6 @@ final class DashboardViewModel {
     private(set) var chartsIDs: [DashboardBarChartsCellViewModel.ItemID] = []
     private(set) var chartsCells: [DashboardBarChartsCellViewModel.ItemID: DashboardBarChartsCellViewModel] = [:]
 
-    ///
     private var shouldShowSummaryAndCharts: Bool {
         anchorDate.isEqual(with: .now)
     }
@@ -50,9 +48,15 @@ final class DashboardViewModel {
     @Injected private var coreDataUserService: (any CoreDataUserService)
     @Injected private var healthService: (any HealthService)
     @Injected private var promptBuilderService: (any PromptBuilderService)
-
-    ///
-    init(anchorDate: Date = .now, fromCalendar: Bool = false) {
+    
+    /// 기준 날짜와 캘린더 옵션으로 초기화합니다.
+    /// - Parameters:
+    ///   - anchorDate: 기준이 되는 날짜 (기본값은 현재 시각).
+    ///   - fromCalendar: 캘린더에서 계산된 날짜를 사용할지 여부 (기본값은 false).
+    init(
+        anchorDate: Date = .now,
+        fromCalendar: Bool = false
+    ) {
         self.anchorDate = anchorDate
         self.fromCalendar = fromCalendar
     }

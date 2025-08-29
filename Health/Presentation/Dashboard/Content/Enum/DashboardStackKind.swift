@@ -9,21 +9,20 @@ import HealthKit
 
 enum DashboardStackKind: CaseIterable {
 
-    ///
+    /// 걷기 및 달리기 거리 스택
     case distanceWalkingRunning
-    ///
+    /// 운동 시간 스택
     case appleExerciseTime
-    ///
+    /// 활동 에너지 소모 스택
     case activeEnergyBurned
-    ///
+    /// 기초 대사량 소모 스택
     case basalEnergyBurned
-    ///
+    /// 오른 층수 스택
     case flightsClimbed
 }
 
 extension DashboardStackKind {
 
-    ///
     var title: String? {
         switch self {
         case .distanceWalkingRunning:           return "걸은 거리"
@@ -34,7 +33,6 @@ extension DashboardStackKind {
         }
     }
 
-    ///
     var systemName: String {
         switch self {
         case .distanceWalkingRunning:           return "location.fill"
@@ -45,7 +43,6 @@ extension DashboardStackKind {
         }
     }
 
-    ///
     var unit: HKUnit {
         switch self {
         case .distanceWalkingRunning:         return HKUnit.meterUnit(with: .kilo)
@@ -56,7 +53,6 @@ extension DashboardStackKind {
         }
     }
 
-    ///
     var unitString: String {
         switch self {
         case .distanceWalkingRunning:         return "km"
@@ -67,7 +63,6 @@ extension DashboardStackKind {
         }
     }
 
-    ///
     var quantityTypeIdentifier: HKQuantityTypeIdentifier {
         switch self {
         case .distanceWalkingRunning:           return .distanceWalkingRunning
