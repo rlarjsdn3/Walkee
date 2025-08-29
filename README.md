@@ -76,6 +76,17 @@ Alan AI가 개인 맞춤형 활동 및 걷기 코스를 추천해주는 건강 �
 
 <br />
 
+## 🧪 테스트
+
+| 테스트 대상 | 방식 |
+|-------------|------|
+| CoreDataUserService | Dummy 데이터 기반 단위 테스트 |
+| DIContainer | 의존성 주입 검증 |
+| HealthService | MockHealthService 활용 |
+| ViewModels | `CalendarViewModelTests`, `LLMRecommendationViewModelTests` 등 |
+
+<br />
+
 ## 📸 화면 예시
 
 <table width="100%">
@@ -136,17 +147,6 @@ Alan AI가 개인 맞춤형 활동 및 걷기 코스를 추천해주는 건강 �
       </td>
   </tr>
 </table>
-
-<br />
-
-## 🧪 테스트
-
-| 테스트 대상 | 방식 |
-|-------------|------|
-| CoreDataUserService | Dummy 데이터 기반 단위 테스트 |
-| DIContainer | 의존성 주입 검증 |
-| HealthService | MockHealthService 활용 |
-| ViewModels | `CalendarViewModelTests`, `LLMRecommendationViewModelTests` 등 |
 
 <br />
 
