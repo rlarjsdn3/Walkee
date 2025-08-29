@@ -39,8 +39,13 @@ final class BubbleViewCell: CoreTableViewCell {
 		selectionStyle = .none
 		
 		promptMsgLabel.textAlignment = .left
+		promptMsgLabel.numberOfLines = 0
+		// 세로
 		promptMsgLabel.setContentHuggingPriority(.required, for: .vertical)
 		promptMsgLabel.setContentCompressionResistancePriority(.required, for: .vertical)
+		// 가로
+		promptMsgLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+		promptMsgLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
 		
 		bubbleView.layer.cornerRadius = 12
 		bubbleView.clipsToBounds = true
@@ -65,6 +70,14 @@ final class BubbleViewCell: CoreTableViewCell {
 	override func prepareForReuse() {
 		super.prepareForReuse()
 		promptMsgLabel.text = nil
+		promptMsgLabel.attributedText = nil
+		
+		let labelWidth = ChatbotWidthCalculator.maxContentWidth(for: .userBubble)
+		promptMsgLabel.preferredMaxLayoutWidth = labelWidth
+		
+		setNeedsLayout()
+		layoutIfNeeded()
+		
 		applyBubbleStyle()
 	}
 
@@ -81,6 +94,18 @@ final class BubbleViewCell: CoreTableViewCell {
 			withHorizontalFittingPriority: horizontalFittingPriority,
 			verticalFittingPriority: verticalFittingPriority
 		)
+	}
+	
+	override func layoutSubviews() {
+		super.layoutSubviews()
+		// 버블 내부 패딩 반영한 라벨의 실제 콘텐츠 폭
+		let contentWidth = bubbleView.bounds.width - (labelLeadingConstraint.constant + labelTrailingConstraint.constant)
+		if contentWidth > 0 {
+			// 줄바꿈 기준폭 갱신
+			if promptMsgLabel.preferredMaxLayoutWidth != contentWidth {
+				promptMsgLabel.preferredMaxLayoutWidth = contentWidth
+			}
+		}
 	}
 	
 	@available(iOS 17.0, *)
@@ -135,28 +160,28 @@ final class BubbleViewCell: CoreTableViewCell {
 	/// 컨텐츠 기반 폭(constant) 설정
 	/// - Parameter text: 텍스트
 	private func updateBubbleWidth(for text: String) {
-		let maxBubble = ChatbotWidthCalculator.maxBubbleWidth(
-			for: .userBubble,
-			horizontalContentPadding: 32
-		)
+		let maxBubble = ChatbotWidthCalculator.maxBubbleWidth(for: .userBubble, horizontalContentPadding: 32)
 		let contentMax = ChatbotWidthCalculator.maxContentWidth(for: .userBubble)
-		let minWidth: CGFloat = 60
 		
-		// 텍스트 크기 계산
 		let font = promptMsgLabel.font ?? UIFont.preferredFont(forTextStyle: .footnote)
-		let textAttributes = [NSAttributedString.Key.font: font]
-		let textRect = text.boundingRect(
+		let attrs: [NSAttributedString.Key: Any] = [.font: font]
+		
+		// ✅ “한 줄로 섰을 때 최소로 필요한 폭”
+		let singleLine = (text as NSString).size(withAttributes: attrs).width + 32
+		
+		// 기존 멀티라인 측정치
+		let multiRect = text.boundingRect(
 			with: CGSize(width: contentMax, height: .greatestFiniteMagnitude),
 			options: [.usesLineFragmentOrigin, .usesFontLeading],
-			attributes: textAttributes,
+			attributes: attrs,
 			context: nil
 		)
+		let multiNeeded = multiRect.width + 32
 		
-		// 필요한 너비 계산 (텍스트 너비 + 내부 패딩)
-		let requiredWidth = textRect.width + 32
-		let bubbleWidth = max(minWidth, min(maxBubble, requiredWidth))
+		// 한글 1~3글자 케이스 방어: 한 줄 폭을 최소로 보장
+		let requiredWidth = max(singleLine, multiNeeded)
+		let bubbleWidth = min(maxBubble, ceil(requiredWidth))
 		
-		// 너비 제약 조건 업데이트
 		bubbleWidthConstraint.constant = bubbleWidth
 	}
 	

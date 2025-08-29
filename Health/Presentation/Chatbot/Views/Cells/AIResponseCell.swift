@@ -18,7 +18,7 @@ class AIResponseCell: CoreTableViewCell {
 	private var typeTask: Task<Void, Never>?
 	private var charQueue: [String] = []
 	private(set) var typewriterEnabled = false
-	var charDelayNanos: UInt64 = 40_000_000   // 글자당 지연 40ms 0.04
+	var charDelayNanos: UInt64 = 100_000_000   // 글자당 지연 40ms 0.04
 	// MARK: Height update (tableView가 begin/endupdate 할 때)
 	@MainActor var onContentGrew: (() -> Void)?          // 높이 증가 알림용
 	// MARK: KVO
@@ -49,7 +49,7 @@ class AIResponseCell: CoreTableViewCell {
 		// 우선순위 설정 - 높이는 늘어나고, 너비는 제한
 		responseTextView.setContentCompressionResistancePriority(.required, for: .vertical)
 		responseTextView.setContentHuggingPriority(.defaultLow, for: .vertical)
-		responseTextView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+		responseTextView.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
 		responseTextView.setContentHuggingPriority(.defaultLow, for: .horizontal)
 		
 		responseTextView.dataDetectorTypes = []
@@ -102,6 +102,17 @@ class AIResponseCell: CoreTableViewCell {
 		//responseTextView.text = nil
 		responseTextView.attributedText = nil
 		plainBuffer = ""
+		
+		responseTextView.text = nil
+		responseTextView.attributedText = nil
+		
+		// 고정 텍스트 영역 초기화
+		let fixedWidth = ChatbotWidthCalculator.maxContentWidth(for: .aiResponseText)
+		responseTextView.textContainer.size = CGSize(width: fixedWidth, height: .greatestFiniteMagnitude)
+		responseTextView.invalidateIntrinsicContentSize()
+		responseTextView.layoutManager.allowsNonContiguousLayout = false
+		responseTextView.setNeedsLayout()
+		responseTextView.layoutIfNeeded()
 	}
 	
 	private func setupWidthConstraints() {
@@ -124,31 +135,47 @@ class AIResponseCell: CoreTableViewCell {
 	
 	/// 필요시 명시적으로 스트리밍 중 초기 seed만 하고 싶다면 isFinal=false로도 호출 가능(컨트롤러 수정 불필요)
 	func configure(with text: String, isFinal: Bool) {
-		// 이미 같은 버퍼면 레이아웃만 틱
-		if plainBuffer == text {
-			relayoutAfterUpdate()
-			return
-		}
-		
-		// 스트리밍 중 초기 셀 바인딩(예: cellForRow에서 공백 -> 현재 누적 텍스트)
 		if !isFinal {
-			// 초기 진입에서만 seed: 이미 렌더된 내용이 있으면 건드리지 않음
+			// (스트리밍 seed 로직은 유지)
 			if (responseTextView.attributedText?.length ?? 0) == 0 {
 				plainBuffer = text
 				let seeded = ChatMarkdownRenderer.renderChunk(text, trait: traitCollection)
 				responseTextView.attributedText = seeded
 				relayoutAfterUpdate()
-			} else {
-				// 이미 appendText로 실시간 갱신 중이면 무시
 			}
 			return
 		}
-		
-		// 최종 렌더링(complete 시점, 또는 표준 configure 경로)
-		plainBuffer = text
-		let rendered = ChatMarkdownRenderer.renderFinalMarkdown(text, trait: traitCollection)
-		responseTextView.attributedText = rendered
-		relayoutAfterUpdate()
+
+			// isFinal일 땐 항상 마크다운으로 재렌더 (조기리턴 금지)
+			plainBuffer = text
+			let rendered = ChatMarkdownRenderer.renderFinalMarkdown(text, trait: traitCollection)
+			responseTextView.attributedText = rendered
+			relayoutAfterUpdate()
+		// 이미 같은 버퍼면 레이아웃만 틱
+//		if plainBuffer == text {
+//			relayoutAfterUpdate()
+//			return
+//		}
+//		
+//		// 스트리밍 중 초기 셀 바인딩(예: cellForRow에서 공백 -> 현재 누적 텍스트)
+//		if !isFinal {
+//			// 초기 진입에서만 seed: 이미 렌더된 내용이 있으면 건드리지 않음
+//			if (responseTextView.attributedText?.length ?? 0) == 0 {
+//				plainBuffer = text
+//				let seeded = ChatMarkdownRenderer.renderChunk(text, trait: traitCollection)
+//				responseTextView.attributedText = seeded
+//				relayoutAfterUpdate()
+//			} else {
+//				// 이미 appendText로 실시간 갱신 중이면 무시
+//			}
+//			return
+//		}
+//		
+//		// 최종 렌더링(complete 시점, 또는 표준 configure 경로)
+//		plainBuffer = text
+//		let rendered = ChatMarkdownRenderer.renderFinalMarkdown(text, trait: traitCollection)
+//		responseTextView.attributedText = rendered
+//		relayoutAfterUpdate()
 	}
 
 	// 스트리밍 "조각"이 올 때 호출 — 타자기 모드면 글자 단위로, 아니면 즉시 추가
@@ -224,13 +251,32 @@ class AIResponseCell: CoreTableViewCell {
 		}
 	}
 	
+	@MainActor
+	func forceFinalize(text: String) {
+		// 1) 타자 작업 종료/정리
+		typeTask?.cancel()
+		typeTask = nil
+		chunkQueue.removeAll()
+		typewriterEnabled = false
+
+		// 2) 최종 마크다운 렌더
+		plainBuffer = text
+		let rendered = ChatMarkdownRenderer.renderFinalMarkdown(text, trait: traitCollection)
+		responseTextView.attributedText = rendered
+
+		// 3) 높이 재계산 트리거
+		relayoutAfterUpdate()
+	}
+	
 	private func relayoutAfterUpdate() {
 		responseTextView.invalidateIntrinsicContentSize()
 		responseTextView.layoutManager.allowsNonContiguousLayout = false
 		responseTextView.setNeedsLayout()
 		responseTextView.layoutIfNeeded()
 		
-		Task { @MainActor [weak self] in self?.onContentGrew?() }
+		DispatchQueue.main.async { [weak self] in
+			self?.onContentGrew?()
+		}
 	}
 	
 	// MARK: - 타자기 구현

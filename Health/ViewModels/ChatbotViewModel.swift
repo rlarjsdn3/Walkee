@@ -76,7 +76,6 @@ final class ChatbotViewModel {
 		Log.chat.info("view exit detected > cancel SSE & call reset-state")
 		Task { [weak self] in
 			guard let self else { return }
-//			await resetAgentState() // 내부에서 Alan reset-state 호출
 			await self.resetAgentState(throttle: .milliseconds(800))
 		}
 	}
@@ -108,30 +107,6 @@ final class ChatbotViewModel {
 		}
 	}
 
-	
-	/// 서버 500 등 복구 가능 오류 시 1회 reset 후 재시도
-	func startStreamingQuestionWithAutoReset(_ content: String) {
-		streamTask?.cancel()
-		
-		let masked = PrivacyService.maskSensitiveInfo(in: content)
-		
-		print("=== 마스킹 디버그 ===")
-		print("[Chatbot] Original: \(content)")
-		print("[Chatbot] Masked  : \(masked)")
-		print("==================")
-		
-		Log.privacy.info("Original: \(content, privacy: .public)")
-		Log.privacy.info("Masked  : \(masked, privacy: .public)")
-#if DEBUG
-		startMockStreaming(content)
-#else
-		streamTask = Task { [weak self] in
-			guard let self else { return }
-			await self._startStreaming(content: content, canRetry: true)
-		}
-#endif
-	}
-	
 	private func _startStreaming(content: String, canRetry: Bool) async {
 		var callComplete = true
 		defer { if callComplete { onStreamCompleted?("") } }
@@ -164,17 +139,17 @@ final class ChatbotViewModel {
 			callComplete = false
 			// 기존 세션 초기화 로직 유지
 			if canRetry, isRecoverable(error) {
-						callComplete = false
-						onActionText?("세션 초기화 후 재시도…")
-
-						if !didResetInThisCycle {   
-							didResetInThisCycle = true
-							await resetAgentState(throttle: .seconds(1))
-						}
-						try? await Task.sleep(nanoseconds: 300_000_000)
-						await _startStreaming(content: content, canRetry: false)
-						return
-					}
+				callComplete = false
+				onActionText?("세션 초기화 후 재시도…")
+				
+				if !didResetInThisCycle {
+					didResetInThisCycle = true
+					await resetAgentState(throttle: .seconds(1))
+				}
+				try? await Task.sleep(nanoseconds: 300_000_000)
+				await _startStreaming(content: content, canRetry: false)
+				return
+			}
 			// 401코드 사용자 메시지 매핑
 			if let sseError = error as? AlanSSEClientError {
 				switch sseError {
@@ -191,7 +166,6 @@ final class ChatbotViewModel {
 			}
 		}
 	}
-	
 	
 	private func isRecoverable(_ error: Error) -> Bool {
 		if let e = error as? AlanSSEClientError {
@@ -216,19 +190,33 @@ final class ChatbotViewModel {
 		}
 	}
 	
-	
 	// MARK: - DEBUG Mock Streaming
 	private func startMockStreaming(_ content: String) {
 		streamTask = Task { [weak self] in
 			guard let self else { return }
-			defer { self.onStreamCompleted?("") }
-			
+
+			// 1) 먼저 mock_ask_streaming_response.json 시도
+			if let url = Bundle.main.url(forResource: "mock_ask_streaming_response", withExtension: "json"),
+			   let data = try? Data(contentsOf: url) {
+
+				// 단일 객체 or 배열 모두 허용
+				if let single = try? JSONDecoder().decode(AlanStreamingResponse.self, from: data) {
+					handleMockEvent(single)
+					return
+				} else if let array = try? JSONDecoder().decode([AlanStreamingResponse].self, from: data) {
+					for e in array { handleMockEvent(e) }
+					return
+				}
+				// 포맷이 맞지 않으면 구형 파일로 폴백
+			}
+
+			// 2) 폴백: 기존 mock_ask_response.json (action + content)
 			struct Mock: Decodable {
 				struct Action: Decodable { let name: String; let speak: String }
 				let action: Action
 				let content: String
 			}
-			
+
 			do {
 				guard let url = Bundle.main.url(forResource: "mock_ask_response", withExtension: "json") else {
 					self.onActionText?("모킹 파일을 찾을 수 없어요.")
@@ -236,17 +224,44 @@ final class ChatbotViewModel {
 				}
 				let data = try Data(contentsOf: url)
 				let mock = try JSONDecoder().decode(Mock.self, from: data)
-				
+
 				if !mock.action.speak.isEmpty {
 					self.onActionText?(mock.action.speak)
 				}
-				
+
+				var buffer = ""
 				for ch in mock.content {
-					try await Task.sleep(nanoseconds: 30_000_000) // 30ms
-					self.onStreamChunk?(String(ch))
+					try await Task.sleep(nanoseconds: 30_000_000)
+					let s = String(ch)
+					buffer.append(s)
+					self.onStreamChunk?(s)
 				}
+
+				let attributed = ChatMarkdownRenderer.renderFinalMarkdown(buffer)
+				self.onFinalRender?(attributed)
+				self.onStreamCompleted?(buffer)
+
 			} catch {
 				self.onError?(error.localizedDescription)
+			}
+		}
+
+		// MARK: - Local helpers
+		func handleMockEvent(_ e: AlanStreamingResponse) {
+			switch e.type {
+			case .action:
+				if let s = e.data.speak ?? e.data.content, !s.isEmpty {
+					self.onActionText?(s)
+				}
+			case .continue:
+				if let c = e.data.content, !c.isEmpty {
+					self.onStreamChunk?(c)
+				}
+			case .complete:
+				let final = e.data.content ?? ""
+				let attributed = ChatMarkdownRenderer.renderFinalMarkdown(final)
+				self.onFinalRender?(attributed)
+				self.onStreamCompleted?(final)
 			}
 		}
 	}

@@ -7,12 +7,12 @@
 
 import Foundation
 
-private extension Duration {
-	var milliseconds: Double {
-		let (s, attos) = components
-		return Double(s) * 1000.0 + Double(attos) / 1e15
-	}
-}
+//private extension Duration {
+//	var milliseconds: Double {
+//		let (s, attos) = components
+//		return Double(s) * 1000.0 + Double(attos) / 1e15
+//	}
+//}
 /// SSE `data:` 페이로드(JSON 텍스트)를 AlanStreamingResponse로 디코딩.
 /// 서버가 싱글쿼트를 섞는 등 비표준 JSON을 보낼 경우를 보정.
 enum AlanSSEParser {

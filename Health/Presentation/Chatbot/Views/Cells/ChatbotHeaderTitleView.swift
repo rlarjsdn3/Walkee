@@ -78,20 +78,22 @@ final class ChatbotHeaderTitleView: CoreView {
 		let guide = safeAreaLayoutGuide
 		
 		NSLayoutConstraint.activate([
+			// ImageView - leading + centerY + size
 			chatbotImageView.leadingAnchor.constraint(equalTo: guide.leadingAnchor, constant: 16),
 			chatbotImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
-			chatbotImageView.widthAnchor.constraint(equalToConstant: 38),
-			chatbotImageView.heightAnchor.constraint(equalToConstant: 38),
+			chatbotImageView.widthAnchor.constraint(equalToConstant: 28),
+			chatbotImageView.heightAnchor.constraint(equalToConstant: 28),
 			
+			// Label - leading/trailing + centerY
 			welcomeLabel.leadingAnchor.constraint(equalTo: chatbotImageView.trailingAnchor, constant: 12),
 			welcomeLabel.trailingAnchor.constraint(lessThanOrEqualTo: closeButton.leadingAnchor, constant: -12),
-			welcomeLabel.centerYAnchor.constraint(equalTo: chatbotImageView.centerYAnchor),
+			welcomeLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
 			
+			// Close Button - trailing + centerY + size
 			closeButton.trailingAnchor.constraint(equalTo: guide.trailingAnchor, constant: -16),
 			closeButton.centerYAnchor.constraint(equalTo: centerYAnchor),
 			closeButton.widthAnchor.constraint(equalToConstant: 28),
-			closeButton.heightAnchor.constraint(equalToConstant: 28),
-			bottomAnchor.constraint(greaterThanOrEqualTo: chatbotImageView.bottomAnchor, constant: 12)
+			closeButton.heightAnchor.constraint(equalToConstant: 28)
 		])
 	}
 	
