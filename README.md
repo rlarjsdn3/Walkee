@@ -78,11 +78,29 @@ Alan AI가 개인 맞춤형 활동 및 걷기 코스를 추천해주는 건강 �
 
 ## 📸 화면 예시
 
-| 이미지를 넣어주세요. | 이미지를 넣어주세요. | 이미지를 넣어주세요. | 이미지를 넣어주세요. | 이미지를 넣어주세요. |
-|---------|---------|---------|---------|---------|
-| 📊 **대시보드 탭** | 📅 **캘린더 탭** | 💡 **맞춤 케어 탭** | 🤖 **Alan AI 챗봇** | 👤 **프로필 탭** |
-| 걸음 수, 칼로리, 평균 데이터 | 월별/일별 걸음 수 표시 | 주간/월간 데이터 분석, 코스 추천 | 코스 제안, 대화형 분석 | 신체 정보와 목표 걸음 수 변경, 개발자에게 메일 전송 |
-
+<table width="100%">
+  <tr>
+    <td align="center" width="20%">이미지를 넣어주세요.</td>
+    <td align="center" width="20%">이미지를 넣어주세요.</td>
+    <td align="center" width="20%">이미지를 넣어주세요.</td>
+    <td align="center" width="20%">이미지를 넣어주세요.</td>
+    <td align="center" width="20%">이미지를 넣어주세요.</td>
+  </tr>
+  <tr>
+    <td align="center" width="20%">📊 <strong>대시보드 탭</strong></td>
+    <td align="center" width="20%">📅 <strong>캘린더 탭</strong></td>
+    <td align="center" width="20%">💡 <strong>맞춤 케어 탭</strong></td>
+    <td align="center" width="20%">🤖 <strong>Alan AI 챗봇</strong></td>
+    <td align="center" width="20%">👤 <strong>프로필 탭</strong></td>
+  </tr>
+  <tr>
+    <td align="center" width="20%">걸음 수, 칼로리, 평균 데이터</td>
+    <td align="center" width="20%">월별/일별 걸음 수 표시</td>
+    <td align="center" width="20%">주간/월간 데이터 분석, 코스 추천</td>
+    <td align="center" width="20%">코스 제안, 대화형 분석</td>
+    <td align="center" width="20%">신체 정보와 목표 걸음 수 변경,<br>개발자에게 메일 전송</td>
+  </tr>
+</table>
 
 <br />
 
