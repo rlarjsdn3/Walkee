@@ -10,7 +10,7 @@ import CoreData
 
 class GenderSelectViewController: CoreGradientViewController {
 
-    //제약
+    // 제약
     @IBOutlet weak var femaleButton: UIButton!
     @IBOutlet weak var maleButton: UIButton!
     @IBOutlet weak var femaleGender: UILabel!
@@ -37,13 +37,13 @@ class GenderSelectViewController: CoreGradientViewController {
     private var originalMaleWidth: CGFloat = 0
     private var originalMaleHeight: CGFloat = 0
 
-    //성별 배열
+    // 성별 배열
     private enum Gender: String {
         case male = "남성"
         case female = "여성"
     }
     
-    //선택된 성별 선언
+    // 선택된 성별 선언
     private var selectedGender: Gender? {
         didSet {
             updateGenderSelectionUI()
@@ -51,7 +51,7 @@ class GenderSelectViewController: CoreGradientViewController {
         }
     }
 
-    //라이프 사이클
+    // 뷰 라이프 사이클
     override func viewDidLoad() {
         super.viewDidLoad()
         applyBackgroundGradient(.midnightBlack)
@@ -102,7 +102,7 @@ class GenderSelectViewController: CoreGradientViewController {
         updateDescriptionTopConstraint()
     }
     
-    //기기의 환경이 변했을때 적용
+    // 기기의 환경이 변했을때 적용
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
         updateGenderSelectionUI()
@@ -115,7 +115,7 @@ class GenderSelectViewController: CoreGradientViewController {
         maleGender.text = "남성"
     }
 
-    //버튼 액션
+    // 버튼 액션
     @IBAction func selectedFM(_ sender: Any) {
         selectedGender = .female
     }
@@ -152,7 +152,7 @@ class GenderSelectViewController: CoreGradientViewController {
         performSegue(withIdentifier: "goToAgeInfo", sender: self)
     }
 
-    //설명 탑 제약 대응 코드
+    // 설명 탑 제약 대응 코드
     private func updateDescriptionTopConstraint() {
         // iPad 여부
         let isIpad = traitCollection.horizontalSizeClass == .regular &&
@@ -226,7 +226,7 @@ class GenderSelectViewController: CoreGradientViewController {
         }
     }
 
-    //성별버튼 업데이트 코드
+    // 성별버튼 업데이트 코드
     private func updateGenderSelectionUI() {
         let selectedTextColor = UIColor.systemBackground
         let defaultTextColor = UIColor.label
@@ -246,7 +246,7 @@ class GenderSelectViewController: CoreGradientViewController {
 //        }
     }
     
-    //다음버튼 업데이트 코드
+    // 다음버튼 업데이트 코드
     private func updateContinueButtonState() {
         let isSelected = (selectedGender != nil)
         continueButton.isEnabled = isSelected

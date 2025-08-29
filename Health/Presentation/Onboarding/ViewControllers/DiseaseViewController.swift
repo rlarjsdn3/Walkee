@@ -11,7 +11,7 @@ import CoreData
 
 class DiseaseViewController: CoreGradientViewController {
 
-    //제약
+    // 제약
     @IBOutlet weak var descriptionLabel: UILabel!
     @IBOutlet weak var diseaseCollectionView: UICollectionView!
     @IBOutlet weak var continueButton: UIButton!
@@ -34,14 +34,14 @@ class DiseaseViewController: CoreGradientViewController {
     private var iPadCollectionViewHeight: NSLayoutConstraint?
     private var originalDescriptionTop: CGFloat = 0
     
-    //사용할 로직 및 커스텀 네비게이션 바 선언
+    // 질병, 사용자 질병, 사용자 정보, 코어데이터 스택 선언
     private let progressIndicatorStackView = ProgressIndicatorStackView(totalPages: 4)
     private let defaultDiseases: [Disease] = Disease.allCases
     private var userDiseases: [Disease] = []
     private var userInfo: UserInfoEntity?
     private let context = CoreDataStack.shared.persistentContainer.viewContext
     
-    //라이프 사이클
+    // 뷰 라이프 사이클
     override func viewDidLoad() {
         super.viewDidLoad()
         applyBackgroundGradient(.midnightBlack)
@@ -108,7 +108,7 @@ class DiseaseViewController: CoreGradientViewController {
         }
     }
 
-    //사용자 정보 패치
+    // 사용자 정보 패치
     private func fetchUserInfo() {
         let request: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
         do {
@@ -121,7 +121,7 @@ class DiseaseViewController: CoreGradientViewController {
         }
     }
     
-    //사용자 지병 선택 로직
+    // 사용자 지병 선택 로직
     private func selectUserDiseases() {
         diseaseCollectionView.reloadData()
         guard !userDiseases.isEmpty else { return }
@@ -134,7 +134,7 @@ class DiseaseViewController: CoreGradientViewController {
         }
     }
 
-    //UI 설정
+    // UI 설정
     override func setupAttribute() {
         descriptionLabel.text = "평소 겪는 지병을 골라주세요."
         descriptionLabel.textColor = .label

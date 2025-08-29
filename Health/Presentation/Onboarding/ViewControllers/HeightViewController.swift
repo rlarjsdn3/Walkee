@@ -10,7 +10,7 @@ import CoreData
 
 class HeightViewController: CoreGradientViewController {
     
-    //제약
+    // 제약
     @IBOutlet weak var heightInputField: DynamicWidthTextField!
     @IBOutlet weak var errorLabel: UILabel!
     @IBOutlet weak var cmLabel: UILabel!
@@ -29,13 +29,13 @@ class HeightViewController: CoreGradientViewController {
     private var iPadCenterXConstraint: NSLayoutConstraint?
     private var heightInputFieldiPadWidthConstraint: NSLayoutConstraint?
     
-    // userInfo, coredataStack 선언
+    // 사용자 정보, 코어데이터 스택 선언
     private var userInfo: UserInfoEntity?
     private let context = CoreDataStack.shared.persistentContainer.viewContext
     
     private var shouldPerformSegueAfterKeyboardHide = false
     
-    //뷰 라이프 사이클
+    // 뷰 라이프 사이클
     override func viewDidLoad() {
         super.viewDidLoad()
         applyBackgroundGradient(.midnightBlack)
@@ -144,7 +144,25 @@ class HeightViewController: CoreGradientViewController {
         }
     }
     
-    //키보드 노티피케이션 매서드 선언
+    // 텍스트필드 너비 제약 대응 코드
+    private func updateHeightInputFieldConstraints() {
+        let isIpad = traitCollection.horizontalSizeClass == .regular &&
+                     traitCollection.verticalSizeClass == .regular
+        
+        if isIpad {
+            // iPad → 고정 width
+            if heightInputFieldiPadWidthConstraint == nil {
+                heightInputFieldiPadWidthConstraint = heightInputField.widthAnchor.constraint(equalToConstant: 120)
+                heightInputFieldiPadWidthConstraint?.isActive = true
+            }
+        } else {
+            // iPhone → dynamic width 사용
+            heightInputFieldiPadWidthConstraint?.isActive = false
+            heightInputFieldiPadWidthConstraint = nil
+        }
+    }
+    
+    // 키보드 노티피케이션 매서드 선언
     private func registerForKeyboardNotifications() {
         NotificationCenter.default.addObserver(
             self,
@@ -166,25 +184,6 @@ class HeightViewController: CoreGradientViewController {
         )
     }
     
-    // 텍스트필드 너비 제약 대응 코드
-    private func updateHeightInputFieldConstraints() {
-        let isIpad = traitCollection.horizontalSizeClass == .regular &&
-                     traitCollection.verticalSizeClass == .regular
-        
-        if isIpad {
-            // iPad → 고정 width
-            if heightInputFieldiPadWidthConstraint == nil {
-                heightInputFieldiPadWidthConstraint = heightInputField.widthAnchor.constraint(equalToConstant: 120)
-                heightInputFieldiPadWidthConstraint?.isActive = true
-            }
-        } else {
-            // iPhone → dynamic width 사용
-            heightInputFieldiPadWidthConstraint?.isActive = false
-            heightInputFieldiPadWidthConstraint = nil
-        }
-    }
-    
-    //키보드 노티 매서드
     @objc private func keyboardWillShow(_ notification: Notification) {
         guard let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double,
               let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
@@ -260,7 +259,7 @@ class HeightViewController: CoreGradientViewController {
         textField.invalidateIntrinsicContentSize()
     }
     
-    //입력값에 따라 버튼 활성화/비활성화 구분하는 switch문
+    // 입력값에 따라 버튼 활성화/비활성화 구분하는 switch문
     private func validateInput() {
         guard let text = heightInputField.text,
               !text.isEmpty else {

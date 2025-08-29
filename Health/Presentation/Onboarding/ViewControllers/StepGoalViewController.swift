@@ -11,7 +11,7 @@ import HealthKit
 
 class StepGoalViewController: CoreGradientViewController {
     
-    //제약
+    // 제약
     @IBOutlet weak var continueButton: UIButton!
     @IBOutlet weak var continueButtonLeading: NSLayoutConstraint!
     @IBOutlet weak var continueButtonTrailing: NSLayoutConstraint!

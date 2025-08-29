@@ -11,7 +11,7 @@ import UIKit
 
 class HealthLinkViewController: CoreGradientViewController, Alertable {
     
-    //제약
+    // 제약
     @IBOutlet weak var userDescriptionLabel: UILabel!
     @IBOutlet weak var healthAppIcon: UIImageView!
     @IBOutlet weak var linkedSwitch: UISwitch!
@@ -42,10 +42,10 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
     private var originalAppleLogoLeading: CGFloat = 0
     private var originalLinkSwitchTrailing: CGFloat = 0
     
-    //healthKit 연동을 위한 선언
+    // healthKit 연동을 위한 선언
     private let healthService = DefaultHealthService()
     
-    //라이프 사이클
+    // 뷰 라이프 사이클
     override func viewDidLoad() {
         super.viewDidLoad()
         applyBackgroundGradient(.midnightBlack)
@@ -99,7 +99,7 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
         navigationController?.setNavigationBarHidden(true, animated: false)
     }
     
-    //아이폰, 아이패드 대응 코드
+    // 아이폰, 아이패드 대응 코드
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         updateTraitsConstraints()

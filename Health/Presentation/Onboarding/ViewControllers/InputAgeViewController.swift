@@ -10,6 +10,7 @@ import CoreData
 
 class InputAgeViewController: CoreGradientViewController {
 
+    // 제약
     @IBOutlet weak var ageInputField: YearTextField!
     @IBOutlet weak var errorLabel: UILabel!
     @IBOutlet weak var continueButton: UIButton!
@@ -35,7 +36,7 @@ class InputAgeViewController: CoreGradientViewController {
     private let context = CoreDataStack.shared.persistentContainer.viewContext
     private var shouldPerformSegueAfterKeyboardHide = false
 
-    // 라이프 사이클
+    // 뷰 라이프 사이클
     override func viewDidLoad() {
         super.viewDidLoad()
         
