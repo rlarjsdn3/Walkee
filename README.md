@@ -184,11 +184,11 @@ Alan AI가 개인 맞춤형 활동 및 걷기 코스를 추천해주는 건강 �
     </td>
     <!-- 권도현 -->
     <td align="center" width="16.6%">
-      <a href="https://github.com/dohyun">
+      <a href="https://github.com/kwondohyun12">
         <img width="150" alt="image" src="https://github.com/user-attachments/assets/fc90757b-e604-4d04-a40f-4db0ece88c4a" />
       </a><br>
       <strong>권도현</strong><br>
-      <a href="https://github.com/dohyun">
+      <a href="https://github.com/kwondohyun12">
         <span>kwondohyun12</span>
       </a>
     </td>
@@ -204,21 +204,21 @@ Alan AI가 개인 맞춤형 활동 및 걷기 코스를 추천해주는 건강 �
     </td>
     <!-- 노기승 -->
     <td align="center" width="16.6%">
-      <a href="https://github.com/nogiseung">
+      <a href="https://github.com/giseungNoh">
         <img width="150" alt="image" src="https://github.com/user-attachments/assets/cd0d0c09-e4fe-41b7-a2c5-6e4815a2eb24" />
       </a><br>
       <strong>노기승</strong><br>
-      <a href="https://github.com/nogiseung">
+      <a href="https://github.com/giseungNoh">
         <span>giseungNoh</span>
       </a>
     </td>
     <!-- 하재준 -->
     <td align="center" width="16.6%">
-      <a href="https://github.com/jaejun">
+      <a href="https://github.com/haejaejoon">
         <img width="150" alt="image" src="https://github.com/user-attachments/assets/54138042-d621-4e5a-a4b6-12a814cb0f82" />
       </a><br>
       <strong>하재준</strong><br>
-      <a href="https://github.com/jaejun">
+      <a href="https://github.com/haejaejoon">
         <span>haejaejoon</span>
       </a>
     </td>
