@@ -2,7 +2,7 @@
 //  ChatStreamRenderer.swift
 //  Health
 //
-//  Created by Nat Kim on 8/29/25.
+//  Created by Seohyun Kim on 8/29/25.
 //
 
 import UIKit

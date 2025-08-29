@@ -187,7 +187,6 @@ final class ChatbotViewController: CoreGradientViewController {
 		)
 		scroll.start()
 		scroll.adjustTableInsets()
-		
 		// 2) Adapter
 		adapter = ChatbotTableAdapter(tableView: tableView, scroll: scroll)
 		tableView.dataSource = adapter
