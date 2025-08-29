@@ -7,7 +7,6 @@
 
 import UIKit
 
-
 extension UITextField {
 	/// 커서/텍스트/플레이스홀더 모두에 동일 패딩 적용
 	func setPadding(left: CGFloat = 0, right: CGFloat = 0) {
