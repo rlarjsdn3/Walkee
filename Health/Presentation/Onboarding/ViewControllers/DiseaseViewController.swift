@@ -11,6 +11,7 @@ import CoreData
 
 class DiseaseViewController: CoreGradientViewController {
 
+    // 제약
     @IBOutlet weak var descriptionLabel: UILabel!
     @IBOutlet weak var diseaseCollectionView: UICollectionView!
     @IBOutlet weak var continueButton: UIButton!
@@ -33,13 +34,14 @@ class DiseaseViewController: CoreGradientViewController {
     private var iPadCollectionViewHeight: NSLayoutConstraint?
     private var originalDescriptionTop: CGFloat = 0
     
+    // 질병, 사용자 질병, 사용자 정보, 코어데이터 스택 선언
     private let progressIndicatorStackView = ProgressIndicatorStackView(totalPages: 4)
     private let defaultDiseases: [Disease] = Disease.allCases
     private var userDiseases: [Disease] = []
     private var userInfo: UserInfoEntity?
     private let context = CoreDataStack.shared.persistentContainer.viewContext
     
-
+    // 뷰 라이프 사이클
     override func viewDidLoad() {
         super.viewDidLoad()
         applyBackgroundGradient(.midnightBlack)
@@ -78,10 +80,104 @@ class DiseaseViewController: CoreGradientViewController {
         updateContinueButtonState()
         navigationController?.setNavigationBarHidden(true, animated: false)
     }
-
+    
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
+        updateTraitConstraints()
+        updateDescriptionTopConstraint()
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        diseaseCollectionView.collectionViewLayout.invalidateLayout()
+    }
+    
+    // 설명 레이블 탑 제약 업데이트
+    private func updateDescriptionTopConstraint() {
+        // iPad 여부
+        let isIpad = traitCollection.horizontalSizeClass == .regular &&
+                     traitCollection.verticalSizeClass == .regular
+        let isLandscape = view.bounds.width > view.bounds.height
+
+        if isIpad {
+            // 아이패드 고정값 지정
+            descriptionTopConst.constant = isLandscape ? 28 : 80
+        } else {
+            // 아이폰은 세로모드만 사용 → 스토리보드 제약 그대로 사용
+            descriptionTopConst.constant = originalDescriptionTop
+        }
+    }
+
+    // 사용자 정보 패치
+    private func fetchUserInfo() {
+        let request: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
+        do {
+            let results = try context.fetch(request)
+            userInfo = results.first
+            userDiseases = userInfo?.diseases ?? []
+        } catch {
+            print("Failed to fetch UserInfoEntity: \(error)")
+            userDiseases = []
+        }
+    }
+    
+    // 사용자 지병 선택 로직
+    private func selectUserDiseases() {
+        diseaseCollectionView.reloadData()
+        guard !userDiseases.isEmpty else { return }
         
+        for (index, disease) in defaultDiseases.enumerated() {
+            if userDiseases.contains(disease) {
+                let indexPath = IndexPath(item: index, section: 0)
+                diseaseCollectionView.selectItem(at: indexPath, animated: false, scrollPosition: [])
+            }
+        }
+    }
+
+    // UI 설정
+    override func setupAttribute() {
+        descriptionLabel.text = "평소 겪는 지병을 골라주세요."
+        descriptionLabel.textColor = .label
+    }
+    
+    // 콜렉션뷰 설정
+    private func setupCollectionView() {
+        diseaseCollectionView.delegate = self
+        diseaseCollectionView.dataSource = self
+        diseaseCollectionView.allowsMultipleSelection = true
+        
+        if let layout = diseaseCollectionView.collectionViewLayout as? UICollectionViewFlowLayout {
+            layout.minimumInteritemSpacing = 12
+            layout.minimumLineSpacing = 10
+            layout.sectionInset = .zero
+        }
+        diseaseCollectionView.backgroundColor = .clear
+    }
+
+    // 버튼 너비, 버튼 액션 로직 매서드
+    @IBAction func continueButtonTapped(_ sender: Any) {
+        let selectedIndexPaths = diseaseCollectionView.indexPathsForSelectedItems ?? []
+        let selectedDiseases = selectedIndexPaths.map { defaultDiseases[$0.item] }
+        userInfo?.diseases = selectedDiseases
+
+        do {
+            try context.save()
+            print("질병 정보 저장 완료")
+        } catch {
+            print("CoreData 저장 실패: \(error.localizedDescription)")
+        }
+        performSegue(withIdentifier: "goToStepGoalInfo", sender: self)
+    }
+    
+    private func updateContinueButtonState() {
+        let selectedCount = diseaseCollectionView.indexPathsForSelectedItems?.count ?? 0
+        let enabled = selectedCount > 0
+        continueButton.isEnabled = enabled
+        continueButton.backgroundColor = enabled ? UIColor.accent : UIColor.buttonBackground
+    }
+    
+    // 화면 요소 아이폰, 아이패드 대응 코드
+    private func updateTraitConstraints() {
         let isIpad = traitCollection.userInterfaceIdiom == .pad
         
         if isIpad {
@@ -127,92 +223,6 @@ class DiseaseViewController: CoreGradientViewController {
             collectionViewLeadingConstraint?.isActive = true
             collectionViewTrailingConstraint?.isActive = true
         }
-        
-        updateDescriptionTopConstraint()
-    }
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        diseaseCollectionView.collectionViewLayout.invalidateLayout()
-    }
-    
-    private func updateDescriptionTopConstraint() {
-        // iPad 여부
-        let isIpad = traitCollection.horizontalSizeClass == .regular &&
-                     traitCollection.verticalSizeClass == .regular
-        let isLandscape = view.bounds.width > view.bounds.height
-
-        if isIpad {
-            // 아이패드 고정값 지정
-            descriptionTopConst.constant = isLandscape ? 28 : 80
-        } else {
-            // 아이폰은 세로모드만 사용 → 스토리보드 제약 그대로 사용
-            descriptionTopConst.constant = originalDescriptionTop
-        }
-    }
-
-    private func fetchUserInfo() {
-        let request: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
-        do {
-            let results = try context.fetch(request)
-            userInfo = results.first
-            userDiseases = userInfo?.diseases ?? []
-        } catch {
-            print("Failed to fetch UserInfoEntity: \(error)")
-            userDiseases = []
-        }
-    }
-    
-    private func selectUserDiseases() {
-        diseaseCollectionView.reloadData()
-        guard !userDiseases.isEmpty else { return }
-        
-        for (index, disease) in defaultDiseases.enumerated() {
-            if userDiseases.contains(disease) {
-                let indexPath = IndexPath(item: index, section: 0)
-                diseaseCollectionView.selectItem(at: indexPath, animated: false, scrollPosition: [])
-            }
-        }
-    }
-
-    override func setupHierarchy() {}
-    override func setupAttribute() {
-        descriptionLabel.text = "평소 겪는 지병을 골라주세요."
-        descriptionLabel.textColor = .label
-    }
-    
-    private func setupCollectionView() {
-        diseaseCollectionView.delegate = self
-        diseaseCollectionView.dataSource = self
-        diseaseCollectionView.allowsMultipleSelection = true
-        
-        if let layout = diseaseCollectionView.collectionViewLayout as? UICollectionViewFlowLayout {
-            layout.minimumInteritemSpacing = 12
-            layout.minimumLineSpacing = 10
-            layout.sectionInset = .zero
-        }
-        diseaseCollectionView.backgroundColor = .clear
-    }
-
-    @IBAction func continueButtonTapped(_ sender: Any) {
-        let selectedIndexPaths = diseaseCollectionView.indexPathsForSelectedItems ?? []
-        let selectedDiseases = selectedIndexPaths.map { defaultDiseases[$0.item] }
-        userInfo?.diseases = selectedDiseases
-
-        do {
-            try context.save()
-            print("질병 정보 저장 완료")
-        } catch {
-            print("CoreData 저장 실패: \(error.localizedDescription)")
-        }
-        performSegue(withIdentifier: "goToStepGoalInfo", sender: self)
-    }
-    
-    private func updateContinueButtonState() {
-        let selectedCount = diseaseCollectionView.indexPathsForSelectedItems?.count ?? 0
-        let enabled = selectedCount > 0
-        continueButton.isEnabled = enabled
-        continueButton.backgroundColor = enabled ? UIColor.accent : UIColor.buttonBackground
     }
 }
 
@@ -230,6 +240,7 @@ extension DiseaseViewController: UICollectionViewDataSource {
     }
 }
 
+// 지병 셀 정렬 코드
 extension DiseaseViewController: UICollectionViewDelegateFlowLayout {
     
     private var noneDiseaseIndex: Int {
@@ -284,7 +295,7 @@ extension DiseaseViewController: UICollectionViewDelegateFlowLayout {
     }
 
 
-
+// 지병 셀 선택 로직 매서드
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if indexPath.item == noneDiseaseIndex {
             for i in 0..<defaultDiseases.count where i != noneDiseaseIndex {

@@ -10,6 +10,7 @@ import CoreData
 
 class GenderSelectViewController: CoreGradientViewController {
 
+    // 제약
     @IBOutlet weak var femaleButton: UIButton!
     @IBOutlet weak var maleButton: UIButton!
     @IBOutlet weak var femaleGender: UILabel!
@@ -36,11 +37,13 @@ class GenderSelectViewController: CoreGradientViewController {
     private var originalMaleWidth: CGFloat = 0
     private var originalMaleHeight: CGFloat = 0
 
+    // 성별 배열
     private enum Gender: String {
         case male = "남성"
         case female = "여성"
     }
     
+    // 선택된 성별 선언
     private var selectedGender: Gender? {
         didSet {
             updateGenderSelectionUI()
@@ -48,6 +51,7 @@ class GenderSelectViewController: CoreGradientViewController {
         }
     }
 
+    // 뷰 라이프 사이클
     override func viewDidLoad() {
         super.viewDidLoad()
         applyBackgroundGradient(.midnightBlack)
@@ -91,62 +95,27 @@ class GenderSelectViewController: CoreGradientViewController {
         loadSavedGender()
         navigationController?.setNavigationBarHidden(true, animated: false)
     }
-
+    
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        updateTraitsConstraints()
+        updateDescriptionTopConstraint()
+    }
+    
+    // 기기의 환경이 변했을때 적용
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
         updateGenderSelectionUI()
         updateContinueButtonState()
     }
     
-    override func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
-        
-        let isIpad = traitCollection.horizontalSizeClass == .regular &&
-                     traitCollection.verticalSizeClass == .regular
-
-        if isIpad {
-            continueButtonLeading?.isActive = false
-            continueButtonTrailing?.isActive = false
-            
-            if iPadWidthConstraint == nil {
-                iPadWidthConstraint = continueButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7)
-                iPadCenterXConstraint = continueButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
-                iPadWidthConstraint?.isActive = true
-                iPadCenterXConstraint?.isActive = true
-            }
-
-            let multiplier: CGFloat = 1.8
-            femaleWidth.constant = originalFemaleWidth * multiplier
-            femaleHeight.constant = originalFemaleHeight * multiplier
-            maleWidth.constant = originalMaleWidth * multiplier
-            maleHeight.constant = originalMaleHeight * multiplier
-
-        } else {
-            iPadWidthConstraint?.isActive = false
-            iPadCenterXConstraint?.isActive = false
-
-            continueButtonLeading?.isActive = true
-            continueButtonTrailing?.isActive = true
-            
-            femaleWidth.constant = originalFemaleWidth
-            femaleHeight.constant = originalFemaleHeight
-            maleWidth.constant = originalMaleWidth
-            maleHeight.constant = originalMaleHeight
-        }
-        
-        updateDescriptionTopConstraint()
-    }
-    
-    override func setupHierarchy() {
-        continueButton.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(continueButton)
-    }
-    
+    // UI 변동사항
     override func setupAttribute() {
         femaleGender.text = "여성"
         maleGender.text = "남성"
     }
 
+    // 버튼 액션
     @IBAction func selectedFM(_ sender: Any) {
         selectedGender = .female
     }
@@ -183,6 +152,7 @@ class GenderSelectViewController: CoreGradientViewController {
         performSegue(withIdentifier: "goToAgeInfo", sender: self)
     }
 
+    // 설명 탑 제약 대응 코드
     private func updateDescriptionTopConstraint() {
         // iPad 여부
         let isIpad = traitCollection.horizontalSizeClass == .regular &&
@@ -198,6 +168,43 @@ class GenderSelectViewController: CoreGradientViewController {
         }
     }
     
+    // 화면 요소 아이폰, 아이패드 대응 코드
+    private func updateTraitsConstraints() {
+        let isIpad = traitCollection.horizontalSizeClass == .regular &&
+                     traitCollection.verticalSizeClass == .regular
+
+        if isIpad {
+            continueButtonLeading?.isActive = false
+            continueButtonTrailing?.isActive = false
+            
+            if iPadWidthConstraint == nil {
+                iPadWidthConstraint = continueButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7)
+                iPadCenterXConstraint = continueButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+                iPadWidthConstraint?.isActive = true
+                iPadCenterXConstraint?.isActive = true
+            }
+
+            let multiplier: CGFloat = 1.8
+            femaleWidth.constant = originalFemaleWidth * multiplier
+            femaleHeight.constant = originalFemaleHeight * multiplier
+            maleWidth.constant = originalMaleWidth * multiplier
+            maleHeight.constant = originalMaleHeight * multiplier
+
+        } else {
+            iPadWidthConstraint?.isActive = false
+            iPadCenterXConstraint?.isActive = false
+
+            continueButtonLeading?.isActive = true
+            continueButtonTrailing?.isActive = true
+            
+            femaleWidth.constant = originalFemaleWidth
+            femaleHeight.constant = originalFemaleHeight
+            maleWidth.constant = originalMaleWidth
+            maleHeight.constant = originalMaleHeight
+        }
+    }
+    
+    // 코어데이터 저장 코드
     private func loadSavedGender() {
         let context = CoreDataStack.shared.viewContext
         let fetchRequest: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
@@ -219,6 +226,7 @@ class GenderSelectViewController: CoreGradientViewController {
         }
     }
 
+    // 성별버튼 업데이트 코드
     private func updateGenderSelectionUI() {
         let selectedTextColor = UIColor.systemBackground
         let defaultTextColor = UIColor.label
@@ -229,6 +237,7 @@ class GenderSelectViewController: CoreGradientViewController {
         femaleButton.tintColor = (selectedGender == .female) ? .accent : .systemGray5
         maleButton.tintColor = (selectedGender == .male) ? .accent : .systemGray5
         
+        //현재 폰트는 선택/ 미선택 모두 semibold로 통합
 //        if let currentFont = femaleGender.font {
 //            femaleGender.font = (selectedGender == .female) ? currentFont.withBoldTrait() : currentFont.withNormalTrait()
 //        }
@@ -237,6 +246,7 @@ class GenderSelectViewController: CoreGradientViewController {
 //        }
     }
     
+    // 다음버튼 업데이트 코드
     private func updateContinueButtonState() {
         let isSelected = (selectedGender != nil)
         continueButton.isEnabled = isSelected
@@ -248,6 +258,7 @@ class GenderSelectViewController: CoreGradientViewController {
     }
 }
 
+// 폰트 매서드 확장 코드
 extension UIFont {
     func withBoldTrait() -> UIFont {
         guard let descriptor = self.fontDescriptor.withSymbolicTraits(self.fontDescriptor.symbolicTraits.union(.traitBold)) else {

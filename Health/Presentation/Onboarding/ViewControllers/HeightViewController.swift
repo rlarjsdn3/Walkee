@@ -10,6 +10,7 @@ import CoreData
 
 class HeightViewController: CoreGradientViewController {
     
+    // 제약
     @IBOutlet weak var heightInputField: DynamicWidthTextField!
     @IBOutlet weak var errorLabel: UILabel!
     @IBOutlet weak var cmLabel: UILabel!
@@ -28,23 +29,18 @@ class HeightViewController: CoreGradientViewController {
     private var iPadCenterXConstraint: NSLayoutConstraint?
     private var heightInputFieldiPadWidthConstraint: NSLayoutConstraint?
     
+    // 사용자 정보, 코어데이터 스택 선언
     private var userInfo: UserInfoEntity?
     private let context = CoreDataStack.shared.persistentContainer.viewContext
     
     private var shouldPerformSegueAfterKeyboardHide = false
     
+    // 뷰 라이프 사이클
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         applyBackgroundGradient(.midnightBlack)
         
-        heightInputField.delegate = self
-        heightInputField.keyboardType = .numberPad
-        heightInputField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
-        
-        errorLabel.isHidden = true
-        errorLabel.textColor = .red
-        
+        setupTextField()
         setupContinueButton()
         
         originalCenterY = heightInputFieldCenterY.constant
@@ -76,11 +72,21 @@ class HeightViewController: CoreGradientViewController {
     
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
-        updateContinueButtonConstraints()
+        updateTraitsConstraints()
         updateDescriptionTopConstraint()
         updateHeightInputFieldConstraints()
     }
     
+    // 텍스트 필드 설정
+    private func setupTextField() {
+        heightInputField.delegate = self
+        heightInputField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        
+        errorLabel.isHidden = true
+        errorLabel.textColor = .red
+    }
+    
+    // 다음 버튼 설정
     private func setupContinueButton() {
         var config = UIButton.Configuration.filled()
         config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
@@ -101,6 +107,7 @@ class HeightViewController: CoreGradientViewController {
         continueButton.applyCornerStyle(.medium)
     }
     
+    // 설명 레이블 탑 제약 업데이트 코드
     private func updateDescriptionTopConstraint() {
         // iPad 여부
         let isIpad = traitCollection.horizontalSizeClass == .regular &&
@@ -116,8 +123,8 @@ class HeightViewController: CoreGradientViewController {
         }
     }
 
-    
-    private func updateContinueButtonConstraints() {
+    // 화면 요소 아이폰, 아이패드 대응 코드
+    private func updateTraitsConstraints() {
         let isIpad = traitCollection.horizontalSizeClass == .regular &&
                      traitCollection.verticalSizeClass == .regular
         if isIpad {
@@ -137,6 +144,25 @@ class HeightViewController: CoreGradientViewController {
         }
     }
     
+    // 텍스트필드 너비 제약 대응 코드
+    private func updateHeightInputFieldConstraints() {
+        let isIpad = traitCollection.horizontalSizeClass == .regular &&
+                     traitCollection.verticalSizeClass == .regular
+        
+        if isIpad {
+            // iPad → 고정 width
+            if heightInputFieldiPadWidthConstraint == nil {
+                heightInputFieldiPadWidthConstraint = heightInputField.widthAnchor.constraint(equalToConstant: 120)
+                heightInputFieldiPadWidthConstraint?.isActive = true
+            }
+        } else {
+            // iPhone → dynamic width 사용
+            heightInputFieldiPadWidthConstraint?.isActive = false
+            heightInputFieldiPadWidthConstraint = nil
+        }
+    }
+    
+    // 키보드 노티피케이션 매서드 선언
     private func registerForKeyboardNotifications() {
         NotificationCenter.default.addObserver(
             self,
@@ -156,23 +182,6 @@ class HeightViewController: CoreGradientViewController {
             name: UIResponder.keyboardDidHideNotification,
             object: nil
         )
-    }
-    
-    private func updateHeightInputFieldConstraints() {
-        let isIpad = traitCollection.horizontalSizeClass == .regular &&
-                     traitCollection.verticalSizeClass == .regular
-        
-        if isIpad {
-            // iPad → 고정 width
-            if heightInputFieldiPadWidthConstraint == nil {
-                heightInputFieldiPadWidthConstraint = heightInputField.widthAnchor.constraint(equalToConstant: 120)
-                heightInputFieldiPadWidthConstraint?.isActive = true
-            }
-        } else {
-            // iPhone → dynamic width 사용
-            heightInputFieldiPadWidthConstraint?.isActive = false
-            heightInputFieldiPadWidthConstraint = nil
-        }
     }
     
     @objc private func keyboardWillShow(_ notification: Notification) {
@@ -213,6 +222,7 @@ class HeightViewController: CoreGradientViewController {
         }
     }
     
+    // 화면 탭 - 키보드 내리는 매서드
     private func setupTapGestureToDismissKeyboard() {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tapGesture.cancelsTouchesInView = false
@@ -223,11 +233,11 @@ class HeightViewController: CoreGradientViewController {
     @objc private func dismissKeyboard() {
         view.endEditing(true)
     }
-    
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
     
+    // 액션 매서드
     @IBAction func continueButtonTapped(_ sender: UIButton) {
         guard continueButton.isEnabled else { return }
         guard let text = heightInputField.text, let heightValue = Double(text) else { return }
@@ -242,13 +252,14 @@ class HeightViewController: CoreGradientViewController {
             performSegue(withIdentifier: "goToDiseaseTap", sender: nil)
         }
     }
-
     
+    // 텍스트 필드 변동시 선언
     @objc private func textFieldDidChange(_ textField: UITextField) {
         validateInput()
         textField.invalidateIntrinsicContentSize()
     }
     
+    // 입력값에 따라 버튼 활성화/비활성화 구분하는 switch문
     private func validateInput() {
         guard let text = heightInputField.text,
               !text.isEmpty else {
@@ -298,6 +309,7 @@ class HeightViewController: CoreGradientViewController {
         errorLabel.text = ""
     }
     
+    //버튼 상태 매서드
     private func disableContinueButton() {
         continueButton.isEnabled = false
         continueButton.backgroundColor = .buttonBackground
@@ -310,6 +322,7 @@ class HeightViewController: CoreGradientViewController {
         heightInputField.textColor = .accent
     }
     
+    // 사용자 패치
     private func fetchUserInfo() {
         let request: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
         do {

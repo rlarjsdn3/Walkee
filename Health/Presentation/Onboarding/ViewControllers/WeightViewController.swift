@@ -10,6 +10,7 @@ import CoreData
 
 class WeightViewController: CoreGradientViewController {
     
+    // 제약
     @IBOutlet weak var weightInputField: DynamicWidthTextField!
     @IBOutlet weak var errorLabel: UILabel!
     @IBOutlet weak var kgLabel: UILabel!
@@ -28,23 +29,18 @@ class WeightViewController: CoreGradientViewController {
     private var iPadCenterXConstraint: NSLayoutConstraint?
     private var weightInputFieldiPadWidthConstraint: NSLayoutConstraint?
     
+    // 사용자 정보, 코어데이터 스택 선언
     private var userInfo: UserInfoEntity?
     private let context = CoreDataStack.shared.persistentContainer.viewContext
  
     private var shouldPerformSegueAfterKeyboardHide = false
     
+    // 뷰 라이프 사이클
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         applyBackgroundGradient(.midnightBlack)
         
-        weightInputField.delegate = self
-        weightInputField.keyboardType = .numberPad
-        weightInputField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
-        
-        errorLabel.isHidden = true
-        errorLabel.textColor = .red
-        
+        setupTextField()
         setupContinueButton()
         
         originalCenterY = weightInputFieldCenterY.constant
@@ -71,11 +67,21 @@ class WeightViewController: CoreGradientViewController {
     
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
-        updateContinueButtonConstraints()
+        updateTraitsConstraints()
         updateDescriptionTopConstraint()
         updateWeightInputFieldConstraints() // iPad/iPhone 대응
     }
     
+    // 텍스트 필드 설정
+    private func setupTextField() {
+        weightInputField.delegate = self
+        weightInputField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        
+        errorLabel.isHidden = true
+        errorLabel.textColor = .red
+    }
+    
+    // 다음 버튼 설정
     private func setupContinueButton() {
         var config = UIButton.Configuration.filled()
         config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
@@ -96,6 +102,7 @@ class WeightViewController: CoreGradientViewController {
         continueButton.applyCornerStyle(.medium)
     }
     
+    // 설명 레이블 탑 제약 아이패드 대응
     private func updateDescriptionTopConstraint() {
         // iPad 여부
         let isIpad = traitCollection.horizontalSizeClass == .regular &&
@@ -111,8 +118,8 @@ class WeightViewController: CoreGradientViewController {
         }
     }
 
-    
-    private func updateContinueButtonConstraints() {
+    // 화면 요소 아이폰, 아이패드 대응 코드
+    private func updateTraitsConstraints() {
         let isIpad = traitCollection.horizontalSizeClass == .regular &&
                      traitCollection.verticalSizeClass == .regular
         if isIpad {
@@ -132,6 +139,7 @@ class WeightViewController: CoreGradientViewController {
         }
     }
     
+    // 몸무게 입력 텍스트 필드 아이패드 대응
     private func updateWeightInputFieldConstraints() {
         let isIpad = traitCollection.horizontalSizeClass == .regular &&
                      traitCollection.verticalSizeClass == .regular
@@ -149,6 +157,7 @@ class WeightViewController: CoreGradientViewController {
         }
     }
     
+    // 키보드 노티피케이션
     private func registerForKeyboardNotifications() {
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(keyboardWillShow(_:)),
@@ -197,21 +206,21 @@ class WeightViewController: CoreGradientViewController {
         }
     }
     
+    // 화면 탭시 키보드 내려가는 매서드
     private func setupTapGestureToDismissKeyboard() {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tapGesture.cancelsTouchesInView = false
         tapGesture.delegate = self
         view.addGestureRecognizer(tapGesture)
     }
-    
     @objc private func dismissKeyboard() {
         view.endEditing(true)
     }
-    
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
     
+    // 버튼 액션 및 데이터 저장
     @IBAction func continueButtonTapped(_ sender: UIButton) {
         guard continueButton.isEnabled else { return }
         guard let text = weightInputField.text, let weightValue = Double(text) else { return }
@@ -227,6 +236,7 @@ class WeightViewController: CoreGradientViewController {
         }
     }
     
+    // 텍스트필드 변동사항
     @objc private func textFieldDidChange(_ textField: UITextField) {
         validateInput()
         textField.invalidateIntrinsicContentSize()
@@ -266,18 +276,21 @@ class WeightViewController: CoreGradientViewController {
         errorLabel.text = ""
     }
     
+    // 버튼 비활성화
     private func disableContinueButton() {
         continueButton.isEnabled = false
         continueButton.backgroundColor = .buttonBackground
         weightInputField.textColor = .label
     }
     
+    // 버튼 활성화
     private func enableContinueButton() {
         continueButton.isEnabled = true
         continueButton.backgroundColor = .accent
         weightInputField.textColor = .accent
     }
     
+    // 사용자 정보 패치
     private func fetchUserInfo() {
         let request: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
         do {

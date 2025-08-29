@@ -11,6 +11,7 @@ import HealthKit
 
 class StepGoalViewController: CoreGradientViewController {
     
+    // 제약
     @IBOutlet weak var continueButton: UIButton!
     @IBOutlet weak var continueButtonLeading: NSLayoutConstraint!
     @IBOutlet weak var continueButtonTrailing: NSLayoutConstraint!
@@ -27,8 +28,10 @@ class StepGoalViewController: CoreGradientViewController {
     private var stepGoalViewWidthConstraint: NSLayoutConstraint?
     private let healthService = DefaultHealthService()
     
+    // 목표 걸음 서비스 선언
     @Injected private var stepSyncService: StepSyncService
     
+    // 뷰 라이프 사이클
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -50,14 +53,30 @@ class StepGoalViewController: CoreGradientViewController {
         }
     }
     
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-    }
-    
-    
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
+        updateTraitsConstraints()
+        updateDescriptionTopConstraint()
+    }
+    
+    // 설명 레이블 아이패드 대응 코드
+    private func updateDescriptionTopConstraint() {
+        // iPad 여부
+        let isIpad = traitCollection.horizontalSizeClass == .regular &&
+        traitCollection.verticalSizeClass == .regular
+        let isLandscape = view.bounds.width > view.bounds.height
         
+        if isIpad {
+            // 아이패드 고정값 지정
+            descriptionTopConst.constant = isLandscape ? 28 : 80
+        } else {
+            // 아이폰은 세로모드만 사용 → 스토리보드 제약 그대로 사용
+            descriptionTopConst.constant = originalDescriptionTop
+        }
+    }
+    
+    // 화면 요소 아이폰, 아이패드 대응 코드
+    private func updateTraitsConstraints() {
         let isIpad = traitCollection.horizontalSizeClass == .regular &&
         traitCollection.verticalSizeClass == .regular
         
@@ -89,24 +108,9 @@ class StepGoalViewController: CoreGradientViewController {
             stepGoalLeading?.isActive = true
             stepGoalTrailing?.isActive = true
         }
-        updateDescriptionTopConstraint()
     }
     
-    private func updateDescriptionTopConstraint() {
-        // iPad 여부
-        let isIpad = traitCollection.horizontalSizeClass == .regular &&
-        traitCollection.verticalSizeClass == .regular
-        let isLandscape = view.bounds.width > view.bounds.height
-        
-        if isIpad {
-            // 아이패드 고정값 지정
-            descriptionTopConst.constant = isLandscape ? 28 : 80
-        } else {
-            // 아이폰은 세로모드만 사용 → 스토리보드 제약 그대로 사용
-            descriptionTopConst.constant = originalDescriptionTop
-        }
-    }
-    
+    // 버튼 상태 업데이트 매서드
     @objc private func updateContinueButtonState() {
         let isValid = stepGoalView.value > 0
         var config = UIButton.Configuration.filled()
@@ -134,6 +138,7 @@ class StepGoalViewController: CoreGradientViewController {
         continueButton.backgroundColor = isValid ? .accent : .buttonBackground
     }
     
+    // 버튼 액션 + 목표걸음 저장 및 온보딩 화면 입력 완료시, 메인화면으로 이동하는 분기처리 코드
     @IBAction func buttonAction(_ sender: Any) {
         guard stepGoalView.value > 0 else { return }
         

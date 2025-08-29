@@ -11,6 +11,7 @@ import UIKit
 
 class HealthLinkViewController: CoreGradientViewController, Alertable {
     
+    // 제약
     @IBOutlet weak var userDescriptionLabel: UILabel!
     @IBOutlet weak var healthAppIcon: UIImageView!
     @IBOutlet weak var linkedSwitch: UISwitch!
@@ -41,8 +42,10 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
     private var originalAppleLogoLeading: CGFloat = 0
     private var originalLinkSwitchTrailing: CGFloat = 0
     
+    // healthKit 연동을 위한 선언
     private let healthService = DefaultHealthService()
     
+    // 뷰 라이프 사이클
     override func viewDidLoad() {
         super.viewDidLoad()
         applyBackgroundGradient(.midnightBlack)
@@ -73,7 +76,6 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
             }
         }
         
-        
         continueButton.configuration = config
         continueButton.applyCornerStyle(.medium)
         continueButton.addTarget(self, action: #selector(continueButtonTapped(_:)), for: .touchUpInside)
@@ -89,8 +91,6 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
         
         setupAttribute()
         checkHealthKitPermissionStatus()
-
-
         linkedSwitch.onTintColor = .accent
     }
     
@@ -99,9 +99,18 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
         navigationController?.setNavigationBarHidden(true, animated: false)
     }
     
+    // 아이폰, 아이패드 대응 코드
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
-        
+        updateTraitsConstraints()
+        updateDescriptionTopConstraint()
+    }
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    // 화면 요소 아이폰, 아이패드 대응 코드
+    private func updateTraitsConstraints() {
         let isIpad = traitCollection.horizontalSizeClass == .regular &&
                      traitCollection.verticalSizeClass == .regular
         
@@ -148,14 +157,9 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
             
             linkSettingView.applyCornerStyle(.medium)
         }
-        
-        updateDescriptionTopConstraint()
     }
     
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-    
+    //UI 상태 매서드
     override func setupAttribute() {
         userDescriptionLabel.text = "사용자 정보 입력 및 \n건강 데이터 접근 권한 요청"
         supUserDescriptionLabel.text = "AI가 걷기·활동 데이터를 분석해 맞춤 건강 정보를 제공합니다. 일일 걸음 수, 거리, 에너지를 기반으로 건강 상태를 파악하고 개인화된 추천을 위해 건강 데이터 접근이 필요합니다."
@@ -164,10 +168,12 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
         linkSettingView.clipsToBounds = true
     }
     
+    // 백그라운드에서 다시 활성화되어 포그라운드로 돌아올 때 호출되는 메서드
     @objc private func handleAppWillEnterForeground() {
         checkHealthKitPermissionStatus()
     }
     
+    // 설명 레이블 탑 제약 업데이트
     private func updateDescriptionTopConstraint() {
         // iPad 여부
         let isIpad = traitCollection.horizontalSizeClass == .regular &&
@@ -183,6 +189,7 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
         }
     }
     
+    //healthKit 권한 체크 코드
     private func checkHealthKitPermissionStatus() {
         Task {
             let hasAnyPermission = await healthService.checkHasAnyReadPermission()
@@ -197,7 +204,6 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
             }
         }
     }
-    
     private func openHealthApp() {
         let healthURL = URL(string: "x-apple-health://")!
         UIApplication.shared.open(healthURL, options: [:])
@@ -212,6 +218,7 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
      - 기존로직과 혼동하지말것 ⚠️
      */
     
+    //healthKit 권한 요청 매서드
     private func requestHealthKitAuthorization() async {
         do {
             let granted = try await healthService.requestAuthorization()
@@ -251,6 +258,7 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
         }
     }
 
+    // 버튼, 스위치 액션
     @IBAction private func continueButtonTapped(_ sender: Any) {
             performSegue(withIdentifier: "goToGenderInfo", sender: nil)
     }
@@ -261,12 +269,6 @@ class HealthLinkViewController: CoreGradientViewController, Alertable {
             Task {
                 await requestHealthKitAuthorization()
             }
-        }
-    }
-    
-    private func openAppSettings() {
-        if let url = URL(string: UIApplication.openSettingsURLString) {
-            UIApplication.shared.open(url)
         }
     }
 }
