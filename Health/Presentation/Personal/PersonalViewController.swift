@@ -427,7 +427,7 @@ class PersonalViewController: HealthNavigationController, Alertable, ScrollableT
 
                 await MainActor.run {
                     let storyboard = UIStoryboard(name: "DetailCourse", bundle: nil)
-                    let mapVC = storyboard.instantiateViewController(withIdentifier: "DetailCourse") as! MapViewController
+                    let mapVC = storyboard.instantiateViewController(withIdentifier: "DetailCourse") as! DetailCourseViewController
                     mapVC.courseCoordinates = coordinates
                     mapVC.courseInfo = course
 
