@@ -35,28 +35,45 @@ class WalkingFilterCell: CoreCollectionViewCell {
 
         // 메뉴 선택 시 실행될 액션
         let actionHandler: (UIAction) -> Void = { [weak self] action in
-            print("'\(action.title)' 선택됨")
+
+            // 비활성화된 항목은 선택되지 않도록 함
+            guard action.attributes != .disabled else {
+                return
+            }
 
             // PersonalViewController에게 어떤 필터가 선택되었는지 알려줌
             self?.onFilterSelected?(action.title)
         }
 
-        // 메뉴에 맞춰 액션을 생성.
-        let actions = [
-            UIAction(title: "코스 길이 순", handler: actionHandler),
-            UIAction(title: "가까운 순", handler: actionHandler)
-        ]
+        // 현재 위치 권한 상태 확인
+        let isLocationGranted = LocationPermissionService.shared.checkCurrentPermissionStatus()
 
-        // 액션들로 메뉴를 생성.
+        // "코스 길이 순" 액션 (항상 활성화)
+        let courseLengthAction = UIAction(title: "코스 길이 순", handler: actionHandler)
+
+        // "가까운 순" 액션 (위치 권한에 따라 활성화/비활성화)
+        let nearbyAction: UIAction
+        if isLocationGranted {
+            nearbyAction = UIAction(title: "가까운 순", handler: actionHandler)
+        } else {
+            nearbyAction = UIAction(title: "가까운 순", attributes: .disabled, handler: actionHandler)
+        }
+
+        // 액션들로 메뉴를 생성
+        let actions = [courseLengthAction, nearbyAction]
         let menu = UIMenu(children: actions)
 
         // 버튼에 메뉴를 설정하고, 주요 속성들을 설정
         toggleButton.menu = menu
         toggleButton.showsMenuAsPrimaryAction = true
 
-        //메뉴 항목 선택 시 버튼의 제목이 자동으로 변경
+        // 메뉴 항목 선택 시 버튼의 제목이 자동으로 변경
         toggleButton.changesSelectionAsPrimaryAction = true
+    }
 
+    func updateLocationPermission(_ isGranted: Bool) {
+        // 메뉴를 다시 설정해서 권한 상태에 맞게 업데이트
+        setupPullDownMenu()
     }
 }
 

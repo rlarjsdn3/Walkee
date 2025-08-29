@@ -151,6 +151,11 @@ class PersonalViewController: HealthNavigationController, Alertable, ScrollableT
 
     private func createWalkingFilterRegistration() -> UICollectionView.CellRegistration<WalkingFilterCell, Void> {
         UICollectionView.CellRegistration<WalkingFilterCell, Void>(cellNib: WalkingFilterCell.nib) { cell, indexPath, _ in
+
+            // 현재 위치권한 상태를 셀에 전달
+            let isLocationGranted = LocationPermissionService.shared.checkCurrentPermissionStatus()
+            cell.updateLocationPermission(isLocationGranted)
+
             // 필터 선택 시 실행될 클로저 설정
             cell.onFilterSelected = { [weak self] selectedFilter in
                 // 어떤 필터가 눌리든 applySorting 함수를 호출하도록 단순화
@@ -448,6 +453,11 @@ class PersonalViewController: HealthNavigationController, Alertable, ScrollableT
         if previousLocationPermission != currentPermission {
             // 현재 상태를 먼저 저장하여 중복 실행 방지
             previousLocationPermission = currentPermission
+
+            // 필터셀의 위치권한 상태 업데이트
+            if let filterCell = collectionView.cellForItem(at: IndexPath(item: 0, section: 1)) as? WalkingFilterCell {
+                filterCell.updateLocationPermission(currentPermission)
+            }
 
             Task { @MainActor in
                 distanceViewModel.clearDistanceCache()
