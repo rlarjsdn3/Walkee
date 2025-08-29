@@ -81,7 +81,6 @@ extension HealthInfoCardCollectionViewCell {
             .store(in: &cancellable)
     }
 
-    // TODO: - 상태 코드 별로 함수로 나누는 리팩토링하기
     private func render(for state: LoadState<InfoCardContent>) {
         var attrString: NSAttributedString
         let unitString = viewModel.itemID.kind.unitString

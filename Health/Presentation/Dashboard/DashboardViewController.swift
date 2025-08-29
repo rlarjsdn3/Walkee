@@ -18,7 +18,6 @@ final class DashboardViewController: HealthNavigationController, Alertable, Scro
 
     private var dataSource: DashboardDiffableDataSource?
     
-    //
     private var hasBuiltLayout = false
     private var hasLoadedData = false
 

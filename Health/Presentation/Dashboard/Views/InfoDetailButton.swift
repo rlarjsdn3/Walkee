@@ -7,8 +7,7 @@
 
 import UIKit
 
-final class InfoDetailButton: UIButton { // TODO: - 조금 더 범용적으로 버튼 이름 수정하기
-
+final class InfoDetailButton: UIButton {
     ///
     var touchHandler: ((UIAction) -> Void)?
 
