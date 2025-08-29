@@ -9,7 +9,7 @@ import UIKit
 import MapKit
 import TSAlertController
 
-class MapViewController: UIViewController,Alertable {
+class DetailCourseViewController: UIViewController,Alertable {
     var courseCoordinates: [CLLocationCoordinate2D] = []
     var courseInfo: WalkingCourse?
 
@@ -111,7 +111,7 @@ class MapViewController: UIViewController,Alertable {
 }
 
 // MARK: - MKMapViewDelegate
-extension MapViewController: MKMapViewDelegate {
+extension DetailCourseViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
         if let polyline = overlay as? MKPolyline {
             let renderer = MKPolylineRenderer(polyline: polyline)
