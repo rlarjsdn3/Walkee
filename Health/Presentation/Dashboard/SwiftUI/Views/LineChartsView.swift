@@ -12,8 +12,7 @@ import SwiftUI
 struct LineChartsView: View {
 
     private var chartsData: [HKData]
-    
-    // TOOD: - LineCharts가 범용 데이터를 받도록 코드 리팩토링하기
+
     init(chartsData: [HKData]) {
         self.chartsData = chartsData
     }
@@ -49,15 +48,4 @@ struct LineChartsView: View {
         .chartYAxis(.hidden)
         .background(Color(uiColor: .boxBg))
     }
-}
-
-#Preview(traits: .fixedLayout(width: 300, height: 200)) {
-    let chartsData: [HKData] = (0..<7).map { index in
-        let date = Date.now.addingDays(-index)!
-        let (startDate, endDate) = date.rangeOfDay()
-        return HKData(startDate: startDate, endDate: endDate, value: Double.random(in: 1..<1000))
-    }
-
-    LineChartsView(chartsData: chartsData)
-        .padding()
 }
