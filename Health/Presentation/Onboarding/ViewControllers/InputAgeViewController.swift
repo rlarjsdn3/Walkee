@@ -30,11 +30,12 @@ class InputAgeViewController: CoreGradientViewController {
     private var iPadCenterXConstraint: NSLayoutConstraint?
     private let keyboardButtonPadding: CGFloat = 20
 
+    // userInfo, CoreDateStack 선언
     private var userInfo: UserInfoEntity?
     private let context = CoreDataStack.shared.persistentContainer.viewContext
-
     private var shouldPerformSegueAfterKeyboardHide = false
 
+    // 라이프 사이클
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -62,11 +63,12 @@ class InputAgeViewController: CoreGradientViewController {
     
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
-        updateContinueButtonConstraints()
+        updateTraitsConstraints()
         updateDescriptionTopConstraint()
         updateAgeInputFieldConstraints()
     }
 
+    // 다음버튼 설정
     private func setupContinueButton() {
         applyBackgroundGradient(.midnightBlack)
         
@@ -90,6 +92,7 @@ class InputAgeViewController: CoreGradientViewController {
         continueButton.applyCornerStyle(.medium)
     }
     
+    // 텍스트 필드 설정
     private func setupTextField() {
         ageInputField.delegate = self
         ageInputField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
@@ -98,12 +101,13 @@ class InputAgeViewController: CoreGradientViewController {
         errorLabel.textColor = .red
     }
 
-    
+    // 텍스트 필드 위치 제약, 설명 레이블 위치 제약 원본 제약으로 설정
     private func setupUIValues() {
         originalCenterY = ageInputFieldCenterY.constant
         originalDescriptionTop = descriptionLabelTopConst.constant
     }
 
+    // 키보드 노티피케이션
     private func registerForKeyboardNotifications() {
         NotificationCenter.default.addObserver(
             self,
@@ -125,6 +129,7 @@ class InputAgeViewController: CoreGradientViewController {
         )
     }
     
+    // 키보드 설정
     @objc private func keyboardWillShow(_ notification: Notification) {
         guard let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double,
               let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
@@ -159,6 +164,7 @@ class InputAgeViewController: CoreGradientViewController {
         }
     }
     
+    // 화면 탭시, 키보드 dismiss 동작 매서드
     private func setupTapGestureToDismissKeyboard() {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tapGesture.cancelsTouchesInView = false
@@ -169,11 +175,11 @@ class InputAgeViewController: CoreGradientViewController {
     @objc private func dismissKeyboard() {
         view.endEditing(true)
     }
-
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
 
+    // 버튼 액션 매서드
     @IBAction func continueButtonTapped(_ sender: UIButton) {
         guard continueButton.isEnabled else { return }
         guard let text = ageInputField.text, let birthYear = Int16(text) else { return }
@@ -197,6 +203,7 @@ class InputAgeViewController: CoreGradientViewController {
         }
     }
 
+    // 사용자 정보 패치
     private func fetchAndDisplayUserInfo() {
         let request: NSFetchRequest<UserInfoEntity> = UserInfoEntity.fetchRequest()
         do {
@@ -228,8 +235,10 @@ class InputAgeViewController: CoreGradientViewController {
         }
     }
 
+    // 텍스트 필드 변동사항 매서드
     @objc private func textFieldDidChange(_ textField: UITextField) {
         validateInput()
+        textField.invalidateIntrinsicContentSize()
     }
     
     private func updateAgeInputFieldConstraints() {
@@ -295,19 +304,22 @@ class InputAgeViewController: CoreGradientViewController {
         errorLabel.text = ""
     }
     
+    // 버튼 비활성화
     private func disableContinueButton() {
         continueButton.isEnabled = false
         continueButton.backgroundColor = .buttonBackground
         ageInputField.textColor = .label
     }
     
+    // 버튼 활성화
     private func enableContinueButton() {
         continueButton.isEnabled = true
         continueButton.backgroundColor = .accent
         ageInputField.textColor = .accent
     }
 
-    private func updateContinueButtonConstraints() {
+    // 화면 요소 아이폰, 아이패드 대응 코드
+    private func updateTraitsConstraints() {
         let isIpad = traitCollection.horizontalSizeClass == .regular &&
                      traitCollection.verticalSizeClass == .regular
         
@@ -332,6 +344,7 @@ class InputAgeViewController: CoreGradientViewController {
         }
     }
     
+    // 설명 레이블 아이패드 대응 코드 
     private func updateDescriptionTopConstraint() {
         // iPad 여부
         let isIpad = traitCollection.horizontalSizeClass == .regular &&

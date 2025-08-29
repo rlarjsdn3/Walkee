@@ -11,15 +11,18 @@ import CoreData
 
 class ProgressContainerViewController: CoreGradientViewController {
 
+    // 뒤로가기 버튼 비활성화
     public func setBackButtonHidden(_ isHidden: Bool) {
         customNavigationBar.backButton.isHidden = isHidden
     }
     
+    // 뒤로가기 버튼 활성화
     public func setBackButtonEnabled(_ isEnabled: Bool) {
         customNavigationBar.backButton.isEnabled = isEnabled
         customNavigationBar.backButton.alpha = isEnabled ? 1.0 : 0.5
     }
     
+    // 커스텀 네비게이션 바 선언
     let customNavigationBar = CustomNavigationBarView(totalPages: 8)
     private var currentChildVC: UINavigationController?
     
@@ -34,13 +37,15 @@ class ProgressContainerViewController: CoreGradientViewController {
         
         setupCustomNavigationBar()
         
-        let storyboard = UIStoryboard(name: "Onboarding", bundle: nil)
-        let firstVC = storyboard.instantiateViewController(withIdentifier: "OnboardingViewController")
-        setChildViewController(firstVC)
+        // 온보딩 뷰컨 두번 불러오는 원인 !! 절대 주석 풀지 말것!!!
+//        let storyboard = UIStoryboard(name: "Onboarding", bundle: nil)
+//        let firstVC = storyboard.instantiateViewController(withIdentifier: "OnboardingViewController")
+//        setChildViewController(firstVC)
         
         updateProgressForCurrentStep()
     }
     
+    // 네비게이션 바 설정
     private func setupCustomNavigationBar() {
         view.addSubview(customNavigationBar)
         customNavigationBar.translatesAutoresizingMaskIntoConstraints = false
@@ -53,6 +58,7 @@ class ProgressContainerViewController: CoreGradientViewController {
         customNavigationBar.delegate = self
     }
 
+    // childVC 설정 매서드
     func setChildViewController(_ vc: UIViewController) {
         if let currentChildVC = currentChildVC {
             currentChildVC.willMove(toParent: nil)
@@ -85,6 +91,7 @@ class ProgressContainerViewController: CoreGradientViewController {
         currentChildVC = navController
     }
     
+    // 네비게이션 바 게이지 업데이트 매서드 
     private func updateProgressForCurrentStep() {
         let progress = min(CGFloat(currentStep) / CGFloat(totalSteps), 1)
         customNavigationBar.progressIndicatorStackView.updateProgress(to: progress)
