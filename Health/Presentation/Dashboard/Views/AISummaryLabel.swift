@@ -15,7 +15,6 @@ final class AISummaryLabel: CoreView {
     private let iconSize: CGFloat = 20
     private let labelLeading: CGFloat = 12
 
-    ///
     var text: String? {
         didSet { label.text = text }
     }

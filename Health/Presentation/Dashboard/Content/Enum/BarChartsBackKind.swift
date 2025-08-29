@@ -13,7 +13,6 @@ enum BarChartsBackKind {
     /// 기준 시점부터 n개월 전까지 포함
     case monthsBack(Int)
 
-    ///
     var count: Int {
         switch self {
         case let .daysBack(value), let .monthsBack(value):
@@ -21,7 +20,6 @@ enum BarChartsBackKind {
         }
     }
 
-    ///
     var interval: DateComponents {
         switch self {
         case .daysBack:     return DateComponents(day: 1)
@@ -29,7 +27,6 @@ enum BarChartsBackKind {
         }
     }
 
-    ///
     var component: Calendar.Component {
         switch self {
         case .daysBack:     return .day
@@ -37,7 +34,6 @@ enum BarChartsBackKind {
         }
     }
 
-    ///
     func startDate(_ anchorDate: Date) -> Date? {
         switch self {
         case .daysBack(let int):
@@ -47,7 +43,6 @@ enum BarChartsBackKind {
         }
     }
 
-    ///
     func endDate(_ anchorDate: Date) -> Date? {
         switch self {
         case .daysBack:

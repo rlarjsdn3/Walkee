@@ -8,22 +8,20 @@
 import HealthKit
 import UIKit
 
-///
 enum DashboardCardKind: CaseIterable {
 
-    ///
+    /// 보행 보폭 카드
     case walkingStepLength
-    ///
+    /// 보행 비대칭성 카드
     case walkingAsymmetryPercentage
-    ///
+    /// 보행 속도 카드
     case walkingSpeed
-    ///
+    /// 이중 지지 시간 카드
     case walkingDoubleSupportPercentage
 }
 
 extension DashboardCardKind {
 
-    ///
     var title: String? {
         switch self {
         case .walkingStepLength:                return "보행 보폭"
@@ -33,7 +31,6 @@ extension DashboardCardKind {
         }
     }
 
-    ///
     var unit: HKUnit {
         switch self {
         case .walkingStepLength:              return HKUnit.meterUnit(with: .centi)
@@ -43,7 +40,6 @@ extension DashboardCardKind {
         }
     }
 
-    ///
     var unitString: String {
         switch self {
         case .walkingStepLength:              return "cm"
@@ -53,7 +49,6 @@ extension DashboardCardKind {
         }
     }
 
-    ///
     var quantityTypeIdentifier: HKQuantityTypeIdentifier {
         switch self {
         case .walkingStepLength:                return .walkingStepLength
