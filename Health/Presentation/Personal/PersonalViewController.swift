@@ -454,6 +454,13 @@ class PersonalViewController: HealthNavigationController, Alertable, ScrollableT
             // 현재 상태를 먼저 저장하여 중복 실행 방지
             previousLocationPermission = currentPermission
 
+            // 위치권한이 해제되었고, 현재 정렬이 "가까운 순"인 경우 "코스 길이 순"으로 변경
+            if !currentPermission && currentSortType == "가까운 순" {
+                currentSortType = "코스 길이 순"
+                // 코스 길이 순으로 다시 정렬
+                applySorting(sortType: "코스 길이 순")
+            }
+
             // 필터셀의 위치권한 상태 업데이트
             if let filterCell = collectionView.cellForItem(at: IndexPath(item: 0, section: 1)) as? WalkingFilterCell {
                 filterCell.updateLocationPermission(currentPermission)
