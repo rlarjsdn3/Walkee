@@ -179,12 +179,7 @@ final class ChatbotViewController: CoreGradientViewController {
 	}
 	
 	private func setupComponents() {
-		// 1) Adapter
-		adapter = ChatbotTableAdapter(tableView: tableView)
-		tableView.dataSource = adapter
-		tableView.delegate = adapter
-
-		// 2) AutoScroll
+		// 1) AutoScroll
 		scroll = ChatAutoScrollManager(
 			tableView: tableView,
 			inputContainer: chattingContainerStackView,
@@ -192,6 +187,11 @@ final class ChatbotViewController: CoreGradientViewController {
 		)
 		scroll.start()
 		scroll.adjustTableInsets()
+		
+		// 2) Adapter
+		adapter = ChatbotTableAdapter(tableView: tableView, scroll: scroll)
+		tableView.dataSource = adapter
+		tableView.delegate = adapter
 
 		// 3) InputBar
 		inputBar = ChatInputBarController(

@@ -102,6 +102,17 @@ class AIResponseCell: CoreTableViewCell {
 		//responseTextView.text = nil
 		responseTextView.attributedText = nil
 		plainBuffer = ""
+		
+		responseTextView.text = nil
+		responseTextView.attributedText = nil
+		
+		// 고정 텍스트 영역 초기화
+		let fixedWidth = ChatbotWidthCalculator.maxContentWidth(for: .aiResponseText)
+		responseTextView.textContainer.size = CGSize(width: fixedWidth, height: .greatestFiniteMagnitude)
+		responseTextView.invalidateIntrinsicContentSize()
+		responseTextView.layoutManager.allowsNonContiguousLayout = false
+		responseTextView.setNeedsLayout()
+		responseTextView.layoutIfNeeded()
 	}
 	
 	private func setupWidthConstraints() {
@@ -263,7 +274,9 @@ class AIResponseCell: CoreTableViewCell {
 		responseTextView.setNeedsLayout()
 		responseTextView.layoutIfNeeded()
 		
-		Task { @MainActor [weak self] in self?.onContentGrew?() }
+		DispatchQueue.main.async { [weak self] in
+			self?.onContentGrew?()
+		}
 	}
 	
 	// MARK: - 타자기 구현

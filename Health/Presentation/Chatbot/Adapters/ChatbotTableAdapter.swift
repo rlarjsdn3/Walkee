@@ -23,8 +23,11 @@ final class ChatbotTableAdapter: NSObject {
 	var streamingTypewriterEnabled: Bool = true
 	var streamingCharDelayNanos: UInt64 = 80_000_000
 	
-	init(tableView: UITableView) {
+	private let scroll: ChatAutoScrollManager
+	
+	init(tableView: UITableView, scroll: ChatAutoScrollManager) {
 		self.tableView = tableView
+		self.scroll = scroll
 		super.init()
 		setupTableView()
 	}
@@ -197,7 +200,7 @@ extension ChatbotTableAdapter: UITableViewDataSource, UITableViewDelegate {
 				cell.charDelayNanos = streamingCharDelayNanos
 			}
 			
-			// Old VC와 동일한 높이 갱신 루프 연결
+			// 동일한 높이 갱신 루프 연결
 			cell.onContentGrew = { [weak self] in
 				guard let self = self else { return }
 				let now = CFAbsoluteTimeGetCurrent()
@@ -208,9 +211,19 @@ extension ChatbotTableAdapter: UITableViewDataSource, UITableViewDelegate {
 					tableView.beginUpdates()
 					tableView.endUpdates()
 				}
+				
+				DispatchQueue.main.asyncAfter(deadline: .now() + 0.016) {
+					Task {
+						await MainActor.run {
+							if self.scroll.mode == .following {
+								self.scroll.scrollToBottomAbsolute(animated: false)
+							}
+						}
+					}
+				}
 			}
 			return cell
-
+			
 		case .loading:
 			// 필요하다면 MessageType.loading을 일반 메시지로도 표시 가능
 			let cell = tableView.dequeueReusableCell(

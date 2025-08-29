@@ -137,17 +137,22 @@ final class ChatAutoScrollManager {
 			return
 		}
 	}
-
+	
 	func scrollToBottomAbsolute(animated: Bool) {
 		guard let tv = tableView else { return }
-		tv.layoutIfNeeded()
-		let insetTop = tv.adjustedContentInset.top
-		let insetBottom = tv.adjustedContentInset.bottom
-		let contentH = tv.contentSize.height
-		let visibleH = tv.bounds.height
-		let minY = -insetTop
-		let maxY = max(minY, contentH - visibleH + insetBottom)
-		tv.setContentOffset(CGPoint(x: 0, y: maxY), animated: animated)
+		Task { @MainActor in
+			tv.layoutIfNeeded()
+			// 다음 RunLoop까지 contentSize 갱신 기다림
+			await Task.yield()
+			
+			let insetTop = tv.adjustedContentInset.top
+			let insetBottom = tv.adjustedContentInset.bottom
+			let contentH = tv.contentSize.height
+			let visibleH = tv.bounds.height
+			let minY = -insetTop
+			let maxY = max(minY, contentH - visibleH + insetBottom)
+			tv.setContentOffset(CGPoint(x: 0, y: maxY), animated: animated)
+		}
 	}
 
 	func isNearBottom(threshold: CGFloat) -> Bool {

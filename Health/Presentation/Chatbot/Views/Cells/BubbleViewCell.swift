@@ -70,6 +70,14 @@ final class BubbleViewCell: CoreTableViewCell {
 	override func prepareForReuse() {
 		super.prepareForReuse()
 		promptMsgLabel.text = nil
+		promptMsgLabel.attributedText = nil
+		
+		let labelWidth = ChatbotWidthCalculator.maxContentWidth(for: .userBubble)
+		promptMsgLabel.preferredMaxLayoutWidth = labelWidth
+		
+		setNeedsLayout()
+		layoutIfNeeded()
+		
 		applyBubbleStyle()
 	}
 
