@@ -7,8 +7,8 @@
 
 import UIKit
 
+@MainActor
 final class ChatStreamRenderer {
-	
 	private weak var tableView: UITableView?
 	private var activeCells: [IndexPath: WeakBox<AIResponseCell>] = [:]
 	
@@ -22,11 +22,9 @@ final class ChatStreamRenderer {
 	
 	func appendStreamingText(_ text: String, at indexPath: IndexPath) {
 		guard let cell = activeCells[indexPath]?.value else { return }
-		
-		// 💡 안전하게 스트리밍 append
 		cell.appendText(text)
 		
-		// 💡 레이아웃 보장 (중요)
+		// Optional: 겹침 현상 방지 위해 레이아웃 강제
 		cell.setNeedsLayout()
 		cell.layoutIfNeeded()
 	}
@@ -56,4 +54,3 @@ final class WeakBox<T: AnyObject> {
 		self.value = value
 	}
 }
-
