@@ -6,37 +6,68 @@
 //
 
 import Foundation
-
-/// 챗봇 기능 전용 Alan SSE 스트리밍 전용, 챗봇 프롬프트 관리 ViewModel.
-/// - NOTE: 일반 질의/리셋은 AlanViewModel이 담당.
-/// - NOTE: 서비스/클라이언트는 프로토콜에 의존해 테스트/모킹이 쉬움.
+/// Alan SSE 기반 챗봇 ViewModel
+///
+/// `ChatbotViewModel`은 Alan API의 SSE(Server-Sent Events) 스트리밍을 활용해
+/// 실시간으로 AI 응답을 수신하고, 마스킹·프롬프트 설계·세션 관리 로직을 캡슐화한다.
+///
+/// ## 개요
+/// - 걷기/보행 건강 주제에 특화된 챗봇 스트리밍 관리
+/// - `PrivacyService`로 민감정보 비식별화 후 서버에 질의
+/// - 500 서버 오류 시 **자동 1회 리셋 후 재시도**
+/// - 401 인증 실패 시 사용자 친화 에러 메시지 매핑
+/// - SSE 이벤트(`action`, `continue`, `complete`)를 UI 콜백으로 전달
+///
+/// ## 주요 역할
+/// - 프롬프트 빌드 및 스트리밍 요청 (`startPromptChatWithAutoReset`)
+/// - 스트리밍 도중 세션 리셋 관리 (`resetAgentState`)
+/// - 화면 종료 시 안전한 정리 (`resetSessionOnExit`)
+/// - 유닛 테스트/디버그 환경을 위한 모킹 응답 지원 (`startMockStreaming`)
+///
+/// ## 사용 예시
+/// ```swift
+/// let viewModel = ChatbotViewModel()
+/// viewModel.onFinalRender = { attributed in
+///     textView.attributedText = attributed
+/// }
+/// viewModel.startPromptChatWithAutoReset("오늘 걸음수는 몇 보야?")
+/// ```
 @MainActor
 final class ChatbotViewModel {
+	// MARK: - Dependencies
 	@Injected private var sseService: AlanSSEServiceProtocol
 	@Injected private var networkService: NetworkService
 	@Injected private var promptBuilderService: PromptBuilderService
-	
+	// MARK: - Output Handlers(UI 콜백)
+	/// AI가 말로 안내하는 텍스트(action 이벤트)
 	var onActionText: ((String) -> Void)?
+	/// 스트리밍 중간 청크(`continue` 이벤트)
 	var onStreamChunk: ((String) -> Void)?
-	var onFinalRender: ((NSAttributedString) -> Void)? 
+	/// 최종 마크다운 렌더링 결과(`complete` 이벤트)
+	var onFinalRender: ((NSAttributedString) -> Void)?
+	/// 최종 plain 텍스트 결과(`complete` 이벤트)
 	var onStreamCompleted: ((String) -> Void)?
+	/// 오류 발생 시 사용자에게 표시할 메시지
 	var onError: ((String) -> Void)?
-	
+	// MARK: - State
 	private var streamTask: Task<Void, Never>?
 	private var didResetInThisCycle = false
 	private var clientID: String { AppConfiguration.clientID }
-	
+	/// SSE 수신 도중 누적되는 버퍼
 	private var streamingBuffer: String = "" // 변경: 스트리밍 버퍼 추가
 	
-	// 중복 reset 방지용
+	/// 중복 reset 방지용 시간 기록
 	private var lastResetAt: ContinuousClock.Instant?
+	/// reset 진행 중 여부
 	private var resetInFlight = false
-	
+	// MARK: - Lifecycle
 	deinit { streamTask?.cancel() }
 	
 	
-	/// 자동 리셋처리 되면서 비식별화와 걷기 프롬프트 설계로 Streaming 요청에 응답
-	/// - Parameter rawMessage: 원문 사용자 요청값 메시지
+	/// 사용자의 원문 메시지를 받아 SSE 스트리밍 요청을 시작한다.
+	///
+	/// - NOTE: 내부적으로 민감정보를 마스킹 처리하고, 프롬프트를 생성한 뒤 Alan SSE API에 연결한다.
+	/// - Parameter rawMessage: 사용자가 입력한 원문 메시지
 	func startPromptChatWithAutoReset(_ rawMessage: String) {
 		streamTask?.cancel()
 		streamingBuffer = ""
@@ -70,7 +101,8 @@ final class ChatbotViewModel {
 	
 	// MARK: - 상황별 reset agent
 	
-	/// 채팅 화면 종료시 안전하게 호출할 리셋 메서드
+	/// 채팅 화면이 닫힐 때 호출되는 세션 정리 메서드.
+	/// - Note: 기존 SSE를 취소하고, 800ms 스로틀을 적용해 reset-state를 호출한다.
 	func resetSessionOnExit() {
 		streamTask?.cancel() // 열려있던 SSE 즉시 취소
 		Log.chat.info("view exit detected > cancel SSE & call reset-state")
@@ -80,8 +112,10 @@ final class ChatbotViewModel {
 		}
 	}
 	
-	/// 서버/화면 종료 등에서 호출되는 리셋
-	/// - Parameter throttle: 지정하면 최근 reset 시각으로부터 주어진 시간 내 호출은 스킵
+	// MARK: - Private Helpers
+	
+	/// Alan API reset-state 호출
+	/// - Parameter throttle: 주어진 기간 내 중복 호출 방지 (예: `.seconds(1)`)
 	private func resetAgentState(throttle: Duration?) async {
 		// 1) 근접 호출 스킵
 		if let t = throttle, let last = lastResetAt, last + t > .now {
@@ -106,7 +140,10 @@ final class ChatbotViewModel {
 			onError?("세션 초기화 실패: \(error.localizedDescription)")
 		}
 	}
-
+	/// SSE 스트리밍을 시작한다.
+	/// - Parameters:
+	///   - content: 서버로 전송할 프롬프트 문자열
+	///   - canRetry: 서버 오류(500) 발생 시 자동 재시도 허용 여부
 	private func _startStreaming(content: String, canRetry: Bool) async {
 		var callComplete = true
 		defer { if callComplete { onStreamCompleted?("") } }
@@ -166,7 +203,9 @@ final class ChatbotViewModel {
 			}
 		}
 	}
-	
+	/// 오류가 재시도 가능한지 판별한다.
+	/// - Parameter error: SSE 에러 객체
+	/// - Returns: 500/ContentType 오류일 경우 true
 	private func isRecoverable(_ error: Error) -> Bool {
 		if let e = error as? AlanSSEClientError {
 			switch e {
@@ -191,6 +230,8 @@ final class ChatbotViewModel {
 	}
 	
 	// MARK: - DEBUG Mock Streaming
+	/// 유닛 테스트/디버그 환경을 위한 모킹 스트리밍
+	/// - Parameter content: 요청 프롬프트(마스킹 후)
 	private func startMockStreaming(_ content: String) {
 		streamTask = Task { [weak self] in
 			guard let self else { return }
