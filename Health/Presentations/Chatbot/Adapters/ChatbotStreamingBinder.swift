@@ -7,24 +7,26 @@
 
 import UIKit
 
-/// ChatbotViewModel 의 스트리밍 콜백을 UI(어댑터/오토스크롤/인풋바)에 연결
+/// `ChatbotViewModel` 스트리밍 이벤트를 UI에 바인딩
+/// - 역할: ViewModel을  `TableAdapter`, `AutoScroll`, `InputBar` 에 연결
 @MainActor
 final class ChatStreamingBinder {
 	private let viewModel: ChatbotViewModel
 	private let adapter: ChatbotTableAdapter
 	private let scroll: ChatAutoScrollManager
 	private let inputBar: ChatInputBarController
-	
+	// MARK: Properties
 	// 스트리밍 각주 제거용 상태 플래그 추가
 	private var inFootnote = false
 	private var pendingOpenBracket = false
-	// 성능 로그
+	// 성능 로그 기록용 속성
 	private var e2eStart: ContinuousClock.Instant?
 	private var ttfbLogged = false
 	
 	private var didFocusAIHeadOnce = false
 	
-	
+	// MARK: Initializer
+	/// ViewModel, Adapter, Scroll, InputBar 의존성 주입
 	init(viewModel: ChatbotViewModel,
 		 adapter: ChatbotTableAdapter,
 		 scroll: ChatAutoScrollManager,
@@ -36,6 +38,7 @@ final class ChatStreamingBinder {
 		bind()
 	}
 	
+	/// ViewModel 콜백을 바인딩
 	private func bind() {
 		viewModel.onActionText = { [weak self] text in
 			guard let self else { return }
@@ -44,6 +47,7 @@ final class ChatStreamingBinder {
 				self.scroll.scrollToBottomAbsolute(animated: false)
 			}
 		}
+		
 		viewModel.onStreamChunk = { [weak self] chunk in
 			guard let self else { return }
 			
@@ -98,7 +102,7 @@ final class ChatStreamingBinder {
 			self.didFocusAIHeadOnce = false
 		}
 	}
-	
+	/// 사용자 입력 시작이 시작되고, User 버블 추가,  로딩 셀,  스크롤 정책 결정되면서  스트리밍 시작
 	func startSend(_ text: String) {
 		if adapter.waitingState != nil || adapter.streamingAIIndex != nil {
 			return
@@ -135,11 +139,12 @@ final class ChatStreamingBinder {
 		
 		viewModel.startPromptChatWithAutoReset(text)
 	}
-	
+	/// 성능 측정 시작
 	private func startE2E() {
 		e2eStart = .now
 		ttfbLogged = false
 	}
+	/// 성능 측정 종료
 	private func endE2E() {
 		guard let t0 = e2eStart else { return }
 		let ms = t0.duration(to: .now).milliseconds
