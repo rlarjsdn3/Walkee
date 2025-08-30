@@ -6,7 +6,17 @@
 //
 
 import UIKit
-
+/// 챗봇 응답 대기 상태를 보여주는 로딩 셀.
+///
+/// - 특징:
+///   - 커스텀 `CustomActivityIndicatorView` 애니메이션 표시
+///   - 응답 대기 메시지(`UILabel`) 함께 출력
+///   - 접근성(`UIAccessibility`) 업데이트 지원
+///
+/// - 주요 메서드:
+///   - ``configure(text:animating:)``: 로딩 메시지와 애니메이션 제어
+///
+/// - Note: 셀 재사용 시 로딩 상태와 텍스트를 초기화하여 안전하게 표시.
 final class LoadingResponseCell: CoreTableViewCell {
 	private let indicator: CustomActivityIndicatorView = {
 		let v = CustomActivityIndicatorView()

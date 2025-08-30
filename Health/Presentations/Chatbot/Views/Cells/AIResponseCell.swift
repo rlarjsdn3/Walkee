@@ -7,7 +7,20 @@
 
 import UIKit
 import os
-
+/// 챗봇의 AI 응답을 표시하는 셀.
+///
+/// - 특징:
+///   - 스트리밍 텍스트를 글자 단위로 표시하는 "타자기 효과" 지원
+///   - `ChatMarkdownRenderer`를 사용한 마크다운 렌더링
+///   - 응답 텍스트 크기에 따라 동적으로 셀 높이 조정
+///
+/// - 주요 메서드:
+///   - ``configure(with:)``: 최종 응답 텍스트로 셀을 구성
+///   - ``appendText(_:)``: SSE 조각 단위 응답을 이어붙임
+///   - ``setTypewriterEnabled(_:)``: 타자기 효과 On/Off
+///   - ``forceFinalize(text:)``: 스트리밍 중단 시 강제로 최종 렌더링
+///
+/// - Note: `onContentGrew` 클로저를 통해 높이 증가 이벤트를 상위 컨트롤러에 알림.
 class AIResponseCell: CoreTableViewCell {
 	@IBOutlet weak var responseTextView: UITextView!
 	@IBOutlet weak var textViewWidthConstraint: NSLayoutConstraint!
@@ -126,14 +139,17 @@ class AIResponseCell: CoreTableViewCell {
 	
 	// MARK: - Public API (컨트롤러가 호출)
 	
-	/// 컨트롤러는 기존처럼 호출
-	/// - during streaming: 셀 재사용 초기 바인딩 시, 비어 있으면 seed만 함(덮어씌우지 않음)
-	/// - on complete: 동일 API로 호출되더라도 내부에서 "최종 렌더링"으로 교체
+	/// 최종 텍스트 구성
+	/// - Parameter text: 완성된 AI 응답 문자열.
+	/// - Note: 내부적으로 마크다운 렌더링 적용.
 	func configure(with text: String) {
 		configure(with: text, isFinal: true) // 완료시 경로. (cellForRow 초기 진입에도 안전함)
 	}
 	
-	/// 필요시 명시적으로 스트리밍 중 초기 seed만 하고 싶다면 isFinal=false로도 호출 가능(컨트롤러 수정 불필요)
+	/// 텍스트 구성 (스트리밍 seed/최종 모드)
+	/// - Parameters:
+	///   - text: 응답 텍스트
+	///   - isFinal: 최종 여부 (false일 땐 seed만 적용)
 	func configure(with text: String, isFinal: Bool) {
 		if !isFinal {
 			// (스트리밍 seed 로직은 유지)
@@ -178,7 +194,10 @@ class AIResponseCell: CoreTableViewCell {
 //		relayoutAfterUpdate()
 	}
 
-	// 스트리밍 "조각"이 올 때 호출 — 타자기 모드면 글자 단위로, 아니면 즉시 추가
+	
+	/// SSE 조각 단위 텍스트 추가
+	/// - Parameter piece: 이어붙일 문자열
+	/// - Note: typewriter 모드 여부에 따라 처리 분기.
 	func appendText(_ piece: String) {
 		guard piece.isEmpty == false else { return }
 		plainBuffer.append(piece)
@@ -191,7 +210,9 @@ class AIResponseCell: CoreTableViewCell {
 			appendAttributedImmediately(chunkAttr)
 		}
 	}
-	
+	/// 타자기 효과 활성/비활성 전환
+	/// - Parameter on: 활성 여부
+	/// - Note: false로 바뀔 땐 남은 큐 즉시 플러시.
 	func setTypewriterEnabled(_ on: Bool) {
 		guard on != typewriterEnabled else { return }
 		typewriterEnabled = on
@@ -251,6 +272,9 @@ class AIResponseCell: CoreTableViewCell {
 		}
 	}
 	
+	/// 스트리밍 도중 강제로 최종 렌더링 처리
+	/// - Parameter text: 최종 문자열
+	/// - Note: SSE가 중단되거나 에러 시 강제 마무리용.
 	@MainActor
 	func forceFinalize(text: String) {
 		// 1) 타자 작업 종료/정리

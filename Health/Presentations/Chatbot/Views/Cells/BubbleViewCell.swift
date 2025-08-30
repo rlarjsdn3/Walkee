@@ -6,7 +6,18 @@
 //
 
 import UIKit
-
+/// 사용자가 입력한 메시지를 말풍선 형태로 표시하는 셀.
+///
+/// - 특징:
+///   - 좌측 정렬된 사용자 발화 버블 스타일
+///   - 다크/라이트 모드에 따라 테두리와 그림자 스타일 자동 적용
+///   - 텍스트 길이에 따른 동적 폭 계산(`updateBubbleWidth(for:)`)
+///
+/// - 주요 메서드:
+///   - ``configure(with:)``: 단순 문자열로 구성
+///   - ``configure(with:)`` (``ChatMessage``): 모델 기반 구성 (user 타입만 처리)
+///
+/// - Note: `preferredMaxLayoutWidth`를 라벨 폭에 맞게 갱신하여 올바른 줄바꿈 유지.
 final class BubbleViewCell: CoreTableViewCell {
 	@IBOutlet weak var bubbleView: UIView!
 	@IBOutlet weak var promptMsgLabel: UILabel!
