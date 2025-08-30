@@ -93,6 +93,7 @@ private extension DistrictDB {
 				indexAll(node: $0, pname: pname)
 			}
 		}
+		
 		func indexAll(node: District, pname: String) {
 			node.children?.forEach {
 				map[$0.name] = pname

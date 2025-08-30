@@ -105,6 +105,7 @@ struct AddressRegionClassifier {
 				break
 			}
 		}
+		
 		if provinceStd == nil {
 			for key in db.nameToProvince.keys.sorted(by: { $0.count > $1.count }) {
 				if let r = text.range(of: key), !isImmediatelyFollowedByPOI(text, after: r) {
@@ -115,6 +116,7 @@ struct AddressRegionClassifier {
 				}
 			}
 		}
+		
 		if provinceStd == nil {
 			for prov in db.provinceNames.sorted(by: { $0.count > $1.count }) {
 				if let r = text.range(of: prov), !isImmediatelyFollowedByPOI(text, after: r) {
@@ -229,7 +231,7 @@ struct AddressRegionClassifier {
 			return out
 		}
 
-		// ── 1) ‘경기+도’, ‘서울+시’ 한 글자 접미 스킵 ────────────────
+		// 1) ‘경기+도’, ‘서울+시’ 한 글자 접미 스킵
 		var afterStart = provinceRange.upperBound
 		if afterStart < text.endIndex {
 			let ch = text[afterStart]
@@ -239,7 +241,7 @@ struct AddressRegionClassifier {
 		let after  = text[afterStart...]
 		let tokens = tokenize(after)
 
-		// ── 2) 스캔: 행정동까지 포함, 그 뒤 꼬리 확장 ────────────────
+		// 2) 스캔: 행정동까지 포함, 그 뒤 꼬리 확장
 		var lastEnd = afterStart
 		var consumed = false
 		var stopIndex: Int? = nil
@@ -368,8 +370,9 @@ struct AddressRegionClassifier {
 			}
 
 			if seenAdministrativeDistrict {
+				// 상세 주소 제거 (1288, 아파트, 건물명, 120동 등)
 				if looksLikeBuildingName(w) || isDetailWord(w) || w.allSatisfy({ $0.isNumber }) {
-					break  // ✅ 상세 꼬리 제거 (1288, 팰리스, 120동 등)
+					break
 				}
 			}
 

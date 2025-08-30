@@ -18,7 +18,7 @@ final class ChatbotViewModel {
 	
 	var onActionText: ((String) -> Void)?
 	var onStreamChunk: ((String) -> Void)?
-	var onFinalRender: ((NSAttributedString) -> Void)? // 변경: 인덱스 추가
+	var onFinalRender: ((NSAttributedString) -> Void)? 
 	var onStreamCompleted: ((String) -> Void)?
 	var onError: ((String) -> Void)?
 	
