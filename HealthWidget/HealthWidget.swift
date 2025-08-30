@@ -7,8 +7,12 @@
 
 import SwiftUI
 import WidgetKit
-
-///  위젯에 필요한 데이터를 공급하는 타임라인 프로바이더
+/// 위젯 타임라인에 공급할 **건강 대시보드 스냅샷**을 제공하는 Provider.
+///
+/// - Note: `SharedStore.loadDashboard()`로 App Group에 저장된 스냅샷을 읽고,
+/// 없으면 `.empty`를 사용한다. 메인 앱이 적절한 시점에
+/// `WidgetCenter.shared.reloadTimelines(ofKind:)`를 호출하면 즉시 갱신된다.
+/// - SeeAlso: ``DashEntry``
 struct Provider: TimelineProvider {
 	typealias Entry = DashEntry
 	
@@ -24,11 +28,14 @@ struct Provider: TimelineProvider {
 		completion(Entry(date: .now, snap: snap))
 	}
 	
-	/// 주기적으로 위젯을 업데이트하기 위한 타임라인 반환
-	/// App Group에서 대시보드 데이터를 읽고, 없으면 `.empty`를 사용
+	/// 위젯을 주기적으로 업데이트하기 위한 **타임라인**을 구성한다.
+	///
 	/// - Parameters:
-	///   - context: 위젯 렌더링 컨텍스트
-	///   - completion: 타임라인을 전달하는 완료 핸들러
+	/// - context: 렌더링 컨텍스트
+	/// - completion: 타임라인(엔트리 배열 + 정책)을 전달하는 완료 핸들러
+	/// - Returns: `completion`을 통해 타임라인을 전달한다.
+	/// - Note: 정책은 `.after(next)`로 설정되어 **약 45분 주기**로 갱신된다.
+	/// 주기 외에도 메인 앱의 `reloadTimelines` 호출 시 즉시 갱신된다.
 	func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> Void) {
 		let snap = SharedStore.loadDashboard() ?? .empty
 		// 주기 갱신(예: 45분 뒤) — 앱이 수시로 reloadTimelines를 쏘면 그때 즉시 갱신됨
@@ -36,17 +43,22 @@ struct Provider: TimelineProvider {
 		completion(Timeline(entries: [Entry(date: .now, snap: snap)], policy: .after(next)))
 	}
 }
-
-/// 위젯이 사용할 타임라인 엔트리
-/// 한 시점의 데이터 스냅샷을 나타냄
+/// 위젯이 표시할 **단일 시점의 데이터 스냅샷**.
+///
+/// - Parameters:
+/// - date: 타임라인 기준 시각
+/// - snap: 대시보드 수치(걸음·거리·운동시간·활동에너지·목표 등)
+/// - SeeAlso: ``Provider``
 struct DashEntry: TimelineEntry {
 	/// 타임라인 갱신 시각
 	let date: Date
 	/// 건강 대시보드 스냅샷
 	let snap: HealthDashboardSnapshot
 }
-
-/// 걸음 및 건강 데이터를 표시하는 위젯 엔트리 포인트
+/// 걸음 및 건강 지표를 렌더링하는 **Widget 엔트리 포인트**.
+///
+/// - Note: 현재 `.systemMedium` 패밀리만 지원한다.
+/// - Important: **투명 배경**을 위해 `.containerBackground(.clear, for: .widget)` 적용.
 @main
 struct HealthWidget: Widget {
 	static let kind = WidgetIDs.health
