@@ -132,10 +132,7 @@ final class ChatAutoScrollManager {
 		// 마지막 행부터 위로 훑어서 '사용자 버블 셀'을 찾는다
 		for row in stride(from: tv.numberOfRows(inSection: 0) - 1, through: 0, by: -1) {
 			let ip = IndexPath(row: row, section: 0)
-			// 오프스크린이어도 rectForRow는 동작하므로, 셀 타입을 직접 확인하지 말고
-			// '버블 셀 식별자'를 Adapter가 tag/접두어로 설정했다면 row 구간 규칙을 사용하거나
-			// 최근 사용자 메시지 인덱스를 Adapter에서 제공받는 편이 더 안전함.
-			// 여기서는 '마지막에서 두 번째가 사용자 버블' 패턴(뒤에 waiting/AI가 붙는 구조)을 기본값으로 사용
+
 			if row >= 1 { self.scroll(to: IndexPath(row: row - 1, section: 0), position: .bottom) ; return }
 		}
 	}

@@ -26,6 +26,8 @@ final class ChatbotTableAdapter: NSObject {
 	var streamingCharDelayNanos: UInt64 = 80_000_000
 	
 	private let scroll: ChatAutoScrollManager
+	private let renderer: ChatStreamRenderer
+	
 	/// TableView와 Scroll 관리자 주입
 	init(
 		tableView: UITableView,
@@ -33,6 +35,7 @@ final class ChatbotTableAdapter: NSObject {
 	) {
 		self.tableView = tableView
 		self.scroll = scroll
+		self.renderer = ChatStreamRenderer(tableView: tableView)
 		super.init()
 		setupTableView()
 	}
@@ -119,10 +122,11 @@ final class ChatbotTableAdapter: NSObject {
 		guard let idx = streamingAIIndex else { return }
 		messages[idx].text.append(chunk)
 		let ip = IndexPath(row: idx, section: 0)
-
-		if let cell = tableView?.cellForRow(at: ip) as? AIResponseCell {
-			cell.appendText(chunk)
+		
+		if tableView?.cellForRow(at: ip) is AIResponseCell {
+			renderer.appendStreamingText(chunk, at: ip)
 		} else {
+			// 화면에 없으면 데이터만 누적하고 필요 시 한 번에 갱신
 			UIView.performWithoutAnimation {
 				tableView?.reloadRows(at: [ip], with: .none)
 			}
@@ -145,14 +149,14 @@ final class ChatbotTableAdapter: NSObject {
 		messages[idx].text = finalText
 		let ip = IndexPath(row: idx, section: 0)
 
-		if let cell = tableView?.cellForRow(at: ip) as? AIResponseCell {
-			//cell.configure(with: finalText, isFinal: true)
-			cell.forceFinalize(text: finalText)
-		} else {
-			UIView.performWithoutAnimation {
-				tableView?.reloadRows(at: [ip], with: .none)
+		if tableView?.cellForRow(at: ip) is AIResponseCell {
+				renderer.finalizeStreamingText(finalText, at: ip)
+			} else {
+				UIView.performWithoutAnimation {
+					tableView?.reloadRows(at: [ip], with: .none)
+				}
 			}
-		}
+		
 		streamingAIIndex = nil
 	}
 	/// 에러 셀 표시
@@ -255,6 +259,22 @@ extension ChatbotTableAdapter: UITableViewDataSource, UITableViewDelegate {
 			cell.configure(text: msg.text, animating: true)
 			return cell
 		}
+	}
+	
+	func tableView(_ tableView: UITableView,
+				   willDisplay cell: UITableViewCell,
+				   forRowAt indexPath: IndexPath) {
+		// 현재 스트리밍 중인 행만 렌더러에 등록
+		if let ai = cell as? AIResponseCell, streamingAIIndex == indexPath.row {
+			renderer.registerStreamingCell(ai, at: indexPath)
+		}
+	}
+
+	func tableView(_ tableView: UITableView,
+				   didEndDisplaying cell: UITableViewCell,
+				   forRowAt indexPath: IndexPath) {
+		// 화면에서 사라지는 순간 스트리밍 연결 해제 (교차오염 방지)
+		renderer.cancelStreaming(at: indexPath)
 	}
 }
 
