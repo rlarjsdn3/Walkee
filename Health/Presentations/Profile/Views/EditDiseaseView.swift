@@ -102,13 +102,12 @@ class EditDiseaseView: CoreView {
         return userDiseases
     }
     
-    // 기존에 저장된 질병들을 설정하고 UI에 선택 상태로 표시하는 메서드
+    /// 기존에 저장된 질병들을 설정하고 UI에 선택 상태로 표시하는 메서드
     func setSelectedDiseases(_ diseases: [Disease]) {
         clearAllSelections()
         
         userDiseases = diseases
         
-        // UI에 선택 상태 반영 (약간의 지연을 주어 collectionView가 준비된 후 실행)
         DispatchQueue.main.async { [weak self] in
             self?.updateCollectionViewSelection()
         }
@@ -131,7 +130,6 @@ class EditDiseaseView: CoreView {
     }
     
     private func updateCollectionViewSelectionIfNeeded() {
-        // userDiseases가 비어있지 않으면 선택 상태 업데이트
         if !userDiseases.isEmpty {
             updateCollectionViewSelection()
         }
@@ -183,8 +181,6 @@ class EditDiseaseView: CoreView {
                     return UIScreen.main.bounds.width > UIScreen.main.bounds.height
                 }
             }()
-            print("Device: \(isPad ? "iPad" : "iPhone")")
-            print("IsLandScape: \(isLandscape)")
             
             
             let rowSpacing: CGFloat = isPad ? 16 : 12

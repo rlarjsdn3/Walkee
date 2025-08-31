@@ -105,8 +105,6 @@ class ProfileViewController: HealthNavigationController, Alertable {
     }
     
     /// 앱이 포어그라운드로 복귀할 때마다 HealthKit 권한을 재확인하도록 옵저버를 등록합니다.
-    ///
-    /// - Important: Swift 6 기준 `MainActor` 격리를 위해 클로저 내부에서 `Task { @MainActor in ... }`로 hop 합니다.
     @MainActor
     private func startForegroundGrantSync() {
         
@@ -137,7 +135,6 @@ class ProfileViewController: HealthNavigationController, Alertable {
         )
     }
     
-    // MARK: - UserDefaults는 쓸지안쓸지 아직모르겠음
     @objc private func switchChanged(_ sender: UISwitch) {
         Task {
             if sender.isOn {
@@ -157,7 +154,7 @@ class ProfileViewController: HealthNavigationController, Alertable {
                 
                 try? await syncStepService.syncSteps()
             } else {
-                // ON -> OFF: 알럿 없이 바로 반영
+                // ON -> OFF: alert 없이 바로 반영
                 UserDefaultsWrapper.shared.healthkitLinked = false
                 updateSectionItemsForHealthSwitch(to: false)
             }
@@ -172,6 +169,17 @@ class ProfileViewController: HealthNavigationController, Alertable {
         }
     }
     
+    /// 앱이 다시 활성화될 때 권한 상태를 재확인하고, 스위치 UI를 동기화하도록 옵저버를 등록합니다.
+    ///
+    /// - 동작 방식:
+    ///   - `UIApplication.didBecomeActiveNotification` 알림을 구독합니다.
+    ///   - 앱이 포그라운드로 전환되면 `recheckGrantAndSyncSwitch(_:)`를 호출하여
+    ///     해당 스위치(`UISwitch`)의 상태를 최신 권한 상태와 동기화합니다.
+    ///
+    /// - Parameter sender: 권한 상태와 동기화를 유지할 대상 스위치.
+    ///
+    /// - Note:
+    ///   - 옵저버는 `NotificationCenter`에 등록되며, 앱 활성화 시마다 실행됩니다.
     private func startGrantRecheckAfterReturning(switch sender: UISwitch) {
         NotificationCenter.default.addObserver(
             forName: UIApplication.didBecomeActiveNotification,

@@ -187,6 +187,18 @@ final class EditStepGoalView: CoreView {
         self.value = defaultValue
     }
     
+    /// 주어진 버튼에 대해 가속 반복 입력(accelerating repeat input)을 시작합니다.
+    ///
+    /// 버튼을 길게 누르고 있는 동안 일정 간격으로 `increase()` 또는 `decrease()`를
+    /// 호출하며, 시간이 지남에 따라 호출 주기가 점차 짧아져 가속 효과를 줍니다.
+    ///
+    /// - Parameters:
+    ///   - button: 가속 입력을 적용할 버튼 (`minusButton`이면 `decrease()`, 그렇지 않으면 `increase()` 실행).
+    ///
+    /// - Note:
+    ///   - 이전에 동작 중이던 가속 입력은 먼저 `stopAccelerating()`으로 중지합니다.
+    ///   - `DispatchSourceTimer`를 사용해 `pollingInterval` 주기로 실행 상태를 확인합니다.
+    ///   - 버튼이 비활성화되면 자동으로 가속 입력을 중지합니다.
     @MainActor
     private func startAccelerating(for button: UIButton) {
         stopAccelerating()
@@ -225,6 +237,10 @@ final class EditStepGoalView: CoreView {
         accelTimer = t
     }
 
+    /// 가속 반복 입력(accelerating repeat input)을 중지합니다.
+    ///
+    /// - 현재 동작 중인 `DispatchSourceTimer`를 취소하고 해제합니다.
+    /// - 가속 입력 대상으로 설정된 버튼(`acceleratingButton`)도 초기화합니다.
     @MainActor
     private func stopAccelerating() {
         accelTimer?.cancel()
