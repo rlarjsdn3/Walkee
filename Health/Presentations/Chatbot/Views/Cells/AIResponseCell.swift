@@ -131,14 +131,18 @@ class AIResponseCell: CoreTableViewCell {
 	private func setupWidthConstraints() {
 		// 디바이스별 최대 너비 설정
 		let maxTextWidth = ChatbotWidthCalculator.maxContentWidth(for: .aiResponseText)
-		// Width 제약을 lessThanOrEqualTo로 설정 (고정값 아님)
-		textViewWidthConstraint.constant = maxTextWidth
-		// Trailing 제약 우선순위 낮게 설정
-		textViewTrailingConstraint.priority = UILayoutPriority(750)
+		// 기존 IBOutlet 제약 비활성화
+		textViewWidthConstraint.isActive = false
+		// maxTextWidth 제약 새로 추가
+		let maxWidthConstraint = responseTextView.widthAnchor
+			.constraint(lessThanOrEqualToConstant: maxTextWidth)
+		maxWidthConstraint.priority = .required
+		maxWidthConstraint.isActive = true
+		
+		textViewTrailingConstraint.priority = .defaultHigh
 	}
 	
 	// MARK: - Public API (컨트롤러가 호출)
-	
 	/// 최종 텍스트 구성
 	/// - Parameter text: 완성된 AI 응답 문자열.
 	/// - Note: 내부적으로 마크다운 렌더링 적용.
@@ -161,37 +165,12 @@ class AIResponseCell: CoreTableViewCell {
 			}
 			return
 		}
-
-			// isFinal일 땐 항상 마크다운으로 재렌더 (조기리턴 금지)
-			plainBuffer = text
-			let rendered = ChatMarkdownRenderer.renderFinalMarkdown(text, trait: traitCollection)
-			responseTextView.attributedText = rendered
-			relayoutAfterUpdate()
-		// 이미 같은 버퍼면 레이아웃만 틱
-//		if plainBuffer == text {
-//			relayoutAfterUpdate()
-//			return
-//		}
-//		
-//		// 스트리밍 중 초기 셀 바인딩(예: cellForRow에서 공백 -> 현재 누적 텍스트)
-//		if !isFinal {
-//			// 초기 진입에서만 seed: 이미 렌더된 내용이 있으면 건드리지 않음
-//			if (responseTextView.attributedText?.length ?? 0) == 0 {
-//				plainBuffer = text
-//				let seeded = ChatMarkdownRenderer.renderChunk(text, trait: traitCollection)
-//				responseTextView.attributedText = seeded
-//				relayoutAfterUpdate()
-//			} else {
-//				// 이미 appendText로 실시간 갱신 중이면 무시
-//			}
-//			return
-//		}
-//		
-//		// 최종 렌더링(complete 시점, 또는 표준 configure 경로)
-//		plainBuffer = text
-//		let rendered = ChatMarkdownRenderer.renderFinalMarkdown(text, trait: traitCollection)
-//		responseTextView.attributedText = rendered
-//		relayoutAfterUpdate()
+		
+		// isFinal일 땐 항상 마크다운으로 재렌더 (조기리턴 금지)
+		plainBuffer = text
+		let rendered = ChatMarkdownRenderer.renderFinalMarkdown(text, trait: traitCollection)
+		responseTextView.attributedText = rendered
+		relayoutAfterUpdate()
 	}
 
 	
