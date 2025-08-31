@@ -295,7 +295,6 @@ class PersonalViewController: HealthNavigationController, Alertable, ScrollableT
             .receive(on: DispatchQueue.main)
             .sink { [weak self] levels in
                 guard !levels.isEmpty else { return }
-                print("ViewController에서 받은 추천 난이도: \(levels)")
                 self?.llmRecommendedLevels = levels
                 self?.updateCoursesWithLLMResults()
             }
@@ -492,12 +491,12 @@ class PersonalViewController: HealthNavigationController, Alertable, ScrollableT
     private func startNetworkMonitoring() {
         networkMonitor.pathUpdateHandler = { [weak self] path in
             Task { @MainActor in
-                self?.isNetworkConnected = (path.status == .satisfied)
-            }
+                guard let self = self else { return }
 
-            if path.status == .satisfied {
-                Task { @MainActor in
-                    self?.recalculateDistances()
+                self.isNetworkConnected = (path.status == .satisfied)
+
+                if path.status == .satisfied {
+                    self.recalculateDistances()
                 }
             }
         }

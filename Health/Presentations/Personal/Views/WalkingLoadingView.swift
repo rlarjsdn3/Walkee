@@ -7,8 +7,13 @@
 
 import UIKit
 
+/// AI 추천 코스 로딩 상태를 표시하는 커스텀 뷰
+///
+/// 이 뷰는 AI가 사용자 맞춤 걷기 코스를 추천하는 동안의 로딩, 실패, 네트워크 오류 상태에 따라
+/// 시각적으로 표현합니다.
 class WalkingLoadingView: UIView {
 
+    /// 로딩 뷰의 현재 상태를 나타내는 열거형
     enum State {
         case loading
         case failed
@@ -30,6 +35,7 @@ class WalkingLoadingView: UIView {
         setupUI()
     }
 
+    /// 로딩 뷰의 UI 요소들을 초기 설정합니다.
     private func setupUI() {
         addSubview(stackView)
         stackView.axis = .horizontal
@@ -62,20 +68,21 @@ class WalkingLoadingView: UIView {
         activityIndicator.color = .systemBlue
     }
 
+    /// 로딩 뷰의 상태를 변경하고 해당 상태에 맞는 UI를 표시합니다.
+    ///
+    /// - Parameter state: 설정할 새로운 상태
     func setState(_ state: State) {
         switch state {
         case .loading:
-            print("   → 로딩 상태로 변경")
             activityIndicator.startAnimating()
             activityIndicator.isHidden = false
             errorImageView.isHidden = true
             messageLabel.text = "AI가 사용자 맞춤 코스를 찾고 있어요.."
 
         case .failed:
-            print("   → 실패 상태로 변경")
             activityIndicator.stopAnimating()
             activityIndicator.isHidden = true
-            errorImageView.isHidden = true // 스택뷰의 이미지는 숨김
+            errorImageView.isHidden = true
 
             let warningIcon = UIImage(systemName: "exclamationmark.circle.fill")?.withTintColor(.systemRed, renderingMode: .alwaysOriginal)
 
@@ -90,7 +97,6 @@ class WalkingLoadingView: UIView {
             messageLabel.attributedText = attributedString
 
         case .networkError:
-            print("   → 네트워크 오류 상태로 변경")
             activityIndicator.stopAnimating()
             activityIndicator.isHidden = true
             errorImageView.isHidden = true

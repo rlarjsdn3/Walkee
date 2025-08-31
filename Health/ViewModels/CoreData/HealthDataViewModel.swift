@@ -7,7 +7,11 @@
 
 import Foundation
 
-final class HealthDataViewModel: ObservableObject {
+/// 건강 데이터를 관리하고 처리하는 ViewModel 클래스
+///
+/// 이 클래스는 HealthKit에서 걸음수, 거리, 칼로리 데이터를 가져와서
+/// UI에서 사용할 수 있도록 가공하는 역할을 담당합니다.
+final class HealthDataViewModel {
 
     // 의존성 주입
     @Injected(.healthService) private var healthService: HealthService
@@ -133,7 +137,6 @@ final class HealthDataViewModel: ObservableObject {
         let hasPermission = await healthService.checkHasAnyReadPermission()
 
         if !hasPermission {
-            print("HealthKit 권한 없음 - 더미 데이터 사용")
             return createResult(thisMonth: dummyThisMonth, lastMonth: dummyLastMonth,
                                 thisMonthStart: thisMonthStart, thisMonthEnd: thisMonthEnd)
         }
@@ -149,7 +152,6 @@ final class HealthDataViewModel: ObservableObject {
             return createResult(thisMonth: thisMonth, lastMonth: lastMonth,
                                 thisMonthStart: thisMonthStart, thisMonthEnd: thisMonthEnd)
         } else {
-            print("실제 데이터 없음 - 더미 데이터 사용")
             return createResult(thisMonth: dummyThisMonth, lastMonth: dummyLastMonth,
                                 thisMonthStart: thisMonthStart, thisMonthEnd: thisMonthEnd)
         }
