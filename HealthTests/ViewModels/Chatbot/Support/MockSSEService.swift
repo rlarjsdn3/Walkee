@@ -8,7 +8,6 @@
 import Foundation
 @testable import Health
 
-
 final class MockSSEService: AlanSSEServiceProtocol {
 	enum Mode {
 		case yield([AlanStreamingResponse])

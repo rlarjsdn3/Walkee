@@ -16,12 +16,12 @@ final class MockPromptBuilderService: PromptBuilderService {
 	) async throws -> String {
 		var parts: [String] = ["[PROMPT]"]
 		
-		if let m = extraInstructions, !m.isEmpty {
-			parts.append("message=\(m)")
+		if let mockPrompt = extraInstructions, !mockPrompt.isEmpty {
+			parts.append("message=\(mockPrompt)")
 		}
-		if let c = context {
+		if let context = context {
 			// 구체 타입 모를 때는 안전하게 String(describing:) 사용
-			parts.append("context=\(String(describing: c))")
+			parts.append("context=\(String(describing: context))")
 		}
 		parts.append("option=\(String(describing: option))")
 		

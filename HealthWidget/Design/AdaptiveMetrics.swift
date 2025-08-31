@@ -6,8 +6,11 @@
 //
 
 import SwiftUI
-
-/// 위젯 컨테이너 크기에 따라 모든 수치를 "비율"로 산출
+/// 위젯 컨테이너 크기(`CGSize`)에 맞춰 **폰트/간격/패딩/바 높이** 등을
+/// 일관된 비율로 산출하는 유틸리티.
+///
+/// - Important: 일부 값은 **요구사항에 따라 고정**(예: 좌/우 패딩 16pt, 행 간격 10pt)으로 둔다.
+/// - Note: iPad·대형 위젯 컨테이너에서도 과도한 확대/축소를 방지하기 위해 `clamp`로 최소/최대값을 제한한다.
 struct AdaptiveMetrics {
 	let size: CGSize
 	private var W: CGFloat { max(size.width, 1) }

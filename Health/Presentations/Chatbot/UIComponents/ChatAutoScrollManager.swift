@@ -6,20 +6,29 @@
 //
 
 import UIKit
-
+/// 채팅 화면 전용 자동 스크롤 매니저
+///
+/// - 역할:
+///   - 키보드 표시/숨김에 따라 안전하게 인셋 조절
+///   - 사용자 스크롤 의도(`manual`) vs 자동 따라가기(`following`) 모드 전환
+///   - 최신 사용자 버블/AI 응답으로 스크롤 보정
 @MainActor
 final class ChatAutoScrollManager {
+	/// 스크롤 모드:  열거형 케이스
 	enum Mode { case following, manual }
-
+	// MARK: Properties
 	private weak var tableView: UITableView?
 	private weak var inputContainer: UIStackView?
 	private weak var bottomConstraint: NSLayoutConstraint?
 
 	private let keyboardObserver = KeyboardObserver()
 	private(set) var currentKeyboardHeight: CGFloat = 0
-
+	/// 현재 스크롤 모드
 	var mode: Mode = .following
-	
+	/// - Parameters:
+	///   - tableView: 채팅 메시지 리스트
+	///   - inputContainer: 입력창 컨테이너 뷰
+	///   - bottomConstraint: 입력창의 bottom constraint
 	init(tableView: UITableView,
 		 inputContainer: UIStackView,
 		 bottomConstraint: NSLayoutConstraint) {
@@ -29,6 +38,7 @@ final class ChatAutoScrollManager {
 	}
 
 	// MARK: Lifecycle
+	/// 키보드 관찰과 팬 제스처 감지를 시작
 	func start() {
 		keyboardObserver.startObserving { [weak self] payload in
 			self?.applyKeyboardChange(payload)
@@ -36,12 +46,14 @@ final class ChatAutoScrollManager {
 		// 사용자가 손으로 위로 스크롤하면 manual로 전환
 		tableView?.panGestureRecognizer.addTarget(self, action: #selector(handlePan))
 	}
+	/// 관찰 중단 및 리소스 해제
 	func stop() {
 		keyboardObserver.stopObserving()
 		tableView?.panGestureRecognizer.removeTarget(self, action: nil)
 	}
 
 	// MARK: Insets
+	/// 입력창/키보드 높이에 맞춰 테이블 인셋 조정
 	func adjustTableInsets() {
 		guard let tv = tableView, let container = inputContainer else { return }
 		let inputH = container.frame.height
@@ -90,6 +102,8 @@ final class ChatAutoScrollManager {
 	}
 	
 	// MARK: Scrolling
+	/// 하단 근처에 있을 때만 최신 행으로 스크롤
+	/// - Parameter force: true면 무조건 바닥까지 스크롤
 	func scrollToBottomIfNeeded(force: Bool = false) {
 		guard let tv = tableView else { return }
 		if currentKeyboardHeight > 0 { return }
@@ -98,7 +112,7 @@ final class ChatAutoScrollManager {
 			if last >= 0 { tv.scrollToRow(at: IndexPath(row: last, section: 0), at: .bottom, animated: true) }
 		}
 	}
-
+	/// 가장 최근 AI 응답 셀의 첫 줄까지 스크롤
 	func scrollToLatestAIFirstLine(animated: Bool) {
 		guard let tv = tableView else { return }
 		// 가장 최근 AI 셀을 찾아 상단에 보이도록 스크롤
@@ -112,7 +126,7 @@ final class ChatAutoScrollManager {
 		}
 	}
 	
-	/// 새 질문 Bubble이 화면에 들어오도록만 보정 (바닥으로 몰지 않음)
+	/// 새 질문 Bubble이 화면에 들어오도록만 보정, 화면 하단으로까지는 내려가지 않는다.
 	func revealLatestUserBubble(animated: Bool) {
 		guard let tv = tableView else { return }
 		// 마지막 행부터 위로 훑어서 '사용자 버블 셀'을 찾는다
@@ -126,7 +140,7 @@ final class ChatAutoScrollManager {
 		}
 	}
 	
-	/// “질문 Bubble + AI 첫 줄”이 동시에 보이도록 살짝만 보정
+	/// 사용자 버블과 AI 첫 줄이 동시에 보이도록 보정
 	func revealLatestUserAndAIFirstLine(animated: Bool) {
 		guard let tv = tableView else { return }
 		// 가장 최근 AI 셀의 첫 줄을 top에 붙이고, 그 '바로 위' 행(대개 사용자 버블)이 함께 보이도록 middle로 보정
@@ -137,7 +151,7 @@ final class ChatAutoScrollManager {
 			return
 		}
 	}
-	
+	/// 채팅창 화면 하단의 절대 위치까지 즉시 스크롤
 	func scrollToBottomAbsolute(animated: Bool) {
 		guard let tv = tableView else { return }
 		Task { @MainActor in
@@ -154,7 +168,9 @@ final class ChatAutoScrollManager {
 			tv.setContentOffset(CGPoint(x: 0, y: maxY), animated: animated)
 		}
 	}
-
+	/// 하단 근접 여부 검사
+	/// - Parameter threshold: 바닥으로부터 임계 거리(px)
+	/// - Returns: true면 바닥에 근접
 	func isNearBottom(threshold: CGFloat) -> Bool {
 		guard let tv = tableView else { return false }
 		let visibleH = tv.bounds.height - tv.adjustedContentInset.top - tv.adjustedContentInset.bottom
@@ -162,7 +178,11 @@ final class ChatAutoScrollManager {
 		let maxVisibleY = offsetY + visibleH
 		return maxVisibleY >= (tv.contentSize.height - threshold)
 	}
-	
+	/// 지정된 행으로 원하는 위치까지 애니메이션 스크롤
+	/// - Parameters:
+	///   - indexPath: 대상 행
+	///   - position: top/middle/bottom
+	///   - duration: 애니메이션 시간
 	func scroll(to indexPath: IndexPath,
 				position: UITableView.ScrollPosition,
 				duration: TimeInterval = 0.35) {
@@ -192,7 +212,9 @@ final class ChatAutoScrollManager {
 }
 
 extension ChatAutoScrollManager {
-	/// 지정한 행으로 원하는 위치(.top/.middle/.bottom)까지 천천히 스크롤
+	/// 비동기 스크롤
+	/// - Note: `duration` 만큼 `await` 후 반환
+	/// 지정한 행으로 원하는 위치(`.top`, `.middle`, `.bottom`)까지 천천히 스크롤
 	func scrollAsync(to indexPath: IndexPath,
 					 position: UITableView.ScrollPosition,
 					 duration: TimeInterval = 0.55) async {

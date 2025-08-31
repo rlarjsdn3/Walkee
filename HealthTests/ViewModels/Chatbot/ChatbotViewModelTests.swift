@@ -10,7 +10,6 @@ import XCTest
 
 @MainActor
 final class ChatbotViewModelTests: XCTestCase {
-
 	private var sut: ChatbotViewModel!
 	private var netSpy: ResetCountingNetworkService!
 	/// 이 테스트에서 오버라이드한 의존성만 복원하는 클로저들
@@ -43,7 +42,6 @@ final class ChatbotViewModelTests: XCTestCase {
 		super.tearDown()
 	}
 	
-	
 	private func preflightResolve() {
 		XCTAssertNotNil(try? DIContainer.shared.resolve(.by(type: NetworkService.self)))
 		XCTAssertNotNil(try? DIContainer.shared.resolve(.by(type: PromptBuilderService.self)))
@@ -75,6 +73,7 @@ final class ChatbotViewModelTests: XCTestCase {
 			.continue("lo"),
 			.complete(" World")
 		]
+		
 		DIContainer.shared.register(type: AlanSSEServiceProtocol.self) { _ in
 			MockSSEService(mode: .yield(events))
 		}
@@ -96,7 +95,7 @@ final class ChatbotViewModelTests: XCTestCase {
 		}
 		
 		// When
-		sut.startPromptChatWithAutoReset("서울시 성동구 성수동1가 718 트리마제 104동  26층 사는 김서현인데 근처 한강 공원이나 걷기 코스 추천해줘")
+		sut.startPromptChatWithAutoReset("서울시 성동구 성수동1가 718 트리마제 104동 26층 사는 김서현인데 근처 한강 공원이나 걷기 코스 추천해줘")
 		
 		// Then
 		await fulfillment(of: [chunkExp, doneExp], timeout: 2.0)
@@ -158,7 +157,7 @@ final class ChatbotViewModelTests: XCTestCase {
 
 		// Then
 		await fulfillment(of: [doneExp], timeout: 3.0)
-		XCTAssertEqual(actionGuide.isEmpty, false)           // “세션 초기화 후 재시도…” 등
+		XCTAssertEqual(actionGuide.isEmpty, false)
 		XCTAssertEqual(final, "OK")
 		// 현재 운영 코드 기준: 같은 사이클 내 reset은 1~2회 허용
 		let resets = netSpy.resetCalledCount - baseline

@@ -6,10 +6,10 @@
 //
 
 import Foundation
-
+/// 대기 셀 상태
+/// - waiting: 로딩 중(인디케이터 표시)
+/// - error: 오류 발생(인디케이터 중단, 오류 문구 표시)
 enum WaitingCellState {
-	// 로딩 중: 인디케이터 ON
 	case waiting(String)
-	// 오류: 인디케이터 OFF
 	case error(String)
 }

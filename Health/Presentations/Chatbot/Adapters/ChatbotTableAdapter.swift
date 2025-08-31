@@ -6,10 +6,12 @@
 //
 
 import UIKit
-
+/// UITableView 데이터소스/델리게이트 어댑터
+/// - User/AI/로딩 메시지를 행 단위로 관리
+/// - 스트리밍 중인 셀 갱신 및 자동 스크롤 처리
 @MainActor
 final class ChatbotTableAdapter: NSObject {
-	// MARK: - State
+	// MARK: - State, Properties
 	private(set) var messages: [ChatMessage] = []
 	private(set) var waitingState: WaitingCellState? = nil
 	private(set) var streamingAIIndex: Int?
@@ -19,13 +21,16 @@ final class ChatbotTableAdapter: NSObject {
 	private var lastRelayoutTS: CFAbsoluteTime = 0
 	private let relayoutMinInterval: CFTimeInterval = 0.05
 	
-	// 스트리밍 타자 옵션
+	// 스트리밍 옵션(속도 등)
 	var streamingTypewriterEnabled: Bool = true
 	var streamingCharDelayNanos: UInt64 = 80_000_000
 	
 	private let scroll: ChatAutoScrollManager
-	
-	init(tableView: UITableView, scroll: ChatAutoScrollManager) {
+	/// TableView와 Scroll 관리자 주입
+	init(
+		tableView: UITableView,
+		scroll: ChatAutoScrollManager
+	) {
 		self.tableView = tableView
 		self.scroll = scroll
 		super.init()
@@ -50,11 +55,12 @@ final class ChatbotTableAdapter: NSObject {
 	}
 
 	// MARK: - Public API
+	/// 사용자 메시지 추가
 	func appendUserMessage(_ text: String) {
 		messages.append(ChatMessage(text: text, type: .user))
 		insertRows([IndexPath(row: messages.count - 1, section: 0)])
 	}
-	
+	/// 로딩 셀 표시
 	func showWaitingCell(initialText: String? = nil) {
 		let fallback = "응답을 생성 중입니다. 조금만 더 기다려주세요.."
 		let text = (initialText?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false)
@@ -78,7 +84,7 @@ final class ChatbotTableAdapter: NSObject {
 		waitingState = .waiting(text)
 		insertRows([IndexPath(row: messages.count, section: 0)])
 	}
-
+	/// 로딩 셀 텍스트 갱신
 	func updateWaitingText(_ text: String) {
 		guard let tv = tableView, case .waiting = waitingState else { return }
 		waitingState = .waiting(text)
@@ -87,7 +93,7 @@ final class ChatbotTableAdapter: NSObject {
 			cell.configure(text: text, animating: true)
 		}
 	}
-
+	/// AI 스트리밍 시작 시 셀 삽입
 	func beginAIStreamingIfNeeded() {
 		guard streamingAIIndex == nil, let tv = tableView else { return }
 
@@ -108,7 +114,7 @@ final class ChatbotTableAdapter: NSObject {
 			cell.configure(with: "", isFinal: false)
 		}
 	}
-
+	/// AI 청크 추가
 	func appendAIChunk(_ chunk: String) {
 		guard let idx = streamingAIIndex else { return }
 		messages[idx].text.append(chunk)
@@ -123,7 +129,7 @@ final class ChatbotTableAdapter: NSObject {
 		}
 	}
 	
-	//최신 User/AI 인덱스 조회(오프스크린이어도 안전)
+	//최신 User, AI 인덱스 조회
 	func indexPathForLatestUser() -> IndexPath? {
 		guard let i = messages.lastIndex(where: { $0.type == .user }) else { return nil }
 		return IndexPath(row: i, section: 0)
@@ -133,7 +139,7 @@ final class ChatbotTableAdapter: NSObject {
 		guard let i = messages.lastIndex(where: { $0.type == .ai }) else { return nil }
 		return IndexPath(row: i, section: 0)
 	}
-
+	/// 최종 응답 완료 처리
 	func finalizeAIResponse(_ finalText: String) {
 		guard let idx = streamingAIIndex else { return }
 		messages[idx].text = finalText
@@ -149,7 +155,7 @@ final class ChatbotTableAdapter: NSObject {
 		}
 		streamingAIIndex = nil
 	}
-
+	/// 에러 셀 표시
 	func finishWithError(_ message: String) {
 		waitingState = .error(message)
 		let ip = IndexPath(row: messages.count, section: 0)
@@ -157,7 +163,7 @@ final class ChatbotTableAdapter: NSObject {
 			cell.configure(text: message, animating: false)
 		}
 	}
-
+	/// 총 행 개수
 	func numberOfRows() -> Int {
 		messages.count + (waitingState != nil ? 1 : 0)
 	}

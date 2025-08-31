@@ -6,7 +6,7 @@
 //
 
 import UIKit
-
+/// 메시지의 타입 (사용자/AI/로딩)
 enum MessageType: Equatable {
 	/// 사용자가 요청하는 프롬프트 메시지
 	case user
@@ -25,16 +25,16 @@ enum MessageType: Equatable {
 		}
 	}
 }
-
+/// 채팅 메시지 단위 모델
+/// - text: 메시지 내용
+/// - type: 메시지 타입
 struct ChatMessage {
 	var text: String
 	let type: MessageType
-	let timestamp: Date
-	
+
 	init(text: String, type: MessageType) {
 		self.text = text
 		self.type = type
-		self.timestamp = Date()
 	}
 }
 

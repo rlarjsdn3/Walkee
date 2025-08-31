@@ -7,23 +7,12 @@
 
 import SwiftUI
 import WidgetKit
-
-// 측정 키
-private struct RightContentWidthKey: PreferenceKey {
-	static var defaultValue: CGFloat = 0
-	static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
-}
-
-private struct WeeklyAvgWidthKey: PreferenceKey {
-	static var defaultValue: CGFloat = 0
-	static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
-}
-
-private struct WeeklyTrailingKey: PreferenceKey {
-	static var defaultValue: CGFloat = 0
-	static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
-}
-
+/// 위젯의 **중형(System Medium)** 레이아웃을 렌더링하는 메인 뷰.
+///
+/// - Important: 텍스트의 우측 정렬 보정과 바(ProgressBar) 트레일링 패딩을
+/// 적응형으로 계산하기 위해 `PreferenceKey`와 `GeometryReader`를 활용한다.
+/// - Parameters:
+/// - snapShot: `HealthDashboardSnapshot` (실시간/주기 동기화된 대시보드 데이터)
 struct HealthDashboardMediumView: View {
 	let snapShot: HealthDashboardSnapshot
 
@@ -222,3 +211,18 @@ struct HealthDashboardMediumView: View {
 	}
 }
 
+// 내부 측정용 PreferenceKey (파일 상단 private struct 들)
+private struct RightContentWidthKey: PreferenceKey {
+	static var defaultValue: CGFloat = 0
+	static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
+}
+
+private struct WeeklyAvgWidthKey: PreferenceKey {
+	static var defaultValue: CGFloat = 0
+	static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
+}
+
+private struct WeeklyTrailingKey: PreferenceKey {
+	static var defaultValue: CGFloat = 0
+	static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
+}
