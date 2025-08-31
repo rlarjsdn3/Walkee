@@ -57,6 +57,23 @@ class OnboardingViewController: CoreGradientViewController, UIScrollViewDelegate
         continueButton.backgroundColor = didReachLastPage ? .accent : .buttonBackground
     }
 
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        traitsConstraint()
+    }
+
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        let page = currentPage
+
+        coordinator.animate(alongsideTransition: { _ in
+            self.scrollView.layoutIfNeeded()
+            let newOffset = CGFloat(page) * self.scrollView.bounds.width
+            self.scrollView.setContentOffset(CGPoint(x: newOffset, y: 0), animated: false)
+        }, completion: nil)
+
+        super.viewWillTransition(to: size, with: coordinator)
+    }
+    
     private func setupScrollView() {
         scrollView.isPagingEnabled = true
         scrollView.showsHorizontalScrollIndicator = false
@@ -84,6 +101,27 @@ class OnboardingViewController: CoreGradientViewController, UIScrollViewDelegate
             stack.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor),
             stack.heightAnchor.constraint(equalTo: scrollView.frameLayoutGuide.heightAnchor)
         ])
+    }
+    
+    private func traitsConstraint() {
+        let isIpad = traitCollection.userInterfaceIdiom == .pad
+        if isIpad {
+            continueButtonLeading?.isActive = false
+            continueButtonTrailing?.isActive = false
+
+            if iPadWidthConstraint == nil {
+                iPadWidthConstraint = continueButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7)
+                iPadCenterXConstraint = continueButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+                iPadWidthConstraint?.isActive = true
+                iPadCenterXConstraint?.isActive = true
+            }
+        } else {
+            iPadWidthConstraint?.isActive = false
+            iPadCenterXConstraint?.isActive = false
+
+            continueButtonLeading?.isActive = true
+            continueButtonTrailing?.isActive = true
+        }
     }
 
     private func setupPages() {
@@ -228,42 +266,7 @@ class OnboardingViewController: CoreGradientViewController, UIScrollViewDelegate
         continueButton.addTarget(self, action: #selector(buttonAction(_:)), for: .touchUpInside)
         continueButton.applyCornerStyle(.medium)
     }
-
-    override func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
-
-        let isIpad = traitCollection.userInterfaceIdiom == .pad
-        if isIpad {
-            continueButtonLeading?.isActive = false
-            continueButtonTrailing?.isActive = false
-
-            if iPadWidthConstraint == nil {
-                iPadWidthConstraint = continueButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7)
-                iPadCenterXConstraint = continueButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
-                iPadWidthConstraint?.isActive = true
-                iPadCenterXConstraint?.isActive = true
-            }
-        } else {
-            iPadWidthConstraint?.isActive = false
-            iPadCenterXConstraint?.isActive = false
-
-            continueButtonLeading?.isActive = true
-            continueButtonTrailing?.isActive = true
-        }
-    }
-
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        let page = currentPage
-
-        coordinator.animate(alongsideTransition: { _ in
-            self.scrollView.layoutIfNeeded()
-            let newOffset = CGFloat(page) * self.scrollView.bounds.width
-            self.scrollView.setContentOffset(CGPoint(x: newOffset, y: 0), animated: false)
-        }, completion: nil)
-
-        super.viewWillTransition(to: size, with: coordinator)
-    }
-
+    
     @IBAction func buttonAction(_ sender: Any) {
         performSegue(withIdentifier: "goToHealthLink", sender: self)
     }
