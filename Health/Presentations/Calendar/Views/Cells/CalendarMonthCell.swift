@@ -1,11 +1,11 @@
 import UIKit
 
+/// 월별 캘린더를 표시하는 컬렉션 뷰 셀
+///
+/// `CalendarMonthCell`은 하나의 월에 해당하는 날짜들을 그리드 형태로 표시하며,
+/// 각 날짜의 걸음 수 데이터와 목표 달성률을 시각화합니다.
 final class CalendarMonthCell: CoreCollectionViewCell {
 
-    /// 월별 캘린더를 표시하는 컬렉션 뷰 셀
-    ///
-    /// `CalendarMonthCell`은 하나의 월에 해당하는 날짜들을 그리드 형태로 표시하며,
-    /// 각 날짜의 걸음 수 데이터와 목표 달성률을 시각화합니다.
     @IBOutlet weak var yearMonthLabel: UILabel!
     @IBOutlet weak var dateCollectionView: UICollectionView!
     @IBOutlet weak var dateCollectionViewHeightConstraint: NSLayoutConstraint!
