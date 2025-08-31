@@ -18,10 +18,10 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="252" verticalCompressionResistancePriority="1000" scrollEnabled="NO" editable="NO" adjustsFontForContentSizeCategory="YES" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GdR-LU-W4w">
-                        <rect key="frame" x="16" y="12" width="261" height="271"/>
+                        <rect key="frame" x="16" y="12" width="310" height="271"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstAttribute="width" relation="lessThanOrEqual" priority="999" constant="310" id="GyU-zV-8eH"/>
+                            <constraint firstAttribute="width" priority="999" constant="310" id="GyU-zV-8eH"/>
                             <constraint firstAttribute="height" relation="greaterThanOrEqual" priority="999" constant="44" id="Hux-Wx-gBV"/>
                         </constraints>
                         <color key="textColor" systemColor="labelColor"/>

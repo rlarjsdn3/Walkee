@@ -39,6 +39,8 @@ class AIResponseCell: CoreTableViewCell {
 	private var chunkQueue: [NSAttributedString] = []
 	private var plainBuffer: String = ""
 	
+	private var maxWidthConstraint: NSLayoutConstraint?
+	
 	override func setupAttribute() {
 		super.setupAttribute()
 		
@@ -54,6 +56,7 @@ class AIResponseCell: CoreTableViewCell {
 		responseTextView.textContainerInset = .zero
 		responseTextView.textContainer.lineBreakMode = .byWordWrapping
 		responseTextView.textContainer.maximumNumberOfLines = 0
+		responseTextView.textContainer.widthTracksTextView = true
 		
 		// 폰트 및 접근성
 		responseTextView.adjustsFontForContentSizeCategory = true
@@ -62,7 +65,7 @@ class AIResponseCell: CoreTableViewCell {
 		// 우선순위 설정 - 높이는 늘어나고, 너비는 제한
 		responseTextView.setContentCompressionResistancePriority(.required, for: .vertical)
 		responseTextView.setContentHuggingPriority(.defaultLow, for: .vertical)
-		responseTextView.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+		responseTextView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
 		responseTextView.setContentHuggingPriority(.defaultLow, for: .horizontal)
 		
 		responseTextView.dataDetectorTypes = []
@@ -128,18 +131,44 @@ class AIResponseCell: CoreTableViewCell {
 		responseTextView.layoutIfNeeded()
 	}
 	
-	private func setupWidthConstraints() {
-		// 디바이스별 최대 너비 설정
-		let maxTextWidth = ChatbotWidthCalculator.maxContentWidth(for: .aiResponseText)
-		// 기존 IBOutlet 제약 비활성화
-		textViewWidthConstraint.isActive = false
-		// maxTextWidth 제약 새로 추가
-		let maxWidthConstraint = responseTextView.widthAnchor
-			.constraint(lessThanOrEqualToConstant: maxTextWidth)
-		maxWidthConstraint.priority = .required
-		maxWidthConstraint.isActive = true
+	override func layoutSubviews() {
+		super.layoutSubviews()
 		
-		textViewTrailingConstraint.priority = .defaultHigh
+		let w = responseTextView.bounds.width
+		if w > 0, responseTextView.textContainer.size.width != w {
+			responseTextView.textContainer.size = CGSize(width: w, height: .greatestFiniteMagnitude)
+			responseTextView.invalidateIntrinsicContentSize()
+			responseTextView.setNeedsLayout()
+		}
+	}
+	
+	private func setupWidthConstraints() {
+		// 1) 기존 XIB width 제약은 비활성
+			textViewWidthConstraint?.isActive = false
+			maxWidthConstraint?.isActive = false
+
+			// 2) 기기/회전별 최대 폭 계산
+			let maxTextWidth = ChatbotWidthCalculator.maxContentWidth(for: .aiResponseText)
+
+			// 3) ≤ 최대폭 제약을 새로 부여 (항상 활성)
+			let c = responseTextView.widthAnchor.constraint(lessThanOrEqualToConstant: maxTextWidth)
+			c.priority = .required
+			c.isActive = true
+			maxWidthConstraint = c
+
+			// 4) trailing 우선순위는 낮게 (좁아질 여지)
+			textViewTrailingConstraint.priority = .defaultHigh
+		// 디바이스별 최대 너비 설정
+//		let maxTextWidth = ChatbotWidthCalculator.maxContentWidth(for: .aiResponseText)
+//		// 기존 IBOutlet 제약 비활성화
+//		textViewWidthConstraint.isActive = false
+//		// maxTextWidth 제약 새로 추가
+//		let maxWidthConstraint = responseTextView.widthAnchor
+//			.constraint(lessThanOrEqualToConstant: maxTextWidth)
+//		maxWidthConstraint.priority = .required
+//		maxWidthConstraint.isActive = true
+//		
+//		textViewTrailingConstraint.priority = .defaultHigh
 	}
 	
 	// MARK: - Public API (컨트롤러가 호출)

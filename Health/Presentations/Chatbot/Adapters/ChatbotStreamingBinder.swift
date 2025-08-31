@@ -43,8 +43,9 @@ final class ChatStreamingBinder {
 		viewModel.onActionText = { [weak self] text in
 			guard let self else { return }
 			self.adapter.updateWaitingText(text)
-			if self.scroll.mode == .following, self.scroll.isNearBottom(threshold: 80) {
-				self.scroll.scrollToBottomAbsolute(animated: false)
+			if self.scroll.mode == .following {
+				//self.scroll.scrollToBottomAbsolute(animated: false)
+				self.scroll.scrollToBottomIfNeeded(force: false)
 			}
 		}
 		
@@ -69,11 +70,21 @@ final class ChatStreamingBinder {
 			if self.didFocusAIHeadOnce == false {
 				self.didFocusAIHeadOnce = true
 				if self.scroll.mode == .manual {
-					self.scroll.revealLatestUserAndAIFirstLine(animated: true)
+					if let userIP = self.adapter.indexPathForLatestUser() {
+						self.scroll.scroll(to: userIP, position: .bottom, duration: 0.25)
+					}
 				} else {
 					self.scroll.scrollToLatestAIFirstLine(animated: true)
 				}
 			}
+//			if self.didFocusAIHeadOnce == false {
+//				self.didFocusAIHeadOnce = true
+//				if self.scroll.mode == .manual {
+//					self.scroll.revealLatestUserAndAIFirstLine(animated: true)
+//				} else {
+//					self.scroll.scrollToLatestAIFirstLine(animated: true)
+//				}
+//			}
 			// 하단 근처일 때만 "꼬리 따라가기"
 			if self.scroll.mode == .following, self.scroll.isNearBottom(threshold: 40) {
 				self.scroll.scrollToBottomAbsolute(animated: false)
@@ -128,8 +139,13 @@ final class ChatStreamingBinder {
 			// 위쪽을 보고 있었다면: 질문 Bubble이 보이도록만
 			scroll.mode = .manual
 			// 배치 업데이트/셀 레이아웃 반영 뒤 안전 스크롤
-			DispatchQueue.main.async {
-				self.scroll.revealLatestUserBubble(animated: true)
+			if let ip = adapter.indexPathForLatestUser() {
+				self.scroll.scroll(to: ip, position: .bottom, duration: 0.35)
+			} else {
+				// 혹시 몰라 안전망
+				DispatchQueue.main.async {
+					self.scroll.revealLatestUserBubble(animated: true)
+				}
 			}
 		}
 		

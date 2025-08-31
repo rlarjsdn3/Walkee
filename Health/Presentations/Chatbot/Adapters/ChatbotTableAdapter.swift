@@ -174,7 +174,7 @@ final class ChatbotTableAdapter: NSObject {
 
 	private func insertRows(_ ips: [IndexPath]) {
 		tableView?.performBatchUpdates {
-			tableView?.insertRows(at: ips, with: .none)
+			tableView?.insertRows(at: ips, with: .fade)
 		}
 	}
 }
@@ -225,7 +225,7 @@ extension ChatbotTableAdapter: UITableViewDataSource, UITableViewDelegate {
 				cell.setTypewriterEnabled(streamingTypewriterEnabled)
 				cell.charDelayNanos = streamingCharDelayNanos
 			}
-			
+			let row = indexPath.row
 			// 동일한 높이 갱신 루프 연결
 			cell.onContentGrew = { [weak self] in
 				guard let self = self else { return }
@@ -241,13 +241,17 @@ extension ChatbotTableAdapter: UITableViewDataSource, UITableViewDelegate {
 				DispatchQueue.main.asyncAfter(deadline: .now() + 0.016) {
 					Task {
 						await MainActor.run {
-							if self.scroll.mode == .following {
-								self.scroll.scrollToBottomAbsolute(animated: false)
+							if self.scroll.mode == .following, self.streamingAIIndex == row {
+								self.scroll.scrollToBottomIfNeeded(force: false)
 							}
 						}
 					}
 				}
 			}
+			
+			cell.contentView.setNeedsLayout()
+			cell.contentView.layoutIfNeeded()
+			
 			return cell
 			
 		case .loading:
@@ -267,6 +271,20 @@ extension ChatbotTableAdapter: UITableViewDataSource, UITableViewDelegate {
 		// 현재 스트리밍 중인 행만 렌더러에 등록
 		if let ai = cell as? AIResponseCell, streamingAIIndex == indexPath.row {
 			renderer.registerStreamingCell(ai, at: indexPath)
+		}
+		
+		// 응답 로딩 셀 자연스러운 애니메이션으로 수정
+		if cell is LoadingResponseCell {
+			cell.alpha = 0
+			cell.transform = CGAffineTransform(translationX: 0, y: 8)
+			UIView.animate(withDuration: 0.28,
+						   delay: 0,
+						   usingSpringWithDamping: 0.92,
+						   initialSpringVelocity: 0.2,
+						   options: [.allowUserInteraction, .curveEaseOut]) {
+				cell.alpha = 1
+				cell.transform = .identity
+			}
 		}
 	}
 
