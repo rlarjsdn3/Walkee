@@ -32,14 +32,10 @@ class RecommendPlaceCell: CoreCollectionViewCell {
     weak var delegate: RecommendPlaceCellDelegate?
     private var currentCourse: WalkingCourse?
 
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        setupTapGesture()
-    }
-
     override func setupAttribute() {
         super.setupAttribute()
         setupInfoButton()
+        setupTapGesture()
         setupSkeletonView()
         BackgroundHeightUtils.setupShadow(for: self)
         BackgroundHeightUtils.setupDarkModeBorder(for: placeBackground)

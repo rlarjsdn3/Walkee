@@ -55,8 +55,6 @@ class AISummaryCell: CoreCollectionViewCell {
         }
     }
 
-    // MARK: - Configuration
-
     func configure(
         with viewModel: AIMonthlySummaryCellViewModel,
         promptBuilderService: any PromptBuilderService
@@ -78,8 +76,6 @@ class AISummaryCell: CoreCollectionViewCell {
             await viewModel.loadMonthlySummary()
         }
     }
-
-    // MARK: - State Handling
 
     private func render(for state: LoadState<AIMonthlySummaryCellViewModel.Content>) {
 

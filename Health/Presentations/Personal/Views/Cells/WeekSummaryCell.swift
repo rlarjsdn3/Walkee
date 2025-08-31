@@ -28,11 +28,11 @@ class WeekSummaryCell: CoreCollectionViewCell {
 
     override func awakeFromNib() {
         super.awakeFromNib()
-        bindViewModel()
     }
 
     override func setupAttribute() {
         super.setupAttribute()
+        bindViewModel()
         BackgroundHeightUtils.setupShadow(for: self)
         BackgroundHeightUtils.setupDarkModeBorder(for: weekBackgroundView)
         weekBackgroundView.applyCornerStyle(.medium)
@@ -57,8 +57,6 @@ class WeekSummaryCell: CoreCollectionViewCell {
             }
             .store(in: &cancellables)
     }
-
-    // MARK: - UI 업데이트
 
     private func updateUI(for state: WeekSummaryCellViewModel.LoadState) {
         switch state {
@@ -97,8 +95,6 @@ class WeekSummaryCell: CoreCollectionViewCell {
         distanceLabel.attributedText = distanceAttrString
     }
 
-    // MARK: - 권한 요청 뷰
-
     private func showPermissionView() {
         if weekBackgroundView.subviews.contains(where: { $0 is PermissionDeniedFullView }) {
             return
@@ -129,9 +125,6 @@ class WeekSummaryCell: CoreCollectionViewCell {
             }
         }
     }
-
-
-    // MARK: - 차트 관련 메서드
 
     // 목표 걸음 수와 함께 차트를 설정합니다
     func configureChart(weeklySteps: [Int]) {
@@ -165,15 +158,13 @@ class WeekSummaryCell: CoreCollectionViewCell {
         ])
     }
 
-    // MARK: - Private Methods
-
-    /// 기존에 추가된 차트를 제거합니다
+    // 기존에 추가된 차트를 제거합니다
     private func removeExistingChart() {
         barChartView?.removeFromSuperview()
         barChartView = nil
     }
 
-    /// 목표 걸음 수를 포함한 차트 데이터를 생성합니다
+    // 목표 걸음 수를 포함한 차트 데이터를 생성합니다
     private func createChartData(from weeklySteps: [Int]) -> BarChartsView.ChartData {
         let calendar = Calendar.current
         let today = Date()
@@ -209,15 +200,15 @@ class WeekSummaryCell: CoreCollectionViewCell {
 
             return BarChartsView.ChartData.Element(
                 value: Double(steps),
-                xLabel: reorderedLabels[displayIndex], // 재배열된 레이블 사용
+                xLabel: reorderedLabels[displayIndex],
                 date: date
             )
         }
 
         return BarChartsView.ChartData(elements: elements)
     }
-    /// 차트의 스타일 설정을 생성합니다
-    /// - Returns: 차트 Configuration
+
+    // 차트의 스타일 설정을 생성
     private func createChartConfiguration() -> BarChartsView.Configuration {
         // 기기별 막대 너비 설정
         let barWidth: CGFloat = UIDevice.current.userInterfaceIdiom == .pad ? 20 : 16

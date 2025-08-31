@@ -8,10 +8,15 @@
 import UIKit
 import MapKit
 
+/// 추천 걷기 코스 데이터를 관리하고 지도 썸네일을 생성하는 서비스 클래스
+///
+/// 이 클래스는 로컬 JSON 파일에서 산책 코스를 로드하고, GPX 파일을 다운로드하여
+/// 지도 썸네일을 생성하는 기능을 제공합니다. 성능 최적화를 위해 다양한 캐시 메커니즘을 사용합니다.
+
 class WalkingCourseService {
     @MainActor static let shared = WalkingCourseService()
 
-    // 썸네일 캐시
+    //썸네일 캐시
     private var thumbnailCache = NSCache<NSString, UIImage>()
     //좌표 캐시
     private var coordinatesCache = NSCache<NSString, NSArray>()
@@ -20,16 +25,23 @@ class WalkingCourseService {
 
     private init() {}
 
-    // 로컬 JSON에서 코스 데이터를 불러오는 함수
+    /// 로컬 JSON 파일에서 산책 코스 데이터를 불러옵니다.
+    ///
+    /// - Returns: 추천 걷기 코스 배열. 파일이 없거나 파싱에 실패하면 빈 배열
+    ///
+    /// ## 동작 방식
+    /// 1. 캐시된 데이터가 있으면 즉시 반환 (성능 최적화)
+    /// 2. Bundle에서 `walkingCourse.json` 파일 찾기
+    /// 3. JSON 파일을 읽어서 `WalkingCourse` 구조체 배열로 변환
+    /// 4. 결과를 캐시에 저장하고 반환
     func loadWalkingCourses() -> [WalkingCourse] {
-        // 이미 로드했으면 캐시된 데이터 반환
+
         if let cachedCourses = coursesCache {
             return cachedCourses
         }
 
         // 1. Bundle에서 JSON 파일 경로 찾기
         guard let path = Bundle.main.path(forResource: "walkingCourse", ofType: "json") else {
-            print(" JSON 파일을 찾을 수 없습니다")
             return []
         }
 
@@ -49,12 +61,19 @@ class WalkingCourseService {
             return localCourses.courses
 
         } catch {
-            print("JSON 파일 읽기 실패: \(error.localizedDescription)")
             return []
         }
     }
 
-    // 좌표 캐싱을 위한 공통 메서드
+    /// GPX URL에서 좌표 데이터를 가져오거나 다운로드합니다.
+    ///
+    /// - Parameter gpxURL: GPX 파일의 URL 문자열
+    /// - Returns: 좌표 배열
+    ///
+    /// ## 캐시 메커니즘
+    /// 1. 캐시에 좌표가 있으면 즉시 반환
+    /// 2. 캐시에 없으면 GPX 파일을 다운로드
+    /// 3. 파싱한 좌표를 캐시에 저장하고 반환
     private func getOrDownloadCoordinates(from gpxURL: String) async -> [CLLocationCoordinate2D] {
         // 좌표 캐시 확인
         if let cachedCoordinates = coordinatesCache.object(forKey: gpxURL as NSString) {
@@ -72,12 +91,20 @@ class WalkingCourseService {
             coordinatesCache.setObject(coordinates as NSArray, forKey: gpxURL as NSString)
             return coordinates
         } catch {
-            print("GPX 다운로드 실패: \(error)")
             return []
         }
     }
 
-    // GPX URL에서 썸네일 생성 (캐시 적용)
+    /// GPX URL에서 지도 썸네일을 비동기로 생성합니다.
+    ///
+    /// - Parameter gpxURL: GPX 파일의 URL 문자열
+    /// - Returns: 생성된 썸네일 이미지 또는 `nil` (실패한 경우)
+    ///
+    /// ## 기능 설명
+    /// - GPX 파일을 다운로드하여 좌표 데이터를 추출
+    /// - 좌표를 기반으로 지도 스냅샷 생성
+    /// - 경로를 파란색 선으로 표시하고 시작점(S), 끝점(E) 마커 추가
+    /// - 생성된 이미지는 자동으로 캐시됨
     func generateThumbnailAsync(from gpxURL: String) async -> UIImage? {
         // 캐시 확인
         if let cachedImage = thumbnailCache.object(forKey: gpxURL as NSString) {
@@ -92,11 +119,12 @@ class WalkingCourseService {
         return image
     }
 
+    /// 캐시된 썸네일 이미지를 즉시 반환합니다.
     func getCachedThumbnail(for gpxURL: String) -> UIImage? {
         return thumbnailCache.object(forKey: gpxURL as NSString)
     }
 
-    //좌표값 다운로드해서 이미지 생성
+    ///좌표값 다운로드해서 이미지를 생성합니다.
     private func downloadAndProcessGPX(urlString: String) async -> UIImage? {
         let coordinates = await getOrDownloadCoordinates(from: urlString)
 
@@ -107,13 +135,26 @@ class WalkingCourseService {
         return await createMapSnapshot(coordinates: coordinates)
     }
 
-    //첫번째 좌표값 가져오기
+    /// GPX 파일의 첫 번째 좌표를 가져옵니다.
+    ///
+    /// - Parameter gpxURL: GPX 파일의 URL 문자열
+    /// - Returns: 첫 번째 좌표 또는 `nil` (파일이 없거나 좌표가 없는 경우)
+    ///
+    /// 산책 코스의 시작 지점을 표시하는 데 사용됩니다.
     func getFirstCoordinate(from gpxURL: String) async -> CLLocationCoordinate2D? {
         let coordinates = await getOrDownloadCoordinates(from: gpxURL)
         return coordinates.first
     }
 
-    //좌표 리스트만 반환
+    /// GPX 데이터에서 좌표 리스트를 파싱합니다.
+    ///
+    /// - Parameter data: GPX 파일의 Data
+    /// - Returns: 파싱된 좌표 배열
+    ///
+    /// ## 파싱 방식
+    /// - 첫 번째 `<trk>` 태그 내의 모든 `<trkpt>` 요소를 추출
+    /// - 정규식을 사용하여 lat, lon 속성값을 파싱
+    /// - 잘못된 좌표값은 자동으로 제외됨
     func parseGPXCoordinates(from data: Data) -> [CLLocationCoordinate2D] {
         var coordinates = [CLLocationCoordinate2D]()
 
@@ -151,12 +192,21 @@ class WalkingCourseService {
                 }
             }
         } catch {
-            print("정규식 에러: \(error)")
+            print(error)
         }
 
         return coordinates
     }
 
+    /// 좌표 배열을 기반으로 지도 스냅샷을 생성합니다.
+    ///
+    /// - Parameter coordinates: 경로를 구성하는 좌표 배열
+    /// - Returns: 생성된 지도 스냅샷 이미지
+    ///
+    /// ## 생성되는 이미지 특징
+    /// - 크기: 300x150 포인트
+    /// - 지도 타입: 표준 지도
+    /// - 경로가 모두 보이도록 자동으로 확대/축소 조정
     private func createMapSnapshot(coordinates: [CLLocationCoordinate2D]) async -> UIImage? {
         guard coordinates.count > 1 else {
             return nil
@@ -189,7 +239,17 @@ class WalkingCourseService {
         }
     }
 
-
+    /// 지도 스냅샷에 경로와 마커를 그립니다.
+    ///
+    /// - Parameters:
+    ///   - snapshot: 기본 지도 스냅샷
+    ///   - coordinates: 경로를 구성하는 좌표 배열
+    /// - Returns: 경로와 마커가 그려진 최종 이미지
+    ///
+    /// ## 그려지는 요소
+    /// - 파란색 경로선 (두께 3포인트)
+    /// - 시작점: 초록색 원에 "S" 텍스트
+    /// - 끝점: 빨간색 원에 "E" 텍스트
     private func drawRouteOnSnapshot(snapshot: MKMapSnapshotter.Snapshot, coordinates: [CLLocationCoordinate2D]) -> UIImage? {
         let image = snapshot.image
 
@@ -271,9 +331,13 @@ class WalkingCourseService {
 }
 
 extension WalkingCourse {
-    // 거리를 Double로 변환하는 계산 프로퍼티
+    /// 거리를 킬로미터 단위의 정수로 변환합니다.
+    ///
+    /// - Returns: 킬로미터 단위의 거리 (정수)
+    ///
+    /// `crsDstnc` 필드가 이미 숫자 문자열이므로 직접 Int로 변환합니다.
+    /// 변환에 실패하면 0을 반환합니다.
     var distanceInKm: Int {
-        // crsDstnc가 이미 숫자 문자열이므로 바로 변환
         return Int(crsDstnc) ?? 0
     }
 }

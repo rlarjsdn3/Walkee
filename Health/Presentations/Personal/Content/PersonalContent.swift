@@ -7,12 +7,6 @@
 
 import UIKit
 
-// 예시 데이터 모델 (실제 프로젝트에 맞게 수정)
-//struct Place: Hashable {
-//    let id = UUID() // 각 아이템을 고유하게 식별하기 위함
-//    let name: String
-//}
-
 enum PersonalContent {
 
     // 섹션 정의
@@ -174,7 +168,6 @@ extension PersonalContent.Section {
             // iPad 세로 & iPhone: 페이징 스크롤
             section.orthogonalScrollingBehavior = .groupPaging
         }
-
         return section
     }
 
@@ -204,7 +197,6 @@ extension PersonalContent.Section {
         section.contentInsets = NSDirectionalEdgeInsets(
             top: 0, leading: 16, bottom: 0, trailing: 16
         )
-
         return section
     }
 
@@ -288,7 +280,7 @@ extension PersonalContent.Section {
             heightDimension: .estimated(200)
         )
         let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
-        
+
         let section = NSCollectionLayoutSection(group: group)
         section.contentInsets = NSDirectionalEdgeInsets(
             top: 20,
@@ -296,7 +288,6 @@ extension PersonalContent.Section {
             bottom: 20,
             trailing: UICollectionViewConstant.defaultInset
         )
-
         return section
     }
 }

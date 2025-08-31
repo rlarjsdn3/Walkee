@@ -10,6 +10,11 @@ import Combine
 import CoreData
 import Network
 
+/// AI 기반 걷기 코스 추천을 관리하는 ViewModel 클래스
+///
+/// 이 클래스는 사용자의 개인 정보(나이, 성별, 키, 몸무게, 질병)를 기반으로
+/// LLM(Large Language Model)에게 적절한 걷기 난이도를 추천받는 기능을 제공합니다.
+/// 네트워크 상태 모니터링과 캐싱을 통해 안정적인 서비스를 제공합니다.
 class LLMRecommendationViewModel: ObservableObject {
 
     @Injected private var promptBuilderService: (any PromptBuilderService)
@@ -28,22 +33,41 @@ class LLMRecommendationViewModel: ObservableObject {
     @Published var recommendedLevels: [String] = []
     @Published var error: Error?
 
+    /// 마지막으로 저장된 사용자 정보의 해시값
+    /// 사용자 정보 변경 감지에 사용
     private var lastUserInfoHash: String? {
         get { UserDefaultsWrapper.shared.lastUserInfoHash }
         set { UserDefaultsWrapper.shared.lastUserInfoHash = newValue }
     }
 
+    /// LLMRecommendationViewModel 초기화
+    ///
+    /// 초기화 시 다음 작업들을 수행합니다:
+    /// - 캐시된 추천 데이터 로드
+    /// - 현재 사용자 정보 해시 저장
+    /// - 네트워크 상태 모니터링 시작
     init() {
         loadCachedRecommendations()
         saveCurrentUserInfoHash()
         startNetworkMonitoring()
     }
 
+    /// 메모리 해제 시 정리 작업
+    ///
+    /// 네트워크 모니터와 노티피케이션 센터 구독을 정리합니다.
     deinit {
         networkMonitor.cancel()
         NotificationCenter.default.removeObserver(self)
     }
 
+    /// 네트워크 상태 모니터링을 시작합니다.
+    ///
+    /// ## 동작 방식
+    /// 1. 네트워크 상태 변화를 실시간으로 감지
+    /// 2. 연결이 복구되면 대기 중이던 요청을 자동으로 재시도
+    ///
+    /// 백그라운드 큐에서 네트워크 상태를 모니터링하고,
+    /// UI 업데이트는 메인 스레드에서 수행합니다.
     private func startNetworkMonitoring() {
         networkMonitor.pathUpdateHandler = { [weak self] path in
             Task { @MainActor in
@@ -61,17 +85,15 @@ class LLMRecommendationViewModel: ObservableObject {
                         await self?.fetchRecommendations()  // 추천 데이터 다시 가져오기
                     }
                 }
-
-                //  네트워크가 끊어진 경우
-                if wasConnected && !isNowConnected {
-                    print("네트워크가 끊어졌습니다.")
-                }
             }
         }
         networkMonitor.start(queue: networkQueue)
     }
 
-    /// 추천 캐시 삭제
+    /// 추천 데이터 캐시를 삭제합니다.
+    ///
+    /// UserDefaults와 메모리에 저장된 추천 데이터를 모두 제거합니다.
+    /// 사용자 정보가 변경되었을 때 호출하여 새로운 추천을 받도록 합니다
     func clearRecommendationCache() {
         // UserDefaults에서 추천 데이터 삭제
         UserDefaultsWrapper.shared.remove(forKey: \.llmRecommendedCourseLevels)
@@ -96,37 +118,51 @@ class LLMRecommendationViewModel: ObservableObject {
         }
     }
 
-    // MARK: - 간단한 변경 감지
-
+    /// 사용자 정보 변경 여부를 확인합니다.
+    ///
+    /// - Returns: 사용자 정보가 변경되었으면 `true`, 변경되지 않았으면 `false`
+    ///
+    /// 현재 사용자 정보의 해시값과 마지막으로 저장된 해시값을 비교하여
+    /// 정보 변경 여부를 빠르게 판단합니다.
     private func hasUserInfoChanged() -> Bool {
         let currentHash = getCurrentUserInfoHash()
         return lastUserInfoHash != currentHash
     }
 
+    /// 현재 사용자 정보의 해시값을 생성합니다.
+    ///
+    /// - Returns: 사용자 정보를 요약한 해시 문자열
+    ///
+    /// ## 해시에 포함되는 정보
+    /// - 나이, 성별, 키, 몸무게
+    /// - 질병 개수 (질병 내용이 변경되면 개수도 변경됨)
+    ///
+    /// 간단한 문자열 조합으로 해시를 생성하여 변경 감지 성능을 최적화합니다.
     private func getCurrentUserInfoHash() -> String {
         do {
             let user = try userService.fetchUserInfo()
             let hash = "\(user.age)-\(user.gender ?? "")-\(user.height)-\(user.weight)-\(user.diseases?.count ?? 0)"
-            print("현재 해시 생성: \(hash)")
             return hash
         } catch {
-            print("해시 생성 에러: \(error)")
             return "error"
         }
     }
 
+    /// 현재 사용자 정보의 해시값을 저장합니다.
+    ///
+    /// 추천을 받아온 시점의 사용자 정보를 기록하여
+    /// 다음에 정보 변경 여부를 확인할 때 비교 기준으로 사용합니다.
     private func saveCurrentUserInfoHash() {
         lastUserInfoHash = getCurrentUserInfoHash()
     }
 
-    // MARK: - Public Methods
 
-    /// 저장된 추천 데이터가 있는지 확인
+    /// 저장된 추천 데이터가 있는지 확인합니다.
     func hasValidRecommendations() -> Bool {
         return !recommendedLevels.isEmpty
     }
 
-    /// LLM에서 새로운 추천 받아오기
+    /// LLM에서 새로운 추천 받아옵니다.
     @MainActor
     func fetchRecommendations() async {
 
@@ -168,18 +204,8 @@ class LLMRecommendationViewModel: ObservableObject {
                 context: context,
                 option: .userLevel
             )
-            // 생성된 프롬프트 출력
-            print("=== 보내는 프롬프트 ===")
-            print(prompt)
-            print("====================")
 
             let response = await sendQuestionWithRetry(prompt)
-            print("응답: \(response ?? "nil")")
-
-            // 받은 응답 출력
-            print("=== 받은 응답 ===")
-            print("응답: \(response ?? "nil")")
-            print("===============")
 
             // 응답이 비어있는지 확인
             guard let response = response, !response.isEmpty else {
@@ -189,6 +215,7 @@ class LLMRecommendationViewModel: ObservableObject {
 
             // LLM 응답을 파싱해서 레벨 정보 추출
             let levels = parseLLMResponse(response)
+            print("추천 받은 난이도: \(levels)")
 
             // 추천 레벨 저장
             recommendedLevels = levels
@@ -204,7 +231,16 @@ class LLMRecommendationViewModel: ObservableObject {
         }
     }
 
-    // 에러 발생시 재시도 로직
+    /// AI 서비스에 질문을 전송하고 실패 시 재시도합니다.
+    ///
+    /// - Parameter prompt: LLM에게 보낼 프롬프트 문자열
+    /// - Returns: AI의 응답 문자열 또는 `nil` (실패한 경우)
+    ///
+    /// ## 재시도 전략
+    /// 1. 첫 번째 시도: 일반적인 질문 전송
+    /// 2. 실패 시: 에이전트 상태 초기화 후 재시도
+    /// 3. 두 번째도 실패 시: `nil` 반환
+    ///
     private func sendQuestionWithRetry(_ prompt: String) async -> String? {
 
         // 첫 번째 시도
@@ -232,16 +268,21 @@ class LLMRecommendationViewModel: ObservableObject {
     private func loadCachedRecommendations() {
         if let savedLevels = UserDefaultsWrapper.shared.llmRecommendedCourseLevels {
             recommendedLevels = savedLevels
-            print("캐시 로드됨: \(savedLevels)")
         }
     }
 
-    // 추천 결과 저장
+    /// 추천 결과 저장
     private func saveRecommendations(_ levels: [String]) {
         UserDefaultsWrapper.shared.llmRecommendedCourseLevels = levels
     }
 
-    /// 걷기 추천을 위한 프롬프트 컨텍스트 생성
+    /// 걷기 추천을 위한 프롬프트 컨텍스트를 생성합니다.
+    ///
+    /// - Parameter userInfo: Core Data에서 가져온 사용자 정보
+    /// - Returns: LLM 프롬프트 생성에 사용할 컨텍스트 객체
+    ///
+    /// 사용자의 개인 정보를 `PromptDescriptor` 형태로 변환하여
+    /// AI가 개인화된 추천을 할 수 있도록 합니다.
     private func createWalkingRecommendationContext(userInfo: UserInfoEntity) -> PromptContext {
         let descriptor = PromptDescriptor(
             age: Int(userInfo.age),
@@ -258,8 +299,11 @@ class LLMRecommendationViewModel: ObservableObject {
         return PromptContext(descriptor: descriptor)
     }
 
-    /// LLM 응답 파싱
-   func parseLLMResponse(_ response: String) -> [String] {
+    /// LLM 응답에서 추천 레벨을 파싱합니다.
+    ///
+    /// - Parameter response: AI로부터 받은 응답 문자열
+    /// - Returns: 추출된 레벨 배열 (1, 2, 3 중 하나 이상)
+    func parseLLMResponse(_ response: String) -> [String] {
         let pattern = "[1-3]"
         let regex = try? NSRegularExpression(pattern: pattern)
         let matches = regex?.matches(in: response, range: NSRange(response.startIndex..., in: response))
@@ -269,7 +313,6 @@ class LLMRecommendationViewModel: ObservableObject {
         } ?? []
 
         let result = levels.isEmpty ? ["1"] : Array(Set(levels)).sorted()
-        print("파싱 완료 - 결과: \(result)")
 
         return result
     }
@@ -279,12 +322,6 @@ class LLMRecommendationViewModel: ObservableObject {
     private func handleError(_ error: Error) async {
         self.error = error
         isErrorHandling = true
-
-        print("=== 에러 정보 ===")
-        print("에러 타입: \(type(of: error))")
-        print("에러 설명: \(error.localizedDescription)")
-        print("현재 네트워크 상태: \(isNetworkConnected ? "연결됨" : "연결 안됨")")
-        print("===============")
 
         // 네트워크 상태에 따라 에러 타입 결정
         if !isNetworkConnected {
@@ -319,7 +356,7 @@ class LLMRecommendationViewModel: ObservableObject {
     }
 }
 
-// MARK: - Error Types
+/// LLM 추천 과정에서 발생할 수 있는 에러 타입들
 enum LLMRecommendationError: Error, LocalizedError {
     case emptyResponse
     case invalidResponse
