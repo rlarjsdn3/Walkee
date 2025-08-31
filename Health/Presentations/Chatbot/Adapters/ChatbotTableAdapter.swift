@@ -26,6 +26,8 @@ final class ChatbotTableAdapter: NSObject {
 	var streamingCharDelayNanos: UInt64 = 80_000_000
 	
 	private let scroll: ChatAutoScrollManager
+	private let renderer: ChatStreamRenderer
+	
 	/// TableView와 Scroll 관리자 주입
 	init(
 		tableView: UITableView,
@@ -33,6 +35,7 @@ final class ChatbotTableAdapter: NSObject {
 	) {
 		self.tableView = tableView
 		self.scroll = scroll
+		self.renderer = ChatStreamRenderer(tableView: tableView)
 		super.init()
 		setupTableView()
 	}
@@ -66,7 +69,7 @@ final class ChatbotTableAdapter: NSObject {
 		let text = (initialText?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false)
 		? initialText! : fallback
 		
-		if let state = waitingState {
+		if waitingState != nil {
 			waitingState = .waiting(text)
 			let ip = IndexPath(row: messages.count, section: 0)
 			if let tv = tableView {
@@ -119,10 +122,11 @@ final class ChatbotTableAdapter: NSObject {
 		guard let idx = streamingAIIndex else { return }
 		messages[idx].text.append(chunk)
 		let ip = IndexPath(row: idx, section: 0)
-
-		if let cell = tableView?.cellForRow(at: ip) as? AIResponseCell {
-			cell.appendText(chunk)
+		
+		if tableView?.cellForRow(at: ip) is AIResponseCell {
+			renderer.appendStreamingText(chunk, at: ip)
 		} else {
+			// 화면에 없으면 데이터만 누적하고 필요 시 한 번에 갱신
 			UIView.performWithoutAnimation {
 				tableView?.reloadRows(at: [ip], with: .none)
 			}
@@ -145,14 +149,14 @@ final class ChatbotTableAdapter: NSObject {
 		messages[idx].text = finalText
 		let ip = IndexPath(row: idx, section: 0)
 
-		if let cell = tableView?.cellForRow(at: ip) as? AIResponseCell {
-			//cell.configure(with: finalText, isFinal: true)
-			cell.forceFinalize(text: finalText)
-		} else {
-			UIView.performWithoutAnimation {
-				tableView?.reloadRows(at: [ip], with: .none)
+		if tableView?.cellForRow(at: ip) is AIResponseCell {
+				renderer.finalizeStreamingText(finalText, at: ip)
+			} else {
+				UIView.performWithoutAnimation {
+					tableView?.reloadRows(at: [ip], with: .none)
+				}
 			}
-		}
+		
 		streamingAIIndex = nil
 	}
 	/// 에러 셀 표시
@@ -170,7 +174,7 @@ final class ChatbotTableAdapter: NSObject {
 
 	private func insertRows(_ ips: [IndexPath]) {
 		tableView?.performBatchUpdates {
-			tableView?.insertRows(at: ips, with: .none)
+			tableView?.insertRows(at: ips, with: .fade)
 		}
 	}
 }
@@ -221,7 +225,7 @@ extension ChatbotTableAdapter: UITableViewDataSource, UITableViewDelegate {
 				cell.setTypewriterEnabled(streamingTypewriterEnabled)
 				cell.charDelayNanos = streamingCharDelayNanos
 			}
-			
+			let row = indexPath.row
 			// 동일한 높이 갱신 루프 연결
 			cell.onContentGrew = { [weak self] in
 				guard let self = self else { return }
@@ -237,13 +241,17 @@ extension ChatbotTableAdapter: UITableViewDataSource, UITableViewDelegate {
 				DispatchQueue.main.asyncAfter(deadline: .now() + 0.016) {
 					Task {
 						await MainActor.run {
-							if self.scroll.mode == .following {
-								self.scroll.scrollToBottomAbsolute(animated: false)
+							if self.scroll.mode == .following, self.streamingAIIndex == row {
+								self.scroll.scrollToBottomIfNeeded(force: false)
 							}
 						}
 					}
 				}
 			}
+			
+			cell.contentView.setNeedsLayout()
+			cell.contentView.layoutIfNeeded()
+			
 			return cell
 			
 		case .loading:
@@ -256,15 +264,44 @@ extension ChatbotTableAdapter: UITableViewDataSource, UITableViewDelegate {
 			return cell
 		}
 	}
+	
+	func tableView(_ tableView: UITableView,
+				   willDisplay cell: UITableViewCell,
+				   forRowAt indexPath: IndexPath) {
+		// 현재 스트리밍 중인 행만 렌더러에 등록
+		if let ai = cell as? AIResponseCell, streamingAIIndex == indexPath.row {
+			renderer.registerStreamingCell(ai, at: indexPath)
+		}
+		
+		// 응답 로딩 셀 자연스러운 애니메이션으로 수정
+		if cell is LoadingResponseCell {
+			cell.alpha = 0
+			cell.transform = CGAffineTransform(translationX: 0, y: 8)
+			UIView.animate(withDuration: 0.28,
+						   delay: 0,
+						   usingSpringWithDamping: 0.92,
+						   initialSpringVelocity: 0.2,
+						   options: [.allowUserInteraction, .curveEaseOut]) {
+				cell.alpha = 1
+				cell.transform = .identity
+			}
+		}
+	}
+
+	func tableView(_ tableView: UITableView,
+				   didEndDisplaying cell: UITableViewCell,
+				   forRowAt indexPath: IndexPath) {
+		// 화면에서 사라지는 순간 스트리밍 연결 해제 (교차오염 방지)
+		renderer.cancelStreaming(at: indexPath)
+	}
 }
 
 @MainActor
 extension ChatbotTableAdapter {
-	
 	func showWaitingCellWithDefault() {
-		
 		showWaitingCell(initialText: "응답을 생성 중입니다. 조금만 더 기다려주세요..")
 	}
+	
 	func finishWithErrorAutoMapped(_ raw: String) {
 		if raw.contains("401") || raw.localizedCaseInsensitiveContains("unauthorized") {
 			finishWithError("인증이 만료되었습니다. 다시 시도해 주세요. (401)")

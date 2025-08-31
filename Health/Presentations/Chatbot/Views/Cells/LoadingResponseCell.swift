@@ -72,7 +72,6 @@ final class LoadingResponseCell: CoreTableViewCell {
 		setNeedsLayout()
 		contentView.setNeedsLayout()
 		contentView.layoutIfNeeded()
-//		Log.ui.debug("LoadingResponseCell.configure text='\(self.messageLabel.text ?? "", privacy: .public)' animation=\(animating, privacy: .public)")
 	}
 
 	// MARK: - CoreTableViewCell hooks
@@ -125,6 +124,5 @@ final class LoadingResponseCell: CoreTableViewCell {
 		indicator.startAnimating()      
 		
 		accessibilityLabel = "로딩 중"
-		//Log.ui.debug("LoadingResponseCell.prepareForReuse - reset complete")
 	}
 }

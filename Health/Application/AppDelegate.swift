@@ -24,9 +24,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		Task {
 			await NetworkMonitor.shared.startMonitoring()
 		}
-
-        // TODO: - 앱 성능 테스트 관련 작업 시작할 때 주석 해제하기
-		//FirebaseApp.configure()
+		
+		FirebaseApp.configure()
 
         DIContainer.shared.registerAllServices()
         

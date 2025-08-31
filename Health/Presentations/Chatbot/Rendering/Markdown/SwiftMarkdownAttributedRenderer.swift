@@ -172,7 +172,6 @@ final class SwiftMarkdownAttributedRenderer {
 			case _ as LineBreak:
 				out.append(NSAttributedString(string: "\n"))
 			case let t as Text:
-//				let clean = t.string.trimmingCharacters(in: CharacterSet(charactersIn: "()."))
 				out.append(NSAttributedString(string: t.string, attributes: [
 					.font: bodyFont()
 				]))

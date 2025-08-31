@@ -118,7 +118,7 @@ final class ChatAutoScrollManager {
 		// 가장 최근 AI 셀을 찾아 상단에 보이도록 스크롤
 		for row in stride(from: tv.numberOfRows(inSection: 0) - 1, through: 0, by: -1) {
 			let ip = IndexPath(row: row, section: 0)
-			if let cell = tv.cellForRow(at: ip) as? AIResponseCell {
+			if  tv.cellForRow(at: ip) is AIResponseCell {
 				tv.layoutIfNeeded()
 				tv.scrollToRow(at: ip, at: .top, animated: animated)
 				return
@@ -131,25 +131,24 @@ final class ChatAutoScrollManager {
 		guard let tv = tableView else { return }
 		// 마지막 행부터 위로 훑어서 '사용자 버블 셀'을 찾는다
 		for row in stride(from: tv.numberOfRows(inSection: 0) - 1, through: 0, by: -1) {
-			let ip = IndexPath(row: row, section: 0)
-			// 오프스크린이어도 rectForRow는 동작하므로, 셀 타입을 직접 확인하지 말고
-			// '버블 셀 식별자'를 Adapter가 tag/접두어로 설정했다면 row 구간 규칙을 사용하거나
-			// 최근 사용자 메시지 인덱스를 Adapter에서 제공받는 편이 더 안전함.
-			// 여기서는 '마지막에서 두 번째가 사용자 버블' 패턴(뒤에 waiting/AI가 붙는 구조)을 기본값으로 사용
-			if row >= 1 { self.scroll(to: IndexPath(row: row - 1, section: 0), position: .bottom) ; return }
+			let _ = IndexPath(row: row, section: 0)
+			
+			if row >= 1 {
+				self.scroll(to: IndexPath(row: row - 1, section: 0), position: .bottom)
+				return
+			}
 		}
 	}
 	
 	/// 사용자 버블과 AI 첫 줄이 동시에 보이도록 보정
 	func revealLatestUserAndAIFirstLine(animated: Bool) {
 		guard let tv = tableView else { return }
-		// 가장 최근 AI 셀의 첫 줄을 top에 붙이고, 그 '바로 위' 행(대개 사용자 버블)이 함께 보이도록 middle로 보정
-		for row in stride(from: tv.numberOfRows(inSection: 0) - 1, through: 0, by: -1) {
-			let ip = IndexPath(row: row, section: 0)
-			// 첫 줄(top) → 살짝 내려 사용자 버블이 같이 들어오게 middle 위치 조정
-			self.scroll(to: ip, position: .top, duration: 0.35)
-			return
-		}
+		let last = tv.numberOfRows(inSection: 0) - 1
+		guard last >= 0 else { return }
+		
+		let upperRow = max(0, last - 1)
+		let ip = IndexPath(row: upperRow, section: 0)
+		self.scroll(to: ip, position: .bottom, duration: animated ? 0.35 : 0)
 	}
 	/// 채팅창 화면 하단의 절대 위치까지 즉시 스크롤
 	func scrollToBottomAbsolute(animated: Bool) {
