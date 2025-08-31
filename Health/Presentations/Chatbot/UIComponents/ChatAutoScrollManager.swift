@@ -149,13 +149,6 @@ final class ChatAutoScrollManager {
 		let upperRow = max(0, last - 1)
 		let ip = IndexPath(row: upperRow, section: 0)
 		self.scroll(to: ip, position: .bottom, duration: animated ? 0.35 : 0)
-		
-//		for row in stride(from: tv.numberOfRows(inSection: 0) - 1, through: 0, by: -1) {
-//			let ip = IndexPath(row: row, section: 0)
-//			// 첫 줄(top) → 살짝 내려 사용자 버블이 같이 들어오게 middle 위치 조정
-//			self.scroll(to: ip, position: .top, duration: 0.35)
-//			return
-//		}
 	}
 	/// 채팅창 화면 하단의 절대 위치까지 즉시 스크롤
 	func scrollToBottomAbsolute(animated: Bool) {

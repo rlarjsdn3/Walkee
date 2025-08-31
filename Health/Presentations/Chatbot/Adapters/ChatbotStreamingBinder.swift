@@ -77,14 +77,7 @@ final class ChatStreamingBinder {
 					self.scroll.scrollToLatestAIFirstLine(animated: true)
 				}
 			}
-//			if self.didFocusAIHeadOnce == false {
-//				self.didFocusAIHeadOnce = true
-//				if self.scroll.mode == .manual {
-//					self.scroll.revealLatestUserAndAIFirstLine(animated: true)
-//				} else {
-//					self.scroll.scrollToLatestAIFirstLine(animated: true)
-//				}
-//			}
+
 			// 하단 근처일 때만 "꼬리 따라가기"
 			if self.scroll.mode == .following, self.scroll.isNearBottom(threshold: 40) {
 				self.scroll.scrollToBottomAbsolute(animated: false)

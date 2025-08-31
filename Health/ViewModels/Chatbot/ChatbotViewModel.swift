@@ -113,7 +113,6 @@ final class ChatbotViewModel {
 	}
 	
 	// MARK: - Private Helpers
-	
 	/// Alan API reset-state 호출
 	/// - Parameter throttle: 주어진 기간 내 중복 호출 방지 (예: `.seconds(1)`)
 	private func resetAgentState(throttle: Duration?) async {
@@ -248,7 +247,6 @@ final class ChatbotViewModel {
 					for e in array { handleMockEvent(e) }
 					return
 				}
-				// 포맷이 맞지 않으면 구형 파일로 폴백
 			}
 
 			// 2) 폴백: 기존 mock_ask_response.json (action + content)

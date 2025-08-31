@@ -177,7 +177,7 @@ final class BubbleViewCell: CoreTableViewCell {
 		let font = promptMsgLabel.font ?? UIFont.preferredFont(forTextStyle: .footnote)
 		let attrs: [NSAttributedString.Key: Any] = [.font: font]
 		
-		// ✅ “한 줄로 섰을 때 최소로 필요한 폭”
+		// 한 줄로 섰을 때 최소로 필요한 폭
 		let singleLine = (text as NSString).size(withAttributes: attrs).width + 32
 		
 		// 기존 멀티라인 측정치

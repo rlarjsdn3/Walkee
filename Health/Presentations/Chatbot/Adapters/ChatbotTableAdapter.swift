@@ -69,7 +69,7 @@ final class ChatbotTableAdapter: NSObject {
 		let text = (initialText?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false)
 		? initialText! : fallback
 		
-		if let state = waitingState {
+		if waitingState != nil {
 			waitingState = .waiting(text)
 			let ip = IndexPath(row: messages.count, section: 0)
 			if let tv = tableView {
@@ -298,11 +298,10 @@ extension ChatbotTableAdapter: UITableViewDataSource, UITableViewDelegate {
 
 @MainActor
 extension ChatbotTableAdapter {
-	
 	func showWaitingCellWithDefault() {
-		
 		showWaitingCell(initialText: "응답을 생성 중입니다. 조금만 더 기다려주세요..")
 	}
+	
 	func finishWithErrorAutoMapped(_ raw: String) {
 		if raw.contains("401") || raw.localizedCaseInsensitiveContains("unauthorized") {
 			finishWithError("인증이 만료되었습니다. 다시 시도해 주세요. (401)")

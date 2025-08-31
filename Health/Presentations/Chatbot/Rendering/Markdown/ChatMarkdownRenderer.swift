@@ -25,7 +25,6 @@ enum ChatMarkdownRenderer {
 		let document = Document(parsing: normalized)
 		
 		// 2) SwiftMarkdownAttributedRenderer를 사용하여 NSAttributedString으로 렌더링
-		// isChunk는 false로 설정하여 최종 렌더링임을 명시하고, 전체 마크다운 요소를 처리하도록 합니다.
 		let renderer = SwiftMarkdownAttributedRenderer(trait: trait, isChunk: false)
 		let attributedString = NSMutableAttributedString(attributedString: renderer.render(document: document))
 
@@ -43,7 +42,8 @@ enum ChatMarkdownRenderer {
 		let paragraph = NSMutableParagraphStyle()
 		paragraph.lineBreakMode = .byWordWrapping
 		paragraph.lineSpacing = 2
-		paragraph.paragraphSpacing = 0 // 청크는 문단 간격 추가하지 않음
+		// 청크는 문단 간격 추가하지 않음
+		paragraph.paragraphSpacing = 0
 		
 		let attrs: [NSAttributedString.Key: Any] = [
 			.font: UIFont.preferredFont(forTextStyle: .body),

@@ -101,7 +101,7 @@ class AIResponseCell: CoreTableViewCell {
 		setupWidthConstraints()
 		Task { @MainActor [weak self] in self?.onContentGrew?() }
 	}
-
+	
 	override func prepareForReuse() {
 		super.prepareForReuse()
 		// 이전 작업 마무리
@@ -144,31 +144,20 @@ class AIResponseCell: CoreTableViewCell {
 	
 	private func setupWidthConstraints() {
 		// 1) 기존 XIB width 제약은 비활성
-			textViewWidthConstraint?.isActive = false
-			maxWidthConstraint?.isActive = false
-
-			// 2) 기기/회전별 최대 폭 계산
-			let maxTextWidth = ChatbotWidthCalculator.maxContentWidth(for: .aiResponseText)
-
-			// 3) ≤ 최대폭 제약을 새로 부여 (항상 활성)
-			let c = responseTextView.widthAnchor.constraint(lessThanOrEqualToConstant: maxTextWidth)
-			c.priority = .required
-			c.isActive = true
-			maxWidthConstraint = c
-
-			// 4) trailing 우선순위는 낮게 (좁아질 여지)
-			textViewTrailingConstraint.priority = .defaultHigh
-		// 디바이스별 최대 너비 설정
-//		let maxTextWidth = ChatbotWidthCalculator.maxContentWidth(for: .aiResponseText)
-//		// 기존 IBOutlet 제약 비활성화
-//		textViewWidthConstraint.isActive = false
-//		// maxTextWidth 제약 새로 추가
-//		let maxWidthConstraint = responseTextView.widthAnchor
-//			.constraint(lessThanOrEqualToConstant: maxTextWidth)
-//		maxWidthConstraint.priority = .required
-//		maxWidthConstraint.isActive = true
-//		
-//		textViewTrailingConstraint.priority = .defaultHigh
+		textViewWidthConstraint?.isActive = false
+		maxWidthConstraint?.isActive = false
+		
+		// 2) 기기/회전별 최대 폭 계산
+		let maxTextWidth = ChatbotWidthCalculator.maxContentWidth(for: .aiResponseText)
+		
+		// 3) 최대폭 제약을 새로 부여 (항상 활성)
+		let constraint = responseTextView.widthAnchor.constraint(lessThanOrEqualToConstant: maxTextWidth)
+		constraint.priority = .required
+		constraint.isActive = true
+		maxWidthConstraint = constraint
+		
+		// 4) trailing 우선순위는 낮게 (좁아질 여지)
+		textViewTrailingConstraint.priority = .defaultHigh
 	}
 	
 	// MARK: - Public API (컨트롤러가 호출)
@@ -201,7 +190,7 @@ class AIResponseCell: CoreTableViewCell {
 		responseTextView.attributedText = rendered
 		relayoutAfterUpdate()
 	}
-
+	
 	
 	/// SSE 조각 단위 텍스트 추가
 	/// - Parameter piece: 이어붙일 문자열
@@ -290,12 +279,12 @@ class AIResponseCell: CoreTableViewCell {
 		typeTask = nil
 		chunkQueue.removeAll()
 		typewriterEnabled = false
-
+		
 		// 2) 최종 마크다운 렌더
 		plainBuffer = text
 		let rendered = ChatMarkdownRenderer.renderFinalMarkdown(text, trait: traitCollection)
 		responseTextView.attributedText = rendered
-
+		
 		// 3) 높이 재계산 트리거
 		relayoutAfterUpdate()
 	}
@@ -328,7 +317,7 @@ class AIResponseCell: CoreTableViewCell {
 			self?.onContentGrew?()
 		}
 	}
-
+	
 	private func enqueueTypewriter(_ piece: String) {
 		// 문자 단위로 큐에 추가
 		charQueue.append(contentsOf: piece.map { String($0) })
