@@ -66,7 +66,6 @@ class BodyInfoViewController: HealthNavigationController, Alertable {
         alert.viewConfiguration.size.width  = .proportional(minimumRatio: w, maximumRatio: w)
         alert.viewConfiguration.size.height = .proportional(minimumRatio: h, maximumRatio: h)
 
-        // 컨텐츠 높이 제약 업데이트
         profileSheetHeightConstraint?.constant = view.bounds.height * h
 
         alert.view.layoutIfNeeded()
@@ -90,13 +89,19 @@ class BodyInfoViewController: HealthNavigationController, Alertable {
         }
     }
     
+    /// 사용자 정보를 가져와 화면(UI)에 반영합니다.
+    ///
+    /// - `userService.fetchUserInfo()`를 통해 현재 사용자 정보를 불러옵니다.
+    /// - 불러오기 전에는 모든 세부 항목(성별, 출생년도, 몸무게, 키, 지병)을 `"-"`로 초기화합니다.
+    /// - 가져온 값이 유효할 경우, 각 항목을 실제 데이터로 채웁니다:
+    /// - 사용자 정보 로드가 실패하면 오류를 로그로 출력합니다.
     @MainActor
     private func fetchUserInfoAndSetupUI() {
         setDetail("-", at: 0) // 성별
         setDetail("-", at: 1) // 출생년도
         setDetail("-", at: 2) // 몸무게
         setDetail("-", at: 3) // 키
-        setDetail("-", at: 4) // 질병
+        setDetail("-", at: 4) // 지병
 
         do {
             let u = try userService.fetchUserInfo()

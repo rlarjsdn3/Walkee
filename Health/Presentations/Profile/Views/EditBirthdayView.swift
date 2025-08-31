@@ -51,6 +51,14 @@ class EditBirthdayView: CoreView {
         ])
     }
     
+    /// 클램핑(clamping)을 통해 주어진 연도를 허용된 범위(`years`) 안으로 제한합니다.
+    ///
+    /// `years` 배열의 첫 번째 값과 마지막 값을 기준으로 연도를 제한합니다.
+    /// - 만약 주어진 값이 범위보다 작으면 최소값으로, 크면 최대값으로 맞춰집니다.
+    /// - 배열이 비어있다면 원래 값(`y`)을 그대로 반환합니다.
+    ///
+    /// - Parameter y: 제한하고자 하는 연도 값.
+    /// - Returns: `years` 배열의 최소~최대 범위 내로 제한된 연도 값.
     private func clampYear(_ y: Int) -> Int {
         guard let first = years.first, let last = years.last else { return y }
         return min(max(y, first), last)
@@ -67,6 +75,12 @@ class EditBirthdayView: CoreView {
         pickerView.translatesAutoresizingMaskIntoConstraints = false
     }
     
+    /// `pickerView`의 기본 선택 상태를 설정합니다.
+    ///
+    /// 현재 선택된 연도(`selectedYear`)가 `years` 배열에 존재한다면,
+    /// 해당 인덱스를 찾아 `pickerView`의 첫 번째 컴포넌트(연도 선택)에 반영합니다.
+    /// - 배열에 값이 존재하지 않으면 아무 동작도 하지 않습니다.
+    ///
     private func setDefaultSelection() {
         if let yearIndex = years.firstIndex(of: selectedYear) {
             pickerView.selectRow(yearIndex, inComponent: 0, animated: false)
