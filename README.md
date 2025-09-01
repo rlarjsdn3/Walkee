@@ -73,38 +73,6 @@ Alan AI가 개인 맞춤형 활동 및 걷기 코스를 추천하는 헬스케�
       <img width="1179" height="2556" alt="profile.png" src="https://github.com/user-attachments/assets/6cc4814f-a5cc-4126-aace-99b69919466a" />  
     </td>
   </tr>
-  <tr>
-    <td align="center" width="16.6%">
-      <span>• 목표 걸음 수 설정</span><br />
-      <span>• 접근 권한 설정</span><br />
-      <span>• 프로필 입력</span><br />
-    </td>
-    <td align="center" width="16.6%">
-      <span>• 걸음 수·칼로리</span><br />
-      <span>• AI 요약 리포트</span><br />
-      <span>• 보행 밸런스 분석</span><br />
-    </td>
-    <td align="center" width="16.6%">
-      <span>• 목표 달성률</span><br />
-      <span>• 일별 대시보드</span><br />
-      <span>• 무한 스크롤</span><br />
-    </td>
-    <td align="center" width="16.6%">
-      <span>• 월간 기록·AI 요약</span><br />
-      <span>• 추천 걷기 코스</span><br />
-      <span>• 위치 기반 거리 계산</span><br />
-    </td>
-    <td align="center" width="16.6%">
-      <span>• 걷기 코스 제안</span><br />
-      <span>• 대화형 분석</span><br />
-      <span>• 개인정보 마스킹</span><br />
-    </td>
-    <td align="center" width="16.6%">
-      <span>• 생체 인증 보안</span><br>
-      <span>• 실시간 권한 동기화</span><br />
-      <span>• 개발자 메일 전송</span><br>
-    </td>
-  </tr>
 </table>
 
 <br />
