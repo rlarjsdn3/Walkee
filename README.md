@@ -7,18 +7,18 @@
 <br />
 <br />
 
-사용자의 걷기 데이터를 HealthKit과 동기화하고,<br />
-Alan AI가 개인 맞춤형 활동 및 걷기 코스를 추천해주는 건강 앱입니다.
+**Walkee**는 HealthKit과 연동된 걷기 데이터를 기반으로<br />
+Alan AI가 개인 맞춤형 활동 및 걷기 코스를 추천하는 헬스케어 앱입니다.
 
 </div>
 
 <br />
 
 ## 📌 프로젝트 개요
-- **HealthKit** 기반 걷기 데이터 수집 및 분석  
-- **Alan AI**를 통한 맞춤형 활동/걷기 추천  
-- **Core Data** 저장소 및 위젯 스냅샷 연계  
-- **사용자 프로필 + 위치 정보** 기반 걷기 코스 추천  
+- **HealthKit** 기반 걷기 데이터 수집 및 분석
+- **Alan AI**를 통한 맞춤형 활동/걷기 추천
+- **Core Data** 기반 데이터 저장 및 WidgetKit 스냅샷 연동
+- **사용자 프로필·위치** 기반 걷기 코스 추천
 
 <br />
 
@@ -26,10 +26,10 @@ Alan AI가 개인 맞춤형 활동 및 걷기 코스를 추천해주는 건강 �
 
 | 기능 | 설명 |
 |------|------|
-| 📊 차트 시각화 | 주간/월간 데이터 그래프, 목표 대비 변화율 표시 |
+| 📊 차트 시각화 | 주간·월간 그래프 및 목표 대비 변화율 |
 | 📅 캘린더 기반 UI | 날짜별 걸음 수, 목표치, 진행률 표시 |
-| 🗺 걷기 코스 추천 | 사용자 신체 정보 + 공공데이터 API + Alan AI 추천 |
-| 🤖 개인 맞춤 분석 | 성별, 키, 몸무게, 질병 여부 기반 Alan AI 분석 |
+| 🗺 걷기 코스 추천 | 공공데이터·신체 정보 기반 AI 코스 추천 |
+| 🤖 개인 맞춤 분석 | 개인 프로필(성별·체형·지병) 기반 AI 분석 |
 | 📱 위젯 | 오늘 걸음 수, 거리, 칼로리, 주간 평균 표시 |
 
 <br />
@@ -51,16 +51,16 @@ Alan AI가 개인 맞춤형 활동 및 걷기 코스를 추천해주는 건강 �
 | **Model** | 데이터 모델 | `UserInfoEntity`, `DailyStepEntity`, `AlanStreamingResponse`, `WalkingCourse` |
 | **Presentation** | UI 화면/컴포넌트 | Calendar, Dashboard, Chatbot, Onboarding, Profile |
 | **Services** | 데이터 서비스 계층 | `HealthService`, `CalendarStepService`, `WalkingCourseService`, `StepSyncService` |
-| **ViewModels** | 뷰모델 (MVVM) | `CalendarViewModel`, `DashboardViewModel`, `UserInfoViewModel`, `AlanViewModel` |
+| **ViewModels** | UI와 서비스 계층을 연결, 데이터 상태 관리 | `CalendarViewModel`, `DashboardViewModel`, `UserInfoViewModel`, `AlanViewModel` |
 
 <br />
 
 ## 🗂 데이터 플로우
-1. **HealthKit** → `DefaultHealthService` → CoreData  
-2. **CoreDataStack** → `CalendarStepService` / `DashboardSnapshotStore`  
-3. **Alan AI** SSE → `AlanStreamingResponse` 파싱 → UI 반영  
-4. **LocationPermissionService** → `WalkingCourseService` → 지도 썸네일 생성  
-5. **SharedStore(AppGroup)** → WidgetKit → 홈화면 위젯 갱신
+1. **HealthKit** ➡️ `DefaultHealthService` ➡️ CoreData  
+2. **CoreDataStack** ➡️ `CalendarStepService` / `DashboardSnapshotStore`  
+3. **Alan AI** SSE ➡️ `AlanStreamingResponse` 파싱 ➡️ UI 반영  
+4. **LocationPermissionService** ➡️ `WalkingCourseService` ➡️ 지도 썸네일 생성  
+5. **SharedStore(AppGroup)** ➡️ WidgetKit ➡️ 홈화면 위젯 갱신
 
 <br />
 
@@ -80,61 +80,59 @@ Alan AI가 개인 맞춤형 활동 및 걷기 코스를 추천해주는 건강 �
 
 | 테스트 대상 | 방식 |
 |-------------|------|
-| CoreDataUserService | Dummy 데이터 기반 단위 테스트 |
+| CoreDataUserService | 더미 데이터 기반 단위 테스트 |
 | DIContainer | 의존성 주입 검증 |
 | HealthService | MockHealthService 활용 |
-| ViewModels | `CalendarViewModelTests`, `LLMRecommendationViewModelTests` 등 |
+| ViewModels | `CalendarViewModelTests` (캘린더 데이터 검증), `LLMRecommendationViewModelTests` (AI 추천 로직 검증) 등 |
 
 <br />
 
-## 📸 화면 예시
+## 📸 주요 화면
 
 <table width="100%">
   <tr>
     <td align="center" width="16.6%">👋 <strong>온보딩</strong></td>
     <td align="center" width="16.6%">📊 <strong>대시보드 탭</strong></td>
     <td align="center" width="16.6%">📅 <strong>캘린더 탭</strong></td>
-    <td align="center" width="16.6%">💡 <strong>맞춤 케어 탭</strong></td>
+    <td align="center" width="16.6%">💡 <strong>맞춤케어 탭</strong></td>
     <td align="center" width="16.6%">🤖 <strong>Alan AI 챗봇</strong></td>
     <td align="center" width="16.6%">👤 <strong>프로필 탭</strong></td>
   </tr>
   <tr>
     <td align="center" width="16.6%">
-      <img width="1179" height="2556" alt="온보딩_설명_3" src="https://github.com/user-attachments/assets/dedd685b-6c9e-40ad-b90f-0922ddd801a6" />
+      <img width="1179" height="2556" alt="onboarding.png" src="https://github.com/user-attachments/assets/dedd685b-6c9e-40ad-b90f-0922ddd801a6" />
     </td>
     <td align="center" width="16.6%">
-      <img width="1179" height="2556" alt="image" src="https://github.com/user-attachments/assets/0f318d75-17ad-4afe-a591-f4118ddaa35d" />
+      <img width="1179" height="2556" alt="dashboard.png" src="https://github.com/user-attachments/assets/0f318d75-17ad-4afe-a591-f4118ddaa35d" />
     </td>
     <td align="center" width="16.6%">
-      <img width="1179" height="2556" alt="캘린더_메인(현재날짜)" src="https://github.com/user-attachments/assets/245ad033-323f-468a-8e1a-c402b4b2827d" />
+      <img width="1179" height="2556" alt="calendar.png" src="https://github.com/user-attachments/assets/245ad033-323f-468a-8e1a-c402b4b2827d" />
     </td>
     <td align="center" width="16.6%">
-      <img width="1179" height="2556" alt="맞춤케어_코스로딩완료" src="https://github.com/user-attachments/assets/9758cc66-ec21-44d7-81fc-87b10904ecd2" />  
+      <img width="1179" height="2556" alt="personal.png" src="https://github.com/user-attachments/assets/9758cc66-ec21-44d7-81fc-87b10904ecd2" />  
     </td>
     <td align="center" width="16.6%">
-      <img width="1179" height="2556" alt="챗봇_요약요청_응답완료" src="https://github.com/user-attachments/assets/4543a9f5-96be-4bef-8f90-6e0a59015f06" />
+      <img width="1179" height="2556" alt="chatbot.png" src="https://github.com/user-attachments/assets/4543a9f5-96be-4bef-8f90-6e0a59015f06" />
     </td>
     <td align="center" width="16.6%">
-      <img width="1179" height="2556" alt="프로필_스위치_On" src="https://github.com/user-attachments/assets/6cc4814f-a5cc-4126-aace-99b69919466a" />  
+      <img width="1179" height="2556" alt="profile.png" src="https://github.com/user-attachments/assets/6cc4814f-a5cc-4126-aace-99b69919466a" />  
     </td>
   </tr>
   <tr>
     <td align="center" width="16.6%">
-      <span>• 건강앱 접근 권한 설정</span><br />
-      <span>• 신체정보 입력</span><br />
-      <span>• 목표 걸음 수 설정</span><br />
+      <span>• 접근 권한 설정</span><br />
+      <span>• 프로필 입력</span><br />
     </td>
     <td align="center" width="16.6%">
-      <span>• 걸음 수, 거리, 칼로리</span><br />
+      <span>• 걸음 수 · 칼로리</span><br />
       <span>• AI 요약 리포트</span><br />
-      <span>• 보행 밸런스 분석</span><br />
     </td>
     <td align="center" width="16.6%">
-      <span>• 일별 걸음 수 표시</span><br />
+      <span>• 목표 달성률</span><br />
       <span>• 일별 대시보드</span><br />
     </td>
     <td align="center" width="16.6%">
-      <span>• 주간/월간 기록 및 AI 요약</span><br />
+      <span>• 월간 기록 · AI 요약</span><br />
       <span>• 추천 걷기 코스</span><br />
     </td>
     <td align="center" width="16.6%">
@@ -142,7 +140,7 @@ Alan AI가 개인 맞춤형 활동 및 걷기 코스를 추천해주는 건강 �
       <span>• 대화형 분석</span><br />
       </td>
     <td align="center" width="16.6%">
-      <span>• 신체 정보와 목표 걸음 수 변경</span><br>
+      <span>• 프로필 설정</span><br>
       <span>• 개발자 메일 전송</span><br>
       </td>
   </tr>
@@ -150,7 +148,7 @@ Alan AI가 개인 맞춤형 활동 및 걷기 코스를 추천해주는 건강 �
 
 <br />
 
-## 👨‍💻 개발진
+## 👨‍💻 팀원
 
 <table width="100%">
   <tr>
@@ -222,5 +220,13 @@ Alan AI가 개인 맞춤형 활동 및 걷기 코스를 추천해주는 건강 �
         <span>haejaejoon</span>
       </a>
     </td>
+  </tr>
+  <tr>
+    <td align="center" width="16.6%">대시보드 탭</td>
+    <td align="center" width="16.6%">Alan AI 챗봇</td>
+    <td align="center" width="16.6%">온보딩</td>
+    <td align="center" width="16.6%">캘린더 탭</td>
+    <td align="center" width="16.6%">맞춤케어 탭</td>
+    <td align="center" width="16.6%">프로필 탭</td>
   </tr>
 </table>
