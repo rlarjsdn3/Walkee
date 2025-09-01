@@ -8,29 +8,125 @@
 <br />
 
 **Walkee**는 HealthKit과 연동된 걷기 데이터를 기반으로<br />
-Alan AI가 개인 맞춤형 활동 및 걷기 코스를 추천하는 헬스케어 앱입니다.
+Alan AI가 개인 맞춤형 활동 및 걷기 코스를 추천하는 헬스케어 앱입니다.<br />
+개인의 건강 상태와 체력 수준을 고려한 맞춤형 걷기 솔루션을 제공하여<br />
+기존 만보기 앱과 달리 AI가 사용자별 최적화된 활동을 제안합니다.
 
 </div>
 
 <br />
 
 ## 📌 프로젝트 개요
-- **HealthKit** 기반 걷기 데이터 수집 및 분석
-- **Alan AI**를 통한 맞춤형 활동/걷기 추천
-- **Core Data** 기반 데이터 저장 및 WidgetKit 스냅샷 연동
-- **사용자 프로필·위치** 기반 걷기 코스 추천
+
+<br />
+
+### 🎯 프로젝트 목적
+현대인들의 운동 부족과 건강 관리에 대한 어려움을 해결하기 위해 개발되었습니다.<br />
+기존의 획일적인 건강 앱들과 달리, 개인의 신체 조건과 건강 상태를 고려한 맞춤형 추천을 제공합니다.
+
+<br />
+
+### 💡 핵심 가치
+- 개인화: 사용자의 성별, 나이, 키, 몸무게, 질병 여부를 종합 분석
+- 지능화: Alan AI를 통한 실시간 건강 상담 및 코스 추천
+- 보안성: Face ID/Touch ID 기반 민감정보 보호
+- 편의성: 실시간 위젯 동기화로 앱 실행 없이도 데이터 확인
+
+<br />
+
+### 🔥 차별점
+- AI 기반 맞춤 분석: 단순 통계가 아닌 개인별 건강 상태 분석
+- 지역 기반 코스 추천: 공공데이터와 실시간 위치 정보를 활용한 실제 걷기 코스 제안
+- 대화형 건강 상담: 걷기 전문 챗봇을 통한 실시간 건강 조언
+- 유연한 목표 관리: 날짜별로 다른 목표 걸음 수 설정 가능
+
+<br />
+
+## 🛠 기술 스택
+
+<br />
+
+### 📱 플랫폼 & 언어
+
+- Target: iOS 15.0+
+- Language: Swift 5.9+
+- IDE: Xcode 14.0+
+
+<br />
+
+### 🏗 아키텍처 & 패턴
+
+- Architecture: MVVM + Clean Architecture
+- Dependency Injection: DIContainer 기반 의존성 관리
+- Concurrency: Swift Concurrency (async/await) 기반 비동기 처리
+
+<br />
+
+###  💾 데이터 & 저장소
+
+- Health Data: HealthKit Framework
+- Local Storage: Core Data
+- Widget Sync: UserDefaults (App Group)
+- Security: Keychain Services + Biometric Authentication
+
+<br />
+
+### 🤖 AI & 외부 서비스
+
+- AI Engine: Alan AI
+- Location: Core Location + Apple Maps Integration
+- Public Data: 공공데이터 포털 API
+
+<br />
+
+### 🎨 UI & 사용자 경험
+
+- UI Framework: UIKit
+- Widget: WidgetKit (실시간 동기화)
+- Charts: Custom Chart Implementation
+- Calendar: Custom Infinite Scroll Calendar UI
 
 <br />
 
 ## ✨ 주요 기능
 
 | 기능 | 설명 |
-|------|------|
-| 📊 차트 시각화 | 주간·월간 그래프 및 목표 대비 변화율 |
-| 📅 캘린더 기반 UI | 날짜별 걸음 수, 목표치, 진행률 표시 |
-| 🗺 걷기 코스 추천 | 공공데이터·신체 정보 기반 AI 코스 추천 |
-| 🤖 개인 맞춤 분석 | 개인 프로필(성별·체형·지병) 기반 AI 분석 |
-| 📱 위젯 | 오늘 걸음 수, 거리, 칼로리, 주간 평균 표시 |
+| -- | -- |
+| 📊 스마트 차트 | 주간·월간 분석 + 나이대별 정상범위 비교 |
+| 📅 유연한 목표 관리 | 날짜별 다른 목표 설정 + 무한 스크롤 캘린더 |
+| 🗺 위치 기반 코스 | 추천현재 위치 거리 계산 + Apple 지도 연동 |
+| 🤖 AI 전문 상담 | 신체 조건 기반 맞춤 분석 + 걷기 전용 챗봇 |
+| 🔒 생체 인증 보안 | Face ID/Touch ID 기반 민감정보 보호 |
+| 📱 실시간 위젯 | 앱 미실행시에도 실시간 걸음 수 동기화 |
+
+<br />
+
+## 🤖 Alan AI 역할
+Alan AI는 Walkee의 핵심 지능화 엔진으로 다음과 같은 역할을 담당합니다.
+
+<br />
+
+### 📋 맞춤형 분석 리포트
+
+- 월간 활동 요약: 걸음 수, 이동 거리 기반 종합 분석 (하루 1회 갱신)
+- 개인별 건강 상담: 성별, 나이, 체형, 질병 여부 고려한 맞춤 조언
+- 나이대별 비교: 동연령대 정상 범위와 사용자 데이터 비교 분석
+
+<br />
+
+### 🗺 스마트 코스 추천
+
+- 난이도별 분류: 사용자 체력에 맞는 어려움·보통·쉬움 코스 제안
+- 거리 기반 정렬: 현재 위치에서 가까운 순 또는 코스 길이순 정렬
+- 상세 정보 제공: 예상 소요시간, 코스 특징, 주의사항 안내
+
+<br />
+
+### 💬 걷기 전문 챗봇
+
+- 실시간 상담: 걷기, 러닝, 트레킹 관련 전문 조언
+- 개인정보 보호: 민감정보 자동 마스킹 처리
+- 외부 링크 연동: 관련 건강 정보 사이트로 Safari 연결
 
 <br />
 
@@ -38,14 +134,14 @@ Alan AI가 개인 맞춤형 활동 및 걷기 코스를 추천하는 헬스케�
 - **DIContainer** 기반 의존성 주입  
 - **MVVM + Service Layer** 구조  
 - **Swift Concurrency (async/await)** 기반 비동기 처리  
-- **App Group(UserDefaults) + WidgetKit** 연계  
+- **App Group(UserDefaults) + WidgetKit** 연계
 
 <br />
 
 ## 🏛 프로젝트 계층 구조
 
 | 계층 | 주요 역할 | 예시 파일 |
-|------|----------|-----------|
+| -- | -- | -- |
 | **Application** | 앱 실행/환경설정 | `AppDelegate`, `SceneDelegate`, `AppConfiguration` |
 | **Core** | 공통 유틸/보안/DI | `DIContainer`, `CoreDataStack`, `KeychainWrapper` |
 | **Model** | 데이터 모델 | `UserInfoEntity`, `DailyStepEntity`, `AlanStreamingResponse`, `WalkingCourse` |
@@ -67,23 +163,44 @@ Alan AI가 개인 맞춤형 활동 및 걷기 코스를 추천하는 헬스케�
 ## 📊 주요 데이터 모델
 
 | 모델 | 설명 |
-|------|------|
+| -- | -- |
 | **UserInfoEntity** | 사용자 프로필 (성별, 나이, 키, 몸무게, 질병) |
 | **DailyStepEntity** | 날짜별 걸음 수 기록 |
-| **GoalStepCountEntity** | 목표 걸음 수 기록 |
+| **GoalStepCountEntity** | 목표 걸음 수 기록 (날짜별 다른 목표 지원) |
 | **HealthDashboardSnapshot** | 위젯/대시보드용 통합 데이터 |
-| **WalkingCourse** | 공공데이터 기반 걷기 코스 |
+| **WalkingCourse** | 공공데이터 기반 걷기 코스 + 거리 계산 |
+
+<br />
+
+## 🎯 세부 기능 특징
+
+<br />
+
+### 📱 사용자 경험
+
+- 단계별 가이드: 온보딩 페이지 완독 후 다음 단계 진행
+- 입력 검증: 허용 범위 초과시 친절한 안내 메시지
+- 햅틱 피드백: 버튼 길게 누르기로 빠른 수치 조정
+- 즉시 반영: 설정 변경사항의 실시간 화면 업데이트
+
+<br />
+
+### 🔐 보안 및 프라이버시
+
+- 생체 인증: 민감한 신체정보 수정시 Face ID/Touch ID 요구
+- 자동 마스킹: 챗봇 사용시 개인정보 자동 비식별화 처리
+- 권한 관리: 데이터별 세분화된 접근 권한 + 시각적 표시
 
 <br />
 
 ## 🧪 테스트
 
 | 테스트 대상 | 방식 |
-|-------------|------|
+| -- | -- |
 | CoreDataUserService | 더미 데이터 기반 단위 테스트 |
 | DIContainer | 의존성 주입 검증 |
 | HealthService | MockHealthService 활용 |
-| ViewModels | `CalendarViewModelTests` (캘린더 데이터 검증), `LLMRecommendationViewModelTests` (AI 추천 로직 검증) 등 |
+| ViewModels | `CalendarViewModelTests` (캘린더 데이터 검증),<br />`LLMRecommendationViewModelTests` (AI 추천 로직 검증) 등 |
 
 <br />
 
@@ -120,29 +237,35 @@ Alan AI가 개인 맞춤형 활동 및 걷기 코스를 추천하는 헬스케�
   </tr>
   <tr>
     <td align="center" width="16.6%">
+      <span>• 목표 걸음 수 설정</span><br />
       <span>• 접근 권한 설정</span><br />
       <span>• 프로필 입력</span><br />
     </td>
     <td align="center" width="16.6%">
       <span>• 걸음 수·칼로리</span><br />
       <span>• AI 요약 리포트</span><br />
+      <span>• 보행 밸런스 분석</span><br />
     </td>
     <td align="center" width="16.6%">
       <span>• 목표 달성률</span><br />
       <span>• 일별 대시보드</span><br />
+      <span>• 무한 스크롤</span><br />
     </td>
     <td align="center" width="16.6%">
       <span>• 월간 기록·AI 요약</span><br />
       <span>• 추천 걷기 코스</span><br />
+      <span>• 위치 기반 거리 계산</span><br />
     </td>
     <td align="center" width="16.6%">
       <span>• 걷기 코스 제안</span><br />
       <span>• 대화형 분석</span><br />
-      </td>
+      <span>• 개인정보 마스킹</span><br />
+    </td>
     <td align="center" width="16.6%">
-      <span>• 프로필 설정</span><br>
-      <span>• 개발자 문의</span><br>
-      </td>
+      <span>• 생체 인증 보안</span><br>
+      <span>• 실시간 권한 동기화</span><br />
+      <span>• 개발자 메일 전송</span><br>
+    </td>
   </tr>
 </table>
 
