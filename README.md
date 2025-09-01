@@ -124,7 +124,7 @@ Alan AI가 개인 맞춤형 활동 및 걷기 코스를 추천하는 헬스케�
       <span>• 프로필 입력</span><br />
     </td>
     <td align="center" width="16.6%">
-      <span>• 걸음 수 · 칼로리</span><br />
+      <span>• 걸음 수·칼로리</span><br />
       <span>• AI 요약 리포트</span><br />
     </td>
     <td align="center" width="16.6%">
@@ -132,7 +132,7 @@ Alan AI가 개인 맞춤형 활동 및 걷기 코스를 추천하는 헬스케�
       <span>• 일별 대시보드</span><br />
     </td>
     <td align="center" width="16.6%">
-      <span>• 월간 기록 · AI 요약</span><br />
+      <span>• 월간 기록·AI 요약</span><br />
       <span>• 추천 걷기 코스</span><br />
     </td>
     <td align="center" width="16.6%">
@@ -141,7 +141,7 @@ Alan AI가 개인 맞춤형 활동 및 걷기 코스를 추천하는 헬스케�
       </td>
     <td align="center" width="16.6%">
       <span>• 프로필 설정</span><br>
-      <span>• 개발자 메일 전송</span><br>
+      <span>• 개발자 문의</span><br>
       </td>
   </tr>
 </table>
