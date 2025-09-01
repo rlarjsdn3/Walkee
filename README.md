@@ -2,6 +2,8 @@
 
 # Walkee
 
+<br />
+
 <img width="150" alt="appIcon_light" src="https://github.com/user-attachments/assets/bddadda1-3e0b-4afd-9e5f-b93d2c30988c" />
 
 <br />
@@ -44,6 +46,8 @@ Alan AI가 개인 맞춤형 활동 및 걷기 코스를 추천하는 헬스케�
 
 ## 📸 주요 화면
 
+<br />
+
 <table width="100%">
   <tr>
     <td align="center" width="16.6%">👋 <strong>온보딩</strong></td>
@@ -78,6 +82,8 @@ Alan AI가 개인 맞춤형 활동 및 걷기 코스를 추천하는 헬스케�
 <br />
 
 ## ✨ 주요 기능
+
+<br />
 
 | 기능 | 설명 |
 | -- | -- |
@@ -188,6 +194,8 @@ Alan AI는 Walkee의 핵심 지능화 엔진으로 다음과 같은 역할을 �
 
 ## 🏛 프로젝트 계층 구조
 
+<br />
+
 | 계층 | 주요 역할 | 예시 파일 |
 | -- | -- | -- |
 | **Application** | 앱 실행/환경설정 | `AppDelegate`, `SceneDelegate`, `AppConfiguration` |
@@ -201,6 +209,8 @@ Alan AI는 Walkee의 핵심 지능화 엔진으로 다음과 같은 역할을 �
 
 ## 📊 주요 데이터 모델
 
+<br />
+
 | 모델 | 설명 |
 | -- | -- |
 | **UserInfoEntity** | 사용자 프로필 (성별, 나이, 키, 몸무게, 질병) |
@@ -212,6 +222,9 @@ Alan AI는 Walkee의 핵심 지능화 엔진으로 다음과 같은 역할을 �
 <br />
 
 ## 🗂 데이터 플로우
+
+<br />
+
 1. **HealthKit** ➡️ `DefaultHealthService` ➡️ CoreData  
 2. **CoreDataStack** ➡️ `CalendarStepService` / `DashboardSnapshotStore`  
 3. **Alan AI** SSE ➡️ `AlanStreamingResponse` 파싱 ➡️ UI 반영  
@@ -221,6 +234,8 @@ Alan AI는 Walkee의 핵심 지능화 엔진으로 다음과 같은 역할을 �
 <br />
 
 ## 🧪 테스트
+
+<br />
 
 | 테스트 대상 | 방식 |
 | -- | -- |
@@ -232,6 +247,8 @@ Alan AI는 Walkee의 핵심 지능화 엔진으로 다음과 같은 역할을 �
 <br />
 
 ## 👨‍💻 팀원
+
+<br />
 
 <table width="100%">
   <tr>
